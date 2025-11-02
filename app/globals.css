@@ -125,8 +125,6 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    /* Disable text selection and callouts on mobile */
-    -webkit-touch-callout: none;
   }
   html {
     scroll-behavior: smooth;
@@ -140,16 +138,26 @@
     overscroll-behavior: none;
     /* Prevent pull-to-refresh bounce on iOS */
     -webkit-overflow-scrolling: touch;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
   }
   
-  /* Disable pinch zoom */
-  @media (pointer: coarse) {
-    * {
-      touch-action: pan-y;
-    }
+  /* Allow all touch interactions for buttons and interactive elements */
+  button,
+  a,
+  input,
+  textarea,
+  select,
+  [role="button"],
+  [role="link"] {
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  /* Allow text selection in inputs and textareas */
+  input,
+  textarea {
+    -webkit-user-select: text;
+    user-select: text;
   }
 }
