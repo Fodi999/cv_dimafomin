@@ -146,14 +146,15 @@ export default function Portfolio() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
               {portfolioImages.map((image, index) => (
                 <motion.div
                   key={image.id}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={inView ? { opacity: 1, scale: 1 } : {}}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.5, delay: index * 0.05 }}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
                   className="cursor-pointer"
                   onClick={() => setSelectedImage(image)}
                 >
@@ -162,11 +163,12 @@ export default function Portfolio() {
                       <img
                         src={image.src}
                         alt={image.alt}
+                        loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#2B6A79] via-[#3BC864]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="absolute bottom-0 left-0 right-0 p-6">
-                          <h3 className="text-white text-xl font-semibold">
+                        <div className="absolute bottom-0 left-0 right-0 p-3 md:p-6">
+                          <h3 className="text-white text-sm md:text-xl font-semibold">
                             {image.title}
                           </h3>
                         </div>
@@ -186,27 +188,28 @@ export default function Portfolio() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-2 md:p-4"
           onClick={() => setSelectedImage(null)}
         >
           <button
-            className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
+            className="absolute top-2 right-2 md:top-4 md:right-4 text-white hover:text-gray-300 transition-colors bg-black/50 rounded-full p-2"
             onClick={() => setSelectedImage(null)}
+            aria-label="Закрыть"
           >
-            <X className="w-8 h-8" />
+            <X className="w-6 h-6 md:w-8 md:h-8" />
           </button>
           <motion.div
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
-            className="max-w-5xl max-h-[90vh]"
+            className="max-w-5xl w-full max-h-[90vh] flex flex-col items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
             <img
               src={selectedImage.src}
               alt={selectedImage.alt}
-              className="w-full h-full object-contain rounded-lg"
+              className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
             />
-            <p className="text-white text-center mt-4 text-xl">
+            <p className="text-white text-center mt-3 md:mt-4 text-base md:text-xl font-medium">
               {selectedImage.title}
             </p>
           </motion.div>
