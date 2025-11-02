@@ -3,7 +3,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 
 export default function Hero() {
   const ref = useRef(null);
@@ -14,6 +14,26 @@ export default function Hero() {
 
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
+
+  // Typing effect state
+  const [typedText, setTypedText] = useState("");
+  const fullText = "Tworzę sushi z pasją, precyzją i autentycznym smakiem Japonii.";
+
+  useEffect(() => {
+    let i = 0;
+    const typingDelay = setTimeout(() => {
+      const interval = setInterval(() => {
+        setTypedText(fullText.slice(0, i));
+        i++;
+        if (i > fullText.length) {
+          clearInterval(interval);
+        }
+      }, 50); // скорость печати: 50ms на букву
+      return () => clearInterval(interval);
+    }, 1400); // начинаем печатать через 1.4s (после появления h2)
+
+    return () => clearTimeout(typingDelay);
+  }, []);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -51,54 +71,55 @@ export default function Hero() {
 
       {/* Content */}
       <motion.div 
-        className="relative z-10 text-center px-4 max-w-5xl mx-auto"
+        className="relative z-10 text-center px-6 max-w-5xl mx-auto"
         style={{ opacity }}
       >
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
+        <motion.div className="space-y-6">
+          {/* Main Heading */}
           <motion.h1
-            className="text-6xl md:text-8xl font-bold text-white mb-4 tracking-tight"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight"
           >
-            Dima Fomin
+            Dima Fomin — <br className="md:hidden" /> Szef Kuchni / Sushi Chef
           </motion.h1>
 
-          <motion.div
-            className="inline-block mb-6"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+          {/* Subheading */}
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
+            className="text-2xl md:text-3xl lg:text-4xl font-medium text-white/95"
           >
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-8 py-3">
-              <p className="text-2xl md:text-3xl text-white font-light tracking-wide">
-                Chef / Sushi Chef
-              </p>
-            </div>
-          </motion.div>
+            Otwieram nową gastronomię online — <br className="hidden md:block" /> sztuka sushi od podstaw.
+          </motion.h2>
 
-          <motion.p
-            className="text-xl md:text-2xl text-white/90 font-light mb-12 italic"
+          {/* Description - Typing Effect */}
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
+            transition={{ delay: 1.2, duration: 0.5 }}
+            className="text-lg md:text-xl lg:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed italic font-light min-h-[4rem] md:min-h-[5rem]"
           >
-            Tworzę sushi z pasją i precyzją
-          </motion.p>
+            {typedText}
+            <motion.span
+              animate={{ opacity: [1, 0] }}
+              transition={{ duration: 0.8, repeat: Infinity, repeatType: "reverse" }}
+              className="inline-block w-0.5 h-6 md:h-8 bg-white/90 ml-1 align-middle"
+            />
+          </motion.div>
 
+          {/* CTA Buttons */}
           <motion.div
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
+            transition={{ delay: 0.9, duration: 0.6, ease: "easeOut" }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-6"
           >
             <Button
               size="lg"
-              className="bg-[#3BC864] text-white hover:bg-[#C5E98A] hover:text-[#240F24] text-lg px-8 py-6 rounded-full shadow-2xl transition-all duration-300"
+              className="bg-[#3BC864] text-white hover:bg-[#C5E98A] hover:text-[#240F24] text-lg px-8 py-6 rounded-full shadow-2xl transition-all duration-300 hover:scale-105"
               onClick={() => scrollToSection("contact")}
             >
               Skontaktuj się
@@ -106,7 +127,7 @@ export default function Hero() {
             <Button
               size="lg"
               variant="outline"
-              className="bg-transparent border-2 border-white text-white hover:bg-white/10 text-lg px-8 py-6 rounded-full"
+              className="bg-transparent border-2 border-white text-white hover:bg-[#C5E98A] hover:text-[#240F24] hover:border-[#C5E98A] text-lg px-8 py-6 rounded-full transition-all duration-300 hover:scale-105"
               onClick={() => scrollToSection("portfolio")}
             >
               Zobacz Portfolio
