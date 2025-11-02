@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dmytro Fomin - Professional Chef | Doświadczony Kucharz Gdańsk",
+  title: "Dima Fomin - Professional Chef | Doświadczony Kucharz Gdańsk",
   description:
     "Profesjonalny kucharz z 20-letnim doświadczeniem międzynarodowym szuka pracy w Polsce. Specjalizacja w sushi, owocach morza, kuchni europejskiej. Doświadczenie w Polsce, Francji, Kanadzie, Niemczech.",
   keywords: [
@@ -26,31 +26,31 @@ export const metadata: Metadata = {
     "Chef Warszawa",
     "Kucharz Kraków",
     "HACCP",
-    "Dmytro Fomin",
+    "Dima Fomin",
   ],
-  authors: [{ name: "Dmytro Fomin" }],
-  creator: "Dmytro Fomin",
-  publisher: "Dmytro Fomin",
+  authors: [{ name: "Dima Fomin" }],
+  creator: "Dima Fomin",
+  publisher: "Dima Fomin",
   openGraph: {
     type: "website",
     locale: "pl_PL",
-    url: "https://dmytrofomin.com",
-    title: "Dmytro Fomin - Professional Chef | Doświadczony Kucharz",
+    url: "https://dimafomin.com",
+    title: "Dima Fomin - Professional Chef | Doświadczony Kucharz",
     description:
       "Profesjonalny kucharz z 20-letnim doświadczeniem. Specjalizacja w sushi i kuchni międzynarodowej. Gdańsk, Polska.",
-    siteName: "Dmytro Fomin - Chef",
+    siteName: "Dima Fomin - Chef",
     images: [
       {
         url: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=80&w=1200&auto=format&fit=crop",
         width: 1200,
         height: 630,
-        alt: "Dmytro Fomin - Professional Chef",
+        alt: "Dima Fomin - Professional Chef",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Dmytro Fomin - Professional Chef | Doświadczony Kucharz",
+    title: "Dima Fomin - Professional Chef | Doświadczony Kucharz",
     description:
       "Profesjonalny kucharz z 20-letnim doświadczeniem międzynarodowym. Specjalizacja w sushi i kuchni europejskiej.",
     images: [

@@ -10,7 +10,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Instagram,
-  Linkedin,
   Mail,
   Phone,
   Send,
@@ -53,12 +52,6 @@ export default function Contact() {
       label: "Instagram",
       href: "https://instagram.com/fodifood",
       username: "@fodifood",
-    },
-    {
-      icon: Linkedin,
-      label: "LinkedIn",
-      href: "https://linkedin.com/in/dmytrofomin",
-      username: "Dmytro Fomin",
     },
     {
       icon: Mail,
@@ -174,7 +167,7 @@ export default function Contact() {
                       onChange={(e) =>
                         setFormData({ ...formData, message: e.target.value })
                       }
-                      placeholder="Cześć Dmytro! Szukamy doświadczonego sushi chefa do naszej restauracji w..."
+                      placeholder="Cześć Dima! Szukamy doświadczonego sushi chefa do naszej restauracji w..."
                       required
                       rows={5}
                       className="w-full bg-white border-[#2B6A79]/20 focus:border-[#3BC864]"

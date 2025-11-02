@@ -10,7 +10,7 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-center md:text-left">
-            <h3 className="text-2xl font-bold mb-2 text-[#FEF9F5]">Dmytro Fomin</h3>
+            <h3 className="text-2xl font-bold mb-2 text-[#FEF9F5]">Dima Fomin</h3>
             <p className="text-[#FEF9F5]/80">
               Professional Chef 🇵🇱
             </p>
@@ -18,7 +18,7 @@ export default function Footer() {
 
           <div className="flex flex-col items-center gap-2">
             <p className="text-sm text-[#FEF9F5]/70">
-              © {currentYear} Dmytro Fomin. Wszelkie prawa zastrzeżone.
+              © {currentYear} Dima Fomin. Wszelkie prawa zastrzeżone.
             </p>
             <p className="text-xs text-[#FEF9F5]/60 flex items-center gap-1">
               Stworzone z <Heart className="w-3 h-3 fill-current text-[#3BC864]" /> dla pasji kulinarnej
