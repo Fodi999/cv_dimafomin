@@ -4,8 +4,8 @@
   "description": "Professional Chef with 20 years of international experience. Specializing in sushi and European cuisine. Based in Gdańsk, Poland.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#faf8f5",
-  "theme_color": "#2c2419",
+  "background_color": "#FEF9F5",
+  "theme_color": "#1E1A41",
   "orientation": "portrait-primary",
   "icons": [
     {
@@ -24,5 +24,6 @@
   "lang": "pl-PL",
   "dir": "ltr",
   "categories": ["food", "business", "lifestyle"],
-  "keywords": ["chef", "kucharz", "polska", "gdansk", "sushi", "praca", "culinary"]
+  "keywords": ["chef", "kucharz", "polska", "gdansk", "sushi", "praca", "culinary"],
+  "prefer_related_applications": false
 }
