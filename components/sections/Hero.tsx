@@ -65,7 +65,7 @@ export default function Hero() {
           className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-110"
           style={{
             backgroundImage:
-              "url('https://i.postimg.cc/RCf8VLFn/DSCF4639.jpg')",
+              "url('https://i.postimg.cc/nV6RZ6ZV/DSCF4639.webp')",
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
