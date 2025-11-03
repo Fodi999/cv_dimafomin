@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Download, TrendingUp, Award, Clock, User as UserIcon, Mail, MapPin, Edit } from "lucide-react";
+import { Download, TrendingUp, Award, Clock, User as UserIcon, Mail, MapPin, Edit, BookOpen, FileText, Trophy, Timer, Coins, Bot, ShoppingCart, ChefHat } from "lucide-react";
 import Image from "next/image";
 import DashboardCard from "@/components/academy/DashboardCard";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -173,8 +173,9 @@ export default function DashboardPage() {
     <div className="max-w-6xl mx-auto relative">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl md:text-5xl font-bold text-[#1E1A41] mb-4">
-          {t.academy?.dashboard?.title || "👨‍🍳 Особистий кабінет"}
+        <h1 className="text-4xl md:text-5xl font-bold text-[#1E1A41] mb-4 flex items-center gap-3">
+          <ChefHat className="w-12 h-12 text-[#3BC864]" />
+          {t.academy?.dashboard?.title || "Особистий кабінет"}
         </h1>
         <p className="text-lg text-[#1E1A41]/70">
           {t.academy?.dashboard?.subtitle || "Ваш прогрес та досягнення"}
@@ -277,7 +278,10 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12">
         {/* ChefTokens Balance */}
         <div className="p-6 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl shadow-lg text-white text-center">
-          <p className="text-3xl font-bold mb-1">🪙 {dashboardData.stats?.walletBalance || 0}</p>
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <Coins className="w-8 h-8" />
+            <p className="text-3xl font-bold">{dashboardData.stats?.walletBalance || 0}</p>
+          </div>
           <p className="text-sm opacity-90">{t.academy?.dashboard?.chefTokens || "ChefTokens"}</p>
         </div>
 
@@ -316,7 +320,9 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="text-center py-12 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-300">
-            <div className="mb-4 text-6xl">📚</div>
+            <div className="mb-4 flex justify-center">
+              <BookOpen className="w-16 h-16 text-gray-400" />
+            </div>
             <h3 className="text-xl font-semibold text-[#1E1A41] mb-2">
               {t.academy?.dashboard?.noActiveCourses || "Brak aktywnych kursów"}
             </h3>
@@ -327,7 +333,8 @@ export default function DashboardPage() {
               href="/market"
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#3BC864] to-[#C5E98A] text-white rounded-lg hover:shadow-lg transition-all duration-300 font-medium"
             >
-              🛒 {t.academy?.dashboard?.enrollInCourse || "Zapisz się na kurs"}
+              <ShoppingCart className="w-5 h-5" />
+              {t.academy?.dashboard?.enrollInCourse || "Zapisz się na kurs"}
             </Link>
           </div>
         )}
@@ -370,7 +377,8 @@ export default function DashboardPage() {
       {/* AI Recommendations */}
       <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
         <h2 className="text-2xl font-bold text-[#1E1A41] mb-3 flex items-center gap-2">
-          🤖 {t.academy?.dashboard?.aiRecommendations || "Рекомендації від Culinary AI"}
+          <Bot className="w-7 h-7 text-[#3BC864]" />
+          {t.academy?.dashboard?.aiRecommendations || "Рекомендації від Culinary AI"}
         </h2>
         <p className="text-gray-600 mb-6">
           {t.academy?.dashboard?.aiSubtitle || "На основі ваших результатів система пропонує наступний курс"}
@@ -380,14 +388,17 @@ export default function DashboardPage() {
             key={rec.id || `rec-${index}`}
             className="p-6 bg-gradient-to-r from-pink-100 to-orange-50 rounded-xl border-2 border-orange-200"
           >
-            <p className="font-bold text-lg text-[#1E1A41] mb-2">🍣 {rec.title}</p>
+            <p className="font-bold text-lg text-[#1E1A41] mb-2 flex items-center gap-2">
+              <ChefHat className="w-5 h-5 text-[#3BC864]" />
+              {rec.title}
+            </p>
             <div className="flex items-center gap-4 text-sm text-gray-600">
               <span>{rec.level}</span>
-              <span>
+              <div className="flex items-center gap-1">
                 {Array.from({ length: rec.rating }).map((_, i) => (
-                  <span key={i}>⭐</span>
+                  <Award key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                 ))}
-              </span>
+              </div>
             </div>
             <Link
               href={`/market/${rec.id}`}
@@ -405,19 +416,22 @@ export default function DashboardPage() {
           href="/academy/leaderboard"
           className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl font-medium"
         >
-          🏆 {t.academy?.dashboard?.viewRanking || "Переглянути рейтинг"}
+          <Trophy className="w-5 h-5" />
+          {t.academy?.dashboard?.viewRanking || "Переглянути рейтинг"}
         </Link>
         <Link
           href="/market"
           className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-xl font-medium"
         >
-          🛒 {t.academy?.dashboard?.goToMarketplace || "Перейти до Marketplace"}
+          <ShoppingCart className="w-5 h-5" />
+          {t.academy?.dashboard?.goToMarketplace || "Перейти до Marketplace"}
         </Link>
         <Link
           href="/academy/certificates"
           className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl font-medium"
         >
-          📜 {t.academy?.dashboard?.allCertificates || "Всі сертифікати"}
+          <FileText className="w-5 h-5" />
+          {t.academy?.dashboard?.allCertificates || "Всі сертифікати"}
         </Link>
       </div>
     </div>

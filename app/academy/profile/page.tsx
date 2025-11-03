@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Save, X, Mail, MapPin, Phone, User as UserIcon, Instagram, MessageCircle, AtSign } from "lucide-react";
+import { Save, X, Mail, MapPin, Phone, User as UserIcon, Instagram, MessageCircle, AtSign, Globe, BookOpen, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@/contexts/UserContext";
@@ -73,8 +73,9 @@ export default function ProfilePage() {
       
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl md:text-5xl font-bold text-[#1E1A41] mb-4">
-          👤 {t.academy?.profile?.title || "Мій профіль"}
+        <h1 className="text-4xl md:text-5xl font-bold text-[#1E1A41] mb-4 flex items-center gap-3">
+          <UserIcon className="w-10 h-10 text-[#3BC864]" />
+          {t.academy?.profile?.title || "Мій профіль"}
         </h1>
         <p className="text-lg text-[#1E1A41]/70">
           {t.academy?.profile?.subtitle || "Керуйте вашим обліковим записом"}
@@ -271,8 +272,9 @@ export default function ProfilePage() {
 
             {/* Social Media Section */}
             <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold text-[#1E1A41] mb-4">
-                🌐 {t.academy?.profile?.socialMedia || "Соціальні мережі"}
+              <h3 className="text-lg font-semibold text-[#1E1A41] mb-4 flex items-center gap-2">
+                <Globe className="w-5 h-5 text-[#3BC864]" />
+                {t.academy?.profile?.socialMedia || "Соціальні мережі"}
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -419,8 +421,9 @@ export default function ProfilePage() {
 
       {/* Learning History */}
       <div className="bg-white rounded-2xl shadow-lg p-8 mt-8">
-        <h2 className="text-2xl font-bold text-[#1E1A41] mb-6">
-          📚 {t.academy?.profile?.learningHistory || "Історія навчання"}
+        <h2 className="text-2xl font-bold text-[#1E1A41] mb-6 flex items-center gap-3">
+          <BookOpen className="w-7 h-7 text-[#3BC864]" />
+          {t.academy?.profile?.learningHistory || "Історія навчання"}
         </h2>
         <div className="space-y-4">
           {/* Completed Course */}
