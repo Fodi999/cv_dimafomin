@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Save, X, Mail, MapPin, Phone, User as UserIcon, Instagram, MessageCircle, AtSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,10 +30,11 @@ export default function ProfilePage() {
   });
 
   // Redirect if not authenticated
-  if (!isAuthenticated) {
-    router.push("/");
-    return null;
-  }
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/");
+    }
+  }, [isAuthenticated, router]);
 
   if (!user) return null;
 

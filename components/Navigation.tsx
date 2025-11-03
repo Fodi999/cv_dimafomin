@@ -2,7 +2,7 @@
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -15,10 +15,14 @@ export default function Navigation() {
   const { t } = useLanguage();
   const { user, isAuthenticated, login, logout } = useUser();
   const router = useRouter();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
   const [isScrolled, setIsScrolled] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  
+  // Check if we're on the home page
+  const isHomePage = pathname === '/';
   
   const handleLogin = () => {
     setShowAuthModal(true);
@@ -44,15 +48,21 @@ export default function Navigation() {
   const { scrollYProgress } = useScroll({
     container: typeof window !== "undefined" ? { current: document.documentElement } : undefined,
   });
+  
+  // On home page, background changes on scroll. On other pages, always solid.
   const backgroundColor = useTransform(
     scrollYProgress,
     [0, 0.1],
-    ["rgba(254, 249, 245, 0)", "rgba(254, 249, 245, 0.95)"]
+    isHomePage 
+      ? ["rgba(254, 249, 245, 0)", "rgba(254, 249, 245, 0.95)"]
+      : ["rgba(254, 249, 245, 0.95)", "rgba(254, 249, 245, 0.95)"]
   );
   const shadow = useTransform(
     scrollYProgress,
     [0, 0.1],
-    ["0px 0px 0px rgba(0,0,0,0)", "0px 4px 20px rgba(0,0,0,0.1)"]
+    isHomePage
+      ? ["0px 0px 0px rgba(0,0,0,0)", "0px 4px 20px rgba(0,0,0,0.1)"]
+      : ["0px 4px 20px rgba(0,0,0,0.1)", "0px 4px 20px rgba(0,0,0,0.1)"]
   );
 
   useEffect(() => {
@@ -109,7 +119,7 @@ export default function Navigation() {
             <motion.button
               onClick={() => scrollToSection("hero")}
               className={`text-2xl font-bold transition-colors cursor-pointer ${
-                isScrolled 
+                !isHomePage || isScrolled 
                   ? "text-[#1E1A41] hover:text-[#3BC864]" 
                   : "text-white hover:text-[#3BC864]"
               }`}
@@ -129,7 +139,7 @@ export default function Navigation() {
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                       activeSection === link.id
                         ? "bg-[#3BC864] text-white shadow-lg"
-                        : isScrolled
+                        : !isHomePage || isScrolled
                         ? "text-[#1E1A41] hover:bg-[#C5E98A]/30 hover:text-[#1E1A41]"
                         : "text-white hover:bg-white/10 hover:text-white"
                     }`}
@@ -150,7 +160,7 @@ export default function Navigation() {
                   <button
                     onClick={goToDashboard}
                     className={`flex items-center gap-2 px-3 py-2 rounded-full transition-colors hover:bg-white/10 ${
-                      isScrolled ? "text-[#1E1A41]" : "text-white"
+                      !isHomePage || isScrolled ? "text-[#1E1A41]" : "text-white"
                     }`}
                   >
                     <User className="w-4 h-4" />
@@ -161,7 +171,7 @@ export default function Navigation() {
                     variant="outline"
                     size="sm"
                     className={`rounded-full ${
-                      isScrolled
+                      !isHomePage || isScrolled
                         ? "border-[#1E1A41] text-[#1E1A41] hover:bg-[#1E1A41] hover:text-white"
                         : "border-white text-white hover:bg-white hover:text-[#1E1A41]"
                     }`}
@@ -176,7 +186,7 @@ export default function Navigation() {
                   variant="outline"
                   size="sm"
                   className={`rounded-full ${
-                    isScrolled
+                    !isHomePage || isScrolled
                       ? "border-[#1E1A41] text-[#1E1A41] hover:bg-[#1E1A41] hover:text-white"
                       : "border-white text-white hover:bg-white hover:text-[#1E1A41]"
                   }`}
@@ -190,7 +200,7 @@ export default function Navigation() {
             {/* Mobile Menu Button */}
             <button
               className={`md:hidden p-2 rounded-lg transition-colors ${
-                isScrolled
+                !isHomePage || isScrolled
                   ? "text-[#1E1A41] hover:bg-[#C5E98A]/30"
                   : "text-white hover:bg-white/10"
               }`}
