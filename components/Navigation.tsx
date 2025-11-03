@@ -49,20 +49,16 @@ export default function Navigation() {
     container: typeof window !== "undefined" ? { current: document.documentElement } : undefined,
   });
   
-  // On home page, background changes on scroll. On other pages, always solid.
+  // Background is transparent initially on all pages, becomes solid on scroll
   const backgroundColor = useTransform(
     scrollYProgress,
     [0, 0.1],
-    isHomePage 
-      ? ["rgba(254, 249, 245, 0)", "rgba(254, 249, 245, 0.95)"]
-      : ["rgba(254, 249, 245, 0.95)", "rgba(254, 249, 245, 0.95)"]
+    ["rgba(254, 249, 245, 0)", "rgba(254, 249, 245, 0.95)"]
   );
   const shadow = useTransform(
     scrollYProgress,
     [0, 0.1],
-    isHomePage
-      ? ["0px 0px 0px rgba(0,0,0,0)", "0px 4px 20px rgba(0,0,0,0.1)"]
-      : ["0px 4px 20px rgba(0,0,0,0.1)", "0px 4px 20px rgba(0,0,0,0.1)"]
+    ["0px 0px 0px rgba(0,0,0,0)", "0px 4px 20px rgba(0,0,0,0.1)"]
   );
 
   useEffect(() => {
@@ -107,7 +103,7 @@ export default function Navigation() {
   return (
     <>
       <motion.nav
-        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md relative"
+        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md transition-colors duration-300"
         style={{
           backgroundColor,
           boxShadow: shadow,

@@ -112,7 +112,7 @@ export default function DashboardPage() {
           ],
           recommendations: [
             {
-              id: "1",
+              id: "sushi-basics-2024",
               title: "Podstawy Sushi – Kurs dla Początkujących",
               level: "Початковий",
               rating: 5,
@@ -292,29 +292,45 @@ export default function DashboardPage() {
           <Clock className="w-6 h-6 text-[#3BC864]" />
           {t.academy?.dashboard?.activeCourses || "Активні курси"}
         </h2>
-        <div className="space-y-4">
-          {dashboardData.activeCourses?.map((course) => (
-            <div
-              key={course.id}
-              className="flex items-center justify-between p-4 bg-[#FEF9F5] rounded-xl hover:shadow-md transition-shadow"
+        {dashboardData.activeCourses && dashboardData.activeCourses.length > 0 ? (
+          <div className="space-y-4">
+            {dashboardData.activeCourses.map((course) => (
+              <div
+                key={course.id}
+                className="flex items-center justify-between p-4 bg-[#FEF9F5] rounded-xl hover:shadow-md transition-shadow"
+              >
+                <div className="flex-1">
+                  <h3 className="font-semibold text-[#1E1A41] mb-1">{course.title}</h3>
+                  <p className="text-sm text-[#1E1A41]/60">
+                    {t.academy?.dashboard?.progress || "Прогрес"}: {course.progress}%
+                  </p>
+                </div>
+                <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden ml-4">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#3BC864] to-[#C5E98A] transition-all duration-500"
+                    style={{ width: `${course.progress}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-300">
+            <div className="mb-4 text-6xl">📚</div>
+            <h3 className="text-xl font-semibold text-[#1E1A41] mb-2">
+              {t.academy?.dashboard?.noActiveCourses || "Brak aktywnych kursów"}
+            </h3>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              {t.academy?.dashboard?.startLearning || "Rozpocznij swoją kulinarną podróż! Zapisz się na kurs i zacznij naukę."}
+            </p>
+            <Link
+              href="/market"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#3BC864] to-[#C5E98A] text-white rounded-lg hover:shadow-lg transition-all duration-300 font-medium"
             >
-              <div className="flex-1">
-                <h3 className="font-semibold text-[#1E1A41] mb-1">{course.title}</h3>
-                <p className="text-sm text-[#1E1A41]/60">
-                  {t.academy?.dashboard?.progress || "Прогрес"}: {course.progress}%
-                </p>
-              </div>
-              <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden ml-4">
-                <div
-                  className="h-full bg-gradient-to-r from-[#3BC864] to-[#C5E98A] transition-all duration-500"
-                  style={{ width: `${course.progress}%` }}
-                />
-              </div>
-            </div>
-          )) || (
-            <p className="text-center text-gray-500">Немає активних курсів</p>
-          )}
-        </div>
+              🛒 {t.academy?.dashboard?.enrollInCourse || "Zapisz się na kurs"}
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Certificates with PDF Download */}
