@@ -4,20 +4,23 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const navLinks = [
-  { id: "hero", label: "Główna" },
-  { id: "about", label: "O mnie" },
-  { id: "portfolio", label: "Portfolio" },
-  { id: "skills", label: "Umiejętności" },
-  { id: "experience", label: "Doświadczenie" },
-  { id: "contact", label: "Kontakt" },
-];
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Navigation() {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
   const [isScrolled, setIsScrolled] = useState(false);
+  
+  const navLinks = [
+    { id: "hero", label: t.nav.home },
+    { id: "about", label: t.nav.about },
+    { id: "portfolio", label: t.nav.portfolio },
+    { id: "skills", label: t.nav.skills },
+    { id: "experience", label: t.nav.experience },
+    { id: "contact", label: t.nav.contact },
+  ];
   const { scrollYProgress } = useScroll();
   const backgroundColor = useTransform(
     scrollYProgress,
@@ -95,24 +98,29 @@ export default function Navigation() {
             </motion.button>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-1">
-              {navLinks.map((link) => (
-                <motion.button
-                  key={link.id}
-                  onClick={() => scrollToSection(link.id)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                    activeSection === link.id
-                      ? "bg-[#3BC864] text-white shadow-lg"
-                      : isScrolled
-                      ? "text-[#1E1A41] hover:bg-[#C5E98A]/30 hover:text-[#1E1A41]"
-                      : "text-white hover:bg-white/10 hover:text-white"
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {link.label}
-                </motion.button>
-              ))}
+            <div className="hidden md:flex items-center space-x-4">
+              <div className="flex items-center space-x-1">
+                {navLinks.map((link) => (
+                  <motion.button
+                    key={link.id}
+                    onClick={() => scrollToSection(link.id)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                      activeSection === link.id
+                        ? "bg-[#3BC864] text-white shadow-lg"
+                        : isScrolled
+                        ? "text-[#1E1A41] hover:bg-[#C5E98A]/30 hover:text-[#1E1A41]"
+                        : "text-white hover:bg-white/10 hover:text-white"
+                    }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {link.label}
+                  </motion.button>
+                ))}
+              </div>
+              
+              {/* Language Switcher */}
+              <LanguageSwitcher />
             </div>
 
             {/* Mobile Menu Button */}
@@ -139,7 +147,12 @@ export default function Navigation() {
           transition={{ duration: 0.3 }}
           className="md:hidden overflow-hidden bg-[#FEF9F5]/98 backdrop-blur-md"
         >
-          <div className="px-4 py-6 space-y-2">
+          <div className="px-4 py-6 space-y-3">
+            {/* Language Switcher in Mobile */}
+            <div className="flex justify-center mb-2">
+              <LanguageSwitcher />
+            </div>
+            
             {navLinks.map((link, index) => (
               <motion.button
                 key={link.id}

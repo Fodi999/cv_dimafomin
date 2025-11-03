@@ -4,8 +4,10 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRef, useState, useEffect } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Hero() {
+  const { t } = useLanguage();
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -17,23 +19,23 @@ export default function Hero() {
 
   // Typing effect state
   const [typedText, setTypedText] = useState("");
-  const fullText = "Tworzę sushi z pasją, precyzją i autentycznym smakiem Japonii.";
 
   useEffect(() => {
+    setTypedText(""); // Reset text when language changes
     let i = 0;
     const typingDelay = setTimeout(() => {
       const interval = setInterval(() => {
-        setTypedText(fullText.slice(0, i));
+        setTypedText(t.hero.description.slice(0, i));
         i++;
-        if (i > fullText.length) {
+        if (i > t.hero.description.length) {
           clearInterval(interval);
         }
-      }, 50); // скорость печати: 50ms на букву
+      }, 50);
       return () => clearInterval(interval);
-    }, 1400); // начинаем печатать через 1.4s (после появления h2)
+    }, 1400);
 
     return () => clearTimeout(typingDelay);
-  }, []);
+  }, [t.hero.description]);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -82,7 +84,7 @@ export default function Hero() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight"
           >
-            Dima Fomin — <br className="md:hidden" /> Szef Kuchni / Sushi Chef
+            {t.hero.title}
           </motion.h1>
 
           {/* Subheading */}
@@ -92,7 +94,7 @@ export default function Hero() {
             transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
             className="text-2xl md:text-3xl lg:text-4xl font-medium text-white/95"
           >
-            Otwieram nową gastronomię online — <br className="hidden md:block" /> sztuka sushi od podstaw.
+            {t.hero.subtitle}
           </motion.h2>
 
           {/* Description - Typing Effect */}
@@ -122,7 +124,7 @@ export default function Hero() {
               className="bg-[#3BC864] text-white hover:bg-[#C5E98A] hover:text-[#240F24] text-lg px-8 py-6 rounded-full shadow-2xl transition-all duration-300 hover:scale-105"
               onClick={() => scrollToSection("contact")}
             >
-              Skontaktuj się
+              {t.hero.ctaPrimary}
             </Button>
             <Button
               size="lg"
@@ -130,7 +132,7 @@ export default function Hero() {
               className="bg-transparent border-2 border-white text-white hover:bg-[#C5E98A] hover:text-[#240F24] hover:border-[#C5E98A] text-lg px-8 py-6 rounded-full transition-all duration-300 hover:scale-105"
               onClick={() => scrollToSection("portfolio")}
             >
-              Zobacz Portfolio
+              {t.hero.ctaSecondary}
             </Button>
           </motion.div>
         </motion.div>

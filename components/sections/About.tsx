@@ -3,8 +3,10 @@
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { Card } from "@/components/ui/card";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function About() {
+  const { t } = useLanguage();
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.2,
@@ -21,7 +23,7 @@ export default function About() {
         >
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-[#1E1A41] mb-4">
-              O mnie
+              {t.about.title}
             </h2>
             <div className="w-20 h-1 bg-[#240F24] mx-auto rounded-full" />
           </div>
@@ -35,7 +37,7 @@ export default function About() {
               <Card className="overflow-hidden shadow-xl">
                 <img
                   src="https://i.postimg.cc/QNbFT95J/project-20200916-1843384-01.png"
-                  alt="Dima Fomin at work"
+                  alt={t.about.imageAlt}
                   className="w-full h-auto object-contain"
                 />
               </Card>
@@ -48,36 +50,22 @@ export default function About() {
               transition={{ duration: 0.8, delay: 0.4 }}
             >
               <p className="text-lg text-[#240F24] leading-relaxed">
-                Jestem <strong className="text-[#1E1A41]">Dmytro (Dima) Fomin</strong>,
-                profesjonalnym szefem kuchni z{" "}
-                <strong className="text-[#1E1A41]">
-                  ponad 20-letnim doświadczeniem
-                </strong>{" "}
-                w tworzeniu autentycznych japońskich potraw i pracy w najlepszych restauracjach świata.
+                {t.about.intro} <strong className="text-[#1E1A41]">{t.about.name}</strong>,{" "}
+                {t.about.paragraph1}
               </p>
 
               <p className="text-lg text-[#240F24] leading-relaxed">
-                Moją pasję do sztuki kulinarnej rozwijałem pracując w renomowanych
-                restauracjach w <strong className="text-[#1E1A41]">Polsce, Litwie, Estonii, 
-                Niemczech, Francji i Kanadzie</strong>, gdzie doskonaliłem techniki 
-                tradycyjne i nowoczesne podejście do prezentacji.
+                {t.about.paragraph2}
               </p>
 
               <p className="text-lg text-[#240F24] leading-relaxed">
-                Każde danie, które tworzę, to połączenie{" "}
-                <strong className="text-[#1E1A41]">precyzji</strong>,{" "}
-                <strong className="text-[#1E1A41]">świeżości składników</strong>{" "}
-                i <strong className="text-[#1E1A41]">estetyki</strong>. Jestem celowy, 
-                towarzyski, odporny na stres i pomysłowy. Specjalizuję się w opracowywaniu 
-                nowych produktów i szkoleniu zespołów.
+                {t.about.paragraph3}
               </p>
 
               <div className="pt-4">
                 <Card className="bg-[#FEF9F5] p-6 border-none shadow-lg">
                   <p className="text-base italic text-[#240F24]">
-                    &ldquo;Moja filozofia: szacunek do tradycji, pasja do
-                    innowacji i niekończąca się dążenie do doskonałości w
-                    każdym kawałku. Wiem dużo o produktach i nieustannie się rozwijam.&rdquo;
+                    &ldquo;{t.about.quote}&rdquo;
                   </p>
                 </Card>
               </div>

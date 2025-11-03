@@ -5,6 +5,7 @@ import { useInView } from "react-intersection-observer";
 import { Card } from "@/components/ui/card";
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, X } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   ChefHat,
   Fish,
@@ -17,11 +18,10 @@ import {
   FileText,
 } from "lucide-react";
 
-const skills = [
+const getSkillsData = () => [
   {
     icon: Fish,
-    title: "Nigiri & Sashimi",
-    description: "Mistrzowska obróbka ryb i tradycyjne techniki krojenia",
+    titleIndex: 0,
     level: 95,
     details: [
       "Profesjonalne krojenie sashimi zgodne z japońskimi standardami",
@@ -33,8 +33,7 @@ const skills = [
   },
   {
     icon: Utensils,
-    title: "Maki & Uramaki",
-    description: "Kreatywne rolowanie i innowacyjne kombinacje smaków",
+    titleIndex: 1,
     level: 98,
     details: [
       "Doskonała technika rolowania hosomaki, futomaki i uramaki",
@@ -46,8 +45,7 @@ const skills = [
   },
   {
     icon: ChefHat,
-    title: "Prezentacja",
-    description: "Artystyczna aranżacja i estetyka japońska",
+    titleIndex: 2,
     level: 92,
     details: [
       "Znajomość zasad wabi-sabi i minimalizmu japońskiego",
@@ -59,8 +57,7 @@ const skills = [
   },
   {
     icon: Shield,
-    title: "Bezpieczeństwo żywności (HACCP)",
-    description: "Higiena, kontrola jakości i utrzymanie najwyższych standardów bezpieczeństwa",
+    titleIndex: 3,
     level: 100,
     details: [
       "Certyfikat HACCP i pełna znajomość systemu kontroli punktów krytycznych",
@@ -73,8 +70,7 @@ const skills = [
   },
   {
     icon: GraduationCap,
-    title: "Szkolenie personelu",
-    description: "Prowadzenie szkoleń, wdrażanie nowych pracowników i nauczanie prawidłowej pracy z produktami",
+    titleIndex: 4,
     level: 96,
     details: [
       "Opracowywanie programów szkoleniowych dla nowych pracowników",
@@ -86,8 +82,7 @@ const skills = [
   },
   {
     icon: Laptop,
-    title: "Tworzenie aplikacji i stron dla gastronomii",
-    description: "Projektowanie nowoczesnych stron i systemów dla restauracji, usprawniających komunikację i zamówienia",
+    titleIndex: 5,
     level: 85,
     details: [
       "Tworzenie responsywnych stron internetowych dla restauracji",
@@ -99,8 +94,7 @@ const skills = [
   },
   {
     icon: FileText,
-    title: "Tworzenie kart technologicznych",
-    description: "Opracowywanie receptur, gramatur, procesów produkcyjnych i dokumentacji HACCP",
+    titleIndex: 6,
     level: 97,
     details: [
       "Precyzyjne opracowywanie receptur z gramaturami składników",
@@ -112,8 +106,7 @@ const skills = [
   },
   {
     icon: Users,
-    title: "Zarządzanie kuchnią",
-    description: "Organizacja pracy zespołu, planowanie menu i optymalizacja procesów w kuchni",
+    titleIndex: 7,
     level: 88,
     details: [
       "Planowanie grafików i podział obowiązków w zespole",
@@ -125,8 +118,7 @@ const skills = [
   },
   {
     icon: Award,
-    title: "Kuchnia Fusion",
-    description: "Nowoczesne interpretacje i autorskie kreacje inspirowane kuchniami świata",
+    titleIndex: 8,
     level: 90,
     details: [
       "Łączenie japońskich technik z kuchnią europejską, peruwiańską i azjatycką",
@@ -139,6 +131,9 @@ const skills = [
 ];
 
 export default function Skills() {
+  const { t } = useLanguage();
+  const skills = getSkillsData();
+  
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.2,
@@ -180,12 +175,11 @@ export default function Skills() {
         >
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-[#1E1A41] mb-4">
-              Umiejętności
+              {t.skills.title}
             </h2>
             <div className="w-20 h-1 bg-[#3BC864] mx-auto rounded-full mb-6" />
             <p className="text-lg text-[#240F24] max-w-2xl mx-auto">
-              Szeroki zakres kompetencji zdobywanych przez lata praktyki, innowacji i
-              ciągłego doskonalenia
+              {t.skills.subtitle}
             </p>
           </div>
 
@@ -204,6 +198,7 @@ export default function Skills() {
                   {(() => {
                     const skill = skills[expandedSkill];
                     const Icon = skill.icon;
+                    const skillData = t.skills.items[skill.titleIndex];
                     return (
                       <>
                         <div className="flex items-center gap-4 mb-6">
@@ -212,9 +207,9 @@ export default function Skills() {
                           </div>
                           <div className="flex-1">
                             <h3 className="text-2xl font-bold text-[#1E1A41] mb-1">
-                              {skill.title}
+                              {skillData.title}
                             </h3>
-                            <p className="text-[#240F24]">{skill.description}</p>
+                            <p className="text-[#240F24]">{skillData.description}</p>
                           </div>
                           <button
                             onClick={() => setExpandedSkill(null)}
@@ -227,7 +222,7 @@ export default function Skills() {
                         <div className="mb-6">
                           <div className="flex items-center justify-between mb-3">
                             <span className="text-sm font-semibold text-[#2B6A79]">
-                              Poziom biegłości
+                              {t.skills.proficiencyLevel}
                             </span>
                             <span className="text-lg font-bold text-[#1E1A41]">
                               {skill.level}%
@@ -246,10 +241,10 @@ export default function Skills() {
                         <div>
                           <h4 className="text-lg font-semibold text-[#1E1A41] mb-4 flex items-center gap-2">
                             <span className="w-1 h-6 bg-[#3BC864] rounded-full"></span>
-                            Szczegóły kompetencji
+                            {t.skills.competencyDetails}
                           </h4>
                           <div className="grid md:grid-cols-2 gap-3">
-                            {skill.details.map((detail, i) => (
+                            {skill.details.map((detail: string, i: number) => (
                               <motion.div
                                 key={i}
                                 initial={{ opacity: 0, x: -20 }}
@@ -275,10 +270,11 @@ export default function Skills() {
             {skills.map((skill, index) => {
               const Icon = skill.icon;
               const isExpanded = expandedSkill === index;
+              const skillData = t.skills.items[skill.titleIndex];
               
               return (
                 <motion.div
-                  key={skill.title}
+                  key={index}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ 
                     opacity: inView ? 1 : 0, 
@@ -307,10 +303,10 @@ export default function Skills() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="text-lg font-semibold text-[#1E1A41] mb-2 leading-tight">
-                            {skill.title}
+                            {skillData.title}
                           </h3>
                           <p className="text-sm text-[#240F24] line-clamp-3">
-                            {skill.description}
+                            {skillData.description}
                           </p>
                         </div>
                       </div>
@@ -319,7 +315,7 @@ export default function Skills() {
                       <div className="mt-auto">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs text-[#2B6A79]">
-                            Poziom biegłości
+                            {t.skills.proficiencyLevel}
                           </span>
                           <span className="text-sm font-semibold text-[#1E1A41]">
                             {skill.level}%

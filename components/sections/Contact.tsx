@@ -8,14 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Instagram,
   Mail,
-  Phone,
+  MessageCircle,
   Send,
 } from "lucide-react";
 
 export default function Contact() {
+  const { t } = useLanguage();
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.2,
@@ -24,7 +26,6 @@ export default function Contact() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    phone: "",
     message: "",
   });
 
@@ -39,7 +40,7 @@ export default function Contact() {
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitStatus("success");
-      setFormData({ name: "", email: "", phone: "", message: "" });
+      setFormData({ name: "", email: "", message: "" });
       
       // Reset success message after 5 seconds
       setTimeout(() => setSubmitStatus("idle"), 5000);
@@ -49,21 +50,31 @@ export default function Contact() {
   const socialLinks = [
     {
       icon: Instagram,
-      label: "Instagram",
+      label: t.contact.instagram,
       href: "https://instagram.com/fodifood",
       username: "@fodifood",
+      color: "from-purple-600 to-pink-600",
     },
     {
       icon: Mail,
-      label: "Email",
+      label: t.contact.email,
       href: "mailto:fodi85999@gmail.com",
       username: "fodi85999@gmail.com",
+      color: "from-blue-500 to-cyan-500",
     },
     {
-      icon: Phone,
-      label: "WhatsApp / Telefon",
+      icon: MessageCircle,
+      label: t.contact.whatsapp,
       href: "https://wa.me/48576212418",
-      username: "+48 576 212 418",
+      username: t.contact.whatsappAction,
+      color: "from-green-500 to-emerald-500",
+    },
+    {
+      icon: Send,
+      label: t.contact.telegram,
+      href: "https://t.me/fodi999",
+      username: t.contact.telegramAction,
+      color: "from-blue-400 to-sky-500",
     },
   ];
 
@@ -78,12 +89,11 @@ export default function Contact() {
         >
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-[#FEF9F5] mb-4">
-              Kontakt
+              {t.contact.title}
             </h2>
             <div className="w-20 h-1 bg-[#3BC864] mx-auto rounded-full mb-6" />
             <p className="text-lg text-[#FEF9F5]/90 max-w-2xl mx-auto">
-              Szukasz doświadczonego kucharza? Skontaktuj się ze mną już
-              dziś!
+              {t.contact.subtitle}
             </p>
           </div>
 
@@ -96,13 +106,13 @@ export default function Contact() {
             >
               <Card className="p-8 shadow-xl bg-[#FEF9F5] border-none">
                 <h3 className="text-2xl font-bold text-[#1E1A41] mb-6">
-                  Wyślij wiadomość
+                  {t.contact.formTitle}
                 </h3>
 
                 {submitStatus === "success" && (
                   <div className="mb-6 p-4 bg-[#3BC864]/10 border border-[#3BC864] rounded-lg">
                     <p className="text-[#1E1A41] text-sm">
-                      ✓ Dziękuję za wiadomość! Skontaktuję się z Tobą wkrótce.
+                      {t.contact.successMessage}
                     </p>
                   </div>
                 )}
@@ -110,7 +120,7 @@ export default function Contact() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <Label htmlFor="name" className="text-[#1E1A41] mb-2 block">
-                      Twoje imię i nazwisko *
+                      {t.contact.nameLabel}
                     </Label>
                     <Input
                       id="name"
@@ -118,7 +128,7 @@ export default function Contact() {
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
                       }
-                      placeholder="np. Anna Nowak"
+                      placeholder={t.contact.namePlaceholder}
                       required
                       className="w-full bg-white border-[#2B6A79]/20 focus:border-[#3BC864]"
                     />
@@ -126,7 +136,7 @@ export default function Contact() {
 
                   <div>
                     <Label htmlFor="email" className="text-[#1E1A41] mb-2 block">
-                      Twój email *
+                      {t.contact.emailLabel}
                     </Label>
                     <Input
                       id="email"
@@ -135,31 +145,15 @@ export default function Contact() {
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
                       }
-                      placeholder="twoj.email@restauracja.pl"
+                      placeholder={t.contact.emailPlaceholder}
                       required
                       className="w-full bg-white border-[#2B6A79]/20 focus:border-[#3BC864]"
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="phone" className="text-[#1E1A41] mb-2 block">
-                      Numer telefonu (opcjonalnie)
-                    </Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                      }
-                      placeholder="+48 500 000 000"
-                      className="w-full bg-white border-[#2B6A79]/20 focus:border-[#3BC864]"
-                    />
-                  </div>
-
-                  <div>
                     <Label htmlFor="message" className="text-[#1E1A41] mb-2 block">
-                      Twoja wiadomość *
+                      {t.contact.messageLabel}
                     </Label>
                     <Textarea
                       id="message"
@@ -167,7 +161,7 @@ export default function Contact() {
                       onChange={(e) =>
                         setFormData({ ...formData, message: e.target.value })
                       }
-                      placeholder="Cześć Dima! Szukamy doświadczonego sushi chefa do naszej restauracji w..."
+                      placeholder={t.contact.messagePlaceholder}
                       required
                       rows={5}
                       className="w-full bg-white border-[#2B6A79]/20 focus:border-[#3BC864]"
@@ -181,11 +175,11 @@ export default function Contact() {
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
-                      "Wysyłanie..."
+                      t.contact.sending
                     ) : (
                       <>
                         <Send className="w-4 h-4 mr-2" />
-                        Wyślij wiadomość
+                        {t.contact.sendButton}
                       </>
                     )}
                   </Button>
@@ -202,11 +196,10 @@ export default function Contact() {
             >
               <div>
                 <h3 className="text-2xl font-bold text-[#FEF9F5] mb-6">
-                  Połącz się ze mną
+                  {t.contact.connectTitle}
                 </h3>
                 <p className="text-[#FEF9F5]/90 mb-8">
-                  Jestem otwarty na nowe możliwości współpracy w Polsce.
-                  Skontaktuj się ze mną przez preferowany kanał komunikacji.
+                  {t.contact.connectSubtitle}
                 </p>
               </div>
 
@@ -222,23 +215,30 @@ export default function Contact() {
                       initial={{ opacity: 0, x: 20 }}
                       animate={inView ? { opacity: 1, x: 0 } : {}}
                       transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-                      whileHover={{ scale: 1.02 }}
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.98 }}
                       className="block"
                     >
-                      <Card className="p-4 hover:shadow-lg transition-shadow duration-300 bg-[#FEF9F5] border-none">
-                        <div className="flex items-center gap-4">
-                          <div className="p-3 bg-[#3BC864]/10 rounded-lg">
-                            <Icon className="w-6 h-6 text-[#3BC864]" />
+                      <Card className={`p-5 hover:shadow-2xl transition-all duration-300 bg-gradient-to-r ${link.color} border-none overflow-hidden relative group`}>
+                        <div className="flex items-center gap-4 relative z-10">
+                          <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl group-hover:bg-white/30 transition-colors">
+                            <Icon className="w-6 h-6 text-white" />
                           </div>
-                          <div>
-                            <p className="font-semibold text-[#1E1A41]">
+                          <div className="flex-1">
+                            <p className="font-bold text-white text-lg">
                               {link.label}
                             </p>
-                            <p className="text-sm text-[#1E1A41]/70">
+                            <p className="text-sm text-white/90 font-medium">
                               {link.username}
                             </p>
                           </div>
+                          <div className="text-white/70 group-hover:text-white transition-colors">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </div>
                         </div>
+                        <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </Card>
                     </motion.a>
                   );

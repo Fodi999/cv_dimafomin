@@ -5,6 +5,7 @@ import { useInView } from "react-intersection-observer";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { X } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const portfolioImages = [
   {
@@ -118,6 +119,7 @@ const portfolioImages = [
 ];
 
 export default function Portfolio() {
+  const { t } = useLanguage();
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -137,12 +139,11 @@ export default function Portfolio() {
           >
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-[#FEF9F5] mb-4">
-                Portfolio
+                {t.portfolio.title}
               </h2>
               <div className="w-20 h-1 bg-[#3BC864] mx-auto rounded-full mb-6" />
               <p className="text-lg text-[#FEF9F5]/80 max-w-2xl mx-auto">
-                Odkryj moje najlepsze kreacje - każde danie opowiada swoją
-                historię
+                {t.portfolio.subtitle}
               </p>
             </div>
 
@@ -194,7 +195,7 @@ export default function Portfolio() {
           <button
             className="absolute top-2 right-2 md:top-4 md:right-4 text-white hover:text-gray-300 transition-colors bg-black/50 rounded-full p-2"
             onClick={() => setSelectedImage(null)}
-            aria-label="Закрыть"
+            aria-label={t.portfolio.closeButton}
           >
             <X className="w-6 h-6 md:w-8 md:h-8" />
           </button>

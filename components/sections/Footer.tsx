@@ -1,8 +1,10 @@
 "use client";
 
 import { Heart, Instagram, Mail, Phone } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Footer() {
+  const { t } = useLanguage();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -10,18 +12,18 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-center md:text-left">
-            <h3 className="text-2xl font-bold mb-2 text-[#FEF9F5]">Dima Fomin</h3>
+            <h3 className="text-2xl font-bold mb-2 text-[#FEF9F5]">{t.footer.title}</h3>
             <p className="text-[#FEF9F5]/80">
-              Professional Chef 🇵🇱
+              {t.footer.subtitle}
             </p>
           </div>
 
           <div className="flex flex-col items-center gap-2">
             <p className="text-sm text-[#FEF9F5]/70">
-              © {currentYear} Dima Fomin. Wszelkie prawa zastrzeżone.
+              © {currentYear} {t.footer.title}. {t.footer.copyright}
             </p>
             <p className="text-xs text-[#FEF9F5]/60 flex items-center gap-1">
-              Stworzone z <Heart className="w-3 h-3 fill-current text-[#3BC864]" /> dla pasji kulinarnej
+              {t.footer.madeWith} <Heart className="w-3 h-3 fill-current text-[#3BC864]" /> {t.footer.forPassion}
             </p>
           </div>
 
@@ -56,8 +58,7 @@ export default function Footer() {
 
         <div className="mt-8 pt-6 border-t border-[#FEF9F5]/20 text-center">
           <p className="text-xs text-[#FEF9F5]/60">
-            Sushi Chef Polska | Sushi Master Warszawa | Praca Sushi Chef |
-            Professional Japanese Chef Poland
+            {t.footer.keywords}
           </p>
         </div>
       </div>
