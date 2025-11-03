@@ -51,15 +51,22 @@ export default function AvatarUploader({
     setIsUploading(true);
 
     try {
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+      const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "cv_sushi_chef";
+
+      // Check if Cloudinary is configured
+      if (!cloudName || cloudName === "your_cloud_name") {
+        throw new Error("Cloudinary nie jest skonfigurowany. Ustaw NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME w pliku .env.local");
+      }
+
       // Create FormData for Cloudinary upload
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "cv_sushi_chef");
-      formData.append("cloud_name", process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "");
+      formData.append("upload_preset", uploadPreset);
 
       // Upload to Cloudinary
       const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
         {
           method: "POST",
           body: formData,
@@ -67,7 +74,8 @@ export default function AvatarUploader({
       );
 
       if (!response.ok) {
-        throw new Error("Upload failed");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error?.message || "Upload failed");
       }
 
       const data = await response.json();
@@ -79,7 +87,14 @@ export default function AvatarUploader({
       alert("✅ Zdjęcie zostało pomyślnie przesłane!");
     } catch (error) {
       console.error("Cloudinary upload error:", error);
-      alert("❌ Błąd podczas przesyłania zdjęcia. Spróbuj ponownie.");
+      const errorMessage = error instanceof Error ? error.message : "Nieznany błąd";
+      
+      if (errorMessage.includes("nie jest skonfigurowany")) {
+        alert(`❌ ${errorMessage}\n\nAby włączyć przesyłanie zdjęć:\n1. Utwórz konto na cloudinary.com\n2. Skopiuj swój Cloud Name\n3. Dodaj go do .env.local`);
+      } else {
+        alert(`❌ Błąd podczas przesyłania zdjęcia: ${errorMessage}`);
+      }
+      
       setPreview(null);
     } finally {
       setIsUploading(false);

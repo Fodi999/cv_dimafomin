@@ -50,6 +50,59 @@ NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=cv_sushi_chef
 
 **Важно:** Замените `your_cloud_name_here` на ваш реальный Cloud Name из Dashboard!
 
+---
+
+## ⚠️ Improved Error Handling (NEW)
+
+### Smart Error Messages
+
+The application now includes intelligent error handling for Cloudinary uploads:
+
+#### ❌ Cloudinary Not Configured
+If you see this error:
+```
+Cloudinary nie jest skonfigurowany. 
+Ustaw NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME w pliku .env.local
+```
+
+**This means:**
+- You haven't replaced `your_cloud_name` in `.env.local`
+- Or the environment variable is not loaded
+
+**Fix:**
+1. Open `.env.local`
+2. Replace `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name` 
+3. With your actual Cloud Name: `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=dqhkjd7xz`
+4. **Restart the dev server:** Stop (`Ctrl+C`) and run `npm run dev` again
+
+#### ❌ Upload Failed with Specific Error
+The error message will now show the actual Cloudinary error:
+```
+❌ Błąd podczas przesyłania zdjęcia: [specific error from Cloudinary]
+```
+
+**Common errors:**
+- `Invalid preset` → Create the `cv_sushi_chef` preset (Step 3)
+- `File too large` → Image must be under 5MB
+- `Unauthorized` → Preset must be set to "Unsigned"
+
+### Testing
+
+After configuration, test the upload:
+1. Go to `http://localhost:3000/academy/profile`
+2. Click the camera icon on the avatar
+3. Select an image (JPG, PNG, or WebP)
+4. You should see:
+   - ✅ Image preview with "Preview" badge
+   - ✅ Upload in progress
+   - ✅ Success: "Zdjęcie zostało pomyślnie przesłane!"
+
+If it fails, check:
+- Browser console for detailed error
+- `.env.local` has correct cloud name
+- Dev server was restarted after changing `.env.local`
+- Upload preset `cv_sushi_chef` exists and is "Unsigned"
+
 ### Шаг 5: Перезапустите dev сервер
 
 ```bash

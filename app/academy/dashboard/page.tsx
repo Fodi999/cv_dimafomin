@@ -359,9 +359,9 @@ export default function DashboardPage() {
         <p className="text-gray-600 mb-6">
           {t.academy?.dashboard?.aiSubtitle || "На основі ваших результатів система пропонує наступний курс"}
         </p>
-        {dashboardData.recommendations?.map((rec) => (
+        {dashboardData.recommendations?.map((rec, index) => (
           <div
-            key={rec.id}
+            key={rec.id || `rec-${index}`}
             className="p-6 bg-gradient-to-r from-pink-100 to-orange-50 rounded-xl border-2 border-orange-200"
           >
             <p className="font-bold text-lg text-[#1E1A41] mb-2">🍣 {rec.title}</p>

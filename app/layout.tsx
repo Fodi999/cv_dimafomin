@@ -1,19 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { getMetadata } from "@/lib/seo";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserProvider } from "@/contexts/UserContext";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// NOTE: Removed `next/font/google` usage because Turbopack reported
+// a missing internal module when resolving the Google font.
+// Using standard CSS/classnames instead keeps the build stable under Turbopack.
 
 // Default metadata (будет использоваться как fallback)
 export const metadata: Metadata = getMetadata("pl");
@@ -49,9 +42,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192x192.svg" />
         <link rel="apple-touch-startup-image" href="/icon-512x512.svg" />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}
-      >
+      <body className="antialiased relative">
         <LanguageProvider>
           <UserProvider>
             {children}
