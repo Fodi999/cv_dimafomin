@@ -177,6 +177,53 @@ export const translations = {
       forPassion: 'dla pasji kulinarnej',
       keywords: 'Sushi Chef Polska | Sushi Master Warszawa | Praca Sushi Chef | Professional Japanese Chef Poland',
     },
+    // Academy Section
+    academy: {
+      dashboard: {
+        title: 'Panel osobisty',
+        subtitle: 'Twój postęp i osiągnięcia',
+        completedCourses: 'Ukończone kursy',
+        certificates: 'Certyfikaty',
+        rating: 'Ranking',
+        totalHours: 'Godzin nauki',
+        activeCourses: 'Aktywne kursy',
+      },
+      leaderboard: {
+        title: 'Ranking szefów',
+        subtitle: 'Top profesjonaliści Akademii Sushi',
+      },
+      certificates: {
+        title: 'Moje certyfikaty',
+        subtitle: 'Potwierdzenie twoich osiągnięć',
+      },
+    },
+    // Market Section
+    market: {
+      title: 'Marketplace przepisów',
+      subtitle: 'Profesjonalne przepisy od doświadczonych sushi chefów',
+      search: 'Szukaj przepisów...',
+      difficulty: {
+        all: 'Wszystkie poziomy',
+        beginner: 'Początkujący',
+        intermediate: 'Średniozaawansowany',
+        advanced: 'Profesjonalny',
+      },
+      sort: {
+        popular: 'Popularne',
+        newest: 'Najnowsze',
+        priceLow: 'Cena: niska',
+        priceHigh: 'Cena: wysoka',
+        rating: 'Ocena',
+      },
+      recipe: {
+        buy: 'Kup',
+        purchased: 'Zakupiono',
+        students: 'uczniów',
+        about: 'O kursie',
+        whatYouLearn: 'Czego się nauczysz',
+        instructor: 'Instruktor',
+      },
+    },
   },
   ua: {
     // Navigation
@@ -353,6 +400,53 @@ export const translations = {
       madeWith: 'Створено з',
       forPassion: 'для кулінарної пристрасті',
       keywords: 'Суші-шеф Польща | Суші-майстер Варшава | Робота Суші-шеф | Професійний японський кухар Польща',
+    },
+    // Academy Section
+    academy: {
+      dashboard: {
+        title: 'Особистий кабінет',
+        subtitle: 'Ваш прогрес та досягнення',
+        completedCourses: 'Пройдено курсів',
+        certificates: 'Сертифікати',
+        rating: 'Рейтинг',
+        totalHours: 'Годин навчання',
+        activeCourses: 'Активні курси',
+      },
+      leaderboard: {
+        title: 'Рейтинг шефів',
+        subtitle: 'Топ професіоналів Академії суші',
+      },
+      certificates: {
+        title: 'Мої сертифікати',
+        subtitle: 'Підтвердження ваших досягнень',
+      },
+    },
+    // Market Section
+    market: {
+      title: 'Маркетплейс рецептів',
+      subtitle: 'Професійні рецепти від досвідчених суші-шефів',
+      search: 'Пошук рецептів...',
+      difficulty: {
+        all: 'Усі рівні',
+        beginner: 'Початківець',
+        intermediate: 'Середній',
+        advanced: 'Професіонал',
+      },
+      sort: {
+        popular: 'Популярні',
+        newest: 'Нові',
+        priceLow: 'Ціна: низька',
+        priceHigh: 'Ціна: висока',
+        rating: 'Рейтинг',
+      },
+      recipe: {
+        buy: 'Купити',
+        purchased: 'Придбано',
+        students: 'студентів',
+        about: 'Про курс',
+        whatYouLearn: 'Що ви вивчите',
+        instructor: 'Інструктор',
+      },
     },
   },
 } as const;

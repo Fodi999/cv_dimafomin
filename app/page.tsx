@@ -12,11 +12,10 @@ import ScrollToTop from "@/components/ScrollToTop";
 import ScrollProgress from "@/components/ScrollProgress";
 import StructuredData from "@/components/StructuredData";
 import DynamicMetaTags from "@/components/DynamicMetaTags";
-import { LanguageProvider } from "@/contexts/LanguageContext";
 
 export default function Home() {
   return (
-    <LanguageProvider>
+    <>
       <DynamicMetaTags />
       <StructuredData />
       <ScrollProgress />
@@ -31,6 +30,6 @@ export default function Home() {
         <Contact />
         <Footer />
       </main>
-    </LanguageProvider>
+    </>
   );
 }
