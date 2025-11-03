@@ -1,11 +1,13 @@
 "use client";
 
 import { use } from "react";
+import Link from "next/link";
 import { ArrowLeft, Star, Users, Clock, Award } from "lucide-react";
 import { useRouter } from "next/navigation";
 import PurchaseButton from "@/components/market/PurchaseButton";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { useUser } from "@/contexts/UserContext";
 
 // Mock data (в реальному проекті - з API)
 const mockRecipeData: Record<string, any> = {
@@ -40,6 +42,7 @@ interface RecipeDetailPageProps {
 export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
   const { id } = use(params);
   const router = useRouter();
+  const { isAuthenticated } = useUser();
   const recipe = mockRecipeData[id];
 
   if (!recipe) {
@@ -58,16 +61,27 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
   }
 
   return (
-    <div className="max-w-5xl mx-auto">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        onClick={() => router.push("/market")}
-        className="mb-6"
-      >
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        Назад
-      </Button>
+    <div className="max-w-5xl mx-auto relative">
+      {/* Back Buttons */}
+      <div className="flex items-center gap-4 mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => router.push("/market")}
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          До маркетплейсу
+        </Button>
+        
+        {isAuthenticated && (
+          <Link
+            href="/academy/dashboard"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm text-[#1E1A41] hover:text-[#3BC864] transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>До профілю</span>
+          </Link>
+        )}
+      </div>
 
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
         {/* Hero Image */}

@@ -127,11 +127,14 @@
     @apply border-border outline-ring/50;
   }
   html {
-    scroll-behavior: smooth;
+    /* scroll-behavior moved to data attribute to avoid Next.js warning */
     -webkit-overflow-scrolling: touch;
     /* Prevent zoom on double tap */
     touch-action: manipulation;
     -ms-touch-action: manipulation;
+  }
+  html[data-scroll-behavior="smooth"] {
+    scroll-behavior: smooth;
   }
   body {
     @apply bg-background text-foreground;

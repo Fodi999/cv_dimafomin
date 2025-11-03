@@ -15,7 +15,7 @@ const mockData = [
 
 export default function LeaderboardPage() {
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto relative">
       {/* Header */}
       <div className="mb-12 text-center">
         <h1 className="text-4xl md:text-5xl font-bold text-[#1E1A41] mb-4">

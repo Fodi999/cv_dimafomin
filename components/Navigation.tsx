@@ -2,16 +2,36 @@
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUser } from "@/contexts/UserContext";
+import { LogIn, LogOut, User } from "lucide-react";
+import AuthModal from "@/components/auth/AuthModal";
 
 export default function Navigation() {
   const { t } = useLanguage();
+  const { user, isAuthenticated, login, logout } = useUser();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  
+  const handleLogin = () => {
+    setShowAuthModal(true);
+  };
+  
+  const goToDashboard = () => {
+    router.push("/academy/dashboard");
+  };
+  
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
   
   const navLinks = [
     { id: "hero", label: t.nav.home },
@@ -21,7 +41,9 @@ export default function Navigation() {
     { id: "experience", label: t.nav.experience },
     { id: "contact", label: t.nav.contact },
   ];
-  const { scrollYProgress } = useScroll();
+  const { scrollYProgress } = useScroll({
+    container: typeof window !== "undefined" ? { current: document.documentElement } : undefined,
+  });
   const backgroundColor = useTransform(
     scrollYProgress,
     [0, 0.1],
@@ -75,7 +97,7 @@ export default function Navigation() {
   return (
     <>
       <motion.nav
-        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md"
+        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md relative"
         style={{
           backgroundColor,
           boxShadow: shadow,
@@ -121,6 +143,48 @@ export default function Navigation() {
               
               {/* Language Switcher */}
               <LanguageSwitcher />
+              
+              {/* Login/Logout Button */}
+              {isAuthenticated ? (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={goToDashboard}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-full transition-colors hover:bg-white/10 ${
+                      isScrolled ? "text-[#1E1A41]" : "text-white"
+                    }`}
+                  >
+                    <User className="w-4 h-4" />
+                    <span className="text-sm font-medium">{user?.name}</span>
+                  </button>
+                  <Button
+                    onClick={handleLogout}
+                    variant="outline"
+                    size="sm"
+                    className={`rounded-full ${
+                      isScrolled
+                        ? "border-[#1E1A41] text-[#1E1A41] hover:bg-[#1E1A41] hover:text-white"
+                        : "border-white text-white hover:bg-white hover:text-[#1E1A41]"
+                    }`}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    {t.nav.logout || "Вихід"}
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  onClick={handleLogin}
+                  variant="outline"
+                  size="sm"
+                  className={`rounded-full ${
+                    isScrolled
+                      ? "border-[#1E1A41] text-[#1E1A41] hover:bg-[#1E1A41] hover:text-white"
+                      : "border-white text-white hover:bg-white hover:text-[#1E1A41]"
+                  }`}
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  {t.nav.login || "Вхід"}
+                </Button>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -169,12 +233,49 @@ export default function Navigation() {
                 {link.label}
               </motion.button>
             ))}
+            
+            {/* Login/Logout Button in Mobile */}
+            <div className="pt-3 border-t border-[#1E1A41]/10">
+              {isAuthenticated ? (
+                <div className="space-y-2">
+                  <button
+                    onClick={goToDashboard}
+                    className="flex items-center justify-center gap-2 w-full px-4 py-2 text-[#1E1A41] hover:bg-[#C5E98A]/30 rounded-lg transition-colors"
+                  >
+                    <User className="w-4 h-4" />
+                    <span className="text-sm font-medium">{user?.name}</span>
+                  </button>
+                  <Button
+                    onClick={handleLogout}
+                    variant="outline"
+                    size="sm"
+                    className="w-full border-[#1E1A41] text-[#1E1A41] hover:bg-[#1E1A41] hover:text-white"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    {t.nav.logout}
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  onClick={handleLogin}
+                  variant="outline"
+                  size="sm"
+                  className="w-full border-[#1E1A41] text-[#1E1A41] hover:bg-[#1E1A41] hover:text-white"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  {t.nav.login}
+                </Button>
+              )}
+            </div>
           </div>
         </motion.div>
       </motion.nav>
 
       {/* Spacer to prevent content from going under fixed nav */}
       <div className="h-0" />
+      
+      {/* Auth Modal */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </>
   );
 }

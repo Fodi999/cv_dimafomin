@@ -24,13 +24,20 @@ async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): Promise<
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...fetchOptions,
     headers,
+    // Add cache: 'no-store' to avoid caching 404 responses
+    cache: 'no-store',
   });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({
       message: "An error occurred",
     }));
-    throw new Error(error.message || `HTTP ${response.status}`);
+    
+    // Only throw on non-404 errors or include status in error
+    const errorMessage = error.message || `HTTP ${response.status}`;
+    const err = new Error(errorMessage) as Error & { status: number };
+    err.status = response.status;
+    throw err;
   }
 
   return response.json();
@@ -69,8 +76,8 @@ export const authApi = {
 
 export const academyApi = {
   // Dashboard
-  getDashboard: async (token: string) => {
-    return apiFetch("/academy/dashboard", { token });
+  getDashboard: async (userId: string, token?: string) => {
+    return apiFetch(`/user/${userId}/dashboard`, { token });
   },
 
   // Courses

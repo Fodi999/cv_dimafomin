@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pl">
+    <html lang="pl" data-scroll-behavior="smooth">
       <head>
         {/* Viewport - Fixed scale, no zoom */}
         <meta 
@@ -32,7 +32,8 @@ export default function RootLayout({
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
         />
         
-        {/* iOS PWA Meta Tags */}
+        {/* PWA Meta Tags - Updated for modern standards */}
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Dima Fomin" />
@@ -49,7 +50,7 @@ export default function RootLayout({
         <link rel="apple-touch-startup-image" href="/icon-512x512.svg" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}
       >
         <LanguageProvider>
           <UserProvider>

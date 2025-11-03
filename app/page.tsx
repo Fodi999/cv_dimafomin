@@ -21,7 +21,7 @@ export default function Home() {
       <ScrollProgress />
       <Navigation />
       <ScrollToTop />
-      <main className="min-h-screen">
+      <main className="min-h-screen relative">
         <Hero />
         <About />
         <Portfolio />

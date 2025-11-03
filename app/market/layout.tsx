@@ -16,7 +16,7 @@ export default function MarketLayout({
   return (
     <div className="min-h-screen flex flex-col bg-[#FEF9F5]">
       <Navigation />
-      <main className="flex-1 container mx-auto px-4 py-24">
+      <main className="flex-1 container mx-auto px-4 py-24 relative">
         {children}
       </main>
       <Footer />

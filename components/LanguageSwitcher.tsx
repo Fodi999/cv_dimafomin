@@ -8,7 +8,7 @@ export default function LanguageSwitcher() {
   const { language, setLanguage } = useLanguage();
 
   return (
-    <div className="flex items-center gap-2 bg-[#1E1A41]/10 backdrop-blur-sm rounded-full p-1 border border-[#1E1A41]/20">
+    <div className="flex items-center gap-2 bg-[#1E1A41]/10 backdrop-blur-sm rounded-full p-1 border border-[#1E1A41]/20 relative">
       <button
         onClick={() => setLanguage('pl')}
         className="relative px-4 py-2 text-sm font-semibold rounded-full transition-all duration-300"

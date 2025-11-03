@@ -6,7 +6,9 @@ import { useState, useEffect } from "react";
 
 export default function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
-  const { scrollYProgress } = useScroll();
+  const { scrollYProgress } = useScroll({
+    container: typeof window !== "undefined" ? { current: document.documentElement } : undefined,
+  });
 
   useEffect(() => {
     const unsubscribe = scrollYProgress.on("change", (latest) => {
