@@ -44,6 +44,17 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const token = localStorage.getItem("authToken");
       const userId = localStorage.getItem("userId");
       
+      // Validate UUID format (simple check)
+      const isValidUUID = userId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+      
+      if (!isValidUUID) {
+        console.warn("⚠️ Invalid userId format in localStorage, clearing auth data");
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("userId");
+        setIsLoading(false);
+        return;
+      }
+      
       if (token && userId) {
         try {
           // Get user profile from backend
@@ -59,11 +70,29 @@ export function UserProvider({ children }: { children: ReactNode }) {
             xp: profileData.xp,
             chefTokens: profileData.chefTokens,
           });
-        } catch (error) {
+        } catch (error: any) {
           console.error("Failed to fetch user profile:", error);
-          // Clear invalid token
-          localStorage.removeItem("authToken");
-          localStorage.removeItem("userId");
+          
+          // Handle server errors (500, 404, etc.) - create minimal user from stored data
+          if (error?.status === 500 || error?.status === 404) {
+            console.warn("⚠️ Using minimal user data from localStorage");
+            // Keep user authenticated but with minimal data
+            setUser({
+              id: userId,
+              name: "User",
+              email: "",
+              role: "student",
+              level: 1,
+              xp: 0,
+              chefTokens: 0,
+            });
+          } else {
+            // Only clear token on auth errors (401, 403)
+            if (error?.status === 401 || error?.status === 403) {
+              localStorage.removeItem("authToken");
+              localStorage.removeItem("userId");
+            }
+          }
         }
       }
       setIsLoading(false);
@@ -83,6 +112,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
       
       if (!userId) {
         throw new Error("User ID not found in response");
+      }
+      
+      // Validate UUID format
+      const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+      
+      if (!isValidUUID) {
+        console.error("❌ Invalid userId format received from backend:", userId);
+        throw new Error("Invalid user ID format received from server");
       }
       
       // Store token and userId
@@ -135,6 +172,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
       
       if (!userId) {
         throw new Error("User ID not found in response");
+      }
+      
+      // Validate UUID format
+      const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+      
+      if (!isValidUUID) {
+        console.error("❌ Invalid userId format received from backend:", userId);
+        throw new Error("Invalid user ID format received from server");
       }
       
       // Store token and userId
@@ -190,8 +235,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const token = localStorage.getItem("authToken");
       if (!token) throw new Error("No auth token");
       
+      // Transform 'avatar' to 'avatarUrl' for backend API
+      const apiData: any = { ...data };
+      if ('avatar' in apiData) {
+        apiData.avatarUrl = apiData.avatar;
+        delete apiData.avatar;
+      }
+      
       // API call to update profile
-      await academyApi.updateProfile(user.id, data, token);
+      await academyApi.updateProfile(user.id, apiData, token);
       
       // Update user locally
       const updatedUser = { ...user, ...data };

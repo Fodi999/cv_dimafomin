@@ -46,6 +46,37 @@ export default function DashboardPage() {
         console.info("✅ Dashboard data loaded from API");
       } catch (error: any) {
         console.error("Error loading dashboard:", error);
+        
+        // Handle 404 - profile not found (create default profile data)
+        if (error?.status === 404 || error?.message?.includes("Profile not found")) {
+          console.warn("⚠️ Profile not found, using default data");
+          // Create minimal dashboard data from user context
+          setDashboardData({
+            profile: {
+              userId: user?.id || '',
+              name: user?.name || 'User',
+              email: user?.email || '',
+              level: user?.level || 1,
+              xp: user?.xp || 0,
+              chefTokens: user?.chefTokens || 0,
+              avatarUrl: user?.avatar,
+            },
+            courses: [],
+            certificates: [],
+            achievements: [],
+            wallet: {
+              chefTokens: user?.chefTokens || 0,
+              totalEarned: 0,
+              totalSpent: 0,
+            },
+            ranking: {
+              globalRank: 0,
+              totalUsers: 0,
+            },
+          });
+          return;
+        }
+        
         // Redirect to home if unauthorized
         if (error?.status === 401) {
           router.push("/");

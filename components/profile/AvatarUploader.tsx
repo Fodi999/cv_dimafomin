@@ -51,50 +51,59 @@ export default function AvatarUploader({
     setIsUploading(true);
 
     try {
-      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-      const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "cv_sushi_chef";
+      // First, convert file to base64 or upload to temporary storage
+      // Then use backend API endpoint for upload
+      const reader = new FileReader();
+      
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
 
-      // Check if Cloudinary is configured
-      if (!cloudName || cloudName === "your_cloud_name") {
-        throw new Error("Cloudinary nie jest skonfigurowany. Ustaw NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME w pliku .env.local");
+      const base64Data = await base64Promise;
+      
+      // Use backend API to upload image
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app';
+      const token = localStorage.getItem("authToken");
+      
+      if (!token) {
+        throw new Error("Nie jesteś zalogowany");
       }
 
-      // Create FormData for Cloudinary upload
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", uploadPreset);
-
-      // Upload to Cloudinary
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      // Upload via backend endpoint
+      const response = await fetch(`${backendUrl}/api/upload/image`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          imageUrl: base64Data,
+        }),
+      });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || "Upload failed");
+        throw new Error(errorData.message || errorData.error || "Upload failed");
       }
 
       const data = await response.json();
+      const imageUrl = data.data?.url || data.url;
+      
+      if (!imageUrl) {
+        throw new Error("Nie otrzymano URL obrazu z serwera");
+      }
       
       // Call parent callback with uploaded URL
-      onUploadComplete(data.secure_url);
+      onUploadComplete(imageUrl);
       
       // Show success message
       alert("✅ Zdjęcie zostało pomyślnie przesłane!");
     } catch (error) {
-      console.error("Cloudinary upload error:", error);
+      console.error("Upload error:", error);
       const errorMessage = error instanceof Error ? error.message : "Nieznany błąd";
-      
-      if (errorMessage.includes("nie jest skonfigurowany")) {
-        alert(`❌ ${errorMessage}\n\nAby włączyć przesyłanie zdjęć:\n1. Utwórz konto na cloudinary.com\n2. Skopiuj swój Cloud Name\n3. Dodaj go do .env.local`);
-      } else {
-        alert(`❌ Błąd podczas przesyłania zdjęcia: ${errorMessage}`);
-      }
-      
+      alert(`❌ Błąd podczas przesyłania zdjęcia: ${errorMessage}`);
       setPreview(null);
     } finally {
       setIsUploading(false);
