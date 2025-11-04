@@ -103,11 +103,13 @@ export default function Navigation() {
   return (
     <>
       <motion.nav
-        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md transition-colors duration-300 pt-safe"
+        className="fixed top-0 left-0 right-0 z-50 transition-colors duration-300"
         style={{
-          backgroundColor,
-          boxShadow: shadow,
+          backgroundColor: isScrolled ? 'rgba(254, 249, 245, 0.98)' : 'rgba(254, 249, 245, 0.95)',
+          boxShadow: isScrolled ? '0px 4px 20px rgba(0,0,0,0.1)' : '0px 2px 10px rgba(0,0,0,0.05)',
           paddingTop: 'env(safe-area-inset-top)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -115,11 +117,7 @@ export default function Navigation() {
             {/* Logo */}
             <motion.button
               onClick={() => scrollToSection("hero")}
-              className={`text-2xl font-bold transition-colors cursor-pointer ${
-                !isHomePage || isScrolled 
-                  ? "text-[#1E1A41] hover:text-[#3BC864]" 
-                  : "text-white hover:text-[#3BC864]"
-              }`}
+              className="text-2xl font-bold text-[#1E1A41] hover:text-[#3BC864] transition-colors cursor-pointer z-10"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -136,9 +134,7 @@ export default function Navigation() {
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                       activeSection === link.id
                         ? "bg-[#3BC864] text-white shadow-lg"
-                        : !isHomePage || isScrolled
-                        ? "text-[#1E1A41] hover:bg-[#C5E98A]/30 hover:text-[#1E1A41]"
-                        : "text-white hover:bg-white/10 hover:text-white"
+                        : "text-[#1E1A41] hover:bg-[#C5E98A]/30 hover:text-[#1E1A41]"
                     }`}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -156,9 +152,7 @@ export default function Navigation() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={goToDashboard}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-full transition-colors hover:bg-white/10 ${
-                      !isHomePage || isScrolled ? "text-[#1E1A41]" : "text-white"
-                    }`}
+                    className="flex items-center gap-2 px-3 py-2 rounded-full transition-colors hover:bg-[#C5E98A]/20 text-[#1E1A41]"
                   >
                     <User className="w-4 h-4" />
                     <span className="text-sm font-medium">{user?.name}</span>
@@ -167,11 +161,7 @@ export default function Navigation() {
                     onClick={handleLogout}
                     variant="outline"
                     size="sm"
-                    className={`rounded-full ${
-                      !isHomePage || isScrolled
-                        ? "border-[#1E1A41] text-[#1E1A41] hover:bg-[#1E1A41] hover:text-white"
-                        : "border-white text-white hover:bg-white hover:text-[#1E1A41]"
-                    }`}
+                    className="rounded-full border-[#1E1A41] text-[#1E1A41] hover:bg-[#1E1A41] hover:text-white"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     {t.nav.logout || "Вихід"}
@@ -182,11 +172,7 @@ export default function Navigation() {
                   onClick={handleLogin}
                   variant="outline"
                   size="sm"
-                  className={`rounded-full ${
-                    !isHomePage || isScrolled
-                      ? "border-[#1E1A41] text-[#1E1A41] hover:bg-[#1E1A41] hover:text-white"
-                      : "border-white text-white hover:bg-white hover:text-[#1E1A41]"
-                  }`}
+                  className="rounded-full border-[#1E1A41] text-[#1E1A41] hover:bg-[#1E1A41] hover:text-white"
                 >
                   <LogIn className="w-4 h-4 mr-2" />
                   {t.nav.login || "Вхід"}
@@ -196,11 +182,7 @@ export default function Navigation() {
 
             {/* Mobile Menu Button */}
             <button
-              className={`md:hidden p-2 rounded-lg transition-colors ${
-                !isHomePage || isScrolled
-                  ? "text-[#1E1A41] hover:bg-[#C5E98A]/30"
-                  : "text-white hover:bg-white/10"
-              }`}
+              className="md:hidden p-2 rounded-lg transition-colors text-[#1E1A41] hover:bg-[#C5E98A]/30 z-10"
               onClick={() => setIsOpen(!isOpen)}
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -216,9 +198,13 @@ export default function Navigation() {
             opacity: isOpen ? 1 : 0,
           }}
           transition={{ duration: 0.3 }}
-          className="md:hidden overflow-hidden bg-[#FEF9F5]/98 backdrop-blur-md border-t border-[#1E1A41]/10"
+          className="md:hidden overflow-hidden bg-[#FEF9F5] border-t border-[#1E1A41]/10"
+          style={{
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+          }}
         >
-          <div className="px-4 py-6 space-y-3">
+          <div className="px-4 py-6 space-y-3 max-h-[calc(100vh-5rem)] overflow-y-auto">
             {/* Mobile Header with User Info */}
             {isAuthenticated && user && (
               <div className="mb-4 pb-4 border-b border-[#1E1A41]/10">
