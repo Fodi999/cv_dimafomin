@@ -103,11 +103,10 @@ export default function Navigation() {
   return (
     <>
       <motion.nav
-        className="fixed top-0 left-0 right-0 z-50 transition-colors duration-300"
+        className="fixed top-0 left-0 right-0 z-50 transition-colors duration-300 pt-safe-top"
         style={{
           backgroundColor: isScrolled ? 'rgba(254, 249, 245, 0.98)' : 'rgba(254, 249, 245, 0.95)',
           boxShadow: isScrolled ? '0px 4px 20px rgba(0,0,0,0.1)' : '0px 2px 10px rgba(0,0,0,0.05)',
-          paddingTop: 'env(safe-area-inset-top)',
           backdropFilter: 'blur(10px)',
           WebkitBackdropFilter: 'blur(10px)',
         }}
@@ -292,7 +291,7 @@ export default function Navigation() {
       </motion.nav>
 
       {/* Spacer to prevent content from going under fixed nav */}
-      <div className="h-20" style={{ marginTop: 'env(safe-area-inset-top)' }} />
+      <div className="h-20 mt-safe-top" />
       
       {/* Auth Modal */}
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
