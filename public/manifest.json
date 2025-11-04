@@ -7,6 +7,8 @@
   "background_color": "#FEF9F5",
   "theme_color": "#1E1A41",
   "orientation": "portrait-primary",
+  "scope": "/",
+  "display_override": ["standalone", "minimal-ui"],
   "icons": [
     {
       "src": "/icon-192x192.svg",
@@ -25,5 +27,22 @@
   "dir": "ltr",
   "categories": ["food", "business", "lifestyle"],
   "keywords": ["chef", "kucharz", "polska", "gdansk", "sushi", "praca", "culinary"],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Open Academy Dashboard",
+      "url": "/academy/dashboard",
+      "icons": [{ "src": "/icon-192x192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Market",
+      "short_name": "Market",
+      "description": "Browse Courses",
+      "url": "/market",
+      "icons": [{ "src": "/icon-192x192.svg", "sizes": "192x192" }]
+    }
+  ]
 }

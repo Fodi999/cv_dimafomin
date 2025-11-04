@@ -103,10 +103,11 @@ export default function Navigation() {
   return (
     <>
       <motion.nav
-        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md transition-colors duration-300"
+        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md transition-colors duration-300 pt-safe"
         style={{
           backgroundColor,
           boxShadow: shadow,
+          paddingTop: 'env(safe-area-inset-top)',
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -305,7 +306,7 @@ export default function Navigation() {
       </motion.nav>
 
       {/* Spacer to prevent content from going under fixed nav */}
-      <div className="h-0" />
+      <div className="h-20" style={{ marginTop: 'env(safe-area-inset-top)' }} />
       
       {/* Auth Modal */}
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
