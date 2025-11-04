@@ -9,36 +9,7 @@ import DashboardCard from "@/components/academy/DashboardCard";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
 import { academyApi } from "@/lib/api";
-
-interface DashboardData {
-  stats: {
-    completedCourses: number;
-    certificates: number;
-    ranking: number;
-    totalHours: number;
-    walletBalance: number;
-    currentLevel: number;
-    xp: number;
-    xpToNextLevel: number;
-  };
-  activeCourses: Array<{
-    id: string;
-    title: string;
-    progress: number;
-  }>;
-  certificates: Array<{
-    id: string;
-    courseName: string;
-    pdfUrl: string;
-    issuedDate: string;
-  }>;
-  recommendations: Array<{
-    id: string;
-    title: string;
-    level: string;
-    rating: number;
-  }>;
-}
+import type { DashboardData } from "@/lib/types";
 
 export default function DashboardPage() {
   const { t } = useLanguage();
@@ -59,68 +30,26 @@ export default function DashboardPage() {
       try {
         setIsLoading(true);
         
-        // Try to load from real API
-        try {
-          const token = localStorage.getItem("authToken");
-          if (!token) throw new Error("No auth token");
-          
-          // Use user ID from context
-          if (!user?.id) throw new Error("No user ID");
-          
-          const data = await academyApi.getDashboard(user.id, token);
-          setDashboardData(data as DashboardData);
-          console.info("✅ Dashboard data loaded from API");
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          router.push("/");
           return;
-        } catch (apiError: any) {
-          // API not available - this is expected during development
-          if (process.env.NODE_ENV === 'development' && apiError?.status === 404) {
-            console.info("ℹ️ Backend API not connected, using mock data");
-          } else if (apiError?.message !== "No auth token") {
-            console.warn("API error:", apiError);
-          }
         }
         
-        // Fallback to mock data if API fails
-        setDashboardData({
-          stats: {
-            completedCourses: 5,
-            certificates: 3,
-            ranking: 12,
-            totalHours: 48,
-            walletBalance: 250,
-            currentLevel: 5,
-            xp: 2400,
-            xpToNextLevel: 3000,
-          },
-          activeCourses: [
-            { id: "1", title: "Майстер суші: професійний рівень", progress: 65 },
-            { id: "2", title: "Японська кухня для початківців", progress: 30 },
-          ],
-          certificates: [
-            {
-              id: "1",
-              courseName: "Основи суші",
-              pdfUrl: "/certificates/sushi-basics.pdf",
-              issuedDate: "2025-10-15",
-            },
-            {
-              id: "2",
-              courseName: "Сашимі техніка",
-              pdfUrl: "/certificates/sashimi.pdf",
-              issuedDate: "2025-09-20",
-            },
-          ],
-          recommendations: [
-            {
-              id: "sushi-basics-2024",
-              title: "Podstawy Sushi – Kurs dla Początkujących",
-              level: "Початковий",
-              rating: 5,
-            },
-          ],
-        });
-      } catch (error) {
-        console.error("Error fetching dashboard:", error);
+        if (!user?.id) {
+          console.error("No user ID");
+          return;
+        }
+        
+        const data = await academyApi.getDashboard(user.id, token);
+        setDashboardData(data);
+        console.info("✅ Dashboard data loaded from API");
+      } catch (error: any) {
+        console.error("Error loading dashboard:", error);
+        // Redirect to home if unauthorized
+        if (error?.status === 401) {
+          router.push("/");
+        }
       } finally {
         setIsLoading(false);
       }
@@ -140,30 +69,38 @@ export default function DashboardPage() {
     );
   }
 
-  if (!dashboardData || !dashboardData.stats) return null;
+  if (!dashboardData || !dashboardData.profile) return null;
+
+  // Extract data from dashboard
+  const profile = dashboardData.profile;
+  const courses = dashboardData.courses || [];
+  const certificates = dashboardData.certificates || [];
+  const achievements = dashboardData.achievements || [];
+  const wallet = dashboardData.wallet;
+  const ranking = dashboardData.ranking;
 
   const stats = [
     {
       title: t.academy?.dashboard?.completedCourses || "Пройдено курсів",
-      value: dashboardData.stats.completedCourses?.toString() || "0",
+      value: courses.filter((c: any) => c.progress === 100).length.toString(),
       icon: "📚",
       color: "from-blue-500 to-cyan-500",
     },
     {
       title: t.academy?.dashboard?.certificates || "Сертифікати",
-      value: dashboardData.stats.certificates?.toString() || "0",
+      value: certificates.length.toString(),
       icon: "📜",
       color: "from-purple-500 to-pink-500",
     },
     {
       title: t.academy?.dashboard?.rating || "Рейтинг",
-      value: `#${dashboardData.stats.ranking || 0}`,
+      value: ranking ? `#${ranking.globalRank}` : "#0",
       icon: "🏆",
       color: "from-green-500 to-emerald-500",
     },
     {
       title: t.academy?.dashboard?.totalHours || "Годин навчання",
-      value: dashboardData.stats.totalHours?.toString() || "0",
+      value: Math.floor(courses.reduce((acc: number, c: any) => acc + (c.duration || 0), 0) / 60).toString(),
       icon: "⏱️",
       color: "from-orange-500 to-red-500",
     },
@@ -253,10 +190,10 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-2xl font-bold">
-              {t.academy?.dashboard?.level || "Рівень"} {dashboardData.stats?.currentLevel || 1}
+              {t.academy?.dashboard?.level || "Рівень"} {profile?.level || 1}
             </h3>
             <p className="text-white/80">
-              {dashboardData.stats?.xp || 0} / {dashboardData.stats?.xpToNextLevel || 100} {t.academy?.dashboard?.xp || "XP"}
+              {profile?.xp || 0} / {(profile?.level || 1) * 1000} {t.academy?.dashboard?.xp || "XP"}
             </p>
           </div>
           <TrendingUp className="w-12 h-12 opacity-80" />
@@ -265,12 +202,12 @@ export default function DashboardPage() {
           <div
             className="h-full bg-white rounded-full transition-all duration-500"
             style={{
-              width: `${((dashboardData.stats?.xp || 0) / (dashboardData.stats?.xpToNextLevel || 100)) * 100}%`,
+              width: `${((profile?.xp || 0) / ((profile?.level || 1) * 1000)) * 100}%`,
             }}
           />
         </div>
         <p className="text-xs text-white/70 mt-2">
-          {(dashboardData.stats?.xpToNextLevel || 100) - (dashboardData.stats?.xp || 0)} {t.academy?.dashboard?.xp || "XP"} {t.academy?.dashboard?.xpToNext || "до наступного рівня"}
+          {((profile?.level || 1) * 1000) - (profile?.xp || 0)} {t.academy?.dashboard?.xp || "XP"} {t.academy?.dashboard?.xpToNext || "до наступного рівня"}
         </p>
       </div>
 
@@ -280,7 +217,7 @@ export default function DashboardPage() {
         <div className="p-6 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl shadow-lg text-white text-center">
           <div className="flex items-center justify-center gap-2 mb-1">
             <Coins className="w-8 h-8" />
-            <p className="text-3xl font-bold">{dashboardData.stats?.walletBalance || 0}</p>
+            <p className="text-3xl font-bold">{wallet?.chefTokens || profile?.chefTokens || 0}</p>
           </div>
           <p className="text-sm opacity-90">{t.academy?.dashboard?.chefTokens || "ChefTokens"}</p>
         </div>
@@ -296,9 +233,9 @@ export default function DashboardPage() {
           <Clock className="w-6 h-6 text-[#3BC864]" />
           {t.academy?.dashboard?.activeCourses || "Активні курси"}
         </h2>
-        {dashboardData.activeCourses && dashboardData.activeCourses.length > 0 ? (
+        {courses && courses.length > 0 ? (
           <div className="space-y-4">
-            {dashboardData.activeCourses.map((course) => (
+            {courses.map((course: any) => (
               <div
                 key={course.id}
                 className="flex items-center justify-between p-4 bg-[#FEF9F5] rounded-xl hover:shadow-md transition-shadow"
@@ -306,13 +243,13 @@ export default function DashboardPage() {
                 <div className="flex-1">
                   <h3 className="font-semibold text-[#1E1A41] mb-1">{course.title}</h3>
                   <p className="text-sm text-[#1E1A41]/60">
-                    {t.academy?.dashboard?.progress || "Прогрес"}: {course.progress}%
+                    {t.academy?.dashboard?.progress || "Прогрес"}: {course.progress || 0}%
                   </p>
                 </div>
                 <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden ml-4">
                   <div
                     className="h-full bg-gradient-to-r from-[#3BC864] to-[#C5E98A] transition-all duration-500"
-                    style={{ width: `${course.progress}%` }}
+                    style={{ width: `${course.progress || 0}%` }}
                   />
                 </div>
               </div>
@@ -374,41 +311,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* AI Recommendations */}
-      <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-        <h2 className="text-2xl font-bold text-[#1E1A41] mb-3 flex items-center gap-2">
-          <Bot className="w-7 h-7 text-[#3BC864]" />
-          {t.academy?.dashboard?.aiRecommendations || "Рекомендації від Culinary AI"}
-        </h2>
-        <p className="text-gray-600 mb-6">
-          {t.academy?.dashboard?.aiSubtitle || "На основі ваших результатів система пропонує наступний курс"}
-        </p>
-        {dashboardData.recommendations?.map((rec, index) => (
-          <div
-            key={rec.id || `rec-${index}`}
-            className="p-6 bg-gradient-to-r from-pink-100 to-orange-50 rounded-xl border-2 border-orange-200"
-          >
-            <p className="font-bold text-lg text-[#1E1A41] mb-2 flex items-center gap-2">
-              <ChefHat className="w-5 h-5 text-[#3BC864]" />
-              {rec.title}
-            </p>
-            <div className="flex items-center gap-4 text-sm text-gray-600">
-              <span>{rec.level}</span>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: rec.rating }).map((_, i) => (
-                  <Award key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                ))}
-              </div>
-            </div>
-            <Link
-              href={`/market/${rec.id}`}
-              className="inline-block mt-4 px-6 py-2 bg-gradient-to-r from-[#3BC864] to-[#C5E98A] text-white rounded-lg hover:opacity-90 transition-opacity"
-            >
-              {t.academy?.dashboard?.viewCourse || "Переглянути курс"}
-            </Link>
-          </div>
-        ))}
-      </div>
+
 
       {/* Navigation Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
