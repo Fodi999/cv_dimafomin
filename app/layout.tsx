@@ -3,6 +3,7 @@ import "./globals.css";
 import { getMetadata } from "@/lib/seo";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserProvider } from "@/contexts/UserContext";
+import PWARegister from "@/components/PWARegister";
 
 // NOTE: Removed `next/font/google` usage because Turbopack reported
 // a missing internal module when resolving the Google font.
@@ -19,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="pl" data-scroll-behavior="smooth">
       <head>
-        {/* Viewport - Fixed scale, no zoom */}
+        {/* Viewport - Fixed scale, no zoom, safe-area support */}
         <meta 
           name="viewport" 
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
@@ -38,11 +39,24 @@ export default function RootLayout({
         <meta name="theme-color" content="#1E1A41" />
         <meta name="msapplication-TileColor" content="#1E1A41" />
         
+        {/* iOS Touch Icons - PNG for iOS Safari */}
+        <link rel="apple-touch-icon" href="/icon-180x180.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/icon-180x180.png" />
+        <link rel="apple-touch-icon" sizes="192x192" href="/icon-192x192.png" />
+        <link rel="apple-touch-icon" sizes="512x512" href="/icon-512x512.png" />
+        
+        {/* Favicon */}
+        <link rel="icon" type="image/png" sizes="192x192" href="/icon-192x192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png" />
+        
         {/* iOS Splash Screens */}
-        <link rel="apple-touch-icon" href="/icon-192x192.svg" />
-        <link rel="apple-touch-startup-image" href="/icon-512x512.svg" />
+        <link rel="apple-touch-startup-image" href="/icon-1024x1024.png" />
+        
+        {/* Manifest */}
+        <link rel="manifest" href="/manifest.json" />
       </head>
       <body className="antialiased relative">
+        <PWARegister />
         <LanguageProvider>
           <UserProvider>
             {children}

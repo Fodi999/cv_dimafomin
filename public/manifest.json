@@ -2,7 +2,7 @@
   "name": "Dima Fomin - Professional Chef",
   "short_name": "Dima Fomin",
   "description": "Professional Chef with 20 years of international experience. Specializing in sushi and European cuisine. Based in Gdańsk, Poland.",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#FEF9F5",
   "theme_color": "#1E1A41",
@@ -11,16 +11,34 @@
   "display_override": ["standalone", "minimal-ui"],
   "icons": [
     {
-      "src": "/icon-192x192.svg",
+      "src": "/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/icon-512x512.svg",
+      "src": "/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-1024x1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "lang": "pl-PL",
@@ -35,14 +53,30 @@
       "short_name": "Dashboard",
       "description": "Open Academy Dashboard",
       "url": "/academy/dashboard",
-      "icons": [{ "src": "/icon-192x192.svg", "sizes": "192x192" }]
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "Market",
       "short_name": "Market",
       "description": "Browse Courses",
       "url": "/market",
-      "icons": [{ "src": "/icon-192x192.svg", "sizes": "192x192" }]
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home-mobile.png",
+      "sizes": "1284x2778",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Home screen with chef portfolio"
+    },
+    {
+      "src": "/screenshots/dashboard-mobile.png",
+      "sizes": "1284x2778",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Academy Dashboard"
     }
   ]
 }

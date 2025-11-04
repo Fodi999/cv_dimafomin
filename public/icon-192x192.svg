@@ -1,5 +1,11 @@
 <svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="192" height="192" fill="#2c2419"/>
-  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="80" font-weight="bold" fill="#faf8f5">DF</text>
-  <text x="50%" y="65%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#faf8f5">Sushi</text>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3BC864;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C5E98A;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="28.799999999999997" fill="#1E1A41"/>
+  <text x="50%" y="80.64" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="67.19999999999999" font-weight="bold" fill="url(#grad)">DF</text>
+  <text x="50%" y="130.56" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="23.04" fill="#C5E98A" opacity="0.9">CHEF</text>
 </svg>
