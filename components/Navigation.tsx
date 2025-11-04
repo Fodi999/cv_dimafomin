@@ -215,9 +215,36 @@ export default function Navigation() {
             opacity: isOpen ? 1 : 0,
           }}
           transition={{ duration: 0.3 }}
-          className="md:hidden overflow-hidden bg-[#FEF9F5]/98 backdrop-blur-md"
+          className="md:hidden overflow-hidden bg-[#FEF9F5]/98 backdrop-blur-md border-t border-[#1E1A41]/10"
         >
           <div className="px-4 py-6 space-y-3">
+            {/* Mobile Header with User Info */}
+            {isAuthenticated && user && (
+              <div className="mb-4 pb-4 border-b border-[#1E1A41]/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#3BC864] to-[#C5E98A] flex items-center justify-center text-white font-bold text-lg">
+                    {user.avatar || user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-[#1E1A41]">{user.name}</p>
+                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                      <span>Lvl {user.level || 1}</span>
+                      <span>•</span>
+                      <span>{user.xp || 0} XP</span>
+                      {user.chefTokens !== undefined && (
+                        <>
+                          <span>•</span>
+                          <span className="text-[#3BC864] font-medium">
+                            {user.chefTokens} CT
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             {/* Language Switcher in Mobile */}
             <div className="flex justify-center mb-2">
               <LanguageSwitcher />

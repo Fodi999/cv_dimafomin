@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { generateUUID } from "@/lib/uuid";
+import { authApi, academyApi, uploadApi } from "@/lib/api";
+import type { ProfileData } from "@/lib/types";
 
 interface User {
   id: string;
@@ -15,6 +16,9 @@ interface User {
   telegram?: string;
   whatsapp?: string;
   role: "student" | "instructor" | "admin";
+  level?: number;
+  xp?: number;
+  chefTokens?: number;
 }
 
 interface UserContextType {
@@ -38,19 +42,29 @@ export function UserProvider({ children }: { children: ReactNode }) {
     // Check for stored auth token on mount
     const checkAuth = async () => {
       const token = localStorage.getItem("authToken");
-      if (token) {
-        // TODO: Validate token with API
-        // const userData = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
-        // setUser(await userData.json());
-        
-        // Mock user for now
-        setUser({
-          id: "ef03cd81-71fd-429f-bb5f-8be5c9172ca8", // Dima Fomin UUID
-          name: "Dima Fomin",
-          email: "fodi85999@gmail.com",
-          avatar: "DF",
-          role: "instructor",
-        });
+      const userId = localStorage.getItem("userId");
+      
+      if (token && userId) {
+        try {
+          // Get user profile from backend
+          const profileData: ProfileData = await academyApi.getProfile(userId, token);
+          
+          setUser({
+            id: userId,
+            name: profileData.name || "User",
+            email: profileData.email || "",
+            avatar: profileData.avatarUrl,
+            role: "student",
+            level: profileData.level,
+            xp: profileData.xp,
+            chefTokens: profileData.chefTokens,
+          });
+        } catch (error) {
+          console.error("Failed to fetch user profile:", error);
+          // Clear invalid token
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("userId");
+        }
       }
       setIsLoading(false);
     };
@@ -61,37 +75,47 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // TODO: API call to backend
-      // const response = await fetch('/api/auth/login', {
-      //   method: 'POST',
-      //   body: JSON.stringify({ email, password }),
-      // });
-      // const data = await response.json();
-      // localStorage.setItem("authToken", data.token);
-      // 
-      // IMPORTANT: When implementing real API:
-      // - Get userId from backend response: data.user.id (UUID format)
-      // - Store token in localStorage for subsequent API calls
-      // - Use getUserIdFromToken() to extract userId from JWT if needed
+      // API call to backend
+      const response = await authApi.login(email, password);
       
-      // Check if user data exists in localStorage (from registration)
-      const storedUserData = localStorage.getItem("userData");
-      let mockUser: User;
+      // Extract userId from response (can be in userId or user.id or user.userId)
+      const userId = response.userId || response.user?.id || response.user?.userId;
       
-      if (storedUserData) {
-        mockUser = JSON.parse(storedUserData);
-      } else {
-        mockUser = {
-          id: "ef03cd81-71fd-429f-bb5f-8be5c9172ca8", // Dima Fomin UUID
-          name: "Dima Fomin",
-          email: email,
-          avatar: "DF",
-          role: "instructor",
-        };
+      if (!userId) {
+        throw new Error("User ID not found in response");
       }
       
-      localStorage.setItem("authToken", "mock-token-12345");
-      setUser(mockUser);
+      // Store token and userId
+      localStorage.setItem("authToken", response.token);
+      localStorage.setItem("userId", userId);
+      
+      // If user data is included in login response, use it directly
+      if (response.user) {
+        setUser({
+          id: userId,
+          name: response.user.name || "User",
+          email: response.user.email || email,
+          avatar: response.user.avatarUrl,
+          role: "student",
+          level: response.user.level,
+          xp: response.user.xp,
+          chefTokens: response.user.chefTokens,
+        });
+      } else {
+        // Otherwise fetch user profile
+        const profileData: ProfileData = await academyApi.getProfile(userId, response.token);
+        
+        setUser({
+          id: userId,
+          name: profileData.name || "User",
+          email: profileData.email || email,
+          avatar: profileData.avatarUrl,
+          role: "student",
+          level: profileData.level,
+          xp: profileData.xp,
+          chefTokens: profileData.chefTokens,
+        });
+      }
     } catch (error) {
       console.error("Login failed:", error);
       throw error;
@@ -103,31 +127,47 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const register = async (name: string, email: string, password: string) => {
     setIsLoading(true);
     try {
-      // TODO: API call to backend
-      // const response = await fetch('/api/auth/register', {
-      //   method: 'POST',
-      //   body: JSON.stringify({ name, email, password }),
-      // });
-      // const data = await response.json();
-      // localStorage.setItem("authToken", data.token);
-      // 
-      // IMPORTANT: When implementing real API:
-      // - Backend will generate UUID and return user object with id
-      // - Don't generate UUID on frontend - use backend's UUID
-      // - Save full user object from response: setUser(data.user)
+      // API call to backend
+      const response = await authApi.register(name, email, password);
       
-      // Create new user from registration data (MOCK - remove when API ready)
-      const newUser: User = {
-        id: generateUUID(), // Generate unique UUID for new user
-        name: name,
-        email: email,
-        avatar: name.charAt(0).toUpperCase() + (name.split(' ')[1]?.charAt(0).toUpperCase() || ''),
-        role: "student",
-      };
+      // Extract userId from response (can be in userId or user.id or user.userId)
+      const userId = response.userId || response.user?.id || response.user?.userId;
       
-      localStorage.setItem("authToken", "mock-token-" + Date.now());
-      localStorage.setItem("userData", JSON.stringify(newUser));
-      setUser(newUser);
+      if (!userId) {
+        throw new Error("User ID not found in response");
+      }
+      
+      // Store token and userId
+      localStorage.setItem("authToken", response.token);
+      localStorage.setItem("userId", userId);
+      
+      // If user data is included in register response, use it directly
+      if (response.user) {
+        setUser({
+          id: userId,
+          name: response.user.name || name,
+          email: response.user.email || email,
+          avatar: response.user.avatarUrl,
+          role: "student",
+          level: response.user.level,
+          xp: response.user.xp,
+          chefTokens: response.user.chefTokens,
+        });
+      } else {
+        // Otherwise fetch user profile
+        const profileData: ProfileData = await academyApi.getProfile(userId, response.token);
+        
+        setUser({
+          id: userId,
+          name: profileData.name || name,
+          email: profileData.email || email,
+          avatar: profileData.avatarUrl,
+          role: "student",
+          level: profileData.level,
+          xp: profileData.xp,
+          chefTokens: profileData.chefTokens,
+        });
+      }
     } catch (error) {
       console.error("Registration failed:", error);
       throw error;
@@ -138,6 +178,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem("authToken");
+    localStorage.removeItem("userId");
     setUser(null);
   };
 
@@ -146,19 +187,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
     
     setIsLoading(true);
     try {
-      // TODO: API call
-      // const response = await fetch('/api/user/profile', {
-      //   method: 'PATCH',
-      //   body: JSON.stringify(data),
-      //   headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
-      // });
+      const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("No auth token");
+      
+      // API call to update profile
+      await academyApi.updateProfile(user.id, data, token);
       
       // Update user locally
       const updatedUser = { ...user, ...data };
       setUser(updatedUser);
-      
-      // Save to localStorage for persistence
-      localStorage.setItem("userData", JSON.stringify(updatedUser));
     } catch (error) {
       console.error("Update profile failed:", error);
       throw error;
@@ -170,23 +207,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const uploadAvatar = async (file: File): Promise<string> => {
     setIsLoading(true);
     try {
-      // TODO: Upload to Cloudinary or your storage
-      // const formData = new FormData();
-      // formData.append('avatar', file);
-      // const response = await fetch('/api/upload/avatar', {
-      //   method: 'POST',
-      //   body: formData,
-      // });
-      // const { url } = await response.json();
+      const token = localStorage.getItem("authToken");
       
-      // Mock: Create object URL for preview
-      const avatarUrl = URL.createObjectURL(file);
+      // Upload to Cloudinary via backend
+      const result = await uploadApi.uploadImageFile(file, token || undefined);
+      const avatarUrl = result.url;
       
       // Update user avatar
       if (user) {
-        const updatedUser = { ...user, avatar: avatarUrl };
-        setUser(updatedUser);
-        localStorage.setItem("userData", JSON.stringify(updatedUser));
+        await updateProfile({ avatar: avatarUrl });
       }
       
       return avatarUrl;

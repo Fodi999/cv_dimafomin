@@ -21,6 +21,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Form states
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
@@ -34,14 +35,19 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
     try {
       await login(loginForm.email, loginForm.password);
       onClose();
       // Redirect to dashboard after successful login
       router.push("/academy/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error:", error);
+      setError(
+        error.message || 
+        "Błąd logowania. Sprawdź dane i spróbuj ponownie."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -49,9 +55,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
     if (registerForm.password !== registerForm.confirmPassword) {
-      alert(t.auth?.passwordMismatch || "Passwords do not match");
+      setError(t.auth?.passwordMismatch || "Passwords do not match");
       return;
     }
 
@@ -63,8 +70,12 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       onClose();
       // Redirect to dashboard after successful registration
       router.push("/academy/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Register error:", error);
+      setError(
+        error.message || 
+        "Błąd rejestracji. Spróbuj ponownie."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -137,6 +148,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
               {/* Forms */}
               <div className="p-6">
+                {/* Error Message */}
+                {error && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-600 text-center">{error}</p>
+                  </div>
+                )}
+                
                 {activeTab === "login" ? (
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div>
