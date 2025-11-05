@@ -136,6 +136,14 @@ export const academyApi = {
     return apiFetch(`/user/${userId}/posts`, { token });
   },
 
+  createPost: async (data: any, token: string) => {
+    return apiFetch("/recipes", {
+      method: "POST",
+      token,
+      body: JSON.stringify(data),
+    });
+  },
+
   // Courses
   getCourses: async (language = "pl", category?: string): Promise<CourseData[]> => {
     const params = new URLSearchParams();
@@ -274,6 +282,14 @@ export const aiApi = {
       token,
       body: JSON.stringify({ userId, message, language }),
     });
+  },
+
+  // Get ingredient nutrition info
+  getIngredientNutrition: async (ingredientName: string, weight?: number, token?: string) => {
+    const params = new URLSearchParams();
+    params.append("name", ingredientName);
+    if (weight) params.append("weight", weight.toString());
+    return apiFetch(`/ai/ingredient-nutrition?${params}`, { token });
   },
 };
 

@@ -3,13 +3,15 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Save, X, Mail, MapPin, Phone, User as UserIcon, Instagram, MessageCircle, AtSign, Globe, BookOpen, Award, Camera, Users, ChefHat, Calendar, Edit2, Eye, Settings, Heart, Bookmark, Share2, LogOut } from "lucide-react";
+import { Save, X, Mail, MapPin, Phone, User as UserIcon, Instagram, MessageCircle, AtSign, Globe, BookOpen, Award, Camera, Users, ChefHat, Calendar, Edit2, Eye, Settings, Heart, Bookmark, Share2, LogOut, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AvatarUploader from "@/components/profile/AvatarUploader";
+import CreateRecipePost from "@/components/academy/CreateRecipePost";
 import { useToast } from "@/components/ui/toast";
+import { CreateRecipePostData } from "@/lib/types";
 import Link from "next/link";
 
 export default function ProfilePage() {
@@ -23,6 +25,7 @@ export default function ProfilePage() {
   const [viewMode, setViewMode] = useState<"private" | "public">("private"); // Перемикач режимів
   const [activeTab, setActiveTab] = useState<"posts" | "saved" | "courses">("posts");
   const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [showCreatePost, setShowCreatePost] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
@@ -82,6 +85,30 @@ export default function ProfilePage() {
     logout();
     showToast("Ви успішно вийшли з акаунту", "success");
     router.push("/");
+  };
+
+  const handleCreateRecipe = async (data: CreateRecipePostData) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        showToast("❌ Необхідна авторизація", "error");
+        return;
+      }
+
+      // Import API
+      const { academyApi } = await import("@/lib/api");
+      
+      // Create post
+      await academyApi.createPost(data, token);
+      
+      showToast("✅ Рецепт успішно створено!", "success");
+      
+      // TODO: Refresh posts list
+      // You can add state management here to update the posts
+    } catch (error) {
+      console.error("Error creating recipe:", error);
+      showToast("❌ Помилка створення рецепту", "error");
+    }
   };
 
   // Mock user posts for Pinterest grid
@@ -256,13 +283,13 @@ export default function ProfilePage() {
       )}
 
       {/* Profile Header - Pinterest Style */}
-      <div className="max-w-4xl mx-auto px-4 pt-8">
+      <div className="max-w-4xl mx-auto px-4 pt-4 sm:pt-8">
         {/* View Mode Toggle - Top Center */}
-        <div className="flex justify-center mb-6">
-          <div className="inline-flex items-center gap-2 bg-white rounded-full p-1 shadow-sm border border-gray-200">
+        <div className="flex justify-center mb-4 sm:mb-6">
+          <div className="inline-flex items-center gap-1 sm:gap-2 bg-white rounded-full p-1 shadow-sm border border-gray-200">
             <button
               onClick={() => setViewMode("private")}
-              className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
+              className={`px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-sm sm:text-base font-medium transition-all duration-300 ${
                 viewMode === "private"
                   ? "bg-black text-white"
                   : "text-gray-700 hover:bg-gray-100"
@@ -272,7 +299,7 @@ export default function ProfilePage() {
             </button>
             <button
               onClick={() => setViewMode("public")}
-              className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
+              className={`px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-sm sm:text-base font-medium transition-all duration-300 ${
                 viewMode === "public"
                   ? "bg-black text-white"
                   : "text-gray-700 hover:bg-gray-100"
@@ -283,15 +310,15 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-sm p-8 mb-6">
+        <div className="bg-white rounded-3xl shadow-sm p-4 sm:p-8 mb-6">
           {/* Avatar - Centered */}
-          <div className="flex flex-col items-center text-center mb-6">
-            <div className="relative mb-4">
-              <div className="w-28 h-28 rounded-full border-4 border-white shadow-lg overflow-hidden">
+          <div className="flex flex-col items-center text-center mb-4 sm:mb-6">
+            <div className="relative mb-3 sm:mb-4">
+              <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-4 border-white shadow-lg overflow-hidden">
                 {user.avatar ? (
                   <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
+                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl sm:text-4xl font-bold">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -299,14 +326,14 @@ export default function ProfilePage() {
             </div>
 
             {/* Name and Username */}
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">
               {user.name}
             </h1>
-            <p className="text-gray-500 text-lg mb-1">@{user.name.toLowerCase().replace(/\s+/g, '_')}</p>
+            <p className="text-gray-500 text-sm sm:text-lg mb-1">@{user.name.toLowerCase().replace(/\s+/g, '_')}</p>
             
             {/* Bio */}
             {user.bio && (
-              <p className="text-gray-700 text-base max-w-xl mt-3 mb-4">
+              <p className="text-gray-700 text-sm sm:text-base max-w-xl mt-2 sm:mt-3 mb-3 sm:mb-4 px-4">
                 {user.bio}
               </p>
             )}
@@ -320,7 +347,7 @@ export default function ProfilePage() {
             )}
 
             {/* Stats - Inline */}
-            <div className="flex items-center gap-6 text-sm mb-6">
+            <div className="flex items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm mb-4 sm:mb-6">
               <div>
                 <span className="font-bold text-gray-900">{userPosts.length}</span>
                 <span className="text-gray-600 ml-1">публікацій</span>
@@ -336,38 +363,45 @@ export default function ProfilePage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3 flex-wrap justify-center">
               {viewMode === "private" ? (
                 <>
                   <button
-                    onClick={() => setIsEditing(true)}
-                    className="px-6 py-2.5 rounded-full font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2"
+                    onClick={() => setShowCreatePost(true)}
+                    className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-sm sm:text-base font-semibold bg-gradient-to-r from-[#3BC864] to-[#C5E98A] text-white hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-1.5 sm:gap-2"
                   >
-                    <Edit2 className="w-4 h-4" />
-                    Редагувати
+                    <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span>Створити рецепт</span>
+                  </button>
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-sm sm:text-base font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-1.5 sm:gap-2"
+                  >
+                    <Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span className="hidden xs:inline">Редагувати</span>
                   </button>
                   <Link
                     href="/academy/dashboard"
-                    className="px-6 py-2.5 rounded-full font-semibold bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center"
+                    className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-semibold bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center"
                   >
-                    <Settings className="w-5 h-5" />
+                    <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="px-6 py-2.5 rounded-full font-semibold bg-white border-2 border-red-300 text-red-600 hover:bg-red-50 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center"
-                    title="Вийти"
+                    className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-semibold bg-white border-2 border-red-300 text-red-600 hover:bg-red-50 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center"
+                    title="Війти"
                   >
-                    <LogOut className="w-5 h-5" />
+                    <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </>
               ) : (
                 <>
                   <button
-                    className="px-6 py-2.5 rounded-full font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+                    className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-sm sm:text-base font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl"
                   >
                     Підписатись
                   </button>
-                  <button className="px-6 py-2.5 rounded-full font-semibold bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl">
+                  <button className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-sm sm:text-base font-semibold bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl">
                     Написати
                   </button>
                 </>
@@ -567,6 +601,13 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+
+      {/* Create Recipe Post Modal */}
+      <CreateRecipePost
+        isOpen={showCreatePost}
+        onClose={() => setShowCreatePost(false)}
+        onSubmit={handleCreateRecipe}
+      />
     </div>
   );
 }

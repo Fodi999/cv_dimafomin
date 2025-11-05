@@ -71,12 +71,12 @@ export default function UserProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Profile Header - Pinterest Style */}
-      <div className="max-w-4xl mx-auto px-4 pt-8">
-        <div className="bg-white rounded-3xl shadow-sm p-8 mb-6">
+      <div className="max-w-4xl mx-auto px-4 pt-4 sm:pt-8">
+        <div className="bg-white rounded-3xl shadow-sm p-4 sm:p-8 mb-6">
           {/* Avatar - Centered */}
-          <div className="flex flex-col items-center text-center mb-6">
-            <div className="relative mb-4">
-              <div className="w-28 h-28 rounded-full border-4 border-white shadow-lg overflow-hidden">
+          <div className="flex flex-col items-center text-center mb-4 sm:mb-6">
+            <div className="relative mb-3 sm:mb-4">
+              <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-4 border-white shadow-lg overflow-hidden">
                 {profileData?.avatarUrl ? (
                   <Image
                     src={profileData.avatarUrl}
@@ -86,7 +86,7 @@ export default function UserProfilePage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold">
+                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl sm:text-4xl font-bold">
                     {profileData?.name?.charAt(0).toUpperCase() || 'U'}
                   </div>
                 )}
@@ -94,28 +94,28 @@ export default function UserProfilePage() {
             </div>
 
             {/* Name and Username */}
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">
               {profileData?.name || 'User'}
             </h1>
-            <p className="text-gray-500 text-lg mb-1">@{profileData?.name?.toLowerCase().replace(/\s+/g, '_') || 'user'}</p>
+            <p className="text-gray-500 text-sm sm:text-lg mb-1">@{profileData?.name?.toLowerCase().replace(/\s+/g, '_') || 'user'}</p>
             
             {/* Bio */}
             {profileData?.bio && (
-              <p className="text-gray-700 text-base max-w-xl mt-3 mb-4">
+              <p className="text-gray-700 text-sm sm:text-base max-w-xl mt-2 sm:mt-3 mb-3 sm:mb-4 px-4">
                 {profileData.bio}
               </p>
             )}
 
             {/* Location */}
             {profileData?.location && (
-              <div className="flex items-center gap-2 text-gray-600 mb-4">
-                <MapPin className="w-4 h-4" />
-                <span className="text-sm">{profileData.location}</span>
+              <div className="flex items-center gap-2 text-gray-600 mb-3 sm:mb-4">
+                <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm">{profileData.location}</span>
               </div>
             )}
 
             {/* Stats - Inline */}
-            <div className="flex items-center gap-6 text-sm mb-6">
+            <div className="flex items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm mb-4 sm:mb-6">
               <div>
                 <span className="font-bold text-gray-900">{stats.posts}</span>
                 <span className="text-gray-600 ml-1">публікацій</span>
@@ -131,10 +131,10 @@ export default function UserProfilePage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3 flex-wrap justify-center">
               <button
                 onClick={handleFollow}
-                className={`px-8 py-2.5 rounded-full font-semibold transition-all duration-300 ${
+                className={`px-6 sm:px-8 py-2 sm:py-2.5 rounded-full text-sm sm:text-base font-semibold transition-all duration-300 ${
                   isFollowing
                     ? "bg-gray-200 text-gray-900 hover:bg-gray-300"
                     : "bg-red-600 text-white hover:bg-red-700"
@@ -142,7 +142,7 @@ export default function UserProfilePage() {
               >
                 {isFollowing ? "Підписано" : "Підписатись"}
               </button>
-              <button className="px-8 py-2.5 rounded-full font-semibold bg-gray-100 text-gray-900 hover:bg-gray-200 transition-all duration-300">
+              <button className="px-6 sm:px-8 py-2 sm:py-2.5 rounded-full text-sm sm:text-base font-semibold bg-gray-100 text-gray-900 hover:bg-gray-200 transition-all duration-300">
                 Поділитись
               </button>
             </div>

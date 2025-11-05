@@ -70,19 +70,19 @@ export default function AllRecipes() {
   }
 
   return (
-    <section id="portfolio" className="py-20 px-4 bg-white">
+    <section id="portfolio" className="py-12 sm:py-20 px-4 bg-white">
       <div className="max-w-[1640px] mx-auto">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
             Портфоліо
           </h2>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto px-4">
             Відкрийте для себе найкращі рецепти від талановитих кухарів з усього світу
           </p>
         </motion.div>
@@ -116,12 +116,18 @@ export default function AllRecipes() {
                     className="cursor-pointer"
                   >
                     <div className="relative rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
-                      <img
-                        src={recipe.imageUrl}
-                        alt={recipe.title}
-                        loading="lazy"
-                        className="w-full h-auto object-cover"
-                      />
+                      {recipe.imageUrl ? (
+                        <img
+                          src={recipe.imageUrl}
+                          alt={recipe.title}
+                          loading="lazy"
+                          className="w-full h-auto object-cover"
+                        />
+                      ) : (
+                        <div className="w-full aspect-[3/4] bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                          <ChefHat className="w-16 h-16 text-gray-400" />
+                        </div>
+                      )}
                       
                       {/* Pinterest Hover Overlay */}
                       <div 
@@ -130,55 +136,55 @@ export default function AllRecipes() {
                         }`}
                       >
                       {/* Top Right Actions */}
-                      <div className="absolute top-3 right-3 flex gap-2">
+                      <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex gap-2">
                         <button 
-                          className="p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                          className="p-1.5 sm:p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors"
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                           }}
                         >
-                          <Bookmark className="w-4 h-4 text-gray-800" />
+                          <Bookmark className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-800" />
                         </button>
                       </div>
 
                       {/* Bottom Info */}
-                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                        <h3 className="font-semibold text-sm mb-1 line-clamp-2">
+                      <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 text-white">
+                        <h3 className="font-semibold text-xs sm:text-sm mb-1 line-clamp-2">
                           {recipe.title}
                         </h3>
-                        <p className="text-xs text-white/90 line-clamp-2 mb-2">
+                        <p className="text-[10px] sm:text-xs text-white/90 line-clamp-2 mb-2 hidden sm:block">
                           {recipe.description}
                         </p>
                         
                         {/* Author Info */}
-                        <div className="flex items-center gap-2 mb-3">
+                        <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
                           {authorAvatar ? (
                             <img 
                               src={authorAvatar} 
                               alt={authorName}
-                              className="w-6 h-6 rounded-full border-2 border-white"
+                              className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-white"
                             />
                           ) : (
-                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold border-2 border-white">
+                            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-[10px] sm:text-xs font-bold border-2 border-white">
                               {authorName?.charAt(0).toUpperCase()}
                             </div>
                           )}
-                          <span className="text-xs font-medium">{authorName}</span>
+                          <span className="text-[10px] sm:text-xs font-medium truncate">{authorName}</span>
                         </div>
                         
                         {/* Bottom Actions */}
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-1 text-xs">
-                            <Heart className="w-4 h-4" />
+                        <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+                          <div className="flex items-center gap-1 text-[10px] sm:text-xs">
+                            <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
                             <span>{recipe.likesCount || 0}</span>
                           </div>
-                          <div className="flex items-center gap-1 text-xs">
-                            <MessageCircle className="w-4 h-4" />
+                          <div className="flex items-center gap-1 text-[10px] sm:text-xs">
+                            <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                             <span>{recipe.commentsCount || 0}</span>
                           </div>
                           {recipe.difficulty && (
-                            <span className="text-xs px-2 py-1 bg-white/20 rounded-full backdrop-blur-sm">
+                            <span className="text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 bg-white/20 rounded-full backdrop-blur-sm whitespace-nowrap">
                               {recipe.difficulty === 'beginner' && '🟢 Початківець'}
                               {recipe.difficulty === 'intermediate' && '🟡 Середній'}
                               {recipe.difficulty === 'advanced' && '🔴 Професіонал'}

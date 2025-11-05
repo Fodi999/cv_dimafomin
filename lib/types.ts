@@ -159,14 +159,38 @@ export interface RecipePost {
   updatedAt?: string;
 }
 
+// Ingredient with brutto/netto data
+export interface IngredientData {
+  name: string;
+  brutto?: number;        // вага в грамах до очищення (gross_weight)
+  netto?: number;         // вага в грамах після очищення (net_weight)
+  unit?: string;          // одиниця вимірювання (г, кг, мл, л, шт)
+  calories?: number;      // калорії на 100г
+  protein?: number;       // білки на 100г
+  fat?: number;           // жири на 100г
+  carbs?: number;         // вуглеводи на 100г
+  totalCalories?: number; // загальна калорійність з урахуванням ваги
+  cost?: number;          // ціна інгредієнта
+}
+
 export interface CreateRecipePostData {
   title: string;
   description: string;
-  imageUrl: string;
-  ingredients: string[];
+  imageUrl?: string;
+  ingredients: (string | IngredientData)[]; // підтримка обох форматів
   steps: string[];
   category?: string;
   difficulty?: 'beginner' | 'intermediate' | 'advanced';
-  cookingTime?: number;
-  servings?: number;
+  cookingTime?: number;        // час приготування в хвилинах
+  servings?: number;           // кількість порцій
+  // Backend fields
+  grossWeight?: number;        // загальна вага брутто (сума всіх інгредієнтів)
+  netWeight?: number;          // загальна вага нетто
+  calories?: number;           // загальна калорійність
+  protein?: number;            // загальні білки
+  fats?: number;               // загальні жири
+  carbs?: number;              // загальні вуглеводи
+  yield?: number;              // вихід готової страви в грамах
+  cost?: number;               // загальна вартість
+  tokensReward?: number;       // нагорода в токенах
 }
