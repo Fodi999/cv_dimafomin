@@ -17,6 +17,14 @@ export interface ProfileData {
   whatsapp?: string;
 }
 
+export interface Transaction {
+  id: string;
+  type: 'earned' | 'spent';
+  amount: number;
+  reason: string;
+  date: string;
+}
+
 export interface DashboardData {
   profile: ProfileData;
   courses?: any[];
@@ -28,6 +36,7 @@ export interface DashboardData {
     chefTokens: number;
     totalEarned: number;
     totalSpent: number;
+    transactions?: Transaction[];
   };
   ranking?: {
     globalRank: number;
@@ -106,4 +115,58 @@ export interface UploadResponse {
   height: number;
   format: string;
   bytes: number;
+}
+
+// Recipe Post Types (Community Feed)
+
+export interface RecipePostComment {
+  id: string;
+  postId: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  text: string;
+  createdAt: string;
+}
+
+export interface RecipePostLike {
+  userId: string;
+  userName: string;
+  createdAt: string;
+}
+
+export interface RecipePost {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  userLevel?: number;
+  title: string;
+  description: string;
+  imageUrl: string;
+  ingredients: string[];
+  steps: string[];
+  category?: string;
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
+  cookingTime?: number;
+  servings?: number;
+  likes: RecipePostLike[];
+  likesCount: number;
+  comments: RecipePostComment[];
+  commentsCount: number;
+  tokensEarned: number;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface CreateRecipePostData {
+  title: string;
+  description: string;
+  imageUrl: string;
+  ingredients: string[];
+  steps: string[];
+  category?: string;
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
+  cookingTime?: number;
+  servings?: number;
 }

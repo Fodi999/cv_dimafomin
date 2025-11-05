@@ -1,15 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { LucideIcon } from "lucide-react";
 
 interface DashboardCardProps {
   title: string;
   value: string;
-  icon: string;
+  icon: LucideIcon | string;
   color: string;
 }
 
 export default function DashboardCard({ title, value, icon, color }: DashboardCardProps) {
+  const IconComponent = typeof icon !== 'string' ? icon : null;
+  
   return (
     <motion.div
       whileHover={{ scale: 1.05 }}
@@ -20,7 +23,13 @@ export default function DashboardCard({ title, value, icon, color }: DashboardCa
       
       {/* Content */}
       <div className="relative z-10">
-        <div className="text-4xl mb-3">{icon}</div>
+        <div className="mb-3 flex items-center">
+          {IconComponent ? (
+            <IconComponent className="w-10 h-10 text-[#3BC864]" strokeWidth={2} />
+          ) : (
+            <span className="text-4xl">{icon as string}</span>
+          )}
+        </div>
         <div className={`text-3xl font-bold bg-gradient-to-r ${color} bg-clip-text text-transparent mb-2`}>
           {value}
         </div>

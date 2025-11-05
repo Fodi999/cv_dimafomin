@@ -26,6 +26,7 @@ export default function Contact() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    requestType: "",
     message: "",
   });
 
@@ -40,7 +41,7 @@ export default function Contact() {
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitStatus("success");
-      setFormData({ name: "", email: "", message: "" });
+      setFormData({ name: "", email: "", requestType: "", message: "" });
       
       // Reset success message after 5 seconds
       setTimeout(() => setSubmitStatus("idle"), 5000);
@@ -109,6 +110,13 @@ export default function Contact() {
                   {t.contact.formTitle}
                 </h3>
 
+                <p className="text-sm text-[#3BC864] font-medium mb-6 flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {t.contact.responseTime}
+                </p>
+
                 {submitStatus === "success" && (
                   <div className="mb-6 p-4 bg-[#3BC864]/10 border border-[#3BC864] rounded-lg">
                     <p className="text-[#1E1A41] text-sm">
@@ -149,6 +157,28 @@ export default function Contact() {
                       required
                       className="w-full bg-white border-[#2B6A79]/20 focus:border-[#3BC864]"
                     />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="requestType" className="text-[#1E1A41] mb-2 block">
+                      {t.contact.requestTypeLabel}
+                    </Label>
+                    <select
+                      id="requestType"
+                      value={formData.requestType}
+                      onChange={(e) =>
+                        setFormData({ ...formData, requestType: e.target.value })
+                      }
+                      required
+                      className="w-full px-3 py-2 bg-white border border-[#2B6A79]/20 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3BC864] focus:border-[#3BC864] transition-colors"
+                    >
+                      <option value="" disabled>
+                        {t.contact.requestTypePlaceholder}
+                      </option>
+                      <option value="learning">{t.contact.requestTypes.learning}</option>
+                      <option value="partnership">{t.contact.requestTypes.partnership}</option>
+                      <option value="other">{t.contact.requestTypes.other}</option>
+                    </select>
                   </div>
 
                   <div>

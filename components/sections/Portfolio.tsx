@@ -156,10 +156,10 @@ export default function Portfolio() {
                   transition={{ duration: 0.5, delay: index * 0.05 }}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
-                  className="cursor-pointer"
+                  className="cursor-pointer h-full"
                   onClick={() => setSelectedImage(image)}
                 >
-                  <Card className="overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 bg-[#FEF9F5] border-[#240F24]/10">
+                  <Card className="overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 bg-[#FEF9F5] border-[#240F24]/10 h-full flex flex-col">
                     <div className="relative aspect-square overflow-hidden group">
                       <img
                         src={image.src}
@@ -167,13 +167,15 @@ export default function Portfolio() {
                         loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#2B6A79] via-[#3BC864]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="absolute bottom-0 left-0 right-0 p-3 md:p-6">
-                          <h3 className="text-white text-sm md:text-xl font-semibold">
-                            {image.title}
-                          </h3>
-                        </div>
-                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </div>
+                    <div className="p-3 md:p-4 flex-1 flex flex-col">
+                      <h4 className="text-[#1E1A41] font-semibold text-xs md:text-sm mb-1">
+                        {t.portfolio.items[index]}
+                      </h4>
+                      <p className="text-[#1E1A41]/70 text-xs md:text-sm leading-relaxed">
+                        {t.portfolio.descriptions[index]}
+                      </p>
                     </div>
                   </Card>
                 </motion.div>
@@ -208,11 +210,16 @@ export default function Portfolio() {
             <img
               src={selectedImage.src}
               alt={selectedImage.alt}
-              className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+              className="w-full h-auto max-h-[70vh] object-contain rounded-lg"
             />
-            <p className="text-white text-center mt-3 md:mt-4 text-base md:text-xl font-medium">
-              {selectedImage.title}
-            </p>
+            <div className="text-center mt-4 md:mt-6 max-w-2xl px-4">
+              <p className="text-white text-base md:text-xl font-semibold mb-2">
+                {t.portfolio.items[selectedImage.id - 1]}
+              </p>
+              <p className="text-white/80 text-sm md:text-lg">
+                {t.portfolio.descriptions[selectedImage.id - 1]}
+              </p>
+            </div>
           </motion.div>
         </motion.div>
       )}

@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Download, TrendingUp, Award, Clock, User as UserIcon, Mail, MapPin, Edit, BookOpen, FileText, Trophy, Timer, Coins, Bot, ShoppingCart, ChefHat } from "lucide-react";
+import { Download, TrendingUp, Award, Clock, User as UserIcon, Mail, MapPin, Edit, BookOpen, FileText, Trophy, Timer, Coins, Bot, ShoppingCart, ChefHat, Wallet, GraduationCap, ScrollText, Compass, Users, Camera, Heart, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import DashboardCard from "@/components/academy/DashboardCard";
+import WalletCard from "@/components/academy/WalletCard";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
 import { academyApi } from "@/lib/api";
@@ -114,41 +115,42 @@ export default function DashboardPage() {
     {
       title: t.academy?.dashboard?.completedCourses || "Пройдено курсів",
       value: courses.filter((c: any) => c.progress === 100).length.toString(),
-      icon: "📚",
+      icon: GraduationCap,
       color: "from-blue-500 to-cyan-500",
     },
     {
       title: t.academy?.dashboard?.certificates || "Сертифікати",
       value: certificates.length.toString(),
-      icon: "📜",
+      icon: ScrollText,
       color: "from-purple-500 to-pink-500",
     },
     {
       title: t.academy?.dashboard?.rating || "Рейтинг",
       value: ranking ? `#${ranking.globalRank}` : "#0",
-      icon: "🏆",
+      icon: Trophy,
       color: "from-green-500 to-emerald-500",
     },
     {
       title: t.academy?.dashboard?.totalHours || "Годин навчання",
       value: Math.floor(courses.reduce((acc: number, c: any) => acc + (c.duration || 0), 0) / 60).toString(),
-      icon: "⏱️",
+      icon: Clock,
       color: "from-orange-500 to-red-500",
     },
   ];
 
   return (
-    <div className="max-w-6xl mx-auto relative">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl md:text-5xl font-bold text-[#1E1A41] mb-4 flex items-center gap-3">
-          <ChefHat className="w-12 h-12 text-[#3BC864]" />
-          {t.academy?.dashboard?.title || "Особистий кабінет"}
-        </h1>
-        <p className="text-lg text-[#1E1A41]/70">
-          {t.academy?.dashboard?.subtitle || "Ваш прогрес та досягнення"}
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-white to-yellow-50 py-8 px-4">
+      <div className="max-w-6xl mx-auto relative">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold text-[#1E1A41] mb-4 flex items-center gap-3">
+            <ChefHat className="w-12 h-12 text-[#3BC864]" />
+            {t.academy?.dashboard?.title || "Особистий кабінет"}
+          </h1>
+          <p className="text-lg text-[#1E1A41]/70">
+            {t.academy?.dashboard?.subtitle || "Ваш прогрес та досягнення"}
+          </p>
+        </div>
 
       {/* User Profile Card */}
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border-2 border-[#3BC864]/20">
@@ -256,6 +258,56 @@ export default function DashboardPage() {
         {stats.map((stat, index) => (
           <DashboardCard key={index} {...stat} />
         ))}
+      </div>
+
+      {/* Wallet Card */}
+      <WalletCard 
+        balance={wallet?.chefTokens || profile?.chefTokens || 0}
+        totalEarned={wallet?.totalEarned || 0}
+        totalSpent={wallet?.totalSpent || 0}
+      />
+
+      {/* Community Card */}
+      <div className="bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl shadow-lg p-6 mb-8 text-white">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Users className="w-8 h-8" />
+            <div>
+              <h3 className="text-2xl font-bold">
+                {(t.academy as any)?.community?.title || "Спільнота"}
+              </h3>
+              <p className="text-white/90 text-sm">
+                {(t.academy as any)?.community?.subtitle || "Діліться своїми рецептами"}
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="bg-white/10 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <Camera className="w-4 h-4" />
+              <p className="text-sm opacity-90">Створити пост</p>
+            </div>
+            <p className="text-2xl font-bold">20 CT</p>
+          </div>
+          <div className="bg-white/10 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <Heart className="w-4 h-4" />
+              <p className="text-sm opacity-90">За лайк</p>
+            </div>
+            <p className="text-2xl font-bold">2 CT</p>
+          </div>
+        </div>
+
+        <Link
+          href="/academy/community"
+          className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-pink-500 rounded-xl hover:bg-white/90 transition-all shadow-lg font-medium w-full"
+        >
+          <Camera className="w-5 h-5" />
+          {(t.academy as any)?.community?.createPost || "Створити пост"}
+          <ArrowRight className="w-5 h-5" />
+        </Link>
       </div>
 
       {/* Active Courses */}
@@ -367,6 +419,7 @@ export default function DashboardPage() {
           <FileText className="w-5 h-5" />
           {t.academy?.dashboard?.allCertificates || "Всі сертифікати"}
         </Link>
+      </div>
       </div>
     </div>
   );

@@ -1,13 +1,15 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRef, useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useRouter } from "next/navigation";
 
 export default function Hero() {
   const { t } = useLanguage();
+  const router = useRouter();
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -97,6 +99,16 @@ export default function Hero() {
             {t.hero.subtitle}
           </motion.h2>
 
+          {/* Tagline */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
+            className="text-lg md:text-xl text-[#C5E98A] max-w-3xl mx-auto leading-relaxed font-medium"
+          >
+            {t.hero.tagline}
+          </motion.p>
+
           {/* Description - Typing Effect */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -119,13 +131,27 @@ export default function Hero() {
             transition={{ delay: 0.9, duration: 0.6, ease: "easeOut" }}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-6"
           >
-            <Button
-              size="lg"
-              className="bg-[#3BC864] text-white hover:bg-[#C5E98A] hover:text-[#240F24] text-lg px-8 py-6 rounded-full shadow-2xl transition-all duration-300 hover:scale-105"
-              onClick={() => scrollToSection("contact")}
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              {t.hero.ctaPrimary}
-            </Button>
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-[#3BC864] to-[#C5E98A] text-white hover:from-[#C5E98A] hover:to-[#3BC864] text-lg px-8 py-6 rounded-full shadow-2xl transition-all duration-300 group relative overflow-hidden"
+                onClick={() => router.push("/academy/dashboard")}
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  {t.hero.ctaPrimary}
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                </span>
+                <motion.div
+                  className="absolute inset-0 bg-white/20"
+                  initial={{ x: "-100%" }}
+                  whileHover={{ x: "100%" }}
+                  transition={{ duration: 0.5 }}
+                />
+              </Button>
+            </motion.div>
             <Button
               size="lg"
               variant="outline"
