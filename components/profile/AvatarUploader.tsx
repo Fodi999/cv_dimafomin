@@ -26,13 +26,13 @@ export default function AvatarUploader({
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      alert("Proszę wybrać plik obrazu");
+      alert("Будь ласка, оберіть файл зображення");
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert("Rozmiar pliku nie może przekraczać 5MB");
+      alert("Розмір файлу не може перевищувати 5MB");
       return;
     }
 
@@ -68,7 +68,7 @@ export default function AvatarUploader({
       const token = localStorage.getItem("authToken");
       
       if (!token) {
-        throw new Error("Nie jesteś zalogowany");
+        throw new Error("Ви не авторизовані");
       }
 
       // Upload via backend endpoint
@@ -92,18 +92,18 @@ export default function AvatarUploader({
       const imageUrl = data.data?.url || data.url;
       
       if (!imageUrl) {
-        throw new Error("Nie otrzymano URL obrazu z serwera");
+        throw new Error("Не отримано URL зображення від сервера");
       }
       
       // Call parent callback with uploaded URL
       onUploadComplete(imageUrl);
       
       // Show success message
-      alert("✅ Zdjęcie zostało pomyślnie przesłane!");
+      alert("✅ Фото успішно завантажено!");
     } catch (error) {
       console.error("Upload error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Nieznany błąd";
-      alert(`❌ Błąd podczas przesyłania zdjęcia: ${errorMessage}`);
+      const errorMessage = error instanceof Error ? error.message : "Невідома помилка";
+      alert(`❌ Помилка під час завантаження фото: ${errorMessage}`);
       setPreview(null);
     } finally {
       setIsUploading(false);
@@ -179,26 +179,6 @@ export default function AvatarUploader({
         )}
       </div>
 
-      {/* Upload Button */}
-      <Button
-        onClick={handleClick}
-        disabled={isUploading}
-        variant="outline"
-        className="gap-2"
-      >
-        {isUploading ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin" />
-            Przesyłanie...
-          </>
-        ) : (
-          <>
-            <Upload className="w-4 h-4" />
-            Prześlij zdjęcie
-          </>
-        )}
-      </Button>
-
       {/* Hidden File Input */}
       <input
         ref={fileInputRef}
@@ -210,7 +190,7 @@ export default function AvatarUploader({
 
       {/* Info Text */}
       <p className="text-xs text-gray-500 text-center max-w-xs">
-        JPG, PNG lub WEBP. Maks. 5MB.
+        JPG, PNG або WEBP. Макс. 5MB.
       </p>
     </div>
   );

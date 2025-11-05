@@ -2,7 +2,7 @@
 
 import Hero from "@/components/sections/Hero";
 import About from "@/components/sections/About";
-import Portfolio from "@/components/sections/Portfolio";
+import AllRecipes from "@/components/sections/AllRecipes";
 import Skills from "@/components/sections/Skills";
 import Experience from "@/components/sections/Experience";
 import Contact from "@/components/sections/Contact";
@@ -24,7 +24,7 @@ export default function Home() {
       <main className="min-h-screen relative">
         <Hero />
         <About />
-        <Portfolio />
+        <AllRecipes />
         <Skills />
         <Experience />
         <Contact />

@@ -117,6 +117,25 @@ export const academyApi = {
     });
   },
 
+  // Recipe Posts (Community Feed)
+  getAllPosts: async (filters?: {
+    limit?: number;
+    offset?: number;
+    category?: string;
+    difficulty?: string;
+  }) => {
+    const params = new URLSearchParams();
+    if (filters?.limit) params.append("limit", filters.limit.toString());
+    if (filters?.offset) params.append("offset", filters.offset.toString());
+    if (filters?.category) params.append("category", filters.category);
+    if (filters?.difficulty) params.append("difficulty", filters.difficulty);
+    return apiFetch(`/posts?${params}`);
+  },
+
+  getUserPosts: async (userId: string, token?: string) => {
+    return apiFetch(`/user/${userId}/posts`, { token });
+  },
+
   // Courses
   getCourses: async (language = "pl", category?: string): Promise<CourseData[]> => {
     const params = new URLSearchParams();

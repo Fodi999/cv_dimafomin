@@ -12,6 +12,7 @@ export const translations = {
       contact: 'Kontakt',
       login: 'Zaloguj się',
       logout: 'Wyloguj się',
+      search: 'Szukaj projektów, umiejętności...',
     },
     // Hero Section
     hero: {
@@ -458,6 +459,7 @@ export const translations = {
       contact: 'Контакт',
       login: 'Увійти',
       logout: 'Вийти',
+      search: 'Пошук проєктів, навичок...',
     },
     // Hero Section
     hero: {

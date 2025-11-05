@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Heart, MessageCircle, Coins, Clock, Users as UsersIcon, ChefHat, Send } from "lucide-react";
+import Link from "next/link";
 import { RecipePost, RecipePostComment } from "@/lib/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -59,16 +60,24 @@ export default function RecipePostCard({ post, currentUserId, onLike, onComment 
     >
       {/* User Header */}
       <div className="p-4 flex items-center gap-3 border-b border-gray-100">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#3BC864] to-[#C5E98A] flex items-center justify-center text-white font-bold text-lg overflow-hidden">
+        <Link 
+          href={`/academy/user/${post.userId}`}
+          className="w-12 h-12 rounded-full bg-gradient-to-r from-[#3BC864] to-[#C5E98A] flex items-center justify-center text-white font-bold text-lg overflow-hidden hover:opacity-80 transition-opacity"
+        >
           {post.userAvatar ? (
             <img src={post.userAvatar} alt={post.userName} className="w-full h-full object-cover" />
           ) : (
             post.userName.charAt(0).toUpperCase()
           )}
-        </div>
+        </Link>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="font-bold text-[#1E1A41]">{post.userName}</h3>
+            <Link 
+              href={`/academy/user/${post.userId}`}
+              className="font-bold text-[#1E1A41] hover:text-[#3BC864] transition-colors"
+            >
+              {post.userName}
+            </Link>
             {post.userLevel && (
               <span className="px-2 py-0.5 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-bold rounded-full">
                 LVL {post.userLevel}
@@ -92,19 +101,21 @@ export default function RecipePostCard({ post, currentUserId, onLike, onComment 
       </div>
 
       {/* Image */}
-      <div className="relative aspect-square bg-gray-100">
-        <img
-          src={post.imageUrl}
-          alt={post.title}
-          className="w-full h-full object-cover"
-        />
-        {/* Difficulty Badge */}
-        {post.difficulty && (
-          <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold ${difficultyColors[post.difficulty]}`}>
-            {difficultyLabels[post.difficulty]}
-          </div>
-        )}
-      </div>
+      <Link href={`/academy/user/${post.userId}`}>
+        <div className="relative aspect-square bg-gray-100 cursor-pointer group">
+          <img
+            src={post.imageUrl}
+            alt={post.title}
+            className="w-full h-full object-cover group-hover:opacity-95 transition-opacity"
+          />
+          {/* Difficulty Badge */}
+          {post.difficulty && (
+            <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold ${difficultyColors[post.difficulty]}`}>
+              {difficultyLabels[post.difficulty]}
+            </div>
+          )}
+        </div>
+      </Link>
 
       {/* Action Buttons */}
       <div className="p-4 flex items-center gap-4 border-b border-gray-100">
