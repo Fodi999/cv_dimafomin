@@ -114,22 +114,14 @@ export default function CreateRecipePost({ isOpen, onClose, onSubmit }: CreateRe
       };
       reader.readAsDataURL(file);
 
-      // Upload to Cloudinary (or your image service)
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", "recipe_posts"); // Configure in Cloudinary
-
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const data = await response.json();
+      // Upload to backend (which uses Cloudinary)
+      const { uploadApi } = await import("@/lib/api");
+      const token = localStorage.getItem("token");
       
-      setFormData((prev) => ({ ...prev, imageUrl: data.secure_url }));
+      const result = await uploadApi.uploadImageFile(file, token || undefined);
+      
+      // Backend returns { url, publicId, ... }
+      setFormData((prev) => ({ ...prev, imageUrl: result.url }));
     } catch (error) {
       console.error("Error uploading image:", error);
       alert("Помилка завантаження фото. Спробуйте ще раз.");
@@ -195,6 +187,88 @@ export default function CreateRecipePost({ isOpen, onClose, onSubmit }: CreateRe
       ...prev,
       steps: prev.steps.map((item, i) => (i === index ? value : item)),
     }));
+  };
+
+  // AI Recipe Generation
+  const [generatingAI, setGeneratingAI] = useState(false);
+
+  const handleAIGenerate = async () => {
+    if (!formData.title.trim()) {
+      alert("Спочатку опишіть, яку страву ви хочете приготувати");
+      return;
+    }
+
+    setGeneratingAI(true);
+
+    try {
+      const { aiApi } = await import("@/lib/api");
+      const token = localStorage.getItem("token");
+      
+      // Send user's description as title to AI
+      const response: any = await aiApi.generateRecipe({
+        title: formData.title,
+        language: "ua",
+        category: formData.category,
+      }, token || undefined);
+
+      console.log("AI Generated Recipe:", response);
+
+      // Map backend response to form data
+      if (response && (response.data || response.title)) {
+        let generatedRecipe = response.data || response;
+
+        // Fix: If description is a JSON string, parse it
+        if (typeof generatedRecipe.description === "string" && generatedRecipe.description.trim().startsWith("{")) {
+          try {
+            const parsed = JSON.parse(generatedRecipe.description);
+            generatedRecipe = { ...generatedRecipe, ...parsed };
+            console.log("Parsed AI JSON from description:", parsed);
+          } catch (e) {
+            console.warn("Failed to parse AI JSON from description:", e);
+          }
+        }
+
+        // Update form with generated data (AI title becomes the actual recipe title)
+        setFormData((prev) => ({
+          ...prev,
+          title: generatedRecipe.title || prev.title, // AI-generated title replaces user prompt
+          description: generatedRecipe.description || prev.description,
+          category: generatedRecipe.category || prev.category,
+          difficulty: generatedRecipe.difficulty || prev.difficulty,
+          cookingTime: generatedRecipe.time || generatedRecipe.cookingTime || prev.cookingTime,
+          servings: generatedRecipe.portions || generatedRecipe.servings || prev.servings,
+          ingredients: generatedRecipe.ingredients?.map((ing: any) => ({
+            name: ing.name,
+            brutto: ing.gross || ing.grossWeight || ing.brutto || ing.amount,
+            netto: ing.net || ing.netWeight || ing.netto || ing.amount,
+            unit: ing.unit || "г",
+            calories: ing.calories,
+            protein: ing.protein,
+            fat: ing.fat || ing.fats,
+            carbs: ing.carbs,
+            totalCalories: ing.totalCalories,
+            cost: ing.cost,
+          })) || prev.ingredients,
+          steps: generatedRecipe.steps || prev.steps,
+          grossWeight: generatedRecipe.grossWeight,
+          netWeight: generatedRecipe.netWeight,
+          calories: generatedRecipe.calories,
+          protein: generatedRecipe.protein,
+          fats: generatedRecipe.fats,
+          carbs: generatedRecipe.carbs,
+          yield: generatedRecipe.yield,
+          cost: generatedRecipe.cost,
+          tokensReward: generatedRecipe.tokensReward,
+        }));
+
+        alert("✨ Рецепт успішно згенеровано! Перевірте та відредагуйте за потреби.");
+      }
+    } catch (error: any) {
+      console.error("AI Generation Error:", error);
+      alert(`Помилка генерації: ${error.message || "Спробуйте пізніше"}`);
+    } finally {
+      setGeneratingAI(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -327,10 +401,71 @@ export default function CreateRecipePost({ isOpen, onClose, onSubmit }: CreateRe
           </div>
 
           <div className="p-6 space-y-6">
+            {/* AI Recipe Generator - Main Feature */}
+            <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 border-2 border-purple-200 rounded-2xl p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-3xl">🤖</span>
+                <div>
+                  <h3 className="text-lg font-bold text-purple-900">
+                    AI Шеф-кухар
+                  </h3>
+                  <p className="text-sm text-purple-700">
+                    Опишіть страву або завантажте фото — AI створить повний рецепт
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {/* AI Prompt Input */}
+                <div>
+                  <label className="block text-sm font-semibold text-purple-900 mb-2">
+                    💭 Що ви хочете приготувати?
+                  </label>
+                  <textarea
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    placeholder="Наприклад: Хочу зробити рол лосось з авокадо та сирним кремом, щоб було смачно та красиво 🍣"
+                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-400 focus:outline-none resize-none"
+                    rows={3}
+                  />
+                </div>
+
+                {/* Generate Button */}
+                <Button
+                  type="button"
+                  onClick={handleAIGenerate}
+                  disabled={generatingAI || !formData.title.trim()}
+                  className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-bold py-4 text-lg shadow-lg"
+                >
+                  {generatingAI ? (
+                    <>
+                      <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                      Генерую рецепт з AI...
+                    </>
+                  ) : (
+                    <>
+                      ✨ Згенерувати повний рецепт з AI
+                    </>
+                  )}
+                </Button>
+
+                <p className="text-xs text-center text-purple-600">
+                  AI автоматично заповнить: назву, опис, інгредієнти з вагою, кроки, калорії, вартість та ChefTokens 💰
+                </p>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 text-sm text-gray-500">
+              <div className="flex-1 border-t border-gray-300"></div>
+              <span>або заповніть вручну</span>
+              <div className="flex-1 border-t border-gray-300"></div>
+            </div>
+
             {/* Image Upload */}
             <div>
               <label className="block text-sm font-semibold text-[#1E1A41] mb-2">
-                📸 {community?.photoLabel || "Фото страви"} *
+                📸 {community?.photoLabel || "Фото страви"}
               </label>
               
               {!imagePreview ? (
@@ -374,19 +509,14 @@ export default function CreateRecipePost({ isOpen, onClose, onSubmit }: CreateRe
               )}
             </div>
 
-            {/* Title */}
-            <div>
-              <label className="block text-sm font-semibold text-[#1E1A41] mb-2">
-                📝 {community?.titleLabel || "Назва страви"} *
-              </label>
-              <input
-                type="text"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder={community?.titlePlaceholder || "напр. Ідеальні суші з лососем"}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#3BC864] focus:outline-none"
-              />
-            </div>
+            {/* Generated Recipe Preview / Manual Form */}
+            {formData.description || formData.ingredients.some((i: any) => i.name) ? (
+              <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-4">
+                <p className="text-sm font-semibold text-green-900 mb-2">
+                  ✅ Рецепт згенеровано! Перевірте та відредагуйте за потреби
+                </p>
+              </div>
+            ) : null}
 
             {/* Description */}
             <div>
@@ -725,28 +855,6 @@ export default function CreateRecipePost({ isOpen, onClose, onSubmit }: CreateRe
                   <Plus className="w-5 h-5" />
                   {community?.addStep || "Додати крок"}
                 </button>
-              </div>
-            </div>
-
-            {/* AI Generate Button */}
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <h4 className="text-sm font-bold text-purple-900 flex items-center gap-2">
-                    🤖 AI Асистент Шеф-кухаря
-                  </h4>
-                  <p className="text-xs text-purple-700 mt-1">
-                    Згенеруйте професійний рецепт з харчовою цінністю та інструкціями
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => {/* TODO: Implement AI generation */}}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-                  disabled={submitting}
-                >
-                  ✨ Згенерувати
-                </Button>
               </div>
             </div>
 

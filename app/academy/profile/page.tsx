@@ -9,9 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useUser } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AvatarUploader from "@/components/profile/AvatarUploader";
-import CreateRecipePost from "@/components/academy/CreateRecipePost";
 import { useToast } from "@/components/ui/toast";
-import { CreateRecipePostData } from "@/lib/types";
 import Link from "next/link";
 
 export default function ProfilePage() {
@@ -25,7 +23,6 @@ export default function ProfilePage() {
   const [viewMode, setViewMode] = useState<"private" | "public">("private"); // Перемикач режимів
   const [activeTab, setActiveTab] = useState<"posts" | "saved" | "courses">("posts");
   const [hoveredId, setHoveredId] = useState<number | null>(null);
-  const [showCreatePost, setShowCreatePost] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
@@ -85,30 +82,6 @@ export default function ProfilePage() {
     logout();
     showToast("Ви успішно вийшли з акаунту", "success");
     router.push("/");
-  };
-
-  const handleCreateRecipe = async (data: CreateRecipePostData) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        showToast("❌ Необхідна авторизація", "error");
-        return;
-      }
-
-      // Import API
-      const { academyApi } = await import("@/lib/api");
-      
-      // Create post
-      await academyApi.createPost(data, token);
-      
-      showToast("✅ Рецепт успішно створено!", "success");
-      
-      // TODO: Refresh posts list
-      // You can add state management here to update the posts
-    } catch (error) {
-      console.error("Error creating recipe:", error);
-      showToast("❌ Помилка створення рецепту", "error");
-    }
   };
 
   // Mock user posts for Pinterest grid
@@ -366,13 +339,13 @@ export default function ProfilePage() {
             <div className="flex gap-2 sm:gap-3 flex-wrap justify-center">
               {viewMode === "private" ? (
                 <>
-                  <button
-                    onClick={() => setShowCreatePost(true)}
+                  <Link
+                    href="/academy/create"
                     className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-sm sm:text-base font-semibold bg-gradient-to-r from-[#3BC864] to-[#C5E98A] text-white hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-1.5 sm:gap-2"
                   >
                     <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     <span>Створити рецепт</span>
-                  </button>
+                  </Link>
                   <button
                     onClick={() => setIsEditing(true)}
                     className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-sm sm:text-base font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-1.5 sm:gap-2"
@@ -601,13 +574,6 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
-
-      {/* Create Recipe Post Modal */}
-      <CreateRecipePost
-        isOpen={showCreatePost}
-        onClose={() => setShowCreatePost(false)}
-        onSubmit={handleCreateRecipe}
-      />
     </div>
   );
 }

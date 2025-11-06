@@ -291,6 +291,23 @@ export const aiApi = {
     if (weight) params.append("weight", weight.toString());
     return apiFetch(`/ai/ingredient-nutrition?${params}`, { token });
   },
+
+  // Generate recipe with AI
+  generateRecipe: async (data: {
+    title: string;
+    language?: string;
+    category?: string;
+  }, token?: string) => {
+    return apiFetch("/ai/recipe-helper", {
+      method: "POST",
+      token,
+      body: JSON.stringify({
+        title: data.title,
+        language: data.language || "ua",
+        category: data.category,
+      }),
+    });
+  },
 };
 
 // ==================== IMAGE UPLOAD API ====================
