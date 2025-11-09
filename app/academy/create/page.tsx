@@ -375,7 +375,7 @@ export default function CreateRecipePage() {
       await academyApi.createPost(postData, token);
       
       alert("✅ Рецепт успішно опубліковано!");
-      router.push("/academy/profile");
+      router.push("/create-chat");
     } catch (error) {
       console.error("Error submitting:", error);
       alert("Помилка публікації. Спробуйте ще раз.");

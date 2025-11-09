@@ -193,7 +193,7 @@ export default function EarnTokensPage() {
             </Button>
           </Link>
           
-          <Link href="/academy/dashboard">
+          <Link href="/create-chat">
             <Button
               size="lg"
               variant="outline"

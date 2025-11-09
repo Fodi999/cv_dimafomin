@@ -74,7 +74,7 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
         
         {isAuthenticated && (
           <Link
-            href="/academy/dashboard"
+            href="/create-chat"
             className="inline-flex items-center gap-2 px-4 py-2 text-sm text-[#1E1A41] hover:text-[#3BC864] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />

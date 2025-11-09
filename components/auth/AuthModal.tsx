@@ -40,14 +40,27 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     try {
       await login(loginForm.email, loginForm.password);
       onClose();
-      // Redirect to dashboard after successful login
-      router.push("/academy/dashboard");
+      // Redirect to chat/profile after successful login
+      router.push("/create-chat");
     } catch (error: any) {
       console.error("Login error:", error);
-      setError(
-        error.message || 
-        "Błąd logowania. Sprawdź dane i spróbuj ponownie."
-      );
+      
+      // Handle different error types
+      let errorMessage = "Błąd logowania. Sprawdź dane i spróbuj ponownie.";
+      
+      if (error.message === "Invalid credentials") {
+        errorMessage = "Неправильний email або пароль. Спробуйте ще раз.";
+      } else if (error.status === 401) {
+        errorMessage = "Неправильний email або пароль.";
+      } else if (error.status === 404) {
+        errorMessage = "Користувача з таким email не знайдено.";
+      } else if (error.status === 500) {
+        errorMessage = "Помилка сервера. Спробуйте пізніше.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +71,12 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setError(null);
     
     if (registerForm.password !== registerForm.confirmPassword) {
-      setError(t.auth?.passwordMismatch || "Passwords do not match");
+      setError("Паролі не співпадають. Перевірте і спробуйте ще раз.");
+      return;
+    }
+
+    if (registerForm.password.length < 6) {
+      setError("Пароль повинен містити мінімум 6 символів.");
       return;
     }
 
@@ -68,14 +86,25 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       // Call register API with name, email, password
       await register(registerForm.name, registerForm.email, registerForm.password);
       onClose();
-      // Redirect to dashboard after successful registration
-      router.push("/academy/dashboard");
+      // Redirect to chat/profile after successful registration
+      router.push("/create-chat");
     } catch (error: any) {
       console.error("Register error:", error);
-      setError(
-        error.message || 
-        "Błąd rejestracji. Spróbuj ponownie."
-      );
+      
+      // Handle different error types
+      let errorMessage = "Błąd rejestracji. Spróbuj ponownie.";
+      
+      if (error.message?.includes("already exists") || error.status === 409) {
+        errorMessage = "Користувач з таким email вже існує. Спробуйте увійти.";
+      } else if (error.status === 400) {
+        errorMessage = "Невірні дані. Перевірте правильність введеної інформації.";
+      } else if (error.status === 500) {
+        errorMessage = "Помилка сервера. Спробуйте пізніше.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -150,9 +179,28 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <div className="p-6">
                 {/* Error Message */}
                 {error && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-sm text-red-600 text-center">{error}</p>
-                  </div>
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg shadow-sm"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0">
+                        <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-red-800">{error}</p>
+                      </div>
+                      <button
+                        onClick={() => setError(null)}
+                        className="flex-shrink-0 text-red-400 hover:text-red-600"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </motion.div>
                 )}
                 
                 {activeTab === "login" ? (

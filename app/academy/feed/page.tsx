@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Search, Plus, TrendingUp, Users, Heart } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
 import type { RecipePost } from "@/lib/types";
-import CreateRecipePost from "@/components/academy/CreateRecipePost";
 
 // Mock global feed data
 const mockFeedPosts: RecipePost[] = [
@@ -79,16 +79,10 @@ const mockFeedPosts: RecipePost[] = [
 export default function FeedPage() {
   const { t } = useLanguage();
   const { user, isAuthenticated } = useUser();
+  const router = useRouter();
   const [posts, setPosts] = useState<RecipePost[]>(mockFeedPosts);
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "trending" | "following">("all");
-  const [showCreatePost, setShowCreatePost] = useState(false);
-
-  const handleCreatePost = async (postData: any) => {
-    // TODO: Save to backend
-    console.log("New post:", postData);
-    setShowCreatePost(false);
-  };
 
   const filteredPosts = posts.filter((post) =>
     post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -126,7 +120,7 @@ export default function FeedPage() {
           {/* Create Button */}
           {isAuthenticated && (
             <button
-              onClick={() => setShowCreatePost(true)}
+              onClick={() => router.push("/create-chat")}
               className="flex items-center justify-center gap-2 px-6 py-3 bg-[#3BC864] hover:bg-[#2da552] text-white rounded-full font-semibold shadow-lg transition-all"
             >
               <Plus className="w-5 h-5" />
@@ -254,13 +248,6 @@ export default function FeedPage() {
           </div>
         )}
       </div>
-
-      {/* Create Recipe Modal */}
-      <CreateRecipePost
-        isOpen={showCreatePost}
-        onClose={() => setShowCreatePost(false)}
-        onSubmit={handleCreatePost}
-      />
     </div>
   );
 }

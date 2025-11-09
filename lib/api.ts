@@ -133,7 +133,7 @@ export const academyApi = {
   },
 
   getUserPosts: async (userId: string, token?: string) => {
-    return apiFetch(`/user/${userId}/posts`, { token });
+    return apiFetch(`/users/${userId}/posts`, { token });
   },
 
   createPost: async (data: any, token: string) => {
@@ -345,6 +345,46 @@ export const uploadApi = {
   },
 };
 
+// ==================== WALLET API ====================
+
+export const walletApi = {
+  // Get wallet balance
+  getBalance: async (userId: string, token: string) => {
+    return apiFetch(`/user/${userId}/wallet`, { token });
+  },
+
+  // Get transaction history
+  getTransactions: async (userId: string, token: string, filters?: {
+    limit?: number;
+    offset?: number;
+    type?: 'earned' | 'spent';
+  }) => {
+    const params = new URLSearchParams();
+    if (filters?.limit) params.append("limit", filters.limit.toString());
+    if (filters?.offset) params.append("offset", filters.offset.toString());
+    if (filters?.type) params.append("type", filters.type);
+    return apiFetch(`/user/${userId}/wallet/transactions?${params}`, { token });
+  },
+
+  // Purchase tokens
+  purchaseTokens: async (userId: string, amount: number, paymentMethod: string, token: string) => {
+    return apiFetch("/wallet/purchase", {
+      method: "POST",
+      token,
+      body: JSON.stringify({ userId, amount, paymentMethod }),
+    });
+  },
+
+  // Spend tokens
+  spendTokens: async (userId: string, amount: number, reason: string, token: string) => {
+    return apiFetch("/wallet/spend", {
+      method: "POST",
+      token,
+      body: JSON.stringify({ userId, amount, reason }),
+    });
+  },
+};
+
 // ==================== CONTACT API ====================
 
 export const contactApi = {
@@ -375,6 +415,7 @@ export default {
   market: marketApi,
   ai: aiApi,
   upload: uploadApi,
+  wallet: walletApi,
   contact: contactApi,
   health: healthApi,
 };

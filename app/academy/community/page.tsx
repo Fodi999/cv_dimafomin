@@ -1,19 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Plus, Users, TrendingUp, Filter, Search } from "lucide-react";
 import { RecipePost } from "@/lib/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import RecipePostCard from "@/components/academy/RecipePostCard";
-import CreateRecipePost from "@/components/academy/CreateRecipePost";
 
 export default function CommunityPage() {
   const { t } = useLanguage();
+  const router = useRouter();
   const community = (t.academy as any)?.community;
 
-  const [showCreatePost, setShowCreatePost] = useState(false);
   const [posts, setPosts] = useState<RecipePost[]>([]);
   const [filter, setFilter] = useState<"all" | "trending" | "following">("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -212,12 +212,12 @@ export default function CommunityPage() {
           </div>
 
           <Button
-            onClick={() => setShowCreatePost(true)}
+            onClick={() => router.push("/create-chat")}
             size="lg"
             className="bg-gradient-to-r from-[#3BC864] to-[#C5E98A] hover:opacity-90"
           >
             <Plus className="w-5 h-5 mr-2" />
-            {community?.createPost || "Створити пост"}
+            {community?.createPost || "Створити рецепт"}
           </Button>
         </div>
 
@@ -307,22 +307,15 @@ export default function CommunityPage() {
               {community?.noPosts || "Постів ще немає. Будьте першим!"}
             </p>
             <Button
-              onClick={() => setShowCreatePost(true)}
+              onClick={() => router.push("/create-chat")}
               className="mt-6 bg-gradient-to-r from-[#3BC864] to-[#C5E98A]"
             >
               <Plus className="w-5 h-5 mr-2" />
-              {community?.createFirstPost || "Створити перший пост"}
+              {community?.createFirstPost || "Створити перший рецепт"}
             </Button>
           </div>
         )}
       </div>
-
-      {/* Create Post Modal */}
-      <CreateRecipePost
-        isOpen={showCreatePost}
-        onClose={() => setShowCreatePost(false)}
-        onSubmit={handleCreatePost}
-      />
     </div>
   );
 }

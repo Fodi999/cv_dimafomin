@@ -256,7 +256,7 @@ export default function Experience() {
                 <Button
                   size="lg"
                   className="bg-gradient-to-r from-[#3BC864] to-[#C5E98A] text-white hover:from-[#C5E98A] hover:to-[#3BC864] text-xl px-12 py-8 rounded-full shadow-2xl transition-all duration-300 group relative overflow-hidden"
-                  onClick={() => router.push("/academy/dashboard")}
+                  onClick={() => router.push("/create-chat")}
                 >
                   <span className="relative z-10 flex items-center gap-3">
                     {t.experience.ctaButton}

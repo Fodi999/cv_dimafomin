@@ -53,7 +53,7 @@
   --irradiated-toad: #3BC864;
   --avocado-smoothie: #C5E98A;
   --mystic-void: #240F24;
-  
+
   /* Mapped to theme variables */
   --background: #FEF9F5; /* Hot White */
   --foreground: #240F24; /* Mystic Void */
@@ -147,7 +147,7 @@
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
-  
+
   /* Allow all touch interactions for buttons and interactive elements */
   button,
   a,
@@ -161,7 +161,7 @@
     -webkit-user-select: none;
     user-select: none;
   }
-  
+
   /* Allow text selection in inputs and textareas */
   input,
   textarea {

@@ -28,11 +28,9 @@ export default function Navigation() {
     setShowAuthModal(true);
   };
   
-  const goToDashboard = () => {
-    router.push("/academy/dashboard");
-  };
-  
-  const handleLogout = () => {
+  const handleDashboardClick = () => {
+    router.push("/create-chat");
+  };  const handleLogout = () => {
     logout();
     router.push("/");
   };
@@ -160,7 +158,7 @@ export default function Navigation() {
               {isAuthenticated ? (
                 <div className="flex items-center gap-1 sm:gap-2">
                   <button
-                    onClick={goToDashboard}
+                    onClick={handleDashboardClick}
                     className="flex items-center gap-1.5 sm:gap-2 hover:bg-gray-100 rounded-full p-1.5 sm:p-2 sm:pr-4 transition-colors"
                   >
                     {user?.avatar && (user.avatar.startsWith("http") || user.avatar.startsWith("blob:") || user.avatar.startsWith("data:")) ? (
@@ -278,7 +276,7 @@ export default function Navigation() {
                   <>
                     <button
                       onClick={() => {
-                        router.push("/academy/profile");
+                        router.push("/create-chat");
                         setIsMobileMenuOpen(false);
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-left"
@@ -288,7 +286,7 @@ export default function Navigation() {
                     </button>
                     <button
                       onClick={() => {
-                        router.push("/academy/dashboard");
+                        router.push("/create-chat");
                         setIsMobileMenuOpen(false);
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-left"

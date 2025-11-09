@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { getMetadata } from "@/lib/seo";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserProvider } from "@/contexts/UserContext";
 import PWARegister from "@/components/PWARegister";
 
-// NOTE: Removed `next/font/google` usage because Turbopack reported
-// a missing internal module when resolving the Google font.
-// Using standard CSS/classnames instead keeps the build stable under Turbopack.
+const inter = Inter({ 
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
 
 // Default metadata (будет использоваться как fallback)
 export const metadata: Metadata = getMetadata("pl");
@@ -18,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pl" data-scroll-behavior="smooth">
+    <html lang="pl" data-scroll-behavior="smooth" className={inter.className}>
       <head>
         {/* Viewport - Fixed scale, no zoom, safe-area support */}
         <meta 

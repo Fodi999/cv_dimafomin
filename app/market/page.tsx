@@ -56,7 +56,7 @@ export default function MarketPage() {
       {/* Back to Profile Button */}
       {isAuthenticated && (
         <Link
-          href="/academy/dashboard"
+          href="/create-chat"
           className="inline-flex items-center gap-2 mb-6 px-4 py-2 text-[#1E1A41] hover:text-[#3BC864] transition-colors group"
         >
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
