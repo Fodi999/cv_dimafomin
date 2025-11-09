@@ -1,4 +1,13 @@
 // API Configuration and Helper Functions
+//
+// CHANGELOG:
+// - Renamed: market/ → marketplace/
+// - Renamed: /ai/analyze → /ai/culinary/analyze
+// - Renamed: /mentor/chat → /ai/chef-mentor
+// - Changed: /user/{id}/purchases → /marketplace/my-purchases
+// - Disabled: /auth/logout (temporarily stubbed)
+// - Disabled: /auth/me (temporarily stubbed)
+//
 
 import type {
   ProfileData,
@@ -84,15 +93,18 @@ export const authApi = {
     });
   },
 
+  // Temporarily disabled
   logout: async (token: string) => {
-    return apiFetch("/auth/logout", {
-      method: "POST",
-      token,
-    });
+    // TODO: Implement logout endpoint on backend
+    console.warn("Logout endpoint not implemented yet");
+    return Promise.resolve({ success: true });
   },
 
+  // Temporarily disabled
   getMe: async (token: string) => {
-    return apiFetch("/auth/me", { token });
+    // TODO: Implement getMe endpoint on backend
+    console.warn("GetMe endpoint not implemented yet");
+    return Promise.resolve(null);
   },
 };
 
@@ -183,9 +195,9 @@ export const academyApi = {
   },
 };
 
-// ==================== MARKET API ====================
+// ==================== MARKETPLACE API ====================
 
-export const marketApi = {
+export const marketplaceApi = {
   // Recipes
   getRecipes: async (filters?: {
     category?: string;
@@ -200,16 +212,16 @@ export const marketApi = {
     if (filters?.maxPrice) params.append("maxPrice", filters.maxPrice.toString());
     if (filters?.minRating) params.append("minRating", filters.minRating.toString());
     if (filters?.sortBy) params.append("sortBy", filters.sortBy);
-    return apiFetch<RecipeData[]>(`/market/recipes?${params}`);
+    return apiFetch<RecipeData[]>(`/marketplace/recipes?${params}`);
   },
 
   getRecipe: async (id: string): Promise<RecipeData> => {
-    return apiFetch<RecipeData>(`/market/recipes/${id}`);
+    return apiFetch<RecipeData>(`/marketplace/recipes/${id}`);
   },
 
   // Purchase
   purchaseRecipe: async (recipeId: string, buyerId: string, token: string) => {
-    return apiFetch("/market/purchase", {
+    return apiFetch("/marketplace/purchase", {
       method: "POST",
       token,
       body: JSON.stringify({ recipeId, buyerId }),
@@ -218,12 +230,12 @@ export const marketApi = {
 
   // User's purchased recipes
   getPurchasedRecipes: async (userId: string, token: string): Promise<RecipeData[]> => {
-    return apiFetch<RecipeData[]>(`/user/${userId}/purchases`, { token });
+    return apiFetch<RecipeData[]>(`/marketplace/my-purchases`, { token });
   },
 
   // Seller statistics
   getSellerStats: async (userId: string, token?: string) => {
-    return apiFetch(`/market/stats/${userId}`, { token });
+    return apiFetch(`/marketplace/stats/${userId}`, { token });
   },
 };
 
@@ -255,7 +267,7 @@ export const aiApi = {
     steps: string[];
     language?: string;
   }, token?: string) => {
-    return apiFetch("/ai/analyze", {
+    return apiFetch("/ai/culinary/analyze", {
       method: "POST",
       token,
       body: JSON.stringify(data),
@@ -277,7 +289,7 @@ export const aiApi = {
 
   // Mentor chat
   mentorChat: async (userId: string, message: string, language = "pl", token?: string) => {
-    return apiFetch("/mentor/chat", {
+    return apiFetch("/ai/chef-mentor", {
       method: "POST",
       token,
       body: JSON.stringify({ userId, message, language }),
@@ -412,7 +424,8 @@ export const healthApi = {
 export default {
   auth: authApi,
   academy: academyApi,
-  market: marketApi,
+  marketplace: marketplaceApi,
+  market: marketplaceApi, // Backward compatibility alias
   ai: aiApi,
   upload: uploadApi,
   wallet: walletApi,

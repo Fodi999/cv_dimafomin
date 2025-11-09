@@ -1,339 +1,249 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { Menu, X, Search, Home, Briefcase, Award, Mail, User, Bell, MessageCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
+import {
+  Menu,
+  LogOut,
+  Home,
+  BookOpen,
+  FileText,
+  Gem,
+  ShoppingBag,
+  User,
+  MessageSquare,
+  Brain,
+} from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { useUser } from "@/contexts/UserContext";
-import AuthModal from "@/components/auth/AuthModal";
-import Image from "next/image";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+
+interface NavLink {
+  label: string;
+  href: string;
+  icon?: React.ReactNode;
+}
 
 export default function Navigation() {
-  const { t } = useLanguage();
-  const { user, isAuthenticated, logout } = useUser();
-  const router = useRouter();
   const pathname = usePathname();
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [searchFocused, setSearchFocused] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
-  // Check if we're on academy pages (profile, dashboard, etc.)
-  const isAcademyPage = pathname?.startsWith('/academy');
-  
-  const handleLogin = () => {
-    setShowAuthModal(true);
-  };
-  
-  const handleDashboardClick = () => {
-    router.push("/create-chat");
-  };  const handleLogout = () => {
-    logout();
-    router.push("/");
-  };
+  const [isOpen, setIsOpen] = useState(false);
+  const [tokenBalance] = useState(1250);
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      const offset = 100;
-      const elementPosition = element.getBoundingClientRect().top + window.pageYOffset - offset;
-      window.scrollTo({
-        top: elementPosition,
-        behavior: "smooth",
-      });
-    }
+  const navLinks: NavLink[] = [
+    { label: "Главная", href: "/", icon: <Home className="w-4 h-4" /> },
+    { label: "Академия", href: "/academy", icon: <BookOpen className="w-4 h-4" /> },
+    { label: "Курсы", href: "/academy/feed", icon: <FileText className="w-4 h-4" /> },
+    { label: "Маркет", href: "/market", icon: <ShoppingBag className="w-4 h-4" /> },
+    { label: "Профиль", href: "/profile", icon: <User className="w-4 h-4" /> },
+  ];
+
+  const isActive = (href: string): boolean => {
+    if (href === "/" && pathname === "/") return true;
+    if (href !== "/" && pathname.startsWith(href)) return true;
+    return false;
   };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Close mobile menu when route changes
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [pathname]);
 
   return (
     <>
-      <motion.nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled 
-            ? 'bg-white shadow-md' 
-            : 'bg-white/80 backdrop-blur-md'
-        }`}
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <div className="max-w-[1640px] mx-auto px-3 sm:px-4 md:px-6">
-          <div className="flex items-center justify-between h-16 sm:h-20">
-            {/* Left: Logo + Navigation Links */}
-            <div className="flex items-center gap-3 sm:gap-6">
-              {/* Logo */}
-              <motion.button
-                onClick={() => router.push('/')}
-                className="flex items-center gap-1.5 sm:gap-2 group"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-[#3BC864] to-[#C5E98A] rounded-full flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-lg sm:text-xl">D</span>
-                </div>
-                <span className="text-lg sm:text-xl font-bold text-[#1E1A41] hidden sm:block">
-                  Dima Fomin
-                </span>
-              </motion.button>
-
-              {/* Navigation Icons (Desktop) - Hide on Academy pages */}
-              {!isAcademyPage && (
-                <div className="hidden md:flex items-center gap-1 lg:gap-2">
-                  <button
-                    onClick={() => scrollToSection("hero")}
-                    className="px-3 lg:px-4 py-2 rounded-full hover:bg-gray-100 transition-colors flex items-center gap-2 font-semibold text-[#1E1A41]"
-                  >
-                    <Home className="w-4 lg:w-5 h-4 lg:h-5" />
-                    <span className="text-sm lg:text-base">{t.nav.home}</span>
-                  </button>
-                  <button
-                    onClick={() => scrollToSection("portfolio")}
-                    className="px-3 lg:px-4 py-2 rounded-full hover:bg-gray-100 transition-colors flex items-center gap-2 text-[#1E1A41]"
-                  >
-                    <Briefcase className="w-4 lg:w-5 h-4 lg:h-5" />
-                    <span className="hidden lg:inline text-sm lg:text-base">{t.nav.portfolio}</span>
-                  </button>
-                  <button
-                    onClick={() => scrollToSection("skills")}
-                    className="px-3 lg:px-4 py-2 rounded-full hover:bg-gray-100 transition-colors flex items-center gap-2 text-[#1E1A41]"
-                  >
-                    <Award className="w-4 lg:w-5 h-4 lg:h-5" />
-                    <span className="hidden lg:inline text-sm lg:text-base">{t.nav.skills}</span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Center: Search Bar */}
-            <div className="hidden lg:flex flex-1 max-w-2xl mx-6 xl:mx-8">
-              <div className={`flex-1 relative transition-all duration-200 ${
-                searchFocused ? 'scale-105' : ''
-              }`}>
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 lg:w-5 h-4 lg:h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder={t.nav.search || "Пошук проєктів, навичок..."}
-                  className="w-full pl-10 lg:pl-12 pr-4 py-2.5 lg:py-3 rounded-full bg-gray-100 hover:bg-gray-200 focus:bg-white focus:shadow-lg transition-all outline-none text-[#1E1A41] placeholder-gray-500 text-sm lg:text-base"
-                  onFocus={() => setSearchFocused(true)}
-                  onBlur={() => setSearchFocused(false)}
-                />
-              </div>
-            </div>
-
-            {/* Right: Icons + Profile */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              {/* Language Switcher - visible on all screens */}
-              <div className="scale-90 sm:scale-100">
-                <LanguageSwitcher />
-              </div>
-
-              {/* Notifications (only when authenticated) - show on mobile too but smaller */}
-              {isAuthenticated && (
-                <>
-                  <button className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full transition-colors">
-                    <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
-                  </button>
-                  <button className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full transition-colors">
-                    <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
-                  </button>
-                </>
-              )}
-
-              {/* User Profile or Login */}
-              {isAuthenticated ? (
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <button
-                    onClick={handleDashboardClick}
-                    className="flex items-center gap-1.5 sm:gap-2 hover:bg-gray-100 rounded-full p-1.5 sm:p-2 sm:pr-4 transition-colors"
-                  >
-                    {user?.avatar && (user.avatar.startsWith("http") || user.avatar.startsWith("blob:") || user.avatar.startsWith("data:")) ? (
-                      <Image
-                        src={user.avatar}
-                        alt={user.name}
-                        width={32}
-                        height={32}
-                        className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs sm:text-sm">
-                        {user?.name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <span className="hidden sm:block text-sm font-medium text-[#1E1A41]">
-                      {user?.name.split(" ")[0]}
-                    </span>
-                  </button>
-                </div>
-              ) : (
-                <Button
-                  onClick={handleLogin}
-                  size="sm"
-                  className="rounded-full bg-[#3BC864] hover:bg-[#2da552] text-white px-4 sm:px-6 py-2 text-sm"
-                >
-                  {t.nav.login || "Вхід"}
-                </Button>
-              )}
-
-              {/* Mobile Menu Button */}
-              <button 
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 hover:bg-gray-100 rounded-full transition-colors ml-1"
-              >
-                {isMobileMenuOpen ? (
-                  <X className="w-6 h-6 text-gray-700" />
-                ) : (
-                  <Menu className="w-6 h-6 text-gray-700" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile Search Bar */}
-          <div className="lg:hidden pb-3 sm:pb-4">
-            <div className="relative">
-              <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder={t.nav.search || "Пошук..."}
-                className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 rounded-full bg-gray-100 hover:bg-gray-200 focus:bg-white focus:shadow-lg transition-all outline-none text-[#1E1A41] text-sm"
-              />
-            </div>
-          </div>
-
-          {/* Mobile Menu Dropdown */}
-          {isMobileMenuOpen && (
+      {/* Desktop Navigation - Uber-AI стиль */}
+      <nav className="fixed top-0 left-0 w-full z-50 bg-white/20 backdrop-blur-lg border-b border-white/10 transition-all duration-500 dark:bg-neutral-900/40">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
+          {/* Логотип */}
+          <Link href="/" className="flex items-center space-x-2 font-bold text-lg tracking-tight hover:opacity-80 transition group">
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t border-gray-200 bg-white"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2"
             >
-              <div className="px-4 py-4 space-y-2">
-                {/* Navigation Links - Only on home page */}
-                {!isAcademyPage && (
-                  <>
-                    <button
-                      onClick={() => {
-                        scrollToSection("hero");
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-left"
-                    >
-                      <Home className="w-5 h-5 text-[#3BC864]" />
-                      <span className="font-medium text-[#1E1A41]">{t.nav.home}</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        scrollToSection("portfolio");
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-left"
-                    >
-                      <Briefcase className="w-5 h-5 text-[#3BC864]" />
-                      <span className="font-medium text-[#1E1A41]">{t.nav.portfolio}</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        scrollToSection("skills");
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-left"
-                    >
-                      <Award className="w-5 h-5 text-[#3BC864]" />
-                      <span className="font-medium text-[#1E1A41]">{t.nav.skills}</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        scrollToSection("contact");
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-left"
-                    >
-                      <Mail className="w-5 h-5 text-[#3BC864]" />
-                      <span className="font-medium text-[#1E1A41]">{t.nav.contact || "Контакти"}</span>
-                    </button>
-                    <div className="border-t border-gray-200 my-2"></div>
-                  </>
-                )}
-
-                {/* User Actions */}
-                {isAuthenticated ? (
-                  <>
-                    <button
-                      onClick={() => {
-                        router.push("/create-chat");
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-left"
-                    >
-                      <User className="w-5 h-5 text-[#3BC864]" />
-                      <span className="font-medium text-[#1E1A41]">Профіль</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        router.push("/create-chat");
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-left"
-                    >
-                      <Award className="w-5 h-5 text-[#3BC864]" />
-                      <span className="font-medium text-[#1E1A41]">Dashboard</span>
-                    </button>
-                    <div className="border-t border-gray-200 my-2"></div>
-                    <button
-                      onClick={() => {
-                        logout();
-                        setIsMobileMenuOpen(false);
-                        router.push("/");
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-50 transition-colors text-left"
-                    >
-                      <X className="w-5 h-5 text-red-600" />
-                      <span className="font-medium text-red-600">Вийти</span>
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    onClick={() => {
-                      handleLogin();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-[#3BC864] hover:bg-[#2da552] transition-colors text-left"
-                  >
-                    <User className="w-5 h-5 text-white" />
-                    <span className="font-medium text-white">{t.nav.login || "Вхід"}</span>
-                  </button>
-                )}
+              <Brain className="w-5 h-5 text-sky-400" />
+              <div className="flex flex-col leading-none">
+                <span className="text-neutral-900 dark:text-white">Seafood</span>
+                <span className="text-xs text-neutral-500 dark:text-neutral-400">Academy</span>
               </div>
             </motion.div>
-          )}
-        </div>
-      </motion.nav>
+          </Link>
 
-      {/* Spacer - Dynamic height based on menu state */}
-      <div className={`transition-all duration-300 ${
-        isMobileMenuOpen 
-          ? 'h-32 sm:h-36 lg:h-20' 
-          : 'h-32 sm:h-36 lg:h-20'
-      }`} />
-      
-      {/* Auth Modal */}
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+          {/* Основные ссылки - скрыто на мобилке */}
+          <div className="hidden md:flex space-x-1">
+            {navLinks.map((link) => (
+              <Link key={link.href} href={link.href}>
+                <motion.button
+                  whileHover={{ y: -1 }}
+                  whileTap={{ y: 0 }}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all relative group ${
+                    isActive(link.href)
+                      ? "text-sky-500 dark:text-sky-400"
+                      : "text-neutral-700 dark:text-neutral-200 hover:text-sky-500 dark:hover:text-sky-400"
+                  }`}
+                >
+                  <span className="flex items-center gap-1.5">
+                    {link.icon && <span className="text-base">{link.icon}</span>}
+                    {link.label}
+                  </span>
+
+                  {isActive(link.href) && (
+                    <motion.div
+                      layoutId="navUnderline"
+                      className="absolute -bottom-1 left-4 right-4 h-0.5 bg-gradient-to-r from-sky-500 to-teal-400"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+
+                  <div className="absolute inset-0 rounded-lg bg-sky-500/5 opacity-0 group-hover:opacity-100 transition-opacity -z-10" />
+                </motion.button>
+              </Link>
+            ))}
+
+            {/* Кнопка AI Mentor - выделена */}
+            <Link href="/chat/create-chat">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="ml-2 px-4 py-2 rounded-lg bg-gradient-to-r from-sky-500 to-teal-400 text-white text-sm font-semibold shadow-md hover:shadow-lg transition-shadow flex items-center gap-1.5"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>Спросить AI</span>
+              </motion.button>
+            </Link>
+          </div>
+
+          {/* Правая панель */}
+          <div className="hidden md:flex items-center space-x-3">
+            {/* Языковой переключатель */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="px-3 py-1.5 rounded-full bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 text-xs font-semibold hover:bg-sky-200 dark:hover:bg-sky-900/60 transition"
+            >
+              UA
+            </motion.button>
+
+            {/* Токены виджет */}
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="flex items-center space-x-1.5 text-sm text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-900/20 px-3 py-1.5 rounded-lg shadow-sm hover:shadow-md transition border border-sky-200/50 dark:border-sky-800/50"
+            >
+              <Gem className="w-4 h-4" />
+              <span className="font-semibold">{tokenBalance}</span>
+            </motion.div>
+
+            {/* Avatar */}
+            <Link href="/profile">
+              <motion.img
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%230EA5E9'/%3E%3Ctext x='20' y='24' font-size='18' font-weight='bold' fill='white' text-anchor='middle'%3EDF%3C/text%3E%3C/svg%3E"
+                alt="Avatar"
+                className="w-8 h-8 rounded-full border-2 border-sky-400 shadow-sm hover:shadow-md transition cursor-pointer"
+              />
+            </Link>
+          </div>
+
+          {/* Мобильное меню */}
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                className="md:hidden p-2 hover:bg-white/10 rounded-lg transition"
+              >
+                <Menu className="w-5 h-5 text-neutral-700 dark:text-neutral-200" />
+              </motion.button>
+            </SheetTrigger>
+
+            <SheetContent side="left" className="w-64 p-0 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-lg">
+              <div className="p-6 border-b border-neutral-200 dark:border-neutral-800">
+                <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Меню</h2>
+              </div>
+
+              <div className="space-y-1 p-4">
+                {navLinks.map((link, idx) => (
+                  <motion.div
+                    key={link.href}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                  >
+                    <Link href={link.href}>
+                      <motion.button
+                        onClick={() => setIsOpen(false)}
+                        whileHover={{ x: 4 }}
+                        whileTap={{ x: 2 }}
+                        className={`w-full text-left px-4 py-3 rounded-lg transition-all flex items-center gap-3 ${
+                          isActive(link.href)
+                            ? "bg-sky-500 text-white font-semibold shadow-md"
+                            : "text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                        }`}
+                      >
+                        {link.icon && <span className="text-lg">{link.icon}</span>}
+                        <span>{link.label}</span>
+                        {isActive(link.href) && <span className="ml-auto w-2 h-2 rounded-full bg-white" />}
+                      </motion.button>
+                    </Link>
+                  </motion.div>
+                ))}
+
+                {/* AI Mentor в мобильном меню */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: navLinks.length * 0.05 }}
+                >
+                  <Link href="/chat/create-chat">
+                    <motion.button
+                      onClick={() => setIsOpen(false)}
+                      whileHover={{ x: 4 }}
+                      whileTap={{ x: 2 }}
+                      className="w-full text-left px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-teal-400 text-white font-semibold shadow-md hover:shadow-lg transition flex items-center gap-3 mt-2"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      <span>Спросить AI</span>
+                    </motion.button>
+                  </Link>
+                </motion.div>
+              </div>
+
+              <div className="h-px bg-neutral-200 dark:bg-neutral-800 mx-4 my-4" />
+
+              <div className="p-4 space-y-4">
+                {/* Токены в мобильном */}
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-4 rounded-lg bg-sky-50 dark:bg-sky-900/20 border border-sky-200/50 dark:border-sky-800/50"
+                >
+                  <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-2">ChefTokens</p>
+                  <div className="flex items-center gap-2">
+                    <Gem className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+                    <p className="text-lg font-bold text-sky-600 dark:text-sky-400">{tokenBalance}</p>
+                  </div>
+                </motion.div>
+
+                {/* Языковой переключатель в мобильном */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full px-4 py-2.5 rounded-lg bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 text-sm font-semibold hover:bg-sky-200 dark:hover:bg-sky-900/60 transition"
+                >
+                  Українська
+                </motion.button>
+
+                {/* Выход */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full px-4 py-2.5 rounded-lg bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 font-semibold transition flex items-center justify-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Выход
+                </motion.button>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </nav>
+
+      {/* Spacer для контента */}
+      <div className="h-16" />
     </>
   );
 }

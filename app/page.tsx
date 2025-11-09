@@ -1,17 +1,16 @@
 "use client";
 
-import Hero from "@/components/sections/Hero";
-import About from "@/components/sections/About";
-import AllRecipes from "@/components/sections/AllRecipes";
-import Skills from "@/components/sections/Skills";
-import Experience from "@/components/sections/Experience";
-import Contact from "@/components/sections/Contact";
-import Footer from "@/components/sections/Footer";
+import AcademyHero from "@/components/sections/AcademyHero";
+import AcademyAbout from "@/components/sections/AcademyAbout";
+import AcademyAIMentor from "@/components/sections/AcademyCourses";
+import AcademyCoursesPreview from "@/components/sections/AcademyCoursesPreview";
+import AcademyChefTokens from "@/components/sections/AcademyChefTokens";
+import AcademyFooter from "@/components/sections/AcademyFooter";
 import Navigation from "@/components/Navigation";
 import ScrollToTop from "@/components/ScrollToTop";
 import ScrollProgress from "@/components/ScrollProgress";
-import StructuredData from "@/components/StructuredData";
 import DynamicMetaTags from "@/components/DynamicMetaTags";
+import StructuredData from "@/components/StructuredData";
 
 export default function Home() {
   return (
@@ -22,13 +21,12 @@ export default function Home() {
       <Navigation />
       <ScrollToTop />
       <main className="min-h-screen relative">
-        <Hero />
-        <About />
-        <AllRecipes />
-        <Skills />
-        <Experience />
-        <Contact />
-        <Footer />
+        <AcademyHero />
+        <AcademyAbout />
+        <AcademyAIMentor />
+        <AcademyCoursesPreview />
+        <AcademyChefTokens />
+        <AcademyFooter />
       </main>
     </>
   );
