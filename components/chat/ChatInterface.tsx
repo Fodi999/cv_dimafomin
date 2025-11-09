@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChefHat } from "lucide-react";
+import { ChefHat, Salad, Cake, Flame, Lightbulb } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ChatMessage, TypingIndicator } from "./ChatMessage";
 import { RecipeCard } from "./RecipeCard";
@@ -76,10 +76,10 @@ export function ChatInterface() {
   };
 
   const quickExamples = [
-    { icon: "🍝", text: "Паста з грибами" },
-    { icon: "🥗", text: "Легкий салат" },
-    { icon: "🍰", text: "Щось солодке" },
-    { icon: "🍜", text: "Азійська кухня" }
+    { icon: <Flame className="w-5 h-5" />, text: "Паста з грибами" },
+    { icon: <Salad className="w-5 h-5" />, text: "Легкий салат" },
+    { icon: <Cake className="w-5 h-5" />, text: "Щось солодке" },
+    { icon: <Flame className="w-5 h-5" />, text: "Азійська кухня" }
   ];
 
   return (
@@ -105,7 +105,7 @@ export function ChatInterface() {
             className="space-y-3"
           >
             <p className="text-sm text-gray-500 font-medium flex items-center gap-2">
-              <span className="text-lg">💡</span>
+              <Lightbulb className="w-4 h-4" />
               Приклади запитів:
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -123,7 +123,7 @@ export function ChatInterface() {
                   }}
                   className="flex items-center gap-2 p-3 bg-white border border-gray-200 rounded-xl hover:border-orange-300 hover:shadow-md transition-all text-left"
                 >
-                  <span className="text-xl">{example.icon}</span>
+                  <div className="text-orange-600">{example.icon}</div>
                   <span className="text-sm text-gray-700 font-medium">{example.text}</span>
                 </motion.button>
               ))}

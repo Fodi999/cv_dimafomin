@@ -1,7 +1,7 @@
 // RecipeCard.tsx - Component for displaying generated recipe with accordion sections
 
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Clock, Users, Flame, ChevronDown } from "lucide-react";
+import { CheckCircle2, Clock, Users, Flame, ChevronDown, UtensilsCrossed, ChefHat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
@@ -96,7 +96,7 @@ export function RecipeCard({
             className="w-full flex items-center justify-between p-3 bg-orange-50 hover:bg-orange-100 rounded-xl transition-colors group"
           >
             <div className="flex items-center gap-2">
-              <span className="text-xl">🥘</span>
+              <UtensilsCrossed className="w-5 h-5 text-orange-600" />
               <h5 className="text-lg font-bold text-gray-900">Інгредієнти</h5>
               <span className="text-sm text-gray-500">
                 ({recipe.ingredients.length})
@@ -147,7 +147,7 @@ export function RecipeCard({
             className="w-full flex items-center justify-between p-3 bg-orange-50 hover:bg-orange-100 rounded-xl transition-colors group"
           >
             <div className="flex items-center gap-2">
-              <span className="text-xl">👨‍🍳</span>
+              <ChefHat className="w-5 h-5 text-orange-600" />
               <h5 className="text-lg font-bold text-gray-900">Приготування</h5>
               <span className="text-sm text-gray-500">
                 ({recipe.steps.length} кроків)

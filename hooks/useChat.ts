@@ -48,7 +48,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
     let messageText = content;
     
     if (typeof content === "object" && content !== null) {
-      console.warn("⚠️ AI message is object, extracting text:", content);
+      console.warn("WARNING: AI message is object, extracting text:", content);
       messageText = content.message || JSON.stringify(content, null, 2);
     }
     
@@ -57,7 +57,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
       try {
         const parsed = JSON.parse(messageText);
         if (parsed.message) {
-          console.log("🔄 Parsed JSON string to extract message");
+          console.log("JSON string parsed to extract message");
           messageText = parsed.message;
         }
       } catch (e) {
@@ -65,7 +65,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
       }
     }
     
-    console.log("💬 Adding AI message:", messageText);
+    console.log("Adding AI message:", messageText);
     
     setChatMessages(prev => [...prev, {
       role: "ai",
@@ -96,19 +96,19 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
 
       const data = await response.json();
       
-      console.log("🔍 Initialize Response:", JSON.stringify(data, null, 2));
+      console.log("Initialize Response:", JSON.stringify(data, null, 2));
       
       // Support both response formats
       let aiData;
       if (data.status === "success" && data.data) {
         aiData = data.data;
-        console.log("✅ Init Format 1: {status, data}");
+        console.log("Init Format 1: {status, data}");
       } else if (data.message) {
         aiData = data;
-        console.log("✅ Init Format 2: Direct object");
+        console.log("Init Format 2: Direct object");
       } else {
-        console.error("❌ Unknown init format:", data);
-        addAIMessage("Привіт! Розкажіть, яку страву хочете приготувати? 🥘");
+        console.error("Unknown init format:", data);
+        addAIMessage("Привіт! Розкажіть, яку страву хочете приготувати?");
         return;
       }
       
@@ -121,7 +121,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
       }
     } catch (error) {
       console.error("Error initializing chat:", error);
-      addAIMessage("Привіт! Розкажіть, яку страву хочете приготувати? 🥘");
+      addAIMessage("Привіт! Розкажіть, яку страву хочете приготувати?");
     } finally {
       setIsAIThinking(false);
     }
@@ -147,29 +147,29 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
 
       const data = await response.json();
 
-      console.log("🔍 RAW AI Response:", JSON.stringify(data, null, 2));
+      console.log("RAW AI Response:", JSON.stringify(data, null, 2));
 
       // Backend can return different structures
       let aiData;
       
       if (data.status === "success" && data.data) {
         aiData = data.data;
-        console.log("✅ Format 1: {status, data}");
+        console.log("Format 1: {status, data}");
       } else if (data.message) {
         aiData = data;
-        console.log("✅ Format 2: Direct object");
+        console.log("Format 2: Direct object");
       } else {
-        console.error("❌ Unknown format:", data);
-        addAIMessage("Вибачте, сталася помилка. Спробуйте ще раз 🙏");
+        console.error("Unknown format:", data);
+        addAIMessage("Вибачте, сталася помилка. Спробуйте ще раз");
         return;
       }
       
-      console.log("📝 Extracted message:", aiData.message);
+      console.log("Extracted message:", aiData.message);
       
       // Extract sessionId
       if (aiData.sessionId && aiData.sessionId !== sessionId) {
         setSessionId(aiData.sessionId);
-        console.log("🔑 Session ID updated:", aiData.sessionId);
+        console.log("Session ID updated:", aiData.sessionId);
       }
 
       // Only add AI message if recipe is NOT complete
@@ -183,9 +183,9 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
     } catch (error: any) {
       console.error("Error sending message:", error);
       
-      let errorMessage = "Не вдалося отримати відповідь. Перевірте з'єднання 🌐";
+      let errorMessage = "Could not get response. Check your connection.";
       if (error.message?.includes("AI service error")) {
-        errorMessage = "🤖 AI сервіс тимчасово недоступний. Спробуйте через хвилину.";
+        errorMessage = "AI service temporarily unavailable. Please try again in a minute.";
       }
       
       addAIMessage(errorMessage);
