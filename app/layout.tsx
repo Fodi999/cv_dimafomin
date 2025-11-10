@@ -5,6 +5,7 @@ import { getMetadata } from "@/lib/seo";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserProvider } from "@/contexts/UserContext";
 import PWARegister from "@/components/PWARegister";
+import NavigationBurger from "@/components/NavigationBurger";
 
 const inter = Inter({ 
   subsets: ["latin", "cyrillic"],
@@ -60,6 +61,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased relative">
         <PWARegister />
+        <NavigationBurger />
         <LanguageProvider>
           <UserProvider>
             {children}

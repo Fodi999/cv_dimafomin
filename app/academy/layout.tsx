@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Navigation from "@/components/Navigation";
 import Footer from "@/components/sections/Footer";
 
 export const metadata: Metadata = {
@@ -15,7 +14,6 @@ export default function AcademyLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col bg-[#FEF9F5]">
-      <Navigation />
       <main className="flex-1 container mx-auto px-4 py-24 relative">
         {children}
       </main>

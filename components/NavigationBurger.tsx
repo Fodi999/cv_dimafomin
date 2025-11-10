@@ -99,40 +99,8 @@ export default function NavigationBurger() {
     <>
       {/* ========== STICKY TOP BAR - ОДИНАКОВАЯ НА ВСЕХ ЭКРАНАХ ========== */}
       <header className="fixed top-0 left-0 w-full z-40 bg-white/60 dark:bg-gray-900/40 backdrop-blur-md shadow-sm border-b border-white/20 dark:border-gray-800/20 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* ===== LOGO & BRAND - ВИДНО НА ВСЕХ РАЗМЕРАХ ===== */}
-          <Link
-            href="/"
-            className="flex items-center gap-2 font-bold text-sm tracking-tight hover:opacity-80 transition group"
-          >
-            <motion.div
-              whileHover={{ scale: 1.08, rotate: 5 }}
-              whileTap={{ scale: 0.95 }}
-              className="p-1.5 bg-gradient-to-br from-sky-500 to-cyan-500 rounded-lg"
-            >
-              <BrainCircuit className="w-5 h-5 text-white" />
-            </motion.div>
-            <div className="flex flex-col leading-tight">
-              <span className="text-gray-900 dark:text-white text-sm font-bold">
-                Seafood
-              </span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">Academy</span>
-            </div>
-          </Link>
-
-          {/* ===== CENTER: TOKEN BALANCE - ВИДНО НА ВСЕХ РАЗМЕРАХ ===== */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center gap-2 px-3.5 py-1.5 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40 border border-amber-200/50 dark:border-amber-800/50 rounded-full"
-          >
-            <Coins className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-            <span className="text-sm font-bold text-amber-700 dark:text-amber-300">
-              {tokenBalance.toLocaleString()}
-            </span>
-          </motion.div>
-
-          {/* ===== RIGHT: BURGER MENU - ВИДНО НА ВСЕХ РАЗМЕРАХ ===== */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-start gap-3">
+          {/* ===== BURGER BUTTON - LEFT SIDE ===== */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -164,6 +132,26 @@ export default function NavigationBurger() {
               )}
             </AnimatePresence>
           </motion.button>
+
+          {/* ===== LOGO - NEXT TO BURGER ===== */}
+          <Link
+            href="/"
+            className="flex items-center gap-2 font-bold text-sm tracking-tight hover:opacity-80 transition group"
+          >
+            <motion.div
+              whileHover={{ scale: 1.08, rotate: 5 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-1.5 bg-gradient-to-br from-sky-500 to-cyan-500 rounded-lg"
+            >
+              <BrainCircuit className="w-5 h-5 text-white" />
+            </motion.div>
+            <div className="flex flex-col leading-tight">
+              <span className="text-gray-900 dark:text-white text-sm font-bold">
+                Seafood
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Academy</span>
+            </div>
+          </Link>
         </div>
       </header>
 
@@ -246,23 +234,35 @@ export default function NavigationBurger() {
               {/* ===== DIVIDER ===== */}
               <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent my-6" />
 
-              {/* ===== TOKEN BALANCE (Видно везде в меню) ===== */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200/50 dark:border-amber-800/50 rounded-lg"
-              >
-                <div className="flex items-center gap-2 mb-2">
+              {/* ===== PROFILE & TOKENS ROW ===== */}
+              <div className="flex items-center gap-3 mb-6">
+                {/* Profile Button */}
+                <Link href="/profile" onClick={handleLinkClick} className="flex-1">
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-sky-500/10 to-cyan-500/10 border border-sky-200/50 dark:border-sky-800/50 rounded-lg hover:bg-sky-500/20 dark:hover:bg-sky-900/30 transition-all cursor-pointer"
+                  >
+                    <div className="relative p-1 rounded-full bg-gradient-to-br from-sky-500 to-cyan-500">
+                      <User className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="font-medium text-sm text-gray-900 dark:text-white">
+                      Профиль
+                    </span>
+                  </motion.div>
+                </Link>
+
+                {/* Token Badge */}
+                <motion.div
+                  whileHover={{ scale: 1.08 }}
+                  className="flex items-center gap-1.5 px-3 py-2.5 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40 border border-amber-200/50 dark:border-amber-800/50 rounded-lg min-w-fit"
+                >
                   <Coins className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                  <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">
-                    Баланс токенов
+                  <span className="text-sm font-bold text-amber-700 dark:text-amber-300">
+                    {tokenBalance.toLocaleString()}
                   </span>
-                </div>
-                <div className="text-2xl font-bold text-amber-700 dark:text-amber-300">
-                  {tokenBalance.toLocaleString()}
-                </div>
-              </motion.div>
+                </motion.div>
+              </div>
 
               {/* ===== FOOTER ===== */}
               <motion.div

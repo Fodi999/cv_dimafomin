@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
+import { animations, gradients } from "@/lib/design-tokens";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -129,10 +130,11 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+              className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl dark:shadow-lg w-full max-w-md overflow-hidden border border-gray-100 dark:border-gray-800"
+              transition={animations.spring}
             >
               {/* Header */}
-              <div className="relative bg-gradient-to-r from-[#3BC864] to-[#C5E98A] p-6">
+              <div className={`relative ${gradients.primary} p-6`}>
                 <button
                   onClick={onClose}
                   className="absolute top-4 right-4 p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
@@ -152,13 +154,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </div>
 
               {/* Tabs */}
-              <div className="flex border-b border-gray-200">
+              <div className="flex border-b border-gray-200 dark:border-gray-700">
                 <button
                   onClick={() => setActiveTab("login")}
                   className={`flex-1 py-3 text-sm font-medium transition-colors ${
                     activeTab === "login"
-                      ? "text-[#3BC864] border-b-2 border-[#3BC864]"
-                      : "text-gray-500 hover:text-gray-700"
+                      ? "text-sky-600 dark:text-sky-400 border-b-2 border-sky-600 dark:border-sky-400"
+                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                   }`}
                 >
                   {t.auth?.loginTab || "Logowanie"}
@@ -167,8 +169,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   onClick={() => setActiveTab("register")}
                   className={`flex-1 py-3 text-sm font-medium transition-colors ${
                     activeTab === "register"
-                      ? "text-[#3BC864] border-b-2 border-[#3BC864]"
-                      : "text-gray-500 hover:text-gray-700"
+                      ? "text-sky-600 dark:text-sky-400 border-b-2 border-sky-600 dark:border-sky-400"
+                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                   }`}
                 >
                   {t.auth?.registerTab || "Rejestracja"}
@@ -182,20 +184,21 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg shadow-sm"
+                    className="mb-4 p-4 bg-rose-50 dark:bg-rose-950/40 border-l-4 border-rose-500 dark:border-rose-600 rounded-r-lg shadow-sm"
+                    role="alert"
                   >
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0">
-                        <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-5 h-5 text-rose-500 dark:text-rose-400" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                         </svg>
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-red-800">{error}</p>
+                        <p className="text-sm font-medium text-rose-800 dark:text-rose-300">{error}</p>
                       </div>
                       <button
                         onClick={() => setError(null)}
-                        className="flex-shrink-0 text-red-400 hover:text-red-600"
+                        className="flex-shrink-0 text-rose-400 dark:text-rose-500 hover:text-rose-600 dark:hover:text-rose-400"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -206,11 +209,11 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 {activeTab === "login" ? (
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         {t.auth?.email || "Email"}
                       </label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                         <Input
                           type="email"
                           placeholder={t.auth?.emailPlaceholder || "twoj@email.com"}
@@ -225,11 +228,11 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         {t.auth?.password || "Hasło"}
                       </label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                         <Input
                           type={showPassword ? "text" : "password"}
                           placeholder="••••••••"
@@ -243,7 +246,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
                         >
                           {showPassword ? (
                             <EyeOff className="w-5 h-5" />
@@ -256,14 +259,14 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
                     <div className="flex items-center justify-between text-sm">
                       <label className="flex items-center">
-                        <input type="checkbox" className="mr-2" />
-                        <span className="text-gray-600">
+                        <input type="checkbox" className="mr-2 accent-sky-600 dark:accent-sky-500" />
+                        <span className="text-gray-600 dark:text-gray-400">
                           {t.auth?.rememberMe || "Zapamiętaj mnie"}
                         </span>
                       </label>
                       <button
                         type="button"
-                        className="text-[#3BC864] hover:underline"
+                        className="text-sky-600 dark:text-sky-400 hover:underline"
                       >
                         {t.auth?.forgotPassword || "Zapomniałeś hasła?"}
                       </button>
@@ -272,7 +275,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     <Button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full bg-gradient-to-r from-[#3BC864] to-[#C5E98A] hover:opacity-90 text-white"
+                      className={`w-full ${gradients.primary} hover:shadow-lg dark:hover:shadow-sky-500/30 text-white font-bold`}
                     >
                       {isLoading
                         ? t.auth?.loading || "Ładowanie..."
@@ -282,11 +285,11 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 ) : (
                   <form onSubmit={handleRegister} className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         {t.auth?.name || "Imię i nazwisko"}
                       </label>
                       <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                         <Input
                           type="text"
                           placeholder={t.auth?.namePlaceholder || "Jan Kowalski"}
@@ -301,11 +304,11 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         {t.auth?.email || "Email"}
                       </label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                         <Input
                           type="email"
                           placeholder={t.auth?.emailPlaceholder || "twoj@email.com"}
@@ -320,11 +323,11 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         {t.auth?.password || "Hasło"}
                       </label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                         <Input
                           type={showPassword ? "text" : "password"}
                           placeholder="••••••••"
@@ -341,7 +344,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
                         >
                           {showPassword ? (
                             <EyeOff className="w-5 h-5" />
@@ -353,11 +356,11 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         {t.auth?.confirmPassword || "Potwierdź hasło"}
                       </label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                         <Input
                           type={showPassword ? "text" : "password"}
                           placeholder="••••••••"
@@ -377,7 +380,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     <Button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full bg-gradient-to-r from-[#3BC864] to-[#C5E98A] hover:opacity-90 text-white"
+                      className={`w-full ${gradients.primary} hover:shadow-lg dark:hover:shadow-sky-500/30 text-white font-bold`}
                     >
                       {isLoading
                         ? t.auth?.loading || "Ładowanie..."
@@ -388,13 +391,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </div>
 
               {/* Footer */}
-              <div className="px-6 pb-6 text-center text-sm text-gray-500">
+              <div className="px-6 pb-6 text-center text-sm text-gray-500 dark:text-gray-400">
                 {activeTab === "login" ? (
                   <p>
                     {t.auth?.noAccount || "Nie masz konta?"}{" "}
                     <button
                       onClick={() => setActiveTab("register")}
-                      className="text-[#3BC864] hover:underline font-medium"
+                      className="text-sky-600 dark:text-sky-400 hover:underline font-medium"
                     >
                       {t.auth?.registerNow || "Zarejestruj się"}
                     </button>
@@ -404,7 +407,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     {t.auth?.haveAccount || "Masz już konto?"}{" "}
                     <button
                       onClick={() => setActiveTab("login")}
-                      className="text-[#3BC864] hover:underline font-medium"
+                      className="text-sky-600 dark:text-sky-400 hover:underline font-medium"
                     >
                       {t.auth?.loginNow || "Zaloguj się"}
                     </button>

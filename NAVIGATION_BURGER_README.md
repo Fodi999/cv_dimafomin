@@ -353,21 +353,34 @@ v2.0 ✓ SEO-friendly
 
 ## 🔗 Интеграция в проект
 
-```bash
-# 1. Компонент уже создан:
-components/NavigationBurger.tsx
+### Быстрый старт
 
-# 2. Импортируйте в app/layout.tsx или нужную страницу
-import NavigationBurger from "@/components/NavigationBurger";
+1. **Компонент уже создан:**
+   ```
+   components/NavigationBurger.tsx
+   ```
 
-# 3. Используйте:
-<NavigationBurger />
+2. **Импортируйте в app/layout.tsx:**
+   ```tsx
+   import NavigationBurger from "@/components/NavigationBurger";
 
-# 4. Добавьте pt-16 к содержимому (для spacer)
-<main className="pt-16">
-  {/* Your content */}
-</main>
-```
+   export default function RootLayout({
+     children,
+   }: {
+     children: React.ReactNode;
+   }) {
+     return (
+       <html lang="en">
+         <body>
+           <NavigationBurger />
+           <main>{children}</main>
+         </body>
+       </html>
+     );
+   }
+   ```
+
+3. **Готово!** Компонент автоматически добавляет spacer (`h-16`) для fixed header
 
 ---
 

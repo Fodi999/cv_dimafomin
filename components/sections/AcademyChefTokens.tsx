@@ -44,10 +44,10 @@ export default function AcademyChefTokens() {
   };
 
   return (
-    <section className="py-20 relative overflow-hidden">
+    <section className="py-20 relative overflow-hidden bg-gradient-to-b from-white/50 to-white dark:from-gray-950/50 dark:to-gray-950">
       {/* Background elements */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#00D9FF]/5 via-transparent to-[#3BC864]/5 pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#3BC864]/10 rounded-full blur-3xl" />
+      <div className="absolute inset-0 bg-gradient-to-b from-sky-500/5 via-transparent to-cyan-500/5 dark:from-sky-500/10 dark:to-cyan-500/10 pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-sky-500/10 dark:bg-sky-500/20 rounded-full blur-3xl" />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -63,7 +63,7 @@ export default function AcademyChefTokens() {
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 rounded-full border-2 border-transparent bg-gradient-to-r from-[#3BC864] via-[#00D9FF] to-blue-500 bg-clip-border"
+              className="absolute inset-0 rounded-full border-2 border-transparent bg-gradient-to-r from-sky-500 via-cyan-500 to-blue-500 dark:from-sky-600 dark:via-cyan-600 dark:to-blue-600 bg-clip-border"
             />
 
             {/* Token icons */}
@@ -73,10 +73,10 @@ export default function AcademyChefTokens() {
                 transition={{ duration: 2, repeat: Infinity }}
                 className="mb-6 flex justify-center"
               >
-                <Gem className="w-16 h-16 text-amber-500" />
+                <Gem className="w-16 h-16 text-amber-500 dark:text-amber-400" />
               </motion.div>
-              <h3 className="text-3xl font-bold text-[#1E1A41] mb-2">ChefTokens</h3>
-              <p className="text-gray-600 text-lg font-semibold">Твоя валюта мастерства</p>
+              <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">ChefTokens</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-lg font-semibold">Твоя валюта мастерства</p>
             </div>
 
             {/* Floating tokens */}
@@ -98,7 +98,7 @@ export default function AcademyChefTokens() {
                   left: `${20 + i * 30}%`,
                 }}
               >
-                <Award className="w-10 h-10 text-amber-400" />
+                <Award className="w-10 h-10 text-amber-400 dark:text-amber-300" />
               </motion.div>
             ))}
           </motion.div>
@@ -112,20 +112,20 @@ export default function AcademyChefTokens() {
             className="space-y-8"
           >
             <motion.div variants={itemVariants}>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#3BC864]/10 border border-[#3BC864]/30 mb-6">
-                <Coins className="w-4 h-4 text-[#3BC864]" />
-                <span className="text-sm font-semibold text-[#3BC864]">ChefTokens</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sky-500/10 dark:bg-sky-500/20 border border-sky-200/50 dark:border-sky-800/50 mb-6">
+                <Coins className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                <span className="text-sm font-semibold text-sky-600 dark:text-sky-400">ChefTokens</span>
               </div>
-              <h2 className="text-4xl lg:text-5xl font-bold text-[#1E1A41] mb-6">
+              <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
                 Учись, готовь и зарабатывай
               </h2>
             </motion.div>
 
             <motion.p
               variants={itemVariants}
-              className="text-lg text-gray-700 leading-relaxed flex items-center gap-2"
+              className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed flex items-center gap-2"
             >
-              <Coins className="w-5 h-5 text-amber-500" />
+              <Coins className="w-5 h-5 text-amber-500 dark:text-amber-400" />
               <span><span className="font-semibold">ChefTokens</span> — это уникальная система мотивации в Seafood Academy. Каждое действие приносит тебе токены:</span>
             </motion.p>
 
@@ -135,14 +135,14 @@ export default function AcademyChefTokens() {
                 <motion.div
                   key={idx}
                   variants={itemVariants}
-                  className="flex gap-4 p-4 rounded-2xl bg-gradient-to-r from-white to-[#3BC864]/5 border-2 border-gray-100 hover:border-[#3BC864]/30 transition-colors"
+                  className="flex gap-4 p-4 rounded-2xl bg-gradient-to-r from-sky-50/40 to-cyan-50/40 dark:from-sky-950/30 dark:to-cyan-950/30 border-2 border-sky-200/50 dark:border-sky-800/50 hover:border-sky-400 dark:hover:border-sky-500/50 transition-colors"
                 >
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#3BC864]/10 flex items-center justify-center text-[#3BC864]">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-sky-500/10 dark:bg-sky-500/20 flex items-center justify-center text-sky-600 dark:text-sky-400">
                     {benefit.icon}
                   </div>
                   <div>
-                    <h3 className="font-bold text-[#1E1A41] mb-1">{benefit.title}</h3>
-                    <p className="text-sm text-gray-600">{benefit.description}</p>
+                    <h3 className="font-bold text-gray-900 dark:text-white mb-1">{benefit.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{benefit.description}</p>
                   </div>
                 </motion.div>
               ))}
@@ -151,22 +151,22 @@ export default function AcademyChefTokens() {
             {/* Quick stats */}
             <motion.div
               variants={itemVariants}
-              className="grid grid-cols-2 gap-4 py-6 border-y border-gray-200"
+              className="grid grid-cols-2 gap-4 py-6 border-y border-gray-200 dark:border-gray-800"
             >
               <div className="text-center">
-                <p className="text-2xl font-bold text-[#3BC864]">50,000+</p>
-                <p className="text-sm text-gray-600 mt-1">токенов в обороте</p>
+                <p className="text-2xl font-bold text-sky-600 dark:text-sky-400">50,000+</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">токенов в обороте</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-[#3BC864]">1000+</p>
-                <p className="text-sm text-gray-600 mt-1">активных пользователей</p>
+                <p className="text-2xl font-bold text-sky-600 dark:text-sky-400">1000+</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">активных пользователей</p>
               </div>
             </motion.div>
 
             {/* CTA */}
             <motion.div variants={itemVariants}>
               <Link href="/profile">
-                <Button className="bg-gradient-to-r from-[#3BC864] to-[#2da050] hover:from-[#2da050] hover:to-[#1e7a38] text-white font-bold px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all group w-full md:w-auto flex items-center justify-center gap-2">
+                <Button className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-bold px-8 py-6 text-lg rounded-xl shadow-lg dark:shadow-sky-500/20 hover:shadow-xl dark:hover:shadow-sky-500/30 transition-all group w-full md:w-auto flex items-center justify-center gap-2">
                   <Coins className="w-5 h-5" />
                   Посмотреть баланс токенов
                   <span className="group-hover:translate-x-1 transition-transform inline-block">

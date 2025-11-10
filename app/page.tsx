@@ -6,7 +6,6 @@ import AcademyAIMentor from "@/components/sections/AcademyCourses";
 import AcademyCoursesPreview from "@/components/sections/AcademyCoursesPreview";
 import AcademyChefTokens from "@/components/sections/AcademyChefTokens";
 import AcademyFooter from "@/components/sections/AcademyFooter";
-import Navigation from "@/components/Navigation";
 import ScrollToTop from "@/components/ScrollToTop";
 import ScrollProgress from "@/components/ScrollProgress";
 import DynamicMetaTags from "@/components/DynamicMetaTags";
@@ -18,7 +17,6 @@ export default function Home() {
       <DynamicMetaTags />
       <StructuredData />
       <ScrollProgress />
-      <Navigation />
       <ScrollToTop />
       <main className="min-h-screen relative">
         <AcademyHero />
