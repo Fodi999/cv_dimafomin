@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { animations } from "@/lib/design-tokens";
 
 interface TooltipProps {
   children: React.ReactNode;
@@ -57,7 +58,7 @@ export function Tooltip({
             transition={{ duration: 0.15 }}
             className={`absolute z-50 ${positions[position]}`}
           >
-            <div className="bg-gray-900 text-white text-sm px-3 py-2 rounded-lg shadow-lg whitespace-nowrap">
+            <div className="bg-gray-900 dark:bg-gray-800 text-white text-sm px-3 py-2 rounded-lg shadow-lg dark:shadow-md whitespace-nowrap border border-gray-700 dark:border-gray-700">
               {content}
             </div>
           </motion.div>
