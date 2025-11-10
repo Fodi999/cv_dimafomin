@@ -181,12 +181,13 @@ npm start
 
 ---
 
-## 📞 Контакты в Footer
+## 📞 Контакты
 
-- 📧 Email: contact@academy.com
-- 📱 Телефон: +380 12 345 67 89
-- 📍 Локация: Київ, Україна
-- 🌐 Социальные: Facebook, Instagram, LinkedIn
+- 👨‍🍳 Chef: Дима Фомин (Dima Fomin)
+- 📧 Email: fodi85999@gmail.com
+- 📱 WhatsApp: +48 576 212 418
+- � Telegram: @fodi999
+- 📸 Instagram: @fodifood
 
 ---
 

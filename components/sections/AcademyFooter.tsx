@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Facebook, Instagram, Linkedin } from "lucide-react";
+import { Mail, MapPin, Facebook, Instagram, Linkedin } from "lucide-react";
 
 export default function AcademyFooter() {
   const containerVariants = {
@@ -111,22 +111,15 @@ export default function AcademyFooter() {
             <h3 className="font-bold text-lg mb-6 text-white">Контакты</h3>
             <div className="space-y-3">
               <a
-                href="mailto:contact@seafoodacademy.com"
+                href="mailto:fodi85999@gmail.com"
                 className="flex items-center gap-3 text-gray-400 hover:text-[#3BC864] transition-colors"
               >
                 <Mail className="w-5 h-5" />
-                <span className="text-sm">contact@academy.com</span>
-              </a>
-              <a
-                href="tel:+380123456789"
-                className="flex items-center gap-3 text-gray-400 hover:text-[#3BC864] transition-colors"
-              >
-                <Phone className="w-5 h-5" />
-                <span className="text-sm">+380 12 345 67 89</span>
+                <span className="text-sm">fodi85999@gmail.com</span>
               </a>
               <div className="flex items-center gap-3 text-gray-400">
                 <MapPin className="w-5 h-5" />
-                <span className="text-sm">Київ, Україна</span>
+                <span className="text-sm">Gdańsk, Polska</span>
               </div>
             </div>
           </motion.div>
