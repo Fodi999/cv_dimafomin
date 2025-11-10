@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ShoppingCart, Star, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { gradients } from "@/lib/design-tokens";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -30,9 +31,9 @@ export default function RecipeCard({
   difficulty,
 }: RecipeCardProps) {
   const difficultyColors = {
-    beginner: "bg-green-100 text-green-700",
-    intermediate: "bg-yellow-100 text-yellow-700",
-    advanced: "bg-red-100 text-red-700",
+    beginner: "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400",
+    intermediate: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400",
+    advanced: "bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400",
   };
 
   const difficultyLabels = {
@@ -48,7 +49,7 @@ export default function RecipeCard({
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ y: -8, scale: 1.02 }}
         transition={{ duration: 0.3 }}
-        className="bg-white rounded-2xl shadow-lg hover:shadow-2xl overflow-hidden group cursor-pointer border-2 border-transparent hover:border-[#3BC864]/30 transition-all duration-300"
+        className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg dark:shadow-md hover:shadow-2xl dark:hover:shadow-sky-500/20 overflow-hidden group cursor-pointer border-2 border-transparent hover:border-sky-400/30 dark:hover:border-sky-600/30 transition-all duration-300"
       >
         {/* Image */}
         <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
@@ -74,28 +75,28 @@ export default function RecipeCard({
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             whileHover={{ opacity: 1, y: 0 }}
-            className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            className="absolute bottom-4 left-4 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
           >
-            <span className="text-xl font-bold text-[#3BC864]">{price} zł</span>
+            <span className="text-xl font-bold text-sky-600 dark:text-sky-400">{price} zł</span>
           </motion.div>
         </div>
 
         {/* Content */}
         <div className="p-6">
-          <h3 className="text-xl font-bold text-[#1E1A41] mb-2 line-clamp-1 group-hover:text-[#3BC864] transition-colors">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
             {title}
           </h3>
-          <p className="text-sm text-[#1E1A41]/60 mb-4 line-clamp-2">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
             {description}
           </p>
 
           {/* Author */}
-          <p className="text-xs text-[#1E1A41]/50 mb-4 font-medium">
+          <p className="text-xs text-gray-500 dark:text-gray-500 mb-4 font-medium">
             👨‍🍳 {author}
           </p>
 
           {/* Stats */}
-          <div className="flex items-center gap-4 mb-4 text-sm text-[#1E1A41]/70">
+          <div className="flex items-center gap-4 mb-4 text-sm text-gray-700 dark:text-gray-400">
             <div className="flex items-center gap-1">
               <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
               <span className="font-semibold">{rating.toFixed(1)}</span>
@@ -107,13 +108,13 @@ export default function RecipeCard({
           </div>
 
           {/* Price & CTA */}
-          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+          <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
             <div>
-              <span className="text-2xl font-bold text-[#3BC864]">{price} zł</span>
+              <span className="text-2xl font-bold text-sky-600 dark:text-sky-400">{price} zł</span>
             </div>
             <Button
               size="sm"
-              className="bg-gradient-to-r from-[#3BC864] to-[#C5E98A] text-white hover:shadow-lg hover:scale-105 transition-all duration-300"
+              className={`${gradients.primary} text-white hover:shadow-lg dark:hover:shadow-sky-500/30 hover:scale-105 transition-all duration-300`}
             >
               <ShoppingCart className="w-4 h-4 mr-2" />
               Купити

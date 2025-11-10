@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Send, Paperclip, X } from "lucide-react";
+import { animations } from "@/lib/design-tokens";
 
 interface ChatInputProps {
   value: string;
@@ -37,17 +38,17 @@ export function ChatInput({
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-3 flex items-center gap-3 bg-orange-50 p-3 rounded-xl border border-orange-200"
+          className="mb-3 flex items-center gap-3 bg-sky-50 dark:bg-sky-950/30 p-3 rounded-xl border border-sky-200 dark:border-sky-800/50"
         >
           <img 
             src={attachedImage} 
             alt="Preview" 
-            className="w-16 h-16 object-cover rounded-lg border-2 border-orange-300 shadow-sm"
+            className="w-16 h-16 object-cover rounded-lg border-2 border-sky-300 dark:border-sky-700 shadow-sm"
           />
-          <span className="text-sm text-gray-600 flex-1">Прикріплено фото</span>
+          <span className="text-sm text-gray-600 dark:text-gray-400 flex-1">Прикріплено фото</span>
           <button
             onClick={onRemoveImage}
-            className="text-gray-400 hover:text-red-500 transition p-1 rounded-lg hover:bg-red-50"
+            className="text-gray-400 dark:text-gray-500 hover:text-rose-500 dark:hover:text-rose-400 transition p-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30"
           >
             <X className="w-5 h-5" />
           </button>
@@ -55,7 +56,7 @@ export function ChatInput({
       )}
 
       {/* Input Bar */}
-      <div className="flex items-center gap-3 border-2 border-gray-200 rounded-2xl px-4 py-3 shadow-md bg-white focus-within:border-orange-400 focus-within:shadow-lg transition-all">
+      <div className="flex items-center gap-3 border-2 border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-3 shadow-md bg-white dark:bg-gray-900 focus-within:border-sky-400 dark:focus-within:border-sky-500 focus-within:shadow-lg dark:focus-within:shadow-sky-500/20 transition-all">
         {/* Hidden File Input */}
         <input
           ref={fileInputRef}
@@ -70,7 +71,7 @@ export function ChatInput({
           whileTap={{ scale: 0.95 }}
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled || uploadingImage}
-          className="text-gray-400 hover:text-orange-500 transition disabled:text-gray-300 p-2 rounded-lg hover:bg-orange-50 active:bg-orange-100"
+          className="text-gray-400 dark:text-gray-500 hover:text-sky-500 dark:hover:text-sky-400 transition disabled:text-gray-300 dark:disabled:text-gray-600 p-2 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-950/30 active:bg-sky-100 dark:active:bg-sky-900/40"
           title="Прикріпити фото"
         >
           <Paperclip className="w-5 h-5" />
@@ -86,20 +87,20 @@ export function ChatInput({
             : "Що будемо готувати сьогодні?"
           }
           disabled={disabled}
-          className="flex-1 bg-transparent outline-none text-gray-800 placeholder:text-gray-400 text-[15px]"
+          className="flex-1 bg-transparent outline-none text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-[15px]"
         />
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={onSend}
           disabled={!value.trim() || disabled}
-          className="text-orange-500 hover:text-orange-600 transition disabled:text-gray-300 p-2 rounded-lg hover:bg-orange-50 active:bg-orange-100"
+          className="text-sky-500 dark:text-sky-400 hover:text-sky-600 dark:hover:text-sky-300 transition disabled:text-gray-300 dark:disabled:text-gray-600 p-2 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-950/30 active:bg-sky-100 dark:active:bg-sky-900/40"
         >
           <Send className="w-5 h-5" />
         </motion.button>
       </div>
       
       {/* Footer Info */}
-      <p className="text-xs text-gray-400 mt-3 text-center">
+      <p className="text-xs text-gray-400 dark:text-gray-500 mt-3 text-center">
         AI може помилятися. Перевіряйте важливу інформацію.
       </p>
     </div>

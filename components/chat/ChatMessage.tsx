@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ChefHat, User } from "lucide-react";
+import { animations, gradients } from "@/lib/design-tokens";
 
 interface ChatMessageProps {
   role: "ai" | "user";
@@ -20,7 +21,7 @@ export function ChatMessage({ role, content, timestamp, index }: ChatMessageProp
       className={`flex gap-3 ${role === "user" ? "justify-end" : "justify-start"}`}
     >
       {role === "ai" && (
-        <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-md">
+        <div className={`flex-shrink-0 w-9 h-9 rounded-full ${gradients.primary} flex items-center justify-center shadow-md`}>
           <ChefHat className="w-5 h-5 text-white" />
         </div>
       )}
@@ -28,20 +29,20 @@ export function ChatMessage({ role, content, timestamp, index }: ChatMessageProp
       <div
         className={`max-w-[85%] p-4 rounded-2xl leading-relaxed ${
           role === "ai"
-            ? "bg-white shadow-md border border-orange-50 text-gray-800"
-            : "bg-orange-50 text-gray-800 shadow-sm"
+            ? "bg-white dark:bg-gray-900 shadow-md border border-sky-100 dark:border-sky-900/30 text-gray-800 dark:text-gray-200"
+            : "bg-sky-50 dark:bg-sky-950/30 text-gray-800 dark:text-gray-200 shadow-sm border border-sky-200/50 dark:border-sky-800/50"
         }`}
       >
         {role === "ai" && (
-          <div className="font-bold text-gray-900 mb-2 text-sm">
+          <div className="font-bold text-gray-900 dark:text-white mb-2 text-sm">
             Шеф Діма
           </div>
         )}
-        <div className="whitespace-pre-wrap text-[#444] leading-[1.6]">{content}</div>
+        <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-300 leading-[1.6]">{content}</div>
       </div>
 
       {role === "user" && (
-        <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center shadow-md">
+        <div className={`flex-shrink-0 w-9 h-9 rounded-full ${gradients.primary} flex items-center justify-center shadow-md`}>
           <User className="w-4 h-4 text-white" />
         </div>
       )}
@@ -56,27 +57,27 @@ export function TypingIndicator() {
       animate={{ opacity: 1, y: 0 }}
       className="flex gap-3"
     >
-      <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-md">
+      <div className={`flex-shrink-0 w-9 h-9 rounded-full ${gradients.primary} flex items-center justify-center shadow-md`}>
         <ChefHat className="w-5 h-5 text-white" />
       </div>
-      <div className="bg-white shadow-md border border-orange-50 p-4 rounded-2xl">
+      <div className="bg-white dark:bg-gray-900 shadow-md border border-sky-100 dark:border-sky-900/30 p-4 rounded-2xl">
         <div className="flex items-center gap-2">
-          <span className="text-gray-600 text-sm font-medium">Шеф Діма друкує</span>
+          <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Шеф Діма друкує</span>
           <div className="flex gap-1">
             <motion.span
               animate={{ opacity: [0.3, 1, 0.3] }}
               transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
-              className="w-2 h-2 bg-orange-400 rounded-full"
+              className="w-2 h-2 bg-sky-400 dark:bg-sky-500 rounded-full"
             />
             <motion.span
               animate={{ opacity: [0.3, 1, 0.3] }}
               transition={{ duration: 1.2, repeat: Infinity, delay: 0.2 }}
-              className="w-2 h-2 bg-orange-400 rounded-full"
+              className="w-2 h-2 bg-sky-400 dark:bg-sky-500 rounded-full"
             />
             <motion.span
               animate={{ opacity: [0.3, 1, 0.3] }}
               transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
-              className="w-2 h-2 bg-orange-400 rounded-full"
+              className="w-2 h-2 bg-sky-400 dark:bg-sky-500 rounded-full"
             />
           </div>
         </div>

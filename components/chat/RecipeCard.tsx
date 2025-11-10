@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Clock, Users, Flame, ChevronDown, UtensilsCrossed, ChefHat } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { animations, gradients } from "@/lib/design-tokens";
 import Image from "next/image";
 
 interface Ingredient {
@@ -45,11 +46,11 @@ export function RecipeCard({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="bg-white rounded-2xl shadow-xl p-6 border-2 border-green-100"
+      className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl dark:shadow-lg p-6 border-2 border-emerald-100 dark:border-emerald-900/30"
     >
       <div className="flex items-center gap-2 mb-4">
-        <CheckCircle2 className="w-6 h-6 text-green-600" />
-        <h3 className="text-xl font-bold text-gray-900">Рецепт готовий!</h3>
+        <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white">Рецепт готовий!</h3>
       </div>
 
       {(recipeImage || recipe.imageUrl) && (
@@ -64,25 +65,25 @@ export function RecipeCard({
         </div>
       )}
 
-      <h4 className="text-2xl font-bold text-gray-900 mb-3">{recipe.title}</h4>
-      <p className="text-[#444] leading-[1.6] mb-5">{recipe.description}</p>
+      <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">{recipe.title}</h4>
+      <p className="text-gray-700 dark:text-gray-300 leading-[1.6] mb-5">{recipe.description}</p>
 
-      <div className="flex gap-4 text-sm text-gray-600 mb-6 flex-wrap">
+      <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-400 mb-6 flex-wrap">
         {recipe.servings && (
-          <span className="flex items-center gap-1.5 bg-orange-50 px-3 py-1.5 rounded-full">
-            <Users className="w-4 h-4 text-orange-600" />
+          <span className="flex items-center gap-1.5 bg-sky-50 dark:bg-sky-950/30 px-3 py-1.5 rounded-full border border-sky-200/50 dark:border-sky-800/50">
+            <Users className="w-4 h-4 text-sky-600 dark:text-sky-400" />
             {recipe.servings} порцій
           </span>
         )}
         {recipe.timeMinutes && (
-          <span className="flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-full">
-            <Clock className="w-4 h-4 text-blue-600" />
+          <span className="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/30 px-3 py-1.5 rounded-full border border-amber-200/50 dark:border-amber-800/50">
+            <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             {recipe.timeMinutes} хв
           </span>
         )}
         {recipe.difficulty && (
-          <span className="flex items-center gap-1.5 bg-red-50 px-3 py-1.5 rounded-full">
-            <Flame className="w-4 h-4 text-red-600" />
+          <span className="flex items-center gap-1.5 bg-rose-50 dark:bg-rose-950/30 px-3 py-1.5 rounded-full border border-rose-200/50 dark:border-rose-800/50">
+            <Flame className="w-4 h-4 text-rose-600 dark:text-rose-400" />
             {recipe.difficulty}
           </span>
         )}
@@ -93,11 +94,11 @@ export function RecipeCard({
         <div className="mb-4">
           <button
             onClick={() => onToggleSection('ingredients')}
-            className="w-full flex items-center justify-between p-3 bg-orange-50 hover:bg-orange-100 rounded-xl transition-colors group"
+            className="w-full flex items-center justify-between p-3 bg-sky-50 dark:bg-sky-950/30 hover:bg-sky-100 dark:hover:bg-sky-900/40 rounded-xl transition-colors group border border-sky-200/50 dark:border-sky-800/50"
           >
             <div className="flex items-center gap-2">
-              <UtensilsCrossed className="w-5 h-5 text-orange-600" />
-              <h5 className="text-lg font-bold text-gray-900">Інгредієнти</h5>
+              <UtensilsCrossed className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+              <h5 className="text-lg font-bold text-gray-900 dark:text-white">Інгредієнти</h5>
               <span className="text-sm text-gray-500">
                 ({recipe.ingredients.length})
               </span>
@@ -120,12 +121,12 @@ export function RecipeCard({
               >
                 <ul className="space-y-2 pt-3 px-3">
                   {recipe.ingredients.map((ingredient, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-gray-700">
-                      <span className="text-orange-500 mt-1">•</span>
+                    <li key={idx} className="flex items-start gap-2 text-gray-700 dark:text-gray-300">
+                      <span className="text-sky-500 dark:text-sky-400 mt-1">•</span>
                       <span>
                         <span className="font-medium">{ingredient.name}</span>
                         {ingredient.quantity && (
-                          <span className="text-gray-600">
+                          <span className="text-gray-600 dark:text-gray-400">
                             {' '}- {ingredient.quantity} {ingredient.unit}
                           </span>
                         )}
@@ -144,11 +145,11 @@ export function RecipeCard({
         <div className="mb-6">
           <button
             onClick={() => onToggleSection('steps')}
-            className="w-full flex items-center justify-between p-3 bg-orange-50 hover:bg-orange-100 rounded-xl transition-colors group"
+            className="w-full flex items-center justify-between p-3 bg-sky-50 dark:bg-sky-950/30 hover:bg-sky-100 dark:hover:bg-sky-900/40 rounded-xl transition-colors group border border-sky-200/50 dark:border-sky-800/50"
           >
             <div className="flex items-center gap-2">
-              <ChefHat className="w-5 h-5 text-orange-600" />
-              <h5 className="text-lg font-bold text-gray-900">Приготування</h5>
+              <ChefHat className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+              <h5 className="text-lg font-bold text-gray-900 dark:text-white">Приготування</h5>
               <span className="text-sm text-gray-500">
                 ({recipe.steps.length} кроків)
               </span>
@@ -171,8 +172,8 @@ export function RecipeCard({
               >
                 <ol className="space-y-3 pt-3 px-3">
                   {recipe.steps.map((step, idx) => (
-                    <li key={idx} className="flex gap-3 text-gray-700">
-                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-orange-100 text-orange-600 font-bold text-sm flex items-center justify-center">
+                    <li key={idx} className="flex gap-3 text-gray-700 dark:text-gray-300">
+                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 font-bold text-sm flex items-center justify-center">
                         {idx + 1}
                       </span>
                       <span className="flex-1 leading-relaxed">{step}</span>
@@ -188,14 +189,14 @@ export function RecipeCard({
       <div className="flex gap-3 mt-2">
         <Button
           onClick={onPublish}
-          className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-3 rounded-xl shadow-md hover:shadow-lg transition-all active:scale-95"
+          className={`flex-1 ${gradients.primary} hover:shadow-lg dark:hover:shadow-sky-500/30 text-white font-bold py-3 rounded-xl shadow-md transition-all active:scale-95`}
         >
           Опублікувати рецепт
         </Button>
         <Button
           onClick={onModify}
           variant="outline"
-          className="px-6 py-3 rounded-xl border-2 hover:bg-gray-50 transition-all active:scale-95"
+          className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-900 dark:text-white transition-all active:scale-95"
         >
           Змінити
         </Button>
