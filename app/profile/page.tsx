@@ -99,7 +99,7 @@ export default function ProfilePage() {
     {
       id: "2",
       title: "Темпура",
-      image: "https://images.unsplash.com/photo-1595521624129-c59f1bf3b8f5?w=300&h=300&fit=crop",
+      image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=300&fit=crop",
       likes: 189,
       comments: 8,
     },
