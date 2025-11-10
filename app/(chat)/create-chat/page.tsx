@@ -9,6 +9,7 @@ import { ChatInput } from "@/components/chat/ChatInput";
 import { RecipeCard } from "@/components/chat/RecipeCard";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
+import { uploadApi } from "@/lib/api";
 
 interface ChatMessage {
   role: "ai" | "user";
@@ -280,6 +281,33 @@ export default function CreateRecipeChatPage() {
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingImage(true);
+      const token = localStorage.getItem("authToken");
+      
+      // Upload to backend
+      const uploadResponse = await uploadApi.uploadImageFile(file, token || undefined);
+      
+      // Set the image URL from response
+      setAttachedImage(uploadResponse.url);
+      
+      console.log("✅ Image uploaded successfully:", uploadResponse.url);
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+      addAIMessage("❌ Ошибка загрузки фото. Попробуйте снова.");
+    } finally {
+      setUploadingImage(false);
+      // Clear file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
   const saveIngredientsToFridge = async () => {
     if (!generatedRecipe?.ingredients || generatedRecipe.ingredients.length === 0) {
       addAIMessage("Нет ингредиентов для сохранения");
@@ -439,7 +467,7 @@ export default function CreateRecipeChatPage() {
           isComplete={isComplete}
           attachedImage={attachedImage}
           uploadingImage={uploadingImage}
-          onImageUpload={() => {}}
+          onImageUpload={handleImageUpload}
           onRemoveImage={() => setAttachedImage(null)}
           fileInputRef={fileInputRef}
         />

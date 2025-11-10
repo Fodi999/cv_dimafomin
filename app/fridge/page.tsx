@@ -29,7 +29,7 @@ interface FridgeItem {
 
 export default function FridgePage() {
   const router = useRouter();
-  const { user } = useUser();
+  const { user, isLoading } = useUser();
   const [items, setItems] = useState<FridgeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,6 +46,11 @@ export default function FridgePage() {
 
   // Load fridge items on mount
   useEffect(() => {
+    // Wait for user context to load
+    if (isLoading) {
+      return;
+    }
+
     if (!user) {
       router.push("/login");
       return;
@@ -78,7 +83,7 @@ export default function FridgePage() {
     };
 
     loadFridgeItems();
-  }, [user, router]);
+  }, [user, isLoading, router]);
 
   const categoryIcons = {
     protein: <Fish className="w-5 h-5 text-orange-500" />,
@@ -199,8 +204,15 @@ export default function FridgePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-sky-50 dark:from-gray-950 dark:to-slate-900 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
+        {/* ===== LOADING AUTH ===== */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 text-sky-500 animate-spin" />
+          </div>
+        )}
+
         {/* ===== CHECK AUTH ===== */}
-        {!user && !loading && (
+        {!isLoading && !user && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -224,7 +236,7 @@ export default function FridgePage() {
           </motion.div>
         )}
 
-        {user && (
+        {!isLoading && user && (
           <>
             {/* ===== HEADER ===== */}
             <motion.div
