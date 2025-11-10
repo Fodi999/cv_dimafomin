@@ -74,7 +74,7 @@ export default function AcademyFooter() {
               {[
                 { label: "Главная", href: "/" },
                 { label: "Академия", href: "/academy" },
-                { label: "AI-наставник", href: "/chat/create-chat" },
+                { label: "AI-наставник", href: "/create-chat" },
                 { label: "Профиль", href: "/profile" },
               ].map((link) => (
                 <li key={link.href}>

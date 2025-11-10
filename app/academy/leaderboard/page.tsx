@@ -1,5 +1,6 @@
 "use client";
 
+import { Trophy } from "lucide-react";
 import LeaderboardTable from "@/components/academy/LeaderboardTable";
 
 const mockData = [
@@ -18,8 +19,9 @@ export default function LeaderboardPage() {
     <div className="max-w-4xl mx-auto relative">
       {/* Header */}
       <div className="mb-12 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold text-[#1E1A41] mb-4">
-          🏆 Рейтинг шефів
+        <h1 className="text-4xl md:text-5xl font-bold text-[#1E1A41] mb-4 flex items-center justify-center gap-3">
+          <Trophy className="w-12 h-12 text-amber-500" />
+          Рейтинг шефів
         </h1>
         <p className="text-lg text-[#1E1A41]/70">
           Топ професіоналів Академії суші
@@ -31,8 +33,9 @@ export default function LeaderboardPage() {
 
       {/* Info */}
       <div className="mt-8 p-6 bg-white rounded-xl shadow-md">
-        <h3 className="font-semibold text-[#1E1A41] mb-2">
-          📊 Як формується рейтинг?
+        <h3 className="font-semibold text-[#1E1A41] mb-2 flex items-center gap-2">
+          <Trophy className="w-5 h-5 text-amber-500" />
+          Як формується рейтинг?
         </h3>
         <ul className="space-y-2 text-sm text-[#1E1A41]/70">
           <li>✅ Завершення курсів та модулів</li>

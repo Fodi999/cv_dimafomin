@@ -151,7 +151,7 @@ export default function AcademyAIMentor() {
             transition={{ duration: 0.6, delay: 0.5 }}
             className="text-center mt-12"
           >
-            <Link href="/chat/create-chat">
+            <Link href="/create-chat">
               <Button className="bg-gradient-to-r from-[#3BC864] to-[#2da050] hover:from-[#2da050] hover:to-[#1e7a38] text-white font-bold px-10 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all group">
                 💬 Начать разговор с AI
                 <span className="ml-2 group-hover:translate-x-1 transition-transform inline-block">

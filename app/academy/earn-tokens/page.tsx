@@ -17,6 +17,7 @@ export default function EarnTokensPage() {
       description: earnTokens?.completeLessonsDesc || "Отримуйте 10-50 CT за кожен завершений урок",
       reward: "10-50 CT",
       color: "from-blue-500 to-cyan-500",
+      emoji: "📚",
     },
     {
       icon: GraduationCap,
@@ -24,6 +25,7 @@ export default function EarnTokensPage() {
       description: earnTokens?.completeCoursesDesc || "Отримуйте 100+ CT за завершення повного курсу",
       reward: "100+ CT",
       color: "from-purple-500 to-pink-500",
+      emoji: "🎓",
     },
     {
       icon: Camera,
@@ -32,6 +34,7 @@ export default function EarnTokensPage() {
       reward: "20-100+ CT",
       color: "from-pink-500 to-rose-500",
       link: "/academy/community",
+      emoji: "📸",
     },
     {
       icon: Trophy,
@@ -39,6 +42,7 @@ export default function EarnTokensPage() {
       description: earnTokens?.achievementsDesc || "Виконуйте спеціальні завдання та отримуйте бонусні токени",
       reward: "25-100 CT",
       color: "from-amber-500 to-orange-500",
+      emoji: "🏆",
     },
     {
       icon: Calendar,
@@ -46,6 +50,7 @@ export default function EarnTokensPage() {
       description: earnTokens?.dailyBonusDesc || "Заходьте щодня та отримуйте 10 CT безкоштовно",
       reward: "10 CT/день",
       color: "from-green-500 to-emerald-500",
+      emoji: "📅",
     },
     {
       icon: Users,
@@ -53,6 +58,7 @@ export default function EarnTokensPage() {
       description: earnTokens?.referralsDesc || "Отримуйте 50 CT за кожного запрошеного друга",
       reward: "50 CT/друг",
       color: "from-rose-500 to-red-500",
+      emoji: "👥",
     },
     {
       icon: Gift,
@@ -60,6 +66,7 @@ export default function EarnTokensPage() {
       description: earnTokens?.specialOffersDesc || "Беріть участь в акціях та конкурсах",
       reward: "До 500 CT",
       color: "from-indigo-500 to-blue-500",
+      emoji: "🎁",
     },
   ];
 
@@ -93,7 +100,7 @@ export default function EarnTokensPage() {
           </div>
           <div>
             <h3 className="text-xl font-bold text-[#1E1A41] mb-2">
-              {earnTokens?.bonusTitle || "🎁 Бонус для нових студентів!"}
+              Бонус для нових студентів!
             </h3>
             <p className="text-[#1E1A41]/70">
               {earnTokens?.bonusDesc || "Зареєструйтеся зараз і отримайте 100 ChefTokens на старт вашої кулінарної подорожі!"}

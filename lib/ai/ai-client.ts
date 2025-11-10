@@ -59,7 +59,12 @@ export async function initializeAISession(language: string = "ua"): Promise<AISe
     throw new Error(`AI API error: ${response.status}`);
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (e) {
+    console.error("Failed to parse AI session initialization response:", e);
+    throw new Error("Invalid JSON response from AI API");
+  }
 }
 
 /**
@@ -76,7 +81,12 @@ export async function sendAIMessage(request: AISessionRequest): Promise<AISessio
     throw new Error(`AI API error: ${response.status}`);
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (e) {
+    console.error("Failed to parse AI message response:", e);
+    throw new Error("Invalid JSON response from AI API");
+  }
 }
 
 /**
@@ -132,7 +142,7 @@ export function extractMessageText(content: string | any): string {
     return content.message || JSON.stringify(content, null, 2);
   }
   
-  // If string is JSON, parse it
+  // If string is JSON, parse it carefully
   if (typeof content === "string" && content.startsWith("{")) {
     try {
       const parsed = JSON.parse(content);
@@ -140,7 +150,8 @@ export function extractMessageText(content: string | any): string {
         return parsed.message;
       }
     } catch (e) {
-      // Not JSON, return as is
+      // Not valid JSON, return as is
+      console.warn("Failed to parse content as JSON:", e);
     }
   }
   

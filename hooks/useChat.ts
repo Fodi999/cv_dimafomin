@@ -94,7 +94,18 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
         }),
       });
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (e) {
+        console.error("Failed to parse initialization response:", e);
+        addAIMessage("Привіт! Розкажіть, яку страву хочете приготувати?");
+        return;
+      }
       
       console.log("Initialize Response:", JSON.stringify(data, null, 2));
       
@@ -145,7 +156,18 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
         }),
       });
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (e) {
+        console.error("Failed to parse message response:", e);
+        addAIMessage("Вибачте, сталася помилка. Спробуйте ще раз");
+        return;
+      }
 
       console.log("RAW AI Response:", JSON.stringify(data, null, 2));
 

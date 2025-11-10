@@ -1,5 +1,6 @@
 "use client";
 
+import { Award } from "lucide-react";
 import CertificateCard from "@/components/academy/CertificateCard";
 
 const mockCertificates = [
@@ -28,8 +29,9 @@ export default function CertificatesPage() {
     <div className="max-w-5xl mx-auto">
       {/* Header */}
       <div className="mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-[#1E1A41] mb-4">
-          📜 Мої сертифікати
+        <h1 className="text-4xl md:text-5xl font-bold text-[#1E1A41] mb-4 flex items-center gap-3">
+          <Award className="w-12 h-12 text-amber-500" />
+          Мої сертифікати
         </h1>
         <p className="text-lg text-[#1E1A41]/70">
           Підтвердження ваших досягнень
@@ -46,7 +48,7 @@ export default function CertificatesPage() {
       {/* Empty State (if no certificates) */}
       {mockCertificates.length === 0 && (
         <div className="text-center py-20">
-          <div className="text-6xl mb-4">📜</div>
+          <Award className="w-24 h-24 text-gray-300 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-[#1E1A41] mb-2">
             Поки немає сертифікатів
           </h3>

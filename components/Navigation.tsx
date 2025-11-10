@@ -96,7 +96,7 @@ export default function Navigation() {
             ))}
 
             {/* Кнопка AI Mentor - выделена */}
-            <Link href="/chat/create-chat">
+            <Link href="/create-chat">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -189,7 +189,7 @@ export default function Navigation() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: navLinks.length * 0.05 }}
                 >
-                  <Link href="/chat/create-chat">
+                  <Link href="/create-chat">
                     <motion.button
                       onClick={() => setIsOpen(false)}
                       whileHover={{ x: 4 }}

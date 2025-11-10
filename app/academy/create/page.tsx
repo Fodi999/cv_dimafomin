@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, Sparkles, Upload, Loader2, Plus, Trash2, ChefHat } from "lucide-react";
+import { ArrowLeft, Sparkles, Upload, Loader2, Plus, Trash2, ChefHat, FileText, Tags, Clock, Users, Info, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CreateRecipePostData, IngredientData } from "@/lib/types";
@@ -547,8 +547,9 @@ export default function CreateRecipePage() {
 
           {/* Image Upload */}
           <div>
-            <label className="block text-sm font-bold text-gray-900 mb-3">
-              📸 Фото страви
+            <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+              <Upload className="w-5 h-5 text-purple-600" />
+              Фото страви
             </label>
             
             {!imagePreview ? (
@@ -591,8 +592,9 @@ export default function CreateRecipePage() {
           {/* Title & Description */}
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                📝 Назва страви *
+              <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-purple-600" />
+                Назва страви *
               </label>
               <input
                 type="text"
@@ -604,8 +606,9 @@ export default function CreateRecipePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                🎯 Категорія
+              <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                <Tags className="w-4 h-4 text-purple-600" />
+                Категорія
               </label>
               <select
                 value={formData.category}
@@ -623,8 +626,9 @@ export default function CreateRecipePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-900 mb-2">
-              📄 Опис страви
+            <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-purple-600" />
+              Опис страви
             </label>
             <textarea
               value={formData.description}
@@ -638,8 +642,9 @@ export default function CreateRecipePage() {
           {/* Meta Info */}
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                ⚡ Складність
+              <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                <Info className="w-4 h-4 text-purple-600" />
+                Складність
               </label>
               <select
                 value={formData.difficulty}
@@ -655,8 +660,9 @@ export default function CreateRecipePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                ⏱️ Час (хв)
+              <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                <Clock className="w-4 h-4 text-purple-600" />
+                Час (хв)
               </label>
               <input
                 type="number"
@@ -668,8 +674,9 @@ export default function CreateRecipePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                🍽️ Порцій
+              <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                <Users className="w-4 h-4 text-purple-600" />
+                Порцій
               </label>
               <input
                 type="number"
@@ -684,8 +691,9 @@ export default function CreateRecipePage() {
           {/* Ingredients */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <label className="text-sm font-bold text-gray-900">
-                🥬 Інгредієнти
+              <label className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-purple-600" />
+                Інгредієнти
               </label>
               <Button
                 onClick={addIngredient}
@@ -800,8 +808,9 @@ export default function CreateRecipePage() {
           {/* Steps */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <label className="text-sm font-bold text-gray-900">
-                👨‍🍳 Кроки приготування
+              <label className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                <ChefHat className="w-4 h-4 text-purple-600" />
+                Кроки приготування
               </label>
               <Button
                 onClick={addStep}

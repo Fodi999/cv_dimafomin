@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, Plus, TrendingUp, Users, Heart } from "lucide-react";
+import { Search, Plus, TrendingUp, Users, Heart, MessageCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
 import type { RecipePost } from "@/lib/types";
@@ -224,7 +224,7 @@ export default function FeedPage() {
                             {post.likesCount}
                           </span>
                           <span className="flex items-center gap-1">
-                            💬
+                            <MessageCircle className="w-4 h-4" />
                             {post.commentsCount}
                           </span>
                         </div>

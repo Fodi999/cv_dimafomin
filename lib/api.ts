@@ -55,9 +55,15 @@ async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): Promise<
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({
-      message: "An error occurred",
-    }));
+    let error: any;
+    try {
+      error = await response.json();
+    } catch (e) {
+      // Response is not JSON (e.g., HTML error page)
+      error = {
+        message: `HTTP ${response.status}: ${response.statusText}`,
+      };
+    }
     
     // Only throw on non-404 errors or include status in error
     const errorMessage = error.message || error.error || `HTTP ${response.status}`;
@@ -66,7 +72,14 @@ async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): Promise<
     throw err;
   }
 
-  const result = await response.json();
+  let result: any;
+  try {
+    result = await response.json();
+  } catch (e) {
+    // Response is not JSON - this shouldn't happen for successful responses
+    console.error("Failed to parse response as JSON:", e);
+    throw new Error("Invalid JSON response from server");
+  }
   
   // Handle backend response format: { success: true, data: {...} }
   if (result.data !== undefined) {

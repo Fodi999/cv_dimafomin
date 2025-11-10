@@ -93,7 +93,7 @@ export default function AcademyHero() {
             </Button>
           </Link>
 
-          <Link href="/chat/create-chat" className="group">
+          <Link href="/create-chat" className="group">
             <Button className="bg-white/10 hover:bg-white/20 text-white font-bold px-8 py-6 text-lg rounded-xl border-2 border-white/30 hover:border-white/50 transition-all w-full sm:w-auto">
               💬 AI-наставник
               <Waves className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
