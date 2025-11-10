@@ -81,10 +81,10 @@ export default function SettingsPage() {
     <div className="space-y-8 max-w-4xl">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 className="text-3xl font-bold text-foreground mb-2">
           Настройки админ панели
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-foreground/60">
           Управляйте параметрами вашей учетной записи и системы
         </p>
       </div>
@@ -95,13 +95,13 @@ export default function SettingsPage() {
         return (
           <div
             key={index}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6"
+            className="bg-card rounded-xl shadow-sm border border-border p-6"
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-cyan-500/10 rounded-lg">
-                <Icon className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Icon className="w-6 h-6 text-primary" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-xl font-bold text-foreground">
                 {section.title}
               </h2>
             </div>
@@ -110,13 +110,13 @@ export default function SettingsPage() {
               {section.items.map((item, itemIndex) => (
                 <div
                   key={itemIndex}
-                  className="flex items-center justify-between py-4 border-b border-gray-200 dark:border-gray-700 last:border-0"
+                  className="flex items-center justify-between py-4 border-b border-border last:border-0"
                 >
                   <div className="flex-1">
-                    <h3 className="font-medium text-gray-900 dark:text-white">
+                    <h3 className="font-medium text-foreground">
                       {item.label}
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-foreground/60">
                       {item.description}
                     </p>
                   </div>
@@ -125,7 +125,7 @@ export default function SettingsPage() {
                       type="checkbox"
                       checked={item.value}
                       onChange={(e) => item.onChange(e.target.checked)}
-                      className="w-5 h-5 rounded border-gray-300 text-cyan-600 focus:ring-cyan-500 cursor-pointer"
+                      className="w-5 h-5 rounded border-border text-primary focus:ring-primary cursor-pointer"
                     />
                   </label>
                 </div>
@@ -136,12 +136,12 @@ export default function SettingsPage() {
       })}
 
       {/* Security Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-card rounded-xl shadow-sm border border-border p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-red-500/10 rounded-lg">
-            <Lock className="w-6 h-6 text-red-600 dark:text-red-400" />
+          <div className="p-3 bg-destructive/10 rounded-lg">
+            <Lock className="w-6 h-6 text-destructive" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+          <h2 className="text-xl font-bold text-foreground">
             Безопасность
           </h2>
         </div>
@@ -149,30 +149,30 @@ export default function SettingsPage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between py-4">
             <div className="flex-1">
-              <h3 className="font-medium text-gray-900 dark:text-white">
+              <h3 className="font-medium text-foreground">
                 Пароль
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-foreground/60">
                 Изменить пароль вашей учетной записи
               </p>
             </div>
-            <button className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition-colors font-medium text-sm">
+            <button className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium text-sm">
               Изменить пароль
             </button>
           </div>
 
-          <div className="border-b border-gray-200 dark:border-gray-700" />
+          <div className="border-b border-border" />
 
           <div className="flex items-center justify-between py-4">
             <div className="flex-1">
-              <h3 className="font-medium text-gray-900 dark:text-white">
+              <h3 className="font-medium text-foreground">
                 Двухфакторная аутентификация
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-foreground/60">
                 Добавить дополнительный уровень безопасности
               </p>
             </div>
-            <button className="px-4 py-2 border border-cyan-600 text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-500/10 rounded-lg transition-colors font-medium text-sm">
+            <button className="px-4 py-2 border border-primary text-primary hover:bg-primary/10 rounded-lg transition-colors font-medium text-sm">
               Включить
             </button>
           </div>
@@ -180,33 +180,33 @@ export default function SettingsPage() {
       </div>
 
       {/* Account Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+      <div className="bg-card rounded-xl shadow-sm border border-border p-6">
+        <h2 className="text-xl font-bold text-foreground mb-6">
           Информация об учетной записи
         </h2>
 
         <div className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Имя
               </label>
               <input
                 type="text"
                 value={user?.name || ""}
                 disabled
-                className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white disabled:opacity-60"
+                className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground disabled:opacity-60"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Email
               </label>
               <input
                 type="email"
                 value={user?.email || ""}
                 disabled
-                className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white disabled:opacity-60"
+                className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground disabled:opacity-60"
               />
             </div>
           </div>
@@ -214,17 +214,18 @@ export default function SettingsPage() {
       </div>
 
       {/* Buttons */}
+            {/* Buttons */}
       <div className="flex gap-4">
         <button
           onClick={handleSaveSettings}
-          className="flex-1 px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
+          className="flex-1 px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
         >
           <Settings className="w-5 h-5" />
           Сохранить настройки
         </button>
         <button
           onClick={() => logout()}
-          className="flex-1 px-6 py-3 border border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
+          className="flex-1 px-6 py-3 border border-destructive text-destructive hover:bg-destructive/10 rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
         >
           <LogOut className="w-5 h-5" />
           Выход
@@ -233,7 +234,7 @@ export default function SettingsPage() {
 
       {/* Success Message */}
       {savedMessage && (
-        <div className="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
+        <div className="fixed bottom-6 right-6 bg-primary text-white px-6 py-3 rounded-lg shadow-lg">
           {savedMessage}
         </div>
       )}

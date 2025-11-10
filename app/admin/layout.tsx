@@ -12,6 +12,7 @@ import {
   LogOut,
   Menu,
   X,
+  Home,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -25,27 +26,62 @@ export default function AdminLayout({
 
   // Проверка прав доступа
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.push("/");
-    }
-    if (!isLoading && user && user.role !== "admin") {
-      router.push("/");
+    console.log("🔐 AdminLayout: Checking access");
+    console.log("  isLoading:", isLoading);
+    console.log("  user:", user);
+    console.log("  user.role:", user?.role);
+    console.log("  is admin?", user?.role === "admin");
+    
+    if (!isLoading) {
+      if (!user) {
+        console.warn("❌ AdminLayout: No user, redirecting to /");
+        router.push("/");
+      } else if (user.role !== "admin") {
+        console.warn("❌ AdminLayout: User is not admin, role is:", user.role, "redirecting to /");
+        router.push("/");
+      } else {
+        console.log("✅ AdminLayout: Access granted, user is admin");
+      }
     }
   }, [user, isLoading, router]);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900">
+      <div className="flex items-center justify-center h-screen bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Загрузка...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-foreground/60">Проверка доступа администратора...</p>
         </div>
       </div>
     );
   }
 
   if (!user || user.role !== "admin") {
-    return null;
+    return (
+      <div className="flex items-center justify-center h-screen bg-background">
+        <div className="text-center text-foreground max-w-md">
+          <div className="text-6xl mb-4">🚫</div>
+          <h1 className="text-3xl font-bold mb-2">Доступ запрещен</h1>
+          <p className="text-foreground/60 mb-6">
+            Эта страница доступна только для администраторов.
+          </p>
+          {user && (
+            <div className="bg-secondary/20 rounded-lg p-4 mb-6 border border-secondary/40">
+              <p className="text-sm text-foreground/60">Ваша роль:</p>
+              <p className="text-lg font-bold text-accent">
+                {user.role.toUpperCase()}
+              </p>
+            </div>
+          )}
+          <button
+            onClick={() => router.push("/")}
+            className="px-6 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-semibold transition-colors"
+          >
+            Вернуться на главную
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const handleLogout = async () => {
@@ -77,24 +113,29 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex h-screen bg-background">
       {/* Sidebar */}
       <div
         className={`${
           sidebarOpen ? "w-64" : "w-20"
-        } bg-gradient-to-b from-gray-900 to-gray-800 text-white transition-all duration-300 flex flex-col shadow-xl`}
+        } bg-card border-r border-border transition-all duration-300 flex flex-col shadow-sm`}
       >
         {/* Logo */}
-        <div className="p-6 border-b border-gray-700">
+        <div className="p-6 border-b border-border">
           <div className="flex items-center justify-between">
             {sidebarOpen && (
-              <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-                ADMIN
-              </h1>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold">
+                  A
+                </div>
+                <h1 className="text-xl font-bold text-foreground">
+                  Admin
+                </h1>
+              </div>
             )}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+              className="p-2 hover:bg-secondary/20 rounded-lg transition-colors text-foreground/60"
             >
               {sidebarOpen ? (
                 <X className="w-5 h-5" />
@@ -113,9 +154,9 @@ export default function AdminLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition-colors group"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-secondary/20 hover:text-primary border border-transparent hover:border-secondary/40 transition-colors group text-foreground/80"
               >
-                <Icon className="w-5 h-5 flex-shrink-0" />
+                <Icon className="w-5 h-5 flex-shrink-0 text-primary" />
                 {sidebarOpen && (
                   <span className="text-sm font-medium">{item.label}</span>
                 )}
@@ -125,17 +166,17 @@ export default function AdminLayout({
         </nav>
 
         {/* User Info & Logout */}
-        <div className="border-t border-gray-700 p-4 space-y-3">
+        <div className="border-t border-border bg-secondary/10 p-4 space-y-3">
           {sidebarOpen && (
             <div className="text-sm">
-              <p className="text-gray-400">Logged in as</p>
-              <p className="font-semibold text-white truncate">{user.name}</p>
-              <p className="text-xs text-gray-500">{user.email}</p>
+              <p className="text-foreground/60">Администратор</p>
+              <p className="font-semibold text-foreground truncate">{user.name}</p>
+              <p className="text-xs text-foreground/50">{user.email}</p>
             </div>
           )}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-sm font-medium"
+            className="w-full flex items-center gap-3 px-4 py-2 bg-accent hover:bg-accent/90 text-accent-foreground rounded-lg transition-colors text-sm font-medium"
           >
             <LogOut className="w-4 h-4" />
             {sidebarOpen && <span>Выход</span>}
@@ -146,18 +187,31 @@ export default function AdminLayout({
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Bar */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-8 py-4 shadow-sm">
+        <div className="bg-card border-b border-border px-8 py-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Admin Dashboard
-            </h2>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              {new Date().toLocaleDateString("uk-UA", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+            <div className="flex items-center gap-3">
+              <div className="text-2xl">⚙️</div>
+              <div>
+                <div className="text-xs font-semibold text-primary">АДМИН-ПАНЕЛЬ</div>
+                <h2 className="text-2xl font-bold text-foreground">
+                  Dashboard
+                </h2>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-foreground/60">
+                {new Date().toLocaleDateString("uk-UA", {
+                  weekday: "short",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </div>
+              <button
+                onClick={() => router.push("/")}
+                className="p-2 hover:bg-secondary/20 rounded-lg transition-colors text-foreground/60 hover:text-foreground"
+              >
+                <Home className="w-5 h-5" />
+              </button>
             </div>
           </div>
         </div>

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useUser } from "@/contexts/UserContext";
-import { Search, Edit2, Trash2, Shield } from "lucide-react";
+import { adminApi } from "@/lib/api";
+import { Search, Trash2, Shield } from "lucide-react";
 
 interface AdminUser {
   id: string;
@@ -24,24 +25,14 @@ export default function UsersPage() {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("authToken");
         if (!token) {
           setError("No authentication token");
           return;
         }
 
-        const response = await fetch("/api/admin/users", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch users");
-        }
-
-        const data = await response.json();
-        setUsers(Array.isArray(data) ? data : data.users || []);
+        const data = await adminApi.getUsers(token);
+        setUsers(Array.isArray(data) ? data : (data as any).users || []);
       } catch (err) {
         console.error("Error fetching users:", err);
         setError("Failed to load users");
@@ -65,18 +56,10 @@ export default function UsersPage() {
     }
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`/api/admin/users/${userId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete user");
-      }
-
+      const token = localStorage.getItem("authToken");
+      if (!token) return;
+      
+      await adminApi.deleteUser(userId, token);
       setUsers(users.filter((u) => u.id !== userId));
     } catch (err) {
       console.error("Error deleting user:", err);
@@ -86,20 +69,10 @@ export default function UsersPage() {
 
   const handleUpdateRole = async (userId: string, newRole: string) => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`/api/admin/users/${userId}/role`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ role: newRole }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update role");
-      }
-
+      const token = localStorage.getItem("authToken");
+      if (!token) return;
+      
+      await adminApi.updateUserRole(userId, newRole, token);
       setUsers(
         users.map((u) =>
           u.id === userId ? { ...u, role: newRole } : u
@@ -115,8 +88,8 @@ export default function UsersPage() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Загрузка пользователей...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-foreground/60">Загрузка пользователей...</p>
         </div>
       </div>
     );
@@ -124,8 +97,8 @@ export default function UsersPage() {
 
   if (error) {
     return (
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-        <p className="text-red-700 dark:text-red-400">{error}</p>
+      <div className="bg-destructive/10 border border-destructive/40 rounded-lg p-4">
+        <p className="text-destructive">{error}</p>
       </div>
     );
   }
@@ -134,73 +107,73 @@ export default function UsersPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 className="text-3xl font-bold text-foreground mb-2">
           Управление пользователями
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-foreground/60">
           Всего пользователей: {users.length}
         </p>
       </div>
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40" />
         <input
           type="text"
           placeholder="Поиск по имени или email..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+          className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground placeholder-foreground/40"
         />
       </div>
 
       {/* Users Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+            <thead className="bg-secondary/10 border-b border-border">
               <tr>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">
+                <th className="text-left py-4 px-6 font-semibold text-foreground/70">
                   Имя
                 </th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">
+                <th className="text-left py-4 px-6 font-semibold text-foreground/70">
                   Email
                 </th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">
+                <th className="text-left py-4 px-6 font-semibold text-foreground/70">
                   Роль
                 </th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">
+                <th className="text-left py-4 px-6 font-semibold text-foreground/70">
                   Статус
                 </th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">
+                <th className="text-left py-4 px-6 font-semibold text-foreground/70">
                   Регистрация
                 </th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">
+                <th className="text-left py-4 px-6 font-semibold text-foreground/70">
                   Действия
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-border">
               {filteredUsers.map((u) => (
                 <tr
                   key={u.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  className="hover:bg-secondary/5 transition-colors"
                 >
                   <td className="py-4 px-6">
-                    <p className="font-medium text-gray-900 dark:text-white">
+                    <p className="font-medium text-foreground">
                       {u.name}
                     </p>
                   </td>
-                  <td className="py-4 px-6 text-gray-600 dark:text-gray-400">
+                  <td className="py-4 px-6 text-foreground/70">
                     {u.email}
                   </td>
                   <td className="py-4 px-6">
                     <select
                       value={u.role}
                       onChange={(e) => handleUpdateRole(u.id, e.target.value)}
-                      className="px-3 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white text-sm font-medium border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      className="px-3 py-1 rounded-lg bg-secondary/20 text-foreground text-sm font-medium border border-border focus:outline-none focus:ring-2 focus:ring-primary"
                     >
-                      <option value="user">User</option>
+                      <option value="student">Student</option>
                       <option value="instructor">Instructor</option>
                       <option value="admin">Admin</option>
                     </select>
@@ -209,27 +182,21 @@ export default function UsersPage() {
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-medium ${
                         u.active
-                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                          : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+                          ? "bg-primary/10 text-primary"
+                          : "bg-foreground/10 text-foreground/60"
                       }`}
                     >
                       {u.active ? "Активен" : "Неактивен"}
                     </span>
                   </td>
-                  <td className="py-4 px-6 text-sm text-gray-600 dark:text-gray-400">
+                  <td className="py-4 px-6 text-sm text-foreground/70">
                     {new Date(u.createdAt).toLocaleDateString("uk-UA")}
                   </td>
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-2">
                       <button
-                        className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                        title="Редактировать"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
                         onClick={() => handleDeleteUser(u.id)}
-                        className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                         title="Удалить"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -244,7 +211,7 @@ export default function UsersPage() {
 
         {filteredUsers.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-gray-400">
+            <p className="text-foreground/60">
               Пользователи не найдены
             </p>
           </div>

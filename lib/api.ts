@@ -49,6 +49,11 @@ async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): Promise<
 
   const url = `${API_BASE_URL}${endpoint}`;
   console.log(`📡 API Call: ${fetchOptions.method || 'GET'} ${url}`);
+  
+  // Log request body for POST/PUT requests
+  if (fetchOptions.body) {
+    console.log(`📤 Request body:`, fetchOptions.body);
+  }
 
   const response = await fetch(url, {
     ...fetchOptions,
@@ -57,28 +62,35 @@ async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): Promise<
     cache: 'no-store',
   });
 
+  console.log(`📥 Response status: ${response.status} ${response.statusText}`);
+
   if (!response.ok) {
     let error: any;
+    let responseText = "";
     try {
-      error = await response.json();
+      responseText = await response.text();
+      error = JSON.parse(responseText);
     } catch (e) {
       // Response is not JSON (e.g., HTML error page)
       error = {
         message: `HTTP ${response.status}: ${response.statusText}`,
+        body: responseText || "No response body",
       };
     }
+    
+    // Extract error message from nested 'data' field if present
+    let errorMessage = error.message || error.error || error.data?.message || error.data?.error || `HTTP ${response.status}`;
     
     // Log detailed error info
     console.error(`❌ API Error ${response.status}:`, {
       endpoint,
       method: fetchOptions.method || 'GET',
       status: response.status,
-      message: error.message || error.error,
-      body: error,
+      message: errorMessage,
+      fullError: error,
     });
     
-    // Only throw on non-404 errors or include status in error
-    const errorMessage = error.message || error.error || `HTTP ${response.status}`;
+    // Create error with status code
     const err = new Error(errorMessage) as Error & { status: number };
     err.status = response.status;
     throw err;
@@ -93,6 +105,8 @@ async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): Promise<
     throw new Error("Invalid JSON response from server");
   }
   
+  console.log(`✅ Response data:`, result);
+  
   // Handle backend response format: { success: true, data: {...} }
   if (result.data !== undefined) {
     return result.data as T;
@@ -105,17 +119,33 @@ async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): Promise<
 
 export const authApi = {
   login: async (email: string, password: string): Promise<AuthResponse> => {
-    return apiFetch<AuthResponse>("/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    });
+    console.log("🔐 Attempting login with email:", email);
+    try {
+      const response = await apiFetch<AuthResponse>("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
+      console.log("✅ Login successful, response:", response);
+      return response;
+    } catch (error) {
+      console.error("❌ Login error:", error);
+      throw error;
+    }
   },
 
   register: async (name: string, email: string, password: string): Promise<AuthResponse> => {
-    return apiFetch<AuthResponse>("/auth/register", {
-      method: "POST",
-      body: JSON.stringify({ name, email, password }),
-    });
+    console.log("📝 Attempting registration with email:", email);
+    try {
+      const response = await apiFetch<AuthResponse>("/auth/register", {
+        method: "POST",
+        body: JSON.stringify({ name, email, password }),
+      });
+      console.log("✅ Registration successful, response:", response);
+      return response;
+    } catch (error) {
+      console.error("❌ Registration error:", error);
+      throw error;
+    }
   },
 
   // Temporarily disabled
@@ -512,6 +542,95 @@ export const healthApi = {
   },
 };
 
+// ==================== ADMIN API ====================
+
+export const adminApi = {
+  // ===== USERS ENDPOINTS =====
+  
+  /**
+   * GET /api/admin/users
+   * Получить всех пользователей
+   */
+  getUsers: async (token: string) => {
+    return apiFetch("/admin/users", { token });
+  },
+
+  /**
+   * PUT /api/admin/users/{id}
+   * Обновить пользователя
+   */
+  updateUser: async (id: string, data: any, token: string) => {
+    return apiFetch(`/admin/users/${id}`, {
+      method: "PUT",
+      token,
+      body: JSON.stringify(data),
+    });
+  },
+
+  /**
+   * DELETE /api/admin/users/{id}
+   * Удалить пользователя
+   */
+  deleteUser: async (id: string, token: string) => {
+    return apiFetch(`/admin/users/${id}`, {
+      method: "DELETE",
+      token,
+    });
+  },
+
+  /**
+   * PATCH /api/admin/users/update-role
+   * Обновить роль пользователя
+   */
+  updateUserRole: async (userId: string, role: string, token: string) => {
+    return apiFetch("/admin/users/update-role", {
+      method: "PATCH",
+      token,
+      body: JSON.stringify({ userId, role }),
+    });
+  },
+
+  // ===== ORDERS ENDPOINTS =====
+
+  /**
+   * GET /api/admin/orders
+   * Получить все заказы
+   */
+  getOrders: async (token: string) => {
+    return apiFetch("/admin/orders", { token });
+  },
+
+  /**
+   * GET /api/admin/orders/recent
+   * Получить 10 последних заказов
+   */
+  getRecentOrders: async (token: string) => {
+    return apiFetch("/admin/orders/recent", { token });
+  },
+
+  /**
+   * PUT /api/admin/orders/{id}/status
+   * Обновить статус заказа
+   */
+  updateOrderStatus: async (orderId: string, status: string, token: string) => {
+    return apiFetch(`/admin/orders/${orderId}/status`, {
+      method: "PUT",
+      token,
+      body: JSON.stringify({ status }),
+    });
+  },
+
+  // ===== STATS ENDPOINT =====
+
+  /**
+   * GET /api/admin/stats
+   * Получить статистику
+   */
+  getStats: async (token: string) => {
+    return apiFetch("/admin/stats", { token });
+  },
+};
+
 // Export default API object
 export default {
   auth: authApi,
@@ -524,4 +643,5 @@ export default {
   fridge: fridgeApi,
   contact: contactApi,
   health: healthApi,
+  admin: adminApi,
 };

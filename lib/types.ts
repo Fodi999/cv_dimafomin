@@ -5,6 +5,7 @@ export interface ProfileData {
   name?: string;
   email?: string;
   avatarUrl?: string;
+  role?: "student" | "instructor" | "admin";
   level?: number;
   xp?: number;
   chefTokens?: number;
@@ -101,6 +102,7 @@ export interface AuthResponse {
     userId?: string;
     name?: string;
     email?: string;
+    role?: "student" | "instructor" | "admin";
     level?: number;
     xp?: number;
     chefTokens?: number;

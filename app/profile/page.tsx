@@ -725,6 +725,20 @@ export default function ProfilePage() {
                 <p className="text-gray-500 dark:text-gray-400 mb-4">
                   @{user.name?.toLowerCase().replace(/\s+/g, "_") || "user"}
                 </p>
+                
+                {/* Role Badge */}
+                <div className={`mb-4 px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 ${
+                  user?.role === "admin"
+                    ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-300 dark:border-red-700"
+                    : user?.role === "instructor"
+                    ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-700"
+                    : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700"
+                }`}>
+                  {user?.role === "admin" && <>⚔️ Администратор</>}
+                  {user?.role === "instructor" && <>👨‍🏫 Інструктор</>}
+                  {user?.role === "student" && <>👨‍🎓 Учень</>}
+                </div>
+                
                 {(user as any)?.bio && (
                   <p className="text-gray-700 dark:text-gray-300 text-center mb-4 max-w-xs">
                     {(user as any).bio}
@@ -737,6 +751,14 @@ export default function ProfilePage() {
                   </div>
                 )}
                 <div className="flex gap-3 flex-wrap justify-center">
+                  {user?.role === "admin" && (
+                    <Button
+                      onClick={() => router.push("/admin")}
+                      className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white"
+                    >
+                      ⚔️ Админ Панель
+                    </Button>
+                  )}
                   <Button
                     onClick={() => setIsEditing(true)}
                     className="bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white"

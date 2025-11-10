@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useUser } from "@/contexts/UserContext";
+import Link from "next/link";
 import {
   Users,
   ShoppingCart,
   TrendingUp,
-  BarChart3,
+  Settings,
   Activity,
 } from "lucide-react";
 import { academyApi } from "@/lib/api";
@@ -29,7 +30,7 @@ export default function AdminPage() {
     const fetchStats = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("authToken");
         if (!token) {
           setError("No authentication token");
           return;
@@ -63,8 +64,8 @@ export default function AdminPage() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Загрузка статистики...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-foreground/60">Загрузка статистики...</p>
         </div>
       </div>
     );
@@ -72,8 +73,8 @@ export default function AdminPage() {
 
   if (error) {
     return (
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-        <p className="text-red-700 dark:text-red-400">{error}</p>
+      <div className="bg-destructive/10 border border-destructive/40 rounded-lg p-4">
+        <p className="text-destructive">{error}</p>
       </div>
     );
   }
@@ -83,25 +84,25 @@ export default function AdminPage() {
       label: "Всего пользователей",
       value: stats?.totalUsers || 0,
       icon: Users,
-      color: "bg-blue-500",
+      color: "bg-primary",
     },
     {
       label: "Заказы",
       value: stats?.totalOrders || 0,
       icon: ShoppingCart,
-      color: "bg-green-500",
+      color: "bg-accent",
     },
     {
       label: "Доход",
       value: `$${(stats?.totalRevenue || 0).toFixed(2)}`,
       icon: TrendingUp,
-      color: "bg-yellow-500",
+      color: "bg-secondary",
     },
     {
       label: "Активные пользователи",
       value: stats?.activeUsers || 0,
       icon: Activity,
-      color: "bg-purple-500",
+      color: "bg-primary",
     },
   ];
 
@@ -109,10 +110,10 @@ export default function AdminPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 className="text-3xl font-bold text-foreground mb-2">
           Добро пожаловать, {user?.name}! 👋
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-foreground/60">
           Обзор вашей админ панели и ключевые метрики
         </p>
       </div>
@@ -124,14 +125,14 @@ export default function AdminPage() {
           return (
             <div
               key={index}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700 p-6"
+              className="bg-card rounded-xl shadow-sm hover:shadow-md transition-shadow border border-border p-6"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">
+                  <p className="text-foreground/60 text-sm font-medium">
                     {card.label}
                   </p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+                  <p className="text-3xl font-bold text-foreground mt-2">
                     {card.value}
                   </p>
                 </div>
@@ -145,25 +146,25 @@ export default function AdminPage() {
       </div>
 
       {/* Recent Orders */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+      <div className="bg-card rounded-xl shadow-sm border border-border p-6">
+        <h2 className="text-lg font-bold text-foreground mb-4">
           Последние заказы
         </h2>
         {stats?.recentOrders && stats.recentOrders.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="border-b border-gray-200 dark:border-gray-700">
+              <thead className="border-b border-border">
                 <tr>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
+                  <th className="text-left py-3 px-4 font-semibold text-foreground/70">
                     ID
                   </th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
+                  <th className="text-left py-3 px-4 font-semibold text-foreground/70">
                     Пользователь
                   </th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
+                  <th className="text-left py-3 px-4 font-semibold text-foreground/70">
                     Сумма
                   </th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
+                  <th className="text-left py-3 px-4 font-semibold text-foreground/70">
                     Статус
                   </th>
                 </tr>
@@ -172,25 +173,25 @@ export default function AdminPage() {
                 {stats.recentOrders.map((order, index) => (
                   <tr
                     key={index}
-                    className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="border-b border-border/50 hover:bg-secondary/10 transition-colors"
                   >
-                    <td className="py-3 px-4 text-gray-900 dark:text-white">
+                    <td className="py-3 px-4 text-foreground">
                       #{order.id}
                     </td>
-                    <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                    <td className="py-3 px-4 text-foreground/80">
                       {order.userName}
                     </td>
-                    <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                    <td className="py-3 px-4 text-foreground/80">
                       ${order.amount}
                     </td>
                     <td className="py-3 px-4">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-medium ${
                           order.status === "completed"
-                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                            ? "bg-primary/10 text-primary"
                             : order.status === "pending"
-                            ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-                            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                            ? "bg-secondary/30 text-foreground"
+                            : "bg-destructive/10 text-destructive"
                         }`}
                       >
                         {order.status}
@@ -202,7 +203,7 @@ export default function AdminPage() {
             </table>
           </div>
         ) : (
-          <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+          <p className="text-foreground/60 text-center py-8">
             Нет заказов
           </p>
         )}
@@ -210,38 +211,38 @@ export default function AdminPage() {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <a
+        <Link
           href="/admin/users"
-          className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow"
+          className="bg-gradient-to-br from-primary to-primary/80 rounded-xl p-6 text-primary-foreground hover:shadow-lg transition-shadow"
         >
           <Users className="w-8 h-8 mb-2" />
           <h3 className="font-semibold mb-1">Управление пользователями</h3>
-          <p className="text-sm text-blue-100">
+          <p className="text-sm text-primary-foreground/80">
             Просмотр и редактирование пользователей
           </p>
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/admin/orders"
-          className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow"
+          className="bg-gradient-to-br from-accent to-accent/80 rounded-xl p-6 text-accent-foreground hover:shadow-lg transition-shadow"
         >
           <ShoppingCart className="w-8 h-8 mb-2" />
           <h3 className="font-semibold mb-1">Управление заказами</h3>
-          <p className="text-sm text-green-100">
+          <p className="text-sm text-accent-foreground/80">
             Отслеживание и обновление статуса заказов
           </p>
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/admin/settings"
-          className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white hover:shadow-lg transition-shadow"
+          className="bg-gradient-to-br from-secondary to-secondary/80 rounded-xl p-6 text-foreground hover:shadow-lg transition-shadow"
         >
-          <BarChart3 className="w-8 h-8 mb-2" />
+          <Settings className="w-8 h-8 mb-2" />
           <h3 className="font-semibold mb-1">Настройки</h3>
-          <p className="text-sm text-purple-100">
+          <p className="text-sm text-foreground/80">
             Конфигурация и параметры системы
           </p>
-        </a>
+        </Link>
       </div>
     </div>
   );
