@@ -143,7 +143,7 @@ export default function CoursesPage() {
             От базовых техник до advanced рецептов от шефа Dima Fomin
           </p>
           <div className="inline-block mt-4 px-4 py-2 bg-sky-100 text-sky-700 rounded-full text-sm font-semibold">
-            ✨ 3 курса • 650+ учеников
+            ⭐ 3 курса • 650+ учеников
           </div>
         </motion.div>
       </section>

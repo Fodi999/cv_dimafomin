@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, BookOpen, Star, TrendingUp } from "lucide-react";
+import { ArrowRight, BookOpen, Star, TrendingUp, Users, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function AcademyCoursesPreview() {
@@ -187,14 +187,17 @@ export default function AcademyCoursesPreview() {
 
                   {/* Students count */}
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-neutral-600 text-xs">👥 {course.students.toLocaleString()} учеников</span>
-                    <motion.span 
+                    <span className="text-neutral-600 text-xs flex items-center gap-1">
+                      <Users className="w-4 h-4" />
+                      {course.students.toLocaleString()} учеников
+                    </span>
+                    <motion.div 
                       animate={{ rotate: [0, 360] }}
                       transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                       className="text-sky-500"
                     >
-                      ✨
-                    </motion.span>
+                      <Sparkles className="w-4 h-4" />
+                    </motion.div>
                   </div>
                 </div>
 

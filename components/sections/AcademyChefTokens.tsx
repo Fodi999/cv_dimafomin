@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Coins, TrendingUp, Gift } from "lucide-react";
+import { Coins, TrendingUp, Gift, Gem, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function AcademyChefTokens() {
@@ -71,9 +71,9 @@ export default function AcademyChefTokens() {
               <motion.div
                 animate={{ y: [0, -20, 0] }}
                 transition={{ duration: 2, repeat: Infinity }}
-                className="text-7xl mb-6"
+                className="mb-6 flex justify-center"
               >
-                💎
+                <Gem className="w-16 h-16 text-amber-500" />
               </motion.div>
               <h3 className="text-3xl font-bold text-[#1E1A41] mb-2">ChefTokens</h3>
               <p className="text-gray-600 text-lg font-semibold">Твоя валюта мастерства</p>
@@ -92,13 +92,13 @@ export default function AcademyChefTokens() {
                   delay: i * 0.8,
                   repeat: Infinity,
                 }}
-                className="absolute text-4xl"
+                className="absolute"
                 style={{
                   top: `${30 + i * 20}%`,
                   left: `${20 + i * 30}%`,
                 }}
               >
-                🏆
+                <Award className="w-10 h-10 text-amber-400" />
               </motion.div>
             ))}
           </motion.div>
@@ -123,9 +123,10 @@ export default function AcademyChefTokens() {
 
             <motion.p
               variants={itemVariants}
-              className="text-lg text-gray-700 leading-relaxed"
+              className="text-lg text-gray-700 leading-relaxed flex items-center gap-2"
             >
-              💰 <span className="font-semibold">ChefTokens</span> — это уникальная система мотивации в Seafood Academy. Каждое действие приносит тебе токены:
+              <Coins className="w-5 h-5 text-amber-500" />
+              <span><span className="font-semibold">ChefTokens</span> — это уникальная система мотивации в Seafood Academy. Каждое действие приносит тебе токены:</span>
             </motion.p>
 
             {/* Benefits */}
@@ -165,9 +166,10 @@ export default function AcademyChefTokens() {
             {/* CTA */}
             <motion.div variants={itemVariants}>
               <Link href="/profile">
-                <Button className="bg-gradient-to-r from-[#3BC864] to-[#2da050] hover:from-[#2da050] hover:to-[#1e7a38] text-white font-bold px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all group w-full md:w-auto">
-                  💰 Посмотреть баланс токенов
-                  <span className="ml-2 group-hover:translate-x-1 transition-transform inline-block">
+                <Button className="bg-gradient-to-r from-[#3BC864] to-[#2da050] hover:from-[#2da050] hover:to-[#1e7a38] text-white font-bold px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all group w-full md:w-auto flex items-center justify-center gap-2">
+                  <Coins className="w-5 h-5" />
+                  Посмотреть баланс токенов
+                  <span className="group-hover:translate-x-1 transition-transform inline-block">
                     →
                   </span>
                 </Button>
