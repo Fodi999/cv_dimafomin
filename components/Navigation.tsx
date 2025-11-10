@@ -8,13 +8,15 @@ import {
   Menu,
   LogOut,
   Home,
-  BookOpen,
+  BookOpenCheck,
   FileText,
   Gem,
   ShoppingBag,
   User,
   MessageSquare,
-  Brain,
+  BrainCircuit,
+  Shell,
+  Sparkles,
 } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -32,7 +34,7 @@ export default function Navigation() {
 
   const navLinks: NavLink[] = [
     { label: "Главная", href: "/", icon: <Home className="w-4 h-4" /> },
-    { label: "Академия", href: "/academy", icon: <BookOpen className="w-4 h-4" /> },
+    { label: "Академия", href: "/academy", icon: <BookOpenCheck className="w-4 h-4" /> },
     { label: "Курсы", href: "/academy/feed", icon: <FileText className="w-4 h-4" /> },
     { label: "Маркет", href: "/market", icon: <ShoppingBag className="w-4 h-4" /> },
     { label: "Профиль", href: "/profile", icon: <User className="w-4 h-4" /> },
@@ -47,8 +49,8 @@ export default function Navigation() {
   return (
     <>
       {/* Desktop Navigation - Uber-AI стиль */}
-      <nav className="fixed top-0 left-0 w-full z-50 bg-white/20 backdrop-blur-lg border-b border-white/10 transition-all duration-500 dark:bg-neutral-900/40">
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
+      <nav className="fixed top-0 left-0 w-full z-50 bg-white/10 backdrop-blur-xl border-b border-white/20 transition-all duration-500 dark:bg-neutral-950/40 dark:border-neutral-800/30 shadow-lg shadow-black/5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           {/* Логотип */}
           <Link href="/" className="flex items-center space-x-2 font-bold text-lg tracking-tight hover:opacity-80 transition group">
             <motion.div
@@ -56,7 +58,7 @@ export default function Navigation() {
               whileTap={{ scale: 0.95 }}
               className="flex items-center gap-2"
             >
-              <Brain className="w-5 h-5 text-sky-400" />
+              <BrainCircuit className="w-5 h-5 text-sky-400" />
               <div className="flex flex-col leading-none">
                 <span className="text-neutral-900 dark:text-white">Seafood</span>
                 <span className="text-xs text-neutral-500 dark:text-neutral-400">Academy</span>
@@ -69,12 +71,12 @@ export default function Navigation() {
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href}>
                 <motion.button
-                  whileHover={{ y: -1 }}
+                  whileHover={{ y: -2 }}
                   whileTap={{ y: 0 }}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all relative group ${
+                  className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-all relative group ${
                     isActive(link.href)
-                      ? "text-sky-500 dark:text-sky-400"
-                      : "text-neutral-700 dark:text-neutral-200 hover:text-sky-500 dark:hover:text-sky-400"
+                      ? "text-sky-500 dark:text-sky-400 bg-sky-500/10"
+                      : "text-neutral-700 dark:text-neutral-300 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-sky-500/5"
                   }`}
                 >
                   <span className="flex items-center gap-1.5">
@@ -85,58 +87,67 @@ export default function Navigation() {
                   {isActive(link.href) && (
                     <motion.div
                       layoutId="navUnderline"
-                      className="absolute -bottom-1 left-4 right-4 h-0.5 bg-gradient-to-r from-sky-500 to-teal-400"
+                      className="absolute -bottom-1 left-3 right-3 h-0.5 bg-gradient-to-r from-sky-500 to-cyan-400"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
                   )}
-
-                  <div className="absolute inset-0 rounded-lg bg-sky-500/5 opacity-0 group-hover:opacity-100 transition-opacity -z-10" />
                 </motion.button>
               </Link>
             ))}
-
-            {/* Кнопка AI Mentor - выделена */}
-            <Link href="/create-chat">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="ml-2 px-4 py-2 rounded-lg bg-gradient-to-r from-sky-500 to-teal-400 text-white text-sm font-semibold shadow-md hover:shadow-lg transition-shadow flex items-center gap-1.5"
-              >
-                <MessageSquare className="w-4 h-4" />
-                <span>Спросить AI</span>
-              </motion.button>
-            </Link>
           </div>
 
           {/* Правая панель */}
-          <div className="hidden md:flex items-center space-x-3">
+          <div className="hidden md:flex items-center space-x-2">
+            {/* Кнопка AI Mentor - выделена (приоритет) */}
+            <Link href="/create-chat">
+              <motion.button
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-sky-500 via-cyan-500 to-teal-400 text-white text-sm font-semibold shadow-md hover:shadow-xl hover:shadow-sky-500/30 transition-shadow relative group overflow-hidden"
+              >
+                {/* Glow эффект */}
+                <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-cyan-400 opacity-0 group-hover:opacity-30 blur-lg transition-opacity" />
+                <span className="relative flex items-center gap-1.5">
+                  <BrainCircuit className="w-4 h-4" />
+                  <span>Спросить AI</span>
+                </span>
+              </motion.button>
+            </Link>
+
+            {/* Токены виджет */}
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="flex items-center space-x-1.5 text-sm font-medium text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/30 px-3.5 py-2 rounded-lg shadow-sm hover:shadow-md transition border border-sky-200/50 dark:border-sky-800/50"
+            >
+              <Shell className="w-4 h-4 text-amber-500" />
+              <span>{tokenBalance}</span>
+            </motion.div>
+
             {/* Языковой переключатель */}
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="px-3 py-1.5 rounded-full bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 text-xs font-semibold hover:bg-sky-200 dark:hover:bg-sky-900/60 transition"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-3 py-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-xs font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
             >
               UA
             </motion.button>
 
-            {/* Токены виджет */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="flex items-center space-x-1.5 text-sm text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-900/20 px-3 py-1.5 rounded-lg shadow-sm hover:shadow-md transition border border-sky-200/50 dark:border-sky-800/50"
-            >
-              <Gem className="w-4 h-4" />
-              <span className="font-semibold">{tokenBalance}</span>
-            </motion.div>
-
-            {/* Avatar */}
+            {/* Avatar - Профиль */}
             <Link href="/profile">
-              <motion.img
-                whileHover={{ scale: 1.1 }}
+              <motion.button
+                whileHover={{ scale: 1.15 }}
                 whileTap={{ scale: 0.95 }}
-                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%230EA5E9'/%3E%3Ctext x='20' y='24' font-size='18' font-weight='bold' fill='white' text-anchor='middle'%3EDF%3C/text%3E%3C/svg%3E"
-                alt="Avatar"
-                className="w-8 h-8 rounded-full border-2 border-sky-400 shadow-sm hover:shadow-md transition cursor-pointer"
-              />
+                className="relative p-0.5 rounded-full bg-gradient-to-br from-sky-500 to-teal-400 shadow-md hover:shadow-lg transition-shadow group"
+              >
+                <img
+                  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%230EA5E9'/%3E%3Ctext x='20' y='24' font-size='18' font-weight='bold' fill='white' text-anchor='middle'%3EDF%3C/text%3E%3C/svg%3E"
+                  alt="Avatar"
+                  className="w-8 h-8 rounded-full border-2 border-white dark:border-neutral-950"
+                />
+                <motion.div className="absolute -bottom-1 -right-1 bg-sky-500 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Sparkles className="w-3 h-3 text-white" />
+                </motion.div>
+              </motion.button>
             </Link>
           </div>
 
@@ -151,9 +162,12 @@ export default function Navigation() {
               </motion.button>
             </SheetTrigger>
 
-            <SheetContent side="left" className="w-64 p-0 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-lg">
+            <SheetContent side="left" className="w-64 p-0 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-xl border-r border-white/20 dark:border-neutral-800/30">
               <div className="p-6 border-b border-neutral-200 dark:border-neutral-800">
-                <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Меню</h2>
+                <h2 className="text-lg font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+                  <BrainCircuit className="w-5 h-5 text-sky-500" />
+                  Меню
+                </h2>
               </div>
 
               <div className="space-y-1 p-4">
@@ -194,10 +208,11 @@ export default function Navigation() {
                       onClick={() => setIsOpen(false)}
                       whileHover={{ x: 4 }}
                       whileTap={{ x: 2 }}
-                      className="w-full text-left px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-teal-400 text-white font-semibold shadow-md hover:shadow-lg transition flex items-center gap-3 mt-2"
+                      className="w-full text-left px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500 via-cyan-500 to-teal-400 text-white font-semibold shadow-md hover:shadow-lg transition flex items-center gap-3 mt-2 group"
                     >
-                      <MessageSquare className="w-4 h-4" />
+                      <BrainCircuit className="w-4 h-4" />
                       <span>Спросить AI</span>
+                      <Sparkles className="w-3 h-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
                     </motion.button>
                   </Link>
                 </motion.div>
@@ -209,11 +224,11 @@ export default function Navigation() {
                 {/* Токены в мобильном */}
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="p-4 rounded-lg bg-sky-50 dark:bg-sky-900/20 border border-sky-200/50 dark:border-sky-800/50"
+                  className="p-4 rounded-lg bg-gradient-to-br from-sky-50 to-cyan-50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-200/50 dark:border-sky-800/50"
                 >
-                  <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-2">ChefTokens</p>
+                  <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-2 font-medium">ChefTokens</p>
                   <div className="flex items-center gap-2">
-                    <Gem className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+                    <Shell className="w-5 h-5 text-amber-500" />
                     <p className="text-lg font-bold text-sky-600 dark:text-sky-400">{tokenBalance}</p>
                   </div>
                 </motion.div>
