@@ -122,7 +122,15 @@ export default function ProfilePage() {
   };
 
   const handleAvatarUpload = async (url: string) => {
-    await updateProfile({ avatar: url });
+    console.log("🖼️ ProfilePage: handleAvatarUpload called with URL:", url);
+    try {
+      console.log("📝 ProfilePage: calling updateProfile with avatar");
+      await updateProfile({ avatar: url });
+      console.log("✅ ProfilePage: avatar updated successfully");
+    } catch (error) {
+      console.error("❌ ProfilePage: updateProfile failed:", error);
+      throw error;
+    }
   };
 
   const handleLogout = () => {

@@ -228,28 +228,39 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   const updateProfile = async (data: Partial<User>) => {
-    if (!user) return;
+    if (!user) {
+      console.error("❌ UserContext: No user available");
+      return;
+    }
     
+    console.log("🔄 UserContext: updateProfile called with data:", data);
     setIsLoading(true);
     try {
       const token = localStorage.getItem("authToken");
       if (!token) throw new Error("No auth token");
       
+      console.log("🔐 UserContext: auth token found");
+      
       // Transform 'avatar' to 'avatarUrl' for backend API
       const apiData: any = { ...data };
       if ('avatar' in apiData) {
+        console.log("🖼️ UserContext: transforming avatar to avatarUrl");
         apiData.avatarUrl = apiData.avatar;
         delete apiData.avatar;
       }
       
+      console.log("📡 UserContext: sending update to backend with data:", apiData);
       // API call to update profile
       await academyApi.updateProfile(user.id, apiData, token);
+      console.log("✅ UserContext: backend update successful");
       
       // Update user locally
       const updatedUser = { ...user, ...data };
+      console.log("👤 UserContext: updating local user state:", updatedUser);
       setUser(updatedUser);
+      console.log("✨ UserContext: profile updated successfully");
     } catch (error) {
-      console.error("Update profile failed:", error);
+      console.error("❌ UserContext: Update profile failed:", error);
       throw error;
     } finally {
       setIsLoading(false);

@@ -58,8 +58,16 @@ export function EditProfileModal({
                 currentAvatar={user?.avatar}
                 userName={user?.name || "User"}
                 onUploadComplete={async (url) => {
-                  await onAvatarUpload(url);
-                  alert("Фото завантажено!");
+                  console.log("🎯 EditProfileModal.onUploadComplete called with URL:", url);
+                  // Trigger avatar upload in parent
+                  try {
+                    console.log("📞 EditProfileModal: calling onAvatarUpload...");
+                    await onAvatarUpload(url);
+                    console.log("✅ EditProfileModal: onAvatarUpload completed successfully");
+                  } catch (error) {
+                    console.error("❌ EditProfileModal: onAvatarUpload failed:", error);
+                    throw error;
+                  }
                 }}
               />
             </div>
