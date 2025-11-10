@@ -366,10 +366,65 @@ export default function CreateRecipeChatPage() {
   ];
 
   return (
-    <ResponsiveLayout
-      sidebarWidth={0}
-      sidebar={null}
-      footer={
+    <div className="flex flex-col h-[calc(100vh-64px)] bg-white dark:bg-slate-950 overflow-hidden">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+      />
+
+      {/* Header */}
+      <ChatHeader
+        title={tr.chefMentor}
+        chatHistory={chatHistory}
+        sessionId={sessionId}
+        onLoadChat={loadChat}
+        onDeleteChat={deleteChat}
+        onNewChat={startNewChat}
+      />
+
+      {/* Main Chat Area - Scrollable */}
+      <main className="flex-1 overflow-y-auto px-4 py-3 flex flex-col space-y-2 max-w-4xl w-full mx-auto min-w-0">
+        <ChatMessages
+          messages={chatMessages}
+          isThinking={isAIThinking}
+          chefName={tr.chefMentor}
+          userAvatar={user?.avatar}
+          userName={user?.name}
+          onSuggestedAction={handleSuggestedAction}
+        />
+
+        {generatedRecipe && isComplete && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-2"
+          >
+            <RecipeCard
+              recipe={generatedRecipe}
+              recipeImage={recipeImage}
+              expandedSections={expandedSections}
+              onToggleSection={(section) =>
+                setExpandedSections((prev) => ({
+                  ...prev,
+                  [section]: !prev[section],
+                }))
+              }
+              onPublish={handlePublish}
+              onModify={() => {
+                setIsComplete(false);
+                setGeneratedRecipe(null);
+              }}
+            />
+          </motion.div>
+        )}
+
+        <div ref={chatEndRef} />
+      </main>
+
+      {/* Footer - Fixed Input */}
+      <div className="bg-white dark:bg-slate-900 border-t border-sky-200 dark:border-slate-800 flex-shrink-0">
         <ChatInput
           value={userInput}
           onChange={setUserInput}
@@ -388,176 +443,7 @@ export default function CreateRecipeChatPage() {
           onRemoveImage={() => setAttachedImage(null)}
           fileInputRef={fileInputRef}
         />
-      }
-    >
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-      />
-
-      <ChatHeader title={tr.chefMentor} />
-
-      <div className="flex gap-4 flex-1 min-h-0">
-        {/* Left: Chat History Sidebar */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="w-80 bg-gradient-to-br from-sky-50 to-cyan-50 dark:from-slate-900 dark:to-slate-950 rounded-2xl border border-sky-200 dark:border-slate-800 overflow-hidden flex flex-col shadow-lg hidden lg:flex"
-        >
-          {/* History Header */}
-          <div className="bg-gradient-to-r from-sky-500 to-cyan-500 p-5 text-white">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-2xl">📚</span>
-              <h2 className="text-lg font-bold">{tr.history}</h2>
-            </div>
-            <motion.button
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={startNewChat}
-              className="w-full bg-white/20 hover:bg-white/30 backdrop-blur text-white font-semibold py-2.5 rounded-lg transition border border-white/30 flex items-center justify-center gap-2 text-sm"
-            >
-              ✨ {tr.newChat}
-            </motion.button>
-          </div>
-
-          {/* Chat List */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-            {chatHistory.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="h-full flex items-center justify-center text-center py-8"
-              >
-                <div>
-                  <p className="text-4xl mb-2">🌟</p>
-                  <p className="text-gray-500 dark:text-gray-400 font-medium text-sm">
-                    {tr.noHistory}
-                  </p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                    Почніть нову розмову
-                  </p>
-                </div>
-              </motion.div>
-            ) : (
-              <>
-                {chatHistory.map((chat, idx) => (
-                  <motion.div
-                    key={chat.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.03 }}
-                    className="group"
-                  >
-                    <motion.button
-                      whileHover={{ scale: 1.02, y: -1 }}
-                      onClick={() => loadChat(chat.id)}
-                      className="w-full text-left p-3.5 rounded-xl bg-gradient-to-br from-white to-sky-100/50 dark:from-slate-800 dark:to-slate-800/50 hover:from-sky-100 hover:to-cyan-100/50 dark:hover:from-slate-700 dark:hover:to-slate-700/50 transition border border-sky-200/50 dark:border-slate-700 shadow-sm hover:shadow-md"
-                    >
-                      <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 line-clamp-2">
-                        {chat.preview}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
-                        <span>🕐</span>
-                        {new Date(chat.timestamp).toLocaleDateString(
-                          language as string === "uk" ? "uk-UA" : "pl-PL",
-                          {
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        )}
-                      </p>
-                    </motion.button>
-                    <motion.button
-                      initial={{ opacity: 0 }}
-                      whileHover={{ opacity: 1 }}
-                      onClick={() => {
-                        if (confirm("Видалити цю розмову?")) {
-                          deleteChat(chat.id);
-                        }
-                      }}
-                      className="mt-2 w-full text-xs bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 font-medium py-1.5 rounded-lg transition flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100"
-                    >
-                      🗑️ {tr.deleteChat}
-                    </motion.button>
-                  </motion.div>
-                ))}
-              </>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Right: Main Chat Area */}
-        <main className="flex-1 max-w-3xl mx-auto px-4 py-6 flex flex-col space-y-4 min-w-0">
-          {chatMessages.length === 0 && !isAIThinking && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="space-y-3"
-            >
-              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                💡 {tr.exampleQueries}
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                {quickExamples.map((example) => (
-                  <motion.button
-                    key={example.text}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      setUserInput(example.text);
-                      setTimeout(() => handleSendMessage(), 50);
-                    }}
-                    className="bg-white/60 dark:bg-slate-800/50 border border-sky-200 dark:border-sky-700/50 rounded-xl px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 font-medium"
-                  >
-                    {example.icon} {example.text}
-                  </motion.button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          <ChatMessages
-            messages={chatMessages}
-            isThinking={isAIThinking}
-            chefName={tr.chefMentor}
-            userAvatar={user?.avatar}
-            userName={user?.name}
-            onSuggestedAction={handleSuggestedAction}
-          />
-
-          {generatedRecipe && isComplete && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-4"
-            >
-              <RecipeCard
-                recipe={generatedRecipe}
-                recipeImage={recipeImage}
-                expandedSections={expandedSections}
-                onToggleSection={(section) =>
-                  setExpandedSections((prev) => ({
-                    ...prev,
-                    [section]: !prev[section],
-                  }))
-                }
-                onPublish={handlePublish}
-                onModify={() => {
-                  setIsComplete(false);
-                  setGeneratedRecipe(null);
-                }}
-              />
-            </motion.div>
-          )}
-
-          <div ref={chatEndRef} />
-        </main>
       </div>
-    </ResponsiveLayout>
+    </div>
   );
 }
