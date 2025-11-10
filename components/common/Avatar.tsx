@@ -63,7 +63,7 @@ export function Avatar({
   if (fallbackText) {
     return (
       <div
-        className={`${baseClasses} ${clickableClasses} bg-gradient-to-br from-purple-400 to-pink-500 text-white font-bold`}
+        className={`${baseClasses} ${clickableClasses} bg-gradient-to-br from-sky-400 to-cyan-500 dark:from-sky-400 dark:to-cyan-500 text-white font-bold`}
         onClick={onClick}
       >
         {getInitials(fallbackText)}

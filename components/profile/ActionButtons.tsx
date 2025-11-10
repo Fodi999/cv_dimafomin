@@ -22,7 +22,7 @@ export function ActionButtons({
     <div className="flex gap-3 flex-wrap justify-center">
       <Button 
         onClick={onEditProfile}
-        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg"
+        className="bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white shadow-lg"
       >
         <Edit2 className="w-4 h-4 mr-2" />
         {translations.editProfile}

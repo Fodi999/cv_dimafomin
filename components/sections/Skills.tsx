@@ -174,11 +174,11 @@ export default function Skills() {
           transition={{ duration: 0.8 }}
         >
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-[#1E1A41] mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               {t.skills.title}
             </h2>
-            <div className="w-20 h-1 bg-[#3BC864] mx-auto rounded-full mb-6" />
-            <p className="text-lg text-[#240F24] max-w-2xl mx-auto">
+            <div className="w-20 h-1 bg-sky-500 dark:bg-sky-400 mx-auto rounded-full mb-6" />
+            <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
               {t.skills.subtitle}
             </p>
           </div>
@@ -194,7 +194,7 @@ export default function Skills() {
                 transition={{ duration: 0.5, ease: "easeOut" }}
                 className="mb-8 scroll-mt-24"
               >
-                <Card className="p-8 bg-gradient-to-br from-[#3BC864]/10 to-[#C5E98A]/20 border-[#3BC864] shadow-2xl">
+                <Card className="p-8 bg-gradient-to-br from-sky-500/10 to-cyan-500/20 dark:from-sky-500/20 dark:to-cyan-500/30 border-sky-400 dark:border-sky-600 shadow-2xl">
                   {(() => {
                     const skill = skills[expandedSkill];
                     const Icon = skill.icon;
@@ -202,35 +202,35 @@ export default function Skills() {
                     return (
                       <>
                         <div className="flex items-center gap-4 mb-6">
-                          <div className="p-4 bg-[#3BC864] rounded-xl">
+                          <div className="p-4 bg-sky-500 dark:bg-sky-600 rounded-xl">
                             <Icon className="w-8 h-8 text-white" />
                           </div>
                           <div className="flex-1">
-                            <h3 className="text-2xl font-bold text-[#1E1A41] mb-1">
+                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
                               {skillData.title}
                             </h3>
-                            <p className="text-[#240F24]">{skillData.description}</p>
+                            <p className="text-gray-700 dark:text-gray-300">{skillData.description}</p>
                           </div>
                           <button
                             onClick={() => setExpandedSkill(null)}
-                            className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+                            className="p-2 hover:bg-white/50 dark:hover:bg-gray-700/50 rounded-lg transition-colors"
                           >
-                            <X className="w-6 h-6 text-[#1E1A41]" />
+                            <X className="w-6 h-6 text-gray-900 dark:text-white" />
                           </button>
                         </div>
 
                         <div className="mb-6">
                           <div className="flex items-center justify-between mb-3">
-                            <span className="text-sm font-semibold text-[#2B6A79]">
+                            <span className="text-sm font-semibold text-sky-700 dark:text-sky-300">
                               {t.skills.proficiencyLevel}
                             </span>
-                            <span className="text-lg font-bold text-[#1E1A41]">
+                            <span className="text-lg font-bold text-gray-900 dark:text-white">
                               {skill.level}%
                             </span>
                           </div>
-                          <div className="w-full bg-white/50 rounded-full h-3 overflow-hidden shadow-inner">
+                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden shadow-inner">
                             <motion.div
-                              className="h-full bg-gradient-to-r from-[#3BC864] to-[#C5E98A] shadow-lg"
+                              className="h-full bg-gradient-to-r from-sky-500 to-cyan-500 dark:from-sky-600 dark:to-cyan-600 shadow-lg"
                               initial={{ width: 0 }}
                               animate={{ width: `${skill.level}%` }}
                               transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
@@ -239,8 +239,8 @@ export default function Skills() {
                         </div>
 
                         <div>
-                          <h4 className="text-lg font-semibold text-[#1E1A41] mb-4 flex items-center gap-2">
-                            <span className="w-1 h-6 bg-[#3BC864] rounded-full"></span>
+                          <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <span className="w-1 h-6 bg-sky-500 dark:bg-sky-400 rounded-full"></span>
                             {t.skills.competencyDetails}
                           </h4>
                           <div className="grid md:grid-cols-2 gap-3">
@@ -250,10 +250,10 @@ export default function Skills() {
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.3 + i * 0.06, duration: 0.4 }}
-                                className="flex items-start gap-3 p-3 bg-white/60 rounded-lg hover:bg-white/80 transition-colors"
+                                className="flex items-start gap-3 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                               >
-                                <span className="text-[#3BC864] text-xl flex-shrink-0">✓</span>
-                                <span className="text-sm text-[#240F24]">{detail}</span>
+                                <span className="text-sky-500 dark:text-sky-400 text-xl flex-shrink-0">✓</span>
+                                <span className="text-sm text-gray-700 dark:text-gray-300">{detail}</span>
                               </motion.div>
                             ))}
                           </div>
@@ -286,10 +286,10 @@ export default function Skills() {
                   whileHover={{ y: -5 }}
                 >
                   <Card 
-                    className={`p-6 transition-all duration-500 bg-white cursor-pointer flex flex-col ${
+                    className={`p-6 transition-all duration-500 bg-white dark:bg-gray-900 cursor-pointer flex flex-col border ${
                       isExpanded 
-                        ? 'border-[#3BC864] border-2 shadow-2xl ring-4 ring-[#3BC864]/20' 
-                        : 'border-[#E0D8D0] hover:shadow-xl hover:border-[#C5E98A]'
+                        ? 'border-sky-500 dark:border-sky-400 border-2 shadow-2xl ring-4 ring-sky-500/20 dark:ring-sky-400/20' 
+                        : 'border-gray-200 dark:border-gray-800 hover:shadow-xl hover:border-cyan-400 dark:hover:border-cyan-500'
                     }`}
                     onClick={() => toggleSkill(index)}
                     style={{ minHeight: '280px' }}
@@ -297,15 +297,15 @@ export default function Skills() {
                     <div className="flex flex-col flex-1">
                       <div className="flex items-start gap-4 mb-4">
                         <div className={`p-3 rounded-lg flex-shrink-0 transition-colors ${
-                          isExpanded ? 'bg-[#3BC864] text-white' : 'bg-[#3BC864]/10 text-[#3BC864]'
+                          isExpanded ? 'bg-sky-500 dark:bg-sky-600 text-white' : 'bg-sky-500/10 dark:bg-sky-500/20 text-sky-600 dark:text-sky-400'
                         }`}>
                           <Icon className="w-6 h-6" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-semibold text-[#1E1A41] mb-2 leading-tight">
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 leading-tight">
                             {skillData.title}
                           </h3>
-                          <p className="text-sm text-[#240F24] line-clamp-3">
+                          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
                             {skillData.description}
                           </p>
                         </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu,
@@ -12,9 +12,12 @@ import {
   ShoppingBag,
   BrainCircuit,
   User,
-  Coins,
   Sparkles,
+  LogOut,
+  LogIn,
+  Refrigerator,
 } from "lucide-react";
+import { useUser } from "@/contexts/UserContext";
 
 interface NavLink {
   label: string;
@@ -24,8 +27,9 @@ interface NavLink {
 
 export default function NavigationBurger() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useUser();
   const [isOpen, setIsOpen] = useState(false);
-  const [tokenBalance] = useState(1250);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -33,8 +37,17 @@ export default function NavigationBurger() {
   }, []);
 
   // Закрыть меню при клике на ссылку
-  const handleLinkClick = () => {
+  const handleLinkClick = (href: string) => {
+    console.log("Navigating to:", href);
     setIsOpen(false);
+    router.push(href);
+  };
+
+  // Обработчик logout
+  const handleLogout = () => {
+    logout();
+    setIsOpen(false);
+    router.push("/");
   };
 
   // Закрыть меню при нажатии Escape
@@ -56,17 +69,17 @@ export default function NavigationBurger() {
 
   const navLinks: NavLink[] = [
     {
-      label: "Главная",
+      label: "Головна",
       href: "/",
       icon: <Home className="w-5 h-5" />,
     },
     {
-      label: "Академия",
+      label: "Академія",
       href: "/academy",
       icon: <BookOpen className="w-5 h-5" />,
     },
     {
-      label: "Курсы",
+      label: "Курси",
       href: "/academy/courses",
       icon: <Sparkles className="w-5 h-5" />,
     },
@@ -76,20 +89,23 @@ export default function NavigationBurger() {
       icon: <ShoppingBag className="w-5 h-5" />,
     },
     {
+      label: "Холодильник",
+      href: "/fridge",
+      icon: <Refrigerator className="w-5 h-5" />,
+    },
+    {
       label: "AI-наставник",
       href: "/chat/create-chat",
       icon: <BrainCircuit className="w-5 h-5" />,
-    },
-    {
-      label: "Профиль",
-      href: "/profile",
-      icon: <User className="w-5 h-5" />,
     },
   ];
 
   const isActive = (href: string): boolean => {
     if (href === "/" && pathname === "/") return true;
-    if (href !== "/" && pathname.startsWith(href)) return true;
+    if (href === "/academy" && pathname.startsWith("/academy")) return true;
+    if (href === "/market" && pathname === "/market") return true;
+    if (href === "/fridge" && pathname === "/fridge") return true;
+    if (href === "/chat/create-chat" && pathname === "/chat/create-chat") return true;
     return false;
   };
 
@@ -198,35 +214,34 @@ export default function NavigationBurger() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.05 }}
                   >
-                    <Link href={link.href} onClick={handleLinkClick}>
-                      <motion.div
-                        whileHover={{ x: 8 }}
-                        whileTap={{ scale: 0.98 }}
-                        className={`flex items-center gap-3 px-4 py-3.5 rounded-lg transition-all cursor-pointer ${
+                    <motion.div
+                      whileHover={{ x: 8 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleLinkClick(link.href)}
+                      className={`flex items-center gap-3 px-4 py-3.5 rounded-lg transition-all cursor-pointer ${
+                        isActive(link.href)
+                          ? "bg-gradient-to-r from-sky-500/20 to-cyan-500/20 text-sky-600 dark:text-sky-400 border-l-4 border-sky-500"
+                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900/50 border-l-4 border-transparent"
+                      }`}
+                    >
+                      <span
+                        className={`${
                           isActive(link.href)
-                            ? "bg-gradient-to-r from-sky-500/20 to-cyan-500/20 text-sky-600 dark:text-sky-400 border-l-4 border-sky-500"
-                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900/50 border-l-4 border-transparent"
+                            ? "text-sky-600 dark:text-sky-400"
+                            : "text-gray-500 dark:text-gray-400"
                         }`}
                       >
-                        <span
-                          className={`${
-                            isActive(link.href)
-                              ? "text-sky-600 dark:text-sky-400"
-                              : "text-gray-500 dark:text-gray-400"
-                          }`}
-                        >
-                          {link.icon}
-                        </span>
-                        <span className="font-medium text-sm">{link.label}</span>
-                        {isActive(link.href) && (
-                          <motion.div
-                            layoutId="active-indicator"
-                            className="ml-auto w-2 h-2 rounded-full bg-sky-500"
-                            transition={{ type: "spring", damping: 20 }}
-                          />
-                        )}
-                      </motion.div>
-                    </Link>
+                        {link.icon}
+                      </span>
+                      <span className="font-medium text-sm">{link.label}</span>
+                      {isActive(link.href) && (
+                        <motion.div
+                          layoutId="active-indicator"
+                          className="ml-auto w-2 h-2 rounded-full bg-sky-500"
+                          transition={{ type: "spring", damping: 20 }}
+                        />
+                      )}
+                    </motion.div>
                   </motion.div>
                 ))}
               </nav>
@@ -234,35 +249,82 @@ export default function NavigationBurger() {
               {/* ===== DIVIDER ===== */}
               <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent my-6" />
 
-              {/* ===== PROFILE & TOKENS ROW ===== */}
-              <div className="flex items-center gap-3 mb-6">
-                {/* Profile Button */}
-                <Link href="/profile" onClick={handleLinkClick} className="flex-1">
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-sky-500/10 to-cyan-500/10 border border-sky-200/50 dark:border-sky-800/50 rounded-lg hover:bg-sky-500/20 dark:hover:bg-sky-900/30 transition-all cursor-pointer"
-                  >
-                    <div className="relative p-1 rounded-full bg-gradient-to-br from-sky-500 to-cyan-500">
-                      <User className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="font-medium text-sm text-gray-900 dark:text-white">
-                      Профиль
-                    </span>
-                  </motion.div>
-                </Link>
+              {/* ===== SMART PROFILE BUTTON ===== */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="space-y-3"
+              >
+                {user ? (
+                  // Logged in user - Profile card + Logout
+                  <>
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      onClick={() => handleLinkClick("/profile")}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500/10 to-cyan-500/10 border-2 border-sky-500/50 hover:border-sky-500 cursor-pointer transition-all"
+                    >
+                      {user.avatar ? (
+                        <img
+                          src={user.avatar}
+                          alt={user.name}
+                          className="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-sky-500/50"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-sky-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-sm font-bold">
+                            {user.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                          {user.name}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                          Мій профіль
+                        </p>
+                      </div>
+                      <User className="w-4 h-4 text-sky-600 dark:text-sky-400 flex-shrink-0" />
+                    </motion.div>
 
-                {/* Token Badge */}
-                <motion.div
-                  whileHover={{ scale: 1.08 }}
-                  className="flex items-center gap-1.5 px-3 py-2.5 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40 border border-amber-200/50 dark:border-amber-800/50 rounded-lg min-w-fit"
-                >
-                  <Coins className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                  <span className="text-sm font-bold text-amber-700 dark:text-amber-300">
-                    {tokenBalance.toLocaleString()}
-                  </span>
-                </motion.div>
-              </div>
+                    <motion.button
+                      whileHover={{ x: 4 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 transition-all font-medium text-sm"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Вихід
+                    </motion.button>
+                  </>
+                ) : (
+                  // Not logged in - Login + Register buttons
+                  <>
+                    <motion.button
+                      whileHover={{ x: 4 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleLinkClick("/login")}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-medium transition-all"
+                    >
+                      <LogIn className="w-4 h-4" />
+                      Увійти
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ x: 4 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleLinkClick("/register")}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 border-sky-500 text-sky-600 dark:text-sky-400 hover:bg-sky-500/10 font-medium transition-all"
+                    >
+                      <User className="w-4 h-4" />
+                      Реєстрація
+                    </motion.button>
+                  </>
+                )}
+              </motion.div>
+
+              {/* ===== DIVIDER ===== */}
+              <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent my-6" />
 
               {/* ===== FOOTER ===== */}
               <motion.div

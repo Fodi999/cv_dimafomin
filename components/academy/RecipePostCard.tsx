@@ -200,13 +200,16 @@ export default function RecipePostCard({ post, currentUserId, onLike, onComment 
         {/* Steps */}
         {post.steps.length > 0 && (
           <div>
-            <h3 className="text-sm font-bold text-[#1E1A41] mb-2">
-              👨‍🍳 {community?.steps || "Кроки приготування"}
-            </h3>
+            <div className="flex items-center gap-2 mb-2">
+              <ChefHat className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                {community?.steps || "Кроки приготування"}
+              </h3>
+            </div>
             <ol className="space-y-2">
               {(showAllSteps ? post.steps : post.steps.slice(0, 2)).map((step, index) => (
-                <li key={index} className="text-sm text-gray-700 flex gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 bg-[#3BC864] text-white rounded-full flex items-center justify-center text-xs font-bold">
+                <li key={index} className="text-sm text-gray-700 dark:text-gray-300 flex gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 bg-sky-500 dark:bg-sky-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
                     {index + 1}
                   </span>
                   <span className="flex-1">{step}</span>
@@ -216,7 +219,7 @@ export default function RecipePostCard({ post, currentUserId, onLike, onComment 
             {post.steps.length > 2 && (
               <button
                 onClick={() => setShowAllSteps(!showAllSteps)}
-                className="text-sm text-[#3BC864] font-semibold mt-2 hover:underline"
+                className="text-sm text-sky-600 dark:text-sky-400 font-semibold mt-2 hover:underline"
               >
                 {showAllSteps
                   ? community?.showLess || "Згорнути"

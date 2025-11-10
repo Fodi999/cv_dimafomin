@@ -160,8 +160,8 @@ export default function Portfolio() {
   const [selectedImage, setSelectedImage] = useState<typeof portfolioImages[0] | null>(null);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
 
-  // Get profile URL - use userId if logged in, otherwise use default
-  const profileUrl = user?.id ? `/academy/user/${user.id}` : "/academy/user/dima-fomin";
+  // Get profile URL - use /profile for all users
+  const profileUrl = "/profile";
 
   return (
     <>

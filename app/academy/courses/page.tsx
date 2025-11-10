@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Star, Clock, Users, ArrowRight } from "lucide-react";
+import { Star, Clock, Users, ArrowRight, Fish, Shell, Utensils } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -16,7 +16,7 @@ interface StudentWork {
 
 interface Course {
   id: string;
-  icon: string;
+  icon: React.ComponentType<any>;
   title: string;
   description: string;
   level: string;
@@ -83,39 +83,39 @@ const studentWorks: StudentWork[] = [
 const courses: Course[] = [
   {
     id: "1",
-    icon: "🐟",
+    icon: Fish,
     title: "Основы рыбы",
     description: "Научись выбирать, хранить и готовить рыбу как профессионал",
     level: "Начинающий",
     duration: "4 часа",
     rating: 4.9,
     students: 250,
-    color: "from-blue-400 to-blue-600",
-    gradient: "from-blue-50 to-blue-100",
+    color: "from-sky-400 to-sky-600",
+    gradient: "from-sky-50 to-sky-100 dark:from-sky-950/20 dark:to-sky-900/20",
   },
   {
     id: "2",
-    icon: "🦪",
+    icon: Shell,
     title: "Секреты устриц",
     description: "От открытия раковины до идеального сочетания со специями",
     level: "Средний",
     duration: "3 часа",
     rating: 4.8,
     students: 180,
-    color: "from-orange-400 to-orange-600",
-    gradient: "from-orange-50 to-orange-100",
+    color: "from-cyan-400 to-cyan-600",
+    gradient: "from-cyan-50 to-cyan-100 dark:from-cyan-950/20 dark:to-cyan-900/20",
   },
   {
     id: "3",
-    icon: "🍣",
+    icon: Utensils,
     title: "Суши и роллы",
     description: "Мастер-класс по изготовлению суши как в токийских ресторанах",
     level: "Продвинутый",
     duration: "5 часов",
     rating: 5.0,
     students: 420,
-    color: "from-red-400 to-red-600",
-    gradient: "from-red-50 to-red-100",
+    color: "from-teal-400 to-teal-600",
+    gradient: "from-teal-50 to-teal-100 dark:from-teal-950/20 dark:to-teal-900/20",
   },
 ];
 
@@ -142,8 +142,9 @@ export default function CoursesPage() {
           <p className="text-xl text-gray-600 mb-2">
             От базовых техник до advanced рецептов от шефа Dima Fomin
           </p>
-          <div className="inline-block mt-4 px-4 py-2 bg-sky-100 text-sky-700 rounded-full text-sm font-semibold">
-            ⭐ 3 курса • 650+ учеников
+          <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 rounded-full text-sm font-semibold whitespace-nowrap">
+            <Star className="w-4 h-4 fill-current" />
+            <span>3 курса • 650+ учеников</span>
           </div>
         </motion.div>
       </section>
@@ -164,7 +165,9 @@ export default function CoursesPage() {
               <div className={`bg-gradient-to-br ${course.gradient} rounded-2xl p-6 h-full border-2 border-white shadow-lg hover:shadow-2xl transition-all duration-300`}>
                 {/* Icon & Title */}
                 <div className="mb-4">
-                  <div className={`text-6xl mb-3`}>{course.icon}</div>
+                  <div className={`mb-3`}>
+                    <course.icon className="w-16 h-16 text-sky-600" />
+                  </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">
                     {course.title}
                   </h3>

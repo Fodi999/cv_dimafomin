@@ -20,7 +20,7 @@ export function ProfileHeader({ user, postsCount, translations }: ProfileHeaderP
           className="w-24 h-24 rounded-full shadow-lg mb-4 object-cover"
         />
       ) : (
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center shadow-lg mb-4">
+        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-sky-400 to-cyan-500 dark:from-sky-400 dark:to-cyan-500 flex items-center justify-center shadow-lg mb-4">
           <span className="text-white text-3xl font-bold">
             {user?.name?.charAt(0).toUpperCase() || "U"}
           </span>
@@ -28,23 +28,23 @@ export function ProfileHeader({ user, postsCount, translations }: ProfileHeaderP
       )}
 
       {/* Name and Username */}
-      <h1 className="text-3xl font-bold text-gray-900 mb-1">
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
         {user?.name || "Користувач"}
       </h1>
-      <p className="text-gray-500 mb-1">
+      <p className="text-gray-500 dark:text-gray-400 mb-1">
         @{user?.name?.toLowerCase().replace(/\s+/g, '_') || "user"}
       </p>
       
       {/* Bio */}
       {user?.bio && (
-        <p className="text-gray-700 text-sm max-w-xl mt-3 mb-4">
+        <p className="text-gray-700 dark:text-gray-300 text-sm max-w-xl mt-3 mb-4">
           {user.bio}
         </p>
       )}
 
       {/* Location */}
       {user?.location && (
-        <div className="flex items-center gap-2 text-gray-600 mb-6">
+        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mb-6">
           <MapPin className="w-4 h-4" />
           <span className="text-sm">{user.location}</span>
         </div>

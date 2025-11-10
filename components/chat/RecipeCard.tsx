@@ -76,14 +76,14 @@ export function RecipeCard({
           </span>
         )}
         {recipe.timeMinutes && (
-          <span className="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/30 px-3 py-1.5 rounded-full border border-amber-200/50 dark:border-amber-800/50">
-            <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+          <span className="flex items-center gap-1.5 bg-cyan-50 dark:bg-cyan-950/30 px-3 py-1.5 rounded-full border border-cyan-200/50 dark:border-cyan-800/50">
+            <Clock className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
             {recipe.timeMinutes} хв
           </span>
         )}
         {recipe.difficulty && (
-          <span className="flex items-center gap-1.5 bg-rose-50 dark:bg-rose-950/30 px-3 py-1.5 rounded-full border border-rose-200/50 dark:border-rose-800/50">
-            <Flame className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+          <span className="flex items-center gap-1.5 bg-sky-100/50 dark:bg-sky-900/30 px-3 py-1.5 rounded-full border border-sky-300/50 dark:border-sky-700/50">
+            <Flame className="w-4 h-4 text-sky-700 dark:text-sky-300" />
             {recipe.difficulty}
           </span>
         )}

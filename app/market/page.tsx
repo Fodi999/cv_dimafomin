@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ShoppingBag } from "lucide-react";
 import RecipeCard from "@/components/market/RecipeCard";
 import RecipeFilters from "@/components/market/RecipeFilters";
 import { useUser } from "@/contexts/UserContext";
@@ -57,7 +57,7 @@ export default function MarketPage() {
       {isAuthenticated && (
         <Link
           href="/create-chat"
-          className="inline-flex items-center gap-2 mb-6 px-4 py-2 text-[#1E1A41] hover:text-[#3BC864] transition-colors group"
+          className="inline-flex items-center gap-2 mb-6 px-4 py-2 text-gray-900 dark:text-white hover:text-sky-600 dark:hover:text-sky-400 transition-colors group"
         >
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
           <span className="font-medium">{t.academy?.dashboard?.backToProfile || "Назад до профілю"}</span>
@@ -66,10 +66,13 @@ export default function MarketPage() {
 
       {/* Header */}
       <div className="mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-[#1E1A41] mb-4">
-          🛒 Маркетплейс рецептів
-        </h1>
-        <p className="text-lg text-[#1E1A41]/70">
+        <div className="flex items-center gap-3 mb-4">
+          <ShoppingBag className="w-10 h-10 text-sky-600 dark:text-sky-400" />
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">
+            Маркетплейс рецептів
+          </h1>
+        </div>
+        <p className="text-lg text-gray-600 dark:text-gray-400">
           Професійні рецепти від досвідчених суші-шефів
         </p>
       </div>

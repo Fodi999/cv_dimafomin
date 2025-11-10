@@ -61,9 +61,9 @@ export default function RootLayout({
       </head>
       <body className="antialiased relative">
         <PWARegister />
-        <NavigationBurger />
         <LanguageProvider>
           <UserProvider>
+            <NavigationBurger />
             {children}
           </UserProvider>
         </LanguageProvider>

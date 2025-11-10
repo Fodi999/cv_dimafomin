@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { BookOpen, Users, TrendingUp, Award, Zap, Target } from "lucide-react";
+import { BookOpen, Users, TrendingUp, Award, Zap, Target, GraduationCap, Trophy, Coins, Globe, BarChart3, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -61,16 +61,16 @@ export default function AcademyPage() {
   ];
 
   const features = [
-    { emoji: "🎓", title: "Структуровані курси", desc: "З уроками, тестами та проектами" },
-    { emoji: "🏆", title: "Програма дипломування", desc: "Отримайте офіційний сертифікат" },
-    { emoji: "💰", title: "Заробіток токенів", desc: "Закуповуйте преміум контент" },
-    { emoji: "🌍", title: "Глобальна спільнота", desc: "Мільйони учасників світу" },
-    { emoji: "📊", title: "Слідкуйте прогресом", desc: "Детальна статистика та аналітика" },
-    { emoji: "🤖", title: "AI асистент", desc: "Персональний тренер для вас" },
+    { icon: GraduationCap, title: "Структуровані курси", desc: "З уроками, тестами та проектами" },
+    { icon: Trophy, title: "Програма дипломування", desc: "Отримайте офіційний сертифікат" },
+    { icon: Coins, title: "Заробіток токенів", desc: "Закуповуйте преміум контент" },
+    { icon: Globe, title: "Глобальна спільнота", desc: "Мільйони учасників світу" },
+    { icon: BarChart3, title: "Слідкуйте прогресом", desc: "Детальна статистика та аналітика" },
+    { icon: Bot, title: "AI асистент", desc: "Персональний тренер для вас" },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-purple-50 pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-white/50 to-white dark:from-gray-950/50 dark:to-gray-950 pb-20">
       {/* Hero Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -78,21 +78,21 @@ export default function AcademyPage() {
         className="max-w-6xl mx-auto px-4 pt-12 mb-16"
       >
         <div className="text-center mb-12">
-          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-500 dark:from-sky-400 dark:via-cyan-400 dark:to-sky-300 bg-clip-text text-transparent mb-4">
             Академія суші
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8">
             Шиф-школа для всіх рівнів. Навчайтеся, мистецтво готування суші, подорожуйте по світовій кухні та станьте експертом.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/academy/courses">
-              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold">
+              <Button size="lg" className="bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-semibold">
                 Почати навчання
               </Button>
             </Link>
             <Link href="/academy/feed">
-              <Button size="lg" variant="outline" className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50 font-semibold">
+              <Button size="lg" variant="outline" className="border-2 border-sky-600 dark:border-sky-400 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/50 font-semibold">
                 Переглянути рецепти
               </Button>
             </Link>
@@ -114,10 +114,10 @@ export default function AcademyPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
-              className="bg-white rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-shadow"
+              className="bg-white dark:bg-gray-900 rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-shadow border border-sky-200/50 dark:border-sky-800/50"
             >
-              <p className="text-2xl font-bold text-purple-600">{stat.value}</p>
-              <p className="text-xs text-gray-600 mt-1">{stat.label}</p>
+              <p className="text-2xl font-bold text-sky-600 dark:text-sky-400">{stat.value}</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{stat.label}</p>
             </motion.div>
           ))}
         </div>
@@ -130,7 +130,7 @@ export default function AcademyPage() {
         transition={{ delay: 0.2 }}
         className="max-w-6xl mx-auto px-4 mb-16"
       >
-        <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
           Що вас цікавить?
         </h2>
 
@@ -146,26 +146,26 @@ export default function AcademyPage() {
                 whileHover={{ scale: 1.05, y: -5 }}
               >
                 <Link href={cat.link}>
-                  <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all cursor-pointer p-6 h-full group">
+                  <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg hover:shadow-2xl transition-all cursor-pointer p-6 h-full group border border-sky-200/50 dark:border-sky-800/50">
                     {/* Icon */}
                     <div className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${cat.color} mb-4`}>
                       <Icon className="w-8 h-8 text-white" />
                     </div>
 
                     {/* Content */}
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
                       {cat.title}
                     </h3>
-                    <p className="text-gray-600 text-sm mb-4">
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
                       {cat.description}
                     </p>
 
                     {/* Footer */}
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                      <span className="text-xs font-semibold text-purple-600">
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800">
+                      <span className="text-xs font-semibold text-sky-600 dark:text-sky-400">
                         {cat.count}
                       </span>
-                      <span className="text-gray-400 group-hover:text-purple-600 transition-colors">
+                      <span className="text-gray-400 dark:text-gray-600 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
                         →
                       </span>
                     </div>
@@ -184,24 +184,27 @@ export default function AcademyPage() {
         transition={{ delay: 0.4 }}
         className="max-w-6xl mx-auto px-4 mb-16"
       >
-        <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
           Чому вибирати Академію?
         </h2>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.08 }}
-              className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all"
-            >
-              <div className="text-3xl mb-3">{feature.emoji}</div>
-              <h3 className="font-bold text-gray-900 mb-2">{feature.title}</h3>
-              <p className="text-sm text-gray-600">{feature.desc}</p>
-            </motion.div>
-          ))}
+          {features.map((feature, idx) => {
+            const Icon = feature.icon;
+            return (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.08 }}
+                className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all border border-sky-200/50 dark:border-sky-800/50"
+              >
+                <Icon className="w-8 h-8 text-sky-600 dark:text-sky-400 mb-3" />
+                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{feature.title}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{feature.desc}</p>
+              </motion.div>
+            );
+          })}
         </div>
       </motion.div>
 
@@ -212,7 +215,7 @@ export default function AcademyPage() {
         transition={{ delay: 0.6 }}
         className="max-w-4xl mx-auto px-4"
       >
-        <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 rounded-3xl p-8 md:p-12 text-white text-center shadow-2xl">
+        <div className="bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-500 dark:from-sky-600 dark:via-cyan-600 dark:to-sky-500 rounded-3xl p-8 md:p-12 text-white text-center shadow-2xl dark:shadow-sky-500/20">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Готові почати свою подорож?
           </h2>
@@ -222,7 +225,7 @@ export default function AcademyPage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/academy/courses">
-              <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100 font-semibold">
+              <Button size="lg" className="bg-white text-sky-600 hover:bg-gray-100 font-semibold">
                 Переглянути курси
               </Button>
             </Link>

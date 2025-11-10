@@ -47,7 +47,10 @@ async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): Promise<
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const url = `${API_BASE_URL}${endpoint}`;
+  console.log(`📡 API Call: ${fetchOptions.method || 'GET'} ${url}`);
+
+  const response = await fetch(url, {
     ...fetchOptions,
     headers,
     // Add cache: 'no-store' to avoid caching 404 responses
@@ -64,6 +67,15 @@ async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): Promise<
         message: `HTTP ${response.status}: ${response.statusText}`,
       };
     }
+    
+    // Log detailed error info
+    console.error(`❌ API Error ${response.status}:`, {
+      endpoint,
+      method: fetchOptions.method || 'GET',
+      status: response.status,
+      message: error.message || error.error,
+      body: error,
+    });
     
     // Only throw on non-404 errors or include status in error
     const errorMessage = error.message || error.error || `HTTP ${response.status}`;
@@ -131,11 +143,11 @@ export const academyApi = {
 
   // User Profile
   getProfile: async (userId: string, token?: string): Promise<ProfileData> => {
-    return apiFetch<ProfileData>(`/user/${userId}/profile`, { token });
+    return apiFetch<ProfileData>(`/user/profile`, { token });
   },
 
   updateProfile: async (userId: string, data: any, token: string): Promise<ProfileData> => {
-    return apiFetch<ProfileData>(`/user/${userId}/profile`, {
+    return apiFetch<ProfileData>(`/user/profile`, {
       method: "PUT",
       token,
       body: JSON.stringify(data),
@@ -158,7 +170,7 @@ export const academyApi = {
   },
 
   getUserPosts: async (userId: string, token?: string) => {
-    return apiFetch(`/users/${userId}/posts`, { token });
+    return apiFetch(`/posts`, { token });
   },
 
   createPost: async (data: any, token: string) => {
@@ -375,7 +387,7 @@ export const uploadApi = {
 export const walletApi = {
   // Get wallet balance
   getBalance: async (userId: string, token: string) => {
-    return apiFetch(`/user/${userId}/wallet`, { token });
+    return apiFetch(`/wallet/balance`, { token });
   },
 
   // Get transaction history
@@ -388,7 +400,7 @@ export const walletApi = {
     if (filters?.limit) params.append("limit", filters.limit.toString());
     if (filters?.offset) params.append("offset", filters.offset.toString());
     if (filters?.type) params.append("type", filters.type);
-    return apiFetch(`/user/${userId}/wallet/transactions?${params}`, { token });
+    return apiFetch(`/wallet/transactions?${params}`, { token });
   },
 
   // Purchase tokens
@@ -425,6 +437,73 @@ export const contactApi = {
   },
 };
 
+// ==================== FRIDGE API ====================
+
+export const fridgeApi = {
+  // Get all items in user's fridge
+  getItems: async (token: string) => {
+    try {
+      return await apiFetch("/fridge", { token });
+    } catch (err: any) {
+      // If endpoint doesn't exist, return empty array
+      if (err.status === 404) {
+        console.warn("Fridge endpoint not available (404)");
+        return [];
+      }
+      throw err;
+    }
+  },
+
+  // Add new item to fridge
+  addItem: async (data: {
+    name: string;
+    category: 'protein' | 'vegetable' | 'condiment' | 'other';
+    quantity: string;
+    expiryDate: string;
+  }, token: string) => {
+    return apiFetch("/fridge", {
+      method: "POST",
+      token,
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Get available items (suggestions)
+  getAvailable: async (token: string) => {
+    try {
+      return await apiFetch("/fridge/available", { token });
+    } catch (err: any) {
+      if (err.status === 404) {
+        console.warn("Fridge available endpoint not available (404)");
+        return [];
+      }
+      throw err;
+    }
+  },
+
+  // Update fridge item
+  updateItem: async (id: string, data: {
+    name?: string;
+    category?: 'protein' | 'vegetable' | 'condiment' | 'other';
+    quantity?: string;
+    expiryDate?: string;
+  }, token: string) => {
+    return apiFetch(`/fridge/${id}`, {
+      method: "PUT",
+      token,
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Remove item from fridge
+  deleteItem: async (id: string, token: string) => {
+    return apiFetch(`/fridge/${id}`, {
+      method: "DELETE",
+      token,
+    });
+  },
+};
+
 // ==================== HEALTH CHECK ====================
 
 export const healthApi = {
@@ -442,6 +521,7 @@ export default {
   ai: aiApi,
   upload: uploadApi,
   wallet: walletApi,
+  fridge: fridgeApi,
   contact: contactApi,
   health: healthApi,
 };

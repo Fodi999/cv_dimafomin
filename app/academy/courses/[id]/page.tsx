@@ -1,7 +1,8 @@
 "use client";
 
+import React from "react";
 import { motion } from "framer-motion";
-import { Star, Clock, Users, CheckCircle2, Download, Share2, ArrowLeft } from "lucide-react";
+import { Star, Clock, Users, CheckCircle2, Download, Share2, ArrowLeft, Fish, Shell, Utensils } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
@@ -15,7 +16,7 @@ interface Lesson {
 interface CourseDetail {
   id: string;
   title: string;
-  icon: string;
+  icon: React.ComponentType<any>;
   description: string;
   fullDescription: string;
   level: string;
@@ -31,7 +32,7 @@ interface CourseDetail {
 const coursesData: Record<string, CourseDetail> = {
   "1": {
     id: "1",
-    icon: "🐟",
+    icon: Fish,
     title: "Основы рыбы",
     description: "Научись выбирать, хранить и готовить рыбу как профессионал",
     fullDescription:
@@ -60,7 +61,7 @@ const coursesData: Record<string, CourseDetail> = {
   },
   "2": {
     id: "2",
-    icon: "🦪",
+    icon: Shell,
     title: "Секреты устриц",
     description: "От открытия раковины до идеального сочетания со специями",
     fullDescription:
@@ -88,7 +89,7 @@ const coursesData: Record<string, CourseDetail> = {
   },
   "3": {
     id: "3",
-    icon: "🍣",
+    icon: Utensils,
     title: "Суши и роллы",
     description: "Мастер-класс по изготовлению суши как в токийских ресторанах",
     fullDescription:
@@ -165,7 +166,9 @@ export default function CourseDetailPage() {
           transition={{ duration: 0.6 }}
           className="flex items-start gap-6 mb-8"
         >
-          <div className={`text-7xl`}>{course.icon}</div>
+          <div className="flex items-center justify-center">
+            {React.createElement(course.icon, { className: "w-24 h-24 text-sky-600 dark:text-sky-400" })}
+          </div>
           <div className="flex-1">
             <h1 className="text-5xl font-bold text-gray-900 mb-3">{course.title}</h1>
             <p className="text-xl text-gray-600 mb-4">{course.fullDescription}</p>

@@ -132,7 +132,7 @@ export default function AvatarUploader({
     <div className="flex flex-col items-center gap-4">
       {/* Avatar Display */}
       <div className="relative group">
-        <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg border-4 border-white">
+        <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-sky-500 to-cyan-600 dark:from-sky-500 dark:to-cyan-600 shadow-lg border-4 border-white dark:border-gray-800">
           {isImageUrl ? (
             <>
               <Image
@@ -143,7 +143,7 @@ export default function AvatarUploader({
                 className="w-full h-full object-cover"
               />
               {preview && (
-                <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-bl-lg">
+                <div className="absolute top-0 right-0 bg-sky-500 text-white text-xs px-2 py-1 rounded-bl-lg">
                   Preview
                 </div>
               )}

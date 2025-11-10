@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, BookOpen, Star, TrendingUp, Users, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Star, TrendingUp, Users, Sparkles, Fish, Shell, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function AcademyCoursesPreview() {
@@ -11,7 +11,7 @@ export default function AcademyCoursesPreview() {
       id: 1,
       title: "Основы рыбы",
       description: "Научись выбирать, хранить и готовить рыбу как профессионал",
-      icon: "🐟",
+      icon: Fish,
       level: "Начинающий",
       duration: "4 часа",
       rating: 4.9,
@@ -22,7 +22,7 @@ export default function AcademyCoursesPreview() {
       id: 2,
       title: "Секреты устриц",
       description: "От открытия раковины до идеального сочетания со специями",
-      icon: "🦪",
+      icon: Shell,
       level: "Средний",
       duration: "3 часа",
       rating: 4.8,
@@ -33,7 +33,7 @@ export default function AcademyCoursesPreview() {
       id: 3,
       title: "Суши и роллы",
       description: "Мастер-класс по изготовлению суши как в токийских ресторанах",
-      icon: "🍣",
+      icon: Utensils,
       level: "Продвинутый",
       duration: "5 часов",
       rating: 5.0,
@@ -102,7 +102,9 @@ export default function AcademyCoursesPreview() {
           viewport={{ once: true, margin: "-100px" }}
           className="grid md:grid-cols-3 gap-8 mb-12"
         >
-          {courses.map((course) => (
+          {courses.map((course) => {
+            const IconComponent = course.icon;
+            return (
             <motion.div
               key={course.id}
               variants={itemVariants}
@@ -120,11 +122,11 @@ export default function AcademyCoursesPreview() {
                 
                 {/* Icon */}
                 <motion.div
-                  className="text-7xl relative z-10"
+                  className="relative z-10"
                   whileHover={{ scale: 1.2, rotate: 10 }}
                   transition={{ type: "spring" }}
                 >
-                  {course.icon}
+                  <IconComponent className="w-20 h-20 text-sky-600 dark:text-sky-400" />
                 </motion.div>
 
                 {/* Rating badge */}
@@ -214,7 +216,8 @@ export default function AcademyCoursesPreview() {
                 </Link>
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </motion.div>
 
         {/* See all courses button */}

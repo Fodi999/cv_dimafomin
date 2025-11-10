@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ShoppingCart, Star, Users } from "lucide-react";
+import { ShoppingCart, Star, Users, ChefHat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { gradients } from "@/lib/design-tokens";
 import Image from "next/image";
@@ -91,9 +91,10 @@ export default function RecipeCard({
           </p>
 
           {/* Author */}
-          <p className="text-xs text-gray-500 dark:text-gray-500 mb-4 font-medium">
-            👨‍🍳 {author}
-          </p>
+          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500 mb-4 font-medium">
+            <ChefHat className="w-4 h-4" />
+            <span>{author}</span>
+          </div>
 
           {/* Stats */}
           <div className="flex items-center gap-4 mb-4 text-sm text-gray-700 dark:text-gray-400">
