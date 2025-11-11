@@ -53,6 +53,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         try {
           // Get user profile from backend
           const profileData: ProfileData = await academyApi.getProfile(userId, token);
+          console.log("🔍 Profile data from backend:", JSON.stringify(profileData, null, 2));
           
           const userRole = profileData.role || "student";
           console.log("📋 User role from profile (checkAuth):", userRole);
@@ -68,7 +69,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
             chefTokens: profileData.chefTokens,
           });
         } catch (error: any) {
-          console.error("Failed to fetch user profile:", error);
+          console.error("❌ Failed to fetch user profile:", error);
           console.warn("⚠️ Backend error fetching profile, trying to use JWT token data");
           
           // ALWAYS try to extract user info from JWT token as fallback
@@ -78,7 +79,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
               const decoded = JSON.parse(atob(tokenParts[1]));
               const userRole = decoded.role || "student";
               console.log("📋 User role from JWT token (fallback):", userRole);
-              console.log("🔑 Full JWT decoded:", decoded);
+              console.log("🔑 Full JWT decoded:", JSON.stringify(decoded, null, 2));
               
               setUser({
                 id: userId,
@@ -94,7 +95,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
               throw new Error("Invalid token format");
             }
           } catch (tokenError) {
-            console.warn("⚠️ Could not decode JWT, using minimal user data:", tokenError);
+            console.error("❌ Could not decode JWT:", tokenError);
+            console.warn("⚠️ Using minimal user data with student role as fallback");
             // Final fallback: minimal user data
             setUser({
               id: userId,
@@ -109,7 +111,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
           
           // Only clear token on auth errors (401, 403)
           if (error?.status === 401 || error?.status === 403) {
-            console.warn("⚠️ Auth error, clearing authentication");
+            console.error("🔐 Auth error detected, clearing authentication");
             localStorage.removeItem("authToken");
             localStorage.removeItem("userId");
           }
@@ -126,6 +128,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     try {
       // API call to backend
       const response = await authApi.login(email, password);
+      console.log("🔐 Login response received:", JSON.stringify(response, null, 2));
       
       // Extract userId from response (can be in userId or user.id or user.userId)
       const userId = response.userId || response.user?.id || response.user?.userId;
@@ -150,6 +153,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       if (response.user) {
         const userRole = response.user.role || "student";
         console.log("📋 User role from response:", userRole);
+        console.log("🔑 Full user data:", JSON.stringify(response.user, null, 2));
         
         setUser({
           id: userId,
@@ -167,6 +171,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         
         const userRole = profileData.role || "student";
         console.log("📋 User role from profile:", userRole);
+        console.log("🔍 Full profile data:", JSON.stringify(profileData, null, 2));
         
         setUser({
           id: userId,
@@ -180,7 +185,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         });
       }
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("❌ Login failed:", error);
       throw error;
     } finally {
       setIsLoading(false);
