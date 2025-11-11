@@ -4,6 +4,7 @@ import "./globals.css";
 import { getMetadata } from "@/lib/seo";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserProvider } from "@/contexts/UserContext";
+import { AuthProvider } from "@/src/contexts/AuthContext";
 import PWARegister from "@/components/PWARegister";
 import NavigationBurger from "@/components/NavigationBurger";
 
@@ -61,12 +62,14 @@ export default function RootLayout({
       </head>
       <body className="antialiased relative">
         <PWARegister />
-        <LanguageProvider>
-          <UserProvider>
-            <NavigationBurger />
-            {children}
-          </UserProvider>
-        </LanguageProvider>
+        <AuthProvider>
+          <LanguageProvider>
+            <UserProvider>
+              <NavigationBurger />
+              {children}
+            </UserProvider>
+          </LanguageProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -1,7 +1,7 @@
 'use client';
 
-import { useAuth } from '../../../src/contexts/AuthContext';
-import { withAuth } from '../../../src/components/withAuth';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { withAuth } from '@/src/components/withAuth';
 import { useRouter } from 'next/navigation';
 
 function AdminDashboardPage() {

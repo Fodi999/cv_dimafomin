@@ -1,50 +1,57 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { useUser } from "@/contexts/UserContext";
-import { BrainCircuit } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { BrainCircuit } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isLoading } = useUser();
+  const { login, isLoading, isAuthenticated, role } = useAuth();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Если пользователь уже авторизован - редирект на дашборд
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      if (role === 'admin') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/user/dashboard');
+      }
+    }
+  }, [isAuthenticated, role, isLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
     setIsSubmitting(true);
 
     try {
-      // Basic validation
+      // Валидация формы
       if (!email || !password) {
-        setError("Будь ласка, заповніть всі поля");
+        setError('Пожалуйста, заполните все поля');
         setIsSubmitting(false);
         return;
       }
 
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        setError("Будь ласка, введіть коректну email адресу");
+        setError('Пожалуйста, введите корректный email адрес');
         setIsSubmitting(false);
         return;
       }
 
-      // Call login method from UserContext
+      // Вызов login из AuthContext
       await login(email, password);
-
-      // If successful, redirect to profile
-      router.push("/profile");
+      // Редирект происходит в AuthContext.login()
     } catch (err: any) {
-      console.error("Login error:", err);
-      setError(
-        err?.message || "Помилка входу. Перевірте email та пароль"
-      );
+      console.error('[LoginPage] Ошибка входа:', err);
+      setError(err?.message || 'Ошибка входа. Проверьте email и пароль');
       setIsSubmitting(false);
     }
   };
@@ -78,9 +85,9 @@ export default function LoginPage() {
                 <BrainCircuit className="w-8 h-8 text-white" />
               </div>
             </motion.div>
-            <h1 className="text-3xl font-bold text-white mb-2">Добро пожалувати!</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">Добро пожаловать!</h1>
             <p className="text-white/80 text-sm">
-              Увійдіть у свій аккаунт та розпочніть навчання
+              Войдите в свой аккаунт и начните работу
             </p>
           </div>
 
@@ -101,7 +108,7 @@ export default function LoginPage() {
               {/* Email input */}
               <div>
                 <label className="block text-sm font-medium text-white/90 mb-2">
-                  Email адреса
+                  Email адрес
                 </label>
                 <input
                   type="email"
@@ -140,13 +147,13 @@ export default function LoginPage() {
                   <>
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                       className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
                     />
-                    Вход у прогресі...
+                    Вход в процессе...
                   </>
                 ) : (
-                  "Увійти"
+                  'Войти'
                 )}
               </motion.button>
             </form>
@@ -158,19 +165,19 @@ export default function LoginPage() {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-white/10 dark:bg-slate-800/50 text-white/60">
-                  або
+                  или
                 </span>
               </div>
             </div>
 
             {/* Register link */}
             <p className="text-center text-white/70 text-sm">
-              Ще не зареєстровані?{" "}
+              Ещё не зарегистрированы?{' '}
               <Link
                 href="/register"
                 className="text-cyan-300 hover:text-cyan-200 font-semibold transition-colors"
               >
-                Зареєструватися
+                Зарегистрироваться
               </Link>
             </p>
           </div>
@@ -178,7 +185,7 @@ export default function LoginPage() {
           {/* Footer */}
           <div className="bg-white/5 dark:bg-slate-900/50 px-6 py-4 text-center text-xs text-white/50 border-t border-white/10">
             <Link href="/" className="hover:text-white/80 transition-colors">
-              ← Повернутися на головну
+              ← Вернуться на главную
             </Link>
           </div>
         </div>

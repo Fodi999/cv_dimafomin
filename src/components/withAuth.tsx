@@ -7,15 +7,24 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
-import type { UserRole } from '../types';
 
 interface WithAuthOptions {
-  requiredRole?: UserRole | UserRole[];
+  requiredRole?: 'admin' | 'user' | ('admin' | 'user')[];
   redirectTo?: string;
 }
 
 /**
  * HOC для защиты компонентов по авторизации и ролям
+ * 
+ * @example
+ * // Защитить страницу только для авторизованных пользователей
+ * export default withAuth(MyPage);
+ * 
+ * // Защитить только для админов
+ * export default withAuth(AdminPage, { requiredRole: 'admin' });
+ * 
+ * // Защитить для админов и модераторов
+ * export default withAuth(MyPage, { requiredRole: ['admin', 'user'] });
  */
 export function withAuth<P extends object>(
   Component: React.ComponentType<P>,
@@ -28,30 +37,67 @@ export function withAuth<P extends object>(
     const router = useRouter();
 
     useEffect(() => {
-      if (isLoading) return;
+      console.log('═══════════════════════════════════════════════════');
+      console.log('[withAuth] 🔒 ПРОВЕРКА ДОСТУПА К СТРАНИЦЕ');
+      console.log('═══════════════════════════════════════════════════');
+      console.log('[withAuth] 📊 State:');
+      console.log('[withAuth]   - isLoading:', isLoading);
+      console.log('[withAuth]   - isAuthenticated:', isAuthenticated);
+      console.log('[withAuth]   - role:', role);
+      console.log('[withAuth]   - requiredRole:', requiredRole);
+
+      if (isLoading) {
+        console.log('[withAuth] ⏳ Идет загрузка... показываем лоадер');
+        return;
+      }
+
+      console.log('[withAuth] ✅ Загрузка завершена');
 
       // Если не авторизован - редирект на логин
       if (!isAuthenticated) {
+        console.log('═══════════════════════════════════════════════════');
+        console.log('[withAuth] ❌ ДОСТУП ЗАПРЕЩЕН: не авторизован');
+        console.log('═══════════════════════════════════════════════════');
+        console.log('[withAuth] 🔄 Редирект на:', redirectTo);
         router.push(redirectTo);
         return;
       }
 
+      console.log('[withAuth] ✅ Пользователь авторизован');
+
       // Если требуется определенная роль - проверяем
       if (requiredRole && role) {
         const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+        console.log('[withAuth] 🎯 Проверка роли:');
+        console.log('[withAuth]   - Требуемые роли:', allowedRoles);
+        console.log('[withAuth]   - Текущая роль:', role);
+        
         if (!allowedRoles.includes(role)) {
+          console.log('═══════════════════════════════════════════════════');
+          console.log('[withAuth] ❌ ДОСТУП ЗАПРЕЩЕН: неправильная роль');
+          console.log('═══════════════════════════════════════════════════');
+          console.log('[withAuth] 🔄 Редирект на:', redirectTo);
           router.push(redirectTo);
+          return;
         }
+
+        console.log('[withAuth] ✅ Роль разрешена!');
       }
-    }, [isAuthenticated, role, isLoading, router]);
+
+      console.log('═══════════════════════════════════════════════════');
+      console.log('[withAuth] ✅ ДОСТУП РАЗРЕШЕН!');
+      console.log('═══════════════════════════════════════════════════');
+      console.log('[withAuth] 👑 Роль:', role);
+      console.log('[withAuth] 🚀 Показываем компонент');
+    }, [isAuthenticated, role, isLoading, router, requiredRole, redirectTo]);
 
     // Показываем лоадер пока идет проверка
     if (isLoading) {
       return (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <div className="inline-block animate-spin">⏳</div>
-            <p className="mt-4 text-gray-600">Загрузка...</p>
+            <div className="inline-block animate-spin text-2xl">⏳</div>
+            <p className="mt-4 text-gray-600">Проверка доступа...</p>
           </div>
         </div>
       );
@@ -60,6 +106,14 @@ export function withAuth<P extends object>(
     // Если не авторизован или нет прав - ничего не показываем
     if (!isAuthenticated) {
       return null;
+    }
+
+    // Если требуется роль и она не совпадает - ничего не показываем
+    if (requiredRole && role) {
+      const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+      if (!allowedRoles.includes(role)) {
+        return null;
+      }
     }
 
     // Все ОК - показываем компонент

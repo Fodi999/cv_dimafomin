@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useRef } from "react";
 import { authApi, academyApi, uploadApi } from "@/lib/api";
 import type { ProfileData } from "@/lib/types";
 
@@ -37,84 +37,77 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const initRef = useRef(false);
 
   useEffect(() => {
+    // Избежать двойного вызова в React 18 Strict Mode
+    if (initRef.current) return;
+    initRef.current = true;
+
     // Check for stored auth token on mount
     const checkAuth = async () => {
-      const token = localStorage.getItem("authToken");
-      const userId = localStorage.getItem("userId");
+      // Используем НОВЫЕ ключи (из AuthContext)
+      const token = localStorage.getItem("token");
+      const userJson = localStorage.getItem("user");
       
-      console.log("🔍 checkAuth: token exists?", !!token, "userId exists?", !!userId);
+      console.log("🔍 UserContext.checkAuth: token exists?", !!token, "user exists?", !!userJson);
       
-      // If we have a valid token, try to use it regardless of userId format
-      if (token && userId) {
-        console.log("✅ Found token and userId, attempting to restore session");
-        console.log("📍 userId:", userId);
+      // Если есть токен и данные пользователя - восстановить сессию
+      if (token && userJson) {
+        console.log("✅ Found token and user, attempting to restore session");
         try {
-          // Get user profile from backend
-          const profileData: ProfileData = await academyApi.getProfile(userId, token);
-          console.log("🔍 Profile data from backend:", JSON.stringify(profileData, null, 2));
+          const userData = JSON.parse(userJson);
+          const userId = userData.id;
+          console.log("📍 userId:", userId);
           
-          const userRole = profileData.role || "student";
-          console.log("📋 User role from profile (checkAuth):", userRole);
-          
-          setUser({
-            id: userId,
-            name: profileData.name || "User",
-            email: profileData.email || "",
-            avatar: profileData.avatarUrl,
-            role: userRole as "student" | "instructor" | "admin",
-            level: profileData.level,
-            xp: profileData.xp,
-            chefTokens: profileData.chefTokens,
-          });
-        } catch (error: any) {
-          console.error("❌ Failed to fetch user profile:", error);
-          console.warn("⚠️ Backend error fetching profile, trying to use JWT token data");
-          
-          // ALWAYS try to extract user info from JWT token as fallback
           try {
-            const tokenParts = token.split('.');
-            if (tokenParts.length === 3) {
-              const decoded = JSON.parse(atob(tokenParts[1]));
-              const userRole = decoded.role || "student";
-              console.log("📋 User role from JWT token (fallback):", userRole);
-              console.log("🔑 Full JWT decoded:", JSON.stringify(decoded, null, 2));
-              
-              setUser({
-                id: userId,
-                name: decoded.name || "User",
-                email: decoded.email || decoded.sub || "",
-                role: userRole as "student" | "instructor" | "admin",
-                level: decoded.level || 1,
-                xp: decoded.xp || 0,
-                chefTokens: decoded.chefTokens || 0,
-              });
-              console.log("✅ Successfully restored user from JWT token");
-            } else {
-              throw new Error("Invalid token format");
-            }
-          } catch (tokenError) {
-            console.error("❌ Could not decode JWT:", tokenError);
-            console.warn("⚠️ Using minimal user data with student role as fallback");
-            // Final fallback: minimal user data
+            // Попробовать получить актуальные данные профиля
+            const profileData: ProfileData = await academyApi.getProfile(userId, token);
+            console.log("🔍 Profile data from backend:", JSON.stringify(profileData, null, 2));
+            
+            // ✅ ПРИОРИТЕТ РОЛЕЙ: JWT роль (из userData) > профиль роль > default
+            // JWT роль более надежна, так как выдается системой авторизации
+            const userRole = userData.role || profileData.role || "student";
+            console.log("📋 User role (JWT priority):", userRole);
+            console.log("   - userData.role (JWT):", userData.role);
+            console.log("   - profileData.role (backend):", profileData.role);
+            
             setUser({
               id: userId,
-              name: "User",
-              email: "",
-              role: "student",
-              level: 1,
-              xp: 0,
-              chefTokens: 0,
+              name: profileData.name || userData.name || "User",
+              email: profileData.email || userData.email || "",
+              avatar: profileData.avatarUrl || userData.avatar,
+              role: userRole as "student" | "instructor" | "admin",
+              level: profileData.level ?? userData.level,
+              xp: profileData.xp ?? userData.xp,
+              chefTokens: profileData.chefTokens ?? userData.chefTokens,
             });
+          } catch (profileError: any) {
+            console.error("❌ Failed to fetch user profile:", profileError);
+            console.log("📌 Using stored user data from localStorage instead");
+            
+            // Fallback: использовать данные что уже есть в localStorage
+            setUser({
+              id: userId,
+              name: userData.name || "User",
+              email: userData.email || "",
+              avatar: userData.avatar,
+              role: userData.role as "student" | "instructor" | "admin",
+              level: userData.level,
+              xp: userData.xp,
+              chefTokens: userData.chefTokens,
+            });
+            
+            // На 401/403 очистить данные
+            if (profileError?.status === 401 || profileError?.status === 403) {
+              console.error("🔐 Auth error detected, clearing authentication");
+              localStorage.removeItem("token");
+              localStorage.removeItem("role");
+              localStorage.removeItem("user");
+            }
           }
-          
-          // Only clear token on auth errors (401, 403)
-          if (error?.status === 401 || error?.status === 403) {
-            console.error("🔐 Auth error detected, clearing authentication");
-            localStorage.removeItem("authToken");
-            localStorage.removeItem("userId");
-          }
+        } catch (error) {
+          console.error("❌ UserContext.checkAuth error:", error);
         }
       }
       setIsLoading(false);
@@ -145,13 +138,26 @@ export function UserProvider({ children }: { children: ReactNode }) {
         throw new Error("Invalid user ID format received from server");
       }
       
-      // Store token and userId
-      localStorage.setItem("authToken", response.token);
-      localStorage.setItem("userId", userId);
+      // Сохраняем в НОВЫЕ ключи (совместимо с AuthContext)
+      const userRole = response.user?.role || "student";
+      const userObj = {
+        id: userId,
+        name: response.user?.name || "User",
+        email: response.user?.email || email,
+        role: userRole,
+        level: response.user?.level,
+        xp: response.user?.xp,
+        chefTokens: response.user?.chefTokens,
+      };
+      
+      localStorage.setItem("token", response.token);
+      localStorage.setItem("role", userRole);
+      localStorage.setItem("user", JSON.stringify(userObj));
+      
+      console.log("💾 Stored auth data with new keys (token, role, user)");
       
       // If user data is included in login response, use it directly
       if (response.user) {
-        const userRole = response.user.role || "student";
         console.log("📋 User role from response:", userRole);
         console.log("🔑 Full user data:", JSON.stringify(response.user, null, 2));
         
@@ -169,16 +175,18 @@ export function UserProvider({ children }: { children: ReactNode }) {
         // Otherwise fetch user profile
         const profileData: ProfileData = await academyApi.getProfile(userId, response.token);
         
-        const userRole = profileData.role || "student";
-        console.log("📋 User role from profile:", userRole);
-        console.log("🔍 Full profile data:", JSON.stringify(profileData, null, 2));
+        // ✅ ПРИОРИТЕТ РОЛЕЙ: response роль (из JWT) > профиль роль
+        const finalRole = userRole || profileData.role || "student";
+        console.log("📋 User role (JWT priority):", finalRole);
+        console.log("   - response.user.role (JWT):", userRole);
+        console.log("   - profileData.role (backend):", profileData.role);
         
         setUser({
           id: userId,
           name: profileData.name || "User",
           email: profileData.email || email,
           avatar: profileData.avatarUrl,
-          role: userRole as "student" | "instructor" | "admin",
+          role: finalRole as "student" | "instructor" | "admin",
           level: profileData.level,
           xp: profileData.xp,
           chefTokens: profileData.chefTokens,
@@ -213,13 +221,26 @@ export function UserProvider({ children }: { children: ReactNode }) {
         throw new Error("Invalid user ID format received from server");
       }
       
-      // Store token and userId
-      localStorage.setItem("authToken", response.token);
-      localStorage.setItem("userId", userId);
+      // Сохраняем в НОВЫЕ ключи (совместимо с AuthContext)
+      const userRole = response.user?.role || "student";
+      const userObj = {
+        id: userId,
+        name: response.user?.name || name,
+        email: response.user?.email || email,
+        role: userRole,
+        level: response.user?.level,
+        xp: response.user?.xp,
+        chefTokens: response.user?.chefTokens,
+      };
+      
+      localStorage.setItem("token", response.token);
+      localStorage.setItem("role", userRole);
+      localStorage.setItem("user", JSON.stringify(userObj));
+      
+      console.log("💾 Stored auth data with new keys (token, role, user)");
       
       // If user data is included in register response, use it directly
       if (response.user) {
-        const userRole = response.user.role || "student";
         console.log("📋 User role from response:", userRole);
         
         setUser({
@@ -236,15 +257,18 @@ export function UserProvider({ children }: { children: ReactNode }) {
         // Otherwise fetch user profile
         const profileData: ProfileData = await academyApi.getProfile(userId, response.token);
         
-        const userRole = profileData.role || "student";
-        console.log("📋 User role from profile:", userRole);
+        // ✅ ПРИОРИТЕТ РОЛЕЙ: response роль (из JWT) > профиль роль
+        const finalRole = userRole || profileData.role || "student";
+        console.log("📋 User role (JWT priority):", finalRole);
+        console.log("   - response.user.role (JWT):", userRole);
+        console.log("   - profileData.role (backend):", profileData.role);
         
         setUser({
           id: userId,
           name: profileData.name || name,
           email: profileData.email || email,
           avatar: profileData.avatarUrl,
-          role: userRole as "student" | "instructor" | "admin",
+          role: finalRole as "student" | "instructor" | "admin",
           level: profileData.level,
           xp: profileData.xp,
           chefTokens: profileData.chefTokens,
@@ -259,9 +283,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userId");
+    // Используем НОВЫЕ ключи (совместимо с AuthContext)
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("user");
     setUser(null);
+    console.log("🚪 User logged out, cleared token/role/user");
   };
 
   const updateProfile = async (data: Partial<User>) => {
@@ -273,7 +300,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
     console.log("🔄 UserContext: updateProfile called with data:", data);
     setIsLoading(true);
     try {
-      const token = localStorage.getItem("authToken");
+      // Используем НОВЫЙ ключ
+      const token = localStorage.getItem("token");
       if (!token) throw new Error("No auth token");
       
       console.log("🔐 UserContext: auth token found");
@@ -295,6 +323,19 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const updatedUser = { ...user, ...data };
       console.log("👤 UserContext: updating local user state:", updatedUser);
       setUser(updatedUser);
+      
+      // Обновить localStorage с НОВЫМИ ключами
+      const userObj = {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        level: updatedUser.level,
+        xp: updatedUser.xp,
+        chefTokens: updatedUser.chefTokens,
+      };
+      localStorage.setItem("user", JSON.stringify(userObj));
+      console.log("💾 Updated user in localStorage");
       console.log("✨ UserContext: profile updated successfully");
     } catch (error) {
       console.error("❌ UserContext: Update profile failed:", error);
