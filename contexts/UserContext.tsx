@@ -28,6 +28,9 @@ interface UserContextType {
   logout: () => void;
   updateProfile: (data: Partial<User>) => Promise<void>;
   uploadAvatar: (file: File) => Promise<string>;
+  deductTokens: (amount: number, reason: string) => Promise<{ success: boolean; newBalance?: number; error?: string }>;
+  addTokens: (amount: number, reason: string) => Promise<{ success: boolean; newBalance?: number; error?: string }>;
+  refreshBalance: () => Promise<void>;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -427,6 +430,182 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // ====== TOKEN MANAGEMENT METHODS ======
+
+  /**
+   * Deduct tokens from user balance (for AI requests, purchases, etc)
+   */
+  const deductTokens = async (
+    amount: number,
+    reason: string
+  ): Promise<{ success: boolean; newBalance?: number; error?: string }> => {
+    if (!user) {
+      return { success: false, error: "User not authenticated" };
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No auth token");
+
+      console.log(`💸 Deducting ${amount} tokens from user ${user.id} for: ${reason}`);
+
+      const response = await fetch("/api/ai-assistant/deduct-tokens", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          amount,
+          reason,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error("❌ Token deduction failed:", error);
+        return {
+          success: false,
+          error: error.error || error.message || "Failed to deduct tokens",
+        };
+      }
+
+      const data = await response.json();
+      const newBalance = data.data?.newBalance || data.newBalance || 0;
+
+      // Update user balance optimistically
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, chefTokens: newBalance } : null
+      );
+
+      // Update localStorage
+      const userJson = localStorage.getItem("user");
+      if (userJson) {
+        const userData = JSON.parse(userJson);
+        userData.chefTokens = newBalance;
+        localStorage.setItem("user", JSON.stringify(userData));
+      }
+
+      console.log(`✅ Tokens deducted successfully. New balance: ${newBalance}`);
+      return { success: true, newBalance };
+    } catch (error: any) {
+      console.error("❌ Error deducting tokens:", error);
+      return { success: false, error: error.message || "Server error" };
+    }
+  };
+
+  /**
+   * Add tokens to user balance (for earnings, bonuses, etc)
+   */
+  const addTokens = async (
+    amount: number,
+    reason: string
+  ): Promise<{ success: boolean; newBalance?: number; error?: string }> => {
+    if (!user) {
+      return { success: false, error: "User not authenticated" };
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No auth token");
+
+      console.log(`➕ Adding ${amount} tokens to user ${user.id} for: ${reason}`);
+
+      const response = await fetch("/api/ai-assistant/add-tokens", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          amount,
+          reason,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error("❌ Token addition failed:", error);
+        return {
+          success: false,
+          error: error.error || error.message || "Failed to add tokens",
+        };
+      }
+
+      const data = await response.json();
+      const newBalance = data.data?.newBalance || data.newBalance || 0;
+
+      // Update user balance optimistically
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, chefTokens: newBalance } : null
+      );
+
+      // Update localStorage
+      const userJson = localStorage.getItem("user");
+      if (userJson) {
+        const userData = JSON.parse(userJson);
+        userData.chefTokens = newBalance;
+        localStorage.setItem("user", JSON.stringify(userData));
+      }
+
+      console.log(`✅ Tokens added successfully. New balance: ${newBalance}`);
+      return { success: true, newBalance };
+    } catch (error: any) {
+      console.error("❌ Error adding tokens:", error);
+      return { success: false, error: error.message || "Server error" };
+    }
+  };
+
+  /**
+   * Refresh token balance from backend
+   */
+  const refreshBalance = async () => {
+    if (!user) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No auth token");
+
+      console.log(`🔄 Refreshing balance for user ${user.id}`);
+
+      const response = await fetch(`/api/ai-assistant/get-balance`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId: user.id }),
+      });
+
+      if (!response.ok) {
+        console.error("❌ Failed to refresh balance");
+        return;
+      }
+
+      const data = await response.json();
+      const newBalance = data.data?.balance || data.balance || 0;
+
+      // Update user balance
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, chefTokens: newBalance } : null
+      );
+
+      // Update localStorage
+      const userJson = localStorage.getItem("user");
+      if (userJson) {
+        const userData = JSON.parse(userJson);
+        userData.chefTokens = newBalance;
+        localStorage.setItem("user", JSON.stringify(userData));
+      }
+
+      console.log(`✅ Balance refreshed: ${newBalance} CT`);
+    } catch (error) {
+      console.error("❌ Error refreshing balance:", error);
+    }
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -436,6 +615,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
         logout,
         updateProfile,
         uploadAvatar,
+        deductTokens,
+        addTokens,
+        refreshBalance,
         isAuthenticated: !!user,
         isLoading,
       }}

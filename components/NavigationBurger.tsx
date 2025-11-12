@@ -86,6 +86,11 @@ export default function NavigationBurger() {
       icon: <Sparkles className="w-5 h-5" />,
     },
     {
+      label: "AI-наставник",
+      href: "/chat/create-chat",
+      icon: <BrainCircuit className="w-5 h-5" />,
+    },
+    {
       label: "Маркет",
       href: "/market",
       icon: <ShoppingBag className="w-5 h-5" />,
@@ -95,19 +100,14 @@ export default function NavigationBurger() {
       href: "/fridge",
       icon: <Refrigerator className="w-5 h-5" />,
     },
-    {
-      label: "AI-наставник",
-      href: "/chat/create-chat",
-      icon: <BrainCircuit className="w-5 h-5" />,
-    },
   ];
 
   const isActive = (href: string): boolean => {
     if (href === "/" && pathname === "/") return true;
     if (href === "/academy" && pathname.startsWith("/academy")) return true;
+    if (href === "/chat/create-chat" && pathname.startsWith("/chat")) return true;
     if (href === "/market" && pathname === "/market") return true;
     if (href === "/fridge" && pathname === "/fridge") return true;
-    if (href === "/chat/create-chat" && pathname === "/chat/create-chat") return true;
     return false;
   };
 

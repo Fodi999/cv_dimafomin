@@ -10,12 +10,20 @@ import { RecipeCard } from "@/components/chat/RecipeCard";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
 import { uploadApi } from "@/lib/api";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { AlertCircle } from "lucide-react";
+import { useState as useStateImport } from "react";
 
 interface ChatMessage {
   role: "ai" | "user";
   content: string;
   timestamp: number;
   suggestedActions?: string[];
+  cost?: number;
 }
 
 interface Recipe {
@@ -35,9 +43,43 @@ interface ChatHistoryItem {
   preview: string;
 }
 
+const AI_REQUEST_TYPES = [
+  {
+    id: 'recipe',
+    name: 'Рецепт',
+    description: 'Генерировать рецепт по названию',
+    cost: 5,
+  },
+  {
+    id: 'meal-idea',
+    name: 'Ідея ужину',
+    description: 'Идеи блюд по ингредиентам',
+    cost: 10,
+  },
+  {
+    id: 'technique',
+    name: 'Техніка',
+    description: 'Объяснить кулинарную технику',
+    cost: 3,
+  },
+  {
+    id: 'learning-plan',
+    name: 'План обучения',
+    description: 'Создать персональный курс',
+    cost: 20,
+  },
+  {
+    id: 'photo-check',
+    name: 'Проверка фото',
+    description: 'AI анализ вашего блюда',
+    cost: 50,
+  },
+];
+
 export default function CreateRecipeChatPage() {
   const { language } = useLanguage();
-  const { user } = useUser();
+  const { user, refreshBalance } = useUser();
+  const router = useRouter();
   const chatEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -55,6 +97,8 @@ export default function CreateRecipeChatPage() {
     steps: false,
   });
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
+  const [selectedType, setSelectedType] = useState('recipe');
+  const [showTokenPanel, setShowTokenPanel] = useState(false);
 
   const translations = {
     uk: {
@@ -187,7 +231,7 @@ export default function CreateRecipeChatPage() {
     }
   };
 
-  const addAIMessage = (content: string | any) => {
+  const addAIMessage = (content: string | any, cost?: number) => {
     let messageText = typeof content === "string" ? content : content.message;
     let suggestedActions: string[] | undefined;
 
@@ -211,12 +255,22 @@ export default function CreateRecipeChatPage() {
         content: messageText,
         timestamp: Date.now(),
         suggestedActions,
+        cost,
       },
     ]);
   };
 
   const handleSendMessage = async () => {
     if (!userInput.trim() || isAIThinking) return;
+
+    const currentType = AI_REQUEST_TYPES.find((t) => t.id === selectedType);
+    const cost = currentType?.cost || 0;
+
+    // Check balance
+    if (!user || (user.chefTokens || 0) < cost) {
+      alert(`Недостаточно токенов! Нужно ${cost} CT, у вас ${user?.chefTokens || 0}`);
+      return;
+    }
 
     const message = userInput.trim();
     const imageData = attachedImage;
@@ -258,8 +312,11 @@ export default function CreateRecipeChatPage() {
       }
 
       if (aiData.message) {
-        addAIMessage(aiData);
+        addAIMessage(aiData, cost);
       }
+
+      // Deduct tokens after successful response
+      await refreshBalance();
     } catch (error) {
       addAIMessage("Не вдалося отримати відповідь. Перевірте з'єднання 🙏");
     } finally {
@@ -394,7 +451,7 @@ export default function CreateRecipeChatPage() {
   ];
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] bg-white dark:bg-slate-950 overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-128px)] bg-white dark:bg-slate-950 overflow-hidden">
       <input
         ref={fileInputRef}
         type="file"
@@ -411,6 +468,125 @@ export default function CreateRecipeChatPage() {
         onDeleteChat={deleteChat}
         onNewChat={startNewChat}
       />
+
+      {/* Token Settings Sheet Panel */}
+      <Sheet open={showTokenPanel} onOpenChange={setShowTokenPanel}>
+        <SheetContent side="right" className="w-96 overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <span>💎</span>
+              Параметры запиту
+            </SheetTitle>
+          </SheetHeader>
+
+          <div className="space-y-4 mt-6">
+            {/* Balance Card */}
+            {user && (
+              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200 dark:border-blue-800">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Ваш баланс</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                      {user.chefTokens || 0}
+                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">CT</span>
+                  </div>
+                  <Button 
+                    onClick={() => {
+                      router.push('/academy/earn-tokens');
+                      setShowTokenPanel(false);
+                    }}
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                    size="sm"
+                  >
+                    Купити токени
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Request Type Selector */}
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                Виберіть тип запиту
+              </p>
+              <div className="space-y-2">
+                {AI_REQUEST_TYPES.map((type) => {
+                  const isSelected = selectedType === type.id;
+                  return (
+                    <motion.button
+                      key={type.id}
+                      whileHover={{ x: 4 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setSelectedType(type.id)}
+                      className={`w-full p-3 rounded-lg text-left transition-all border-2 ${
+                        isSelected
+                          ? 'bg-orange-50 dark:bg-orange-950 border-orange-400 dark:border-orange-700'
+                          : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className={`font-semibold text-sm ${
+                            isSelected 
+                              ? 'text-orange-700 dark:text-orange-300' 
+                              : 'text-gray-700 dark:text-gray-300'
+                          }`}>
+                            {type.name}
+                          </div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            {type.description}
+                          </p>
+                        </div>
+                        <Badge 
+                          variant={isSelected ? "default" : "secondary"}
+                          className={isSelected ? "bg-orange-500 hover:bg-orange-600" : ""}
+                        >
+                          {type.cost} CT
+                        </Badge>
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Balance Warning */}
+            {user && (user.chefTokens || 0) < (AI_REQUEST_TYPES.find(t => t.id === selectedType)?.cost || 0) && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg space-y-2"
+              >
+                <div className="flex gap-2">
+                  <AlertCircle className="h-4 w-4 text-yellow-700 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
+                      Недостаточно токенов
+                    </p>
+                    <p className="text-xs text-yellow-700 dark:text-yellow-400 mt-1">
+                      Нужно {AI_REQUEST_TYPES.find(t => t.id === selectedType)?.cost || 0} CT, 
+                      у вас {user.chefTokens || 0} CT
+                    </p>
+                  </div>
+                </div>
+                <Button 
+                  onClick={() => {
+                    router.push('/academy/earn-tokens');
+                    setShowTokenPanel(false);
+                  }}
+                  size="sm"
+                  className="w-full bg-yellow-600 hover:bg-yellow-700 text-white text-xs"
+                >
+                  Купити
+                </Button>
+              </motion.div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Main Chat Area - Scrollable */}
       <main className="flex-1 overflow-y-auto px-4 py-3 flex flex-col space-y-2 max-w-4xl w-full mx-auto min-w-0">
@@ -452,25 +628,41 @@ export default function CreateRecipeChatPage() {
       </main>
 
       {/* Footer - Fixed Input */}
-      <div className="bg-white dark:bg-slate-900 border-t border-sky-200 dark:border-slate-800 flex-shrink-0">
-        <ChatInput
-          value={userInput}
-          onChange={setUserInput}
-          onSend={handleSendMessage}
-          onKeyPress={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSendMessage();
-            }
-          }}
-          disabled={isAIThinking}
-          isComplete={isComplete}
-          attachedImage={attachedImage}
-          uploadingImage={uploadingImage}
-          onImageUpload={handleImageUpload}
-          onRemoveImage={() => setAttachedImage(null)}
-          fileInputRef={fileInputRef}
-        />
+      <div className="bg-white dark:bg-slate-900 border-t border-sky-200 dark:border-slate-800 flex-shrink-0 px-4 py-3 flex items-center gap-3">
+        <div className="flex-1">
+          <ChatInput
+            value={userInput}
+            onChange={setUserInput}
+            onSend={handleSendMessage}
+            onKeyPress={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+              }
+            }}
+            disabled={isAIThinking}
+            isComplete={isComplete}
+            attachedImage={attachedImage}
+            uploadingImage={uploadingImage}
+            onImageUpload={handleImageUpload}
+            onRemoveImage={() => setAttachedImage(null)}
+            fileInputRef={fileInputRef}
+          />
+        </div>
+        
+        {/* Token Button - Right Side */}
+        {user && (
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowTokenPanel(true)}
+            className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border border-blue-200 dark:border-blue-800 hover:shadow-md transition-all"
+          >
+            <span className="text-lg">💎</span>
+            <span className="font-bold text-blue-600 dark:text-blue-400 text-sm">{user.chefTokens || 0}</span>
+            <span className="text-xs text-gray-600 dark:text-gray-400">CT</span>
+          </motion.button>
+        )}
       </div>
     </div>
   );

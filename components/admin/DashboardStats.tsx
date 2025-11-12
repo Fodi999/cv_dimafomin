@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, ShoppingCart, Coins, TrendingUp } from "lucide-react";
 
 interface DashboardStatsProps {
@@ -16,33 +16,31 @@ const StatCard = ({
   value,
   change,
   color,
-  index,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string | number;
   change?: string;
   color: string;
-  index: number;
 }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: index * 0.1, duration: 0.5 }}
-    whileHover={{ translateY: -4 }}
-    className={`bg-gradient-to-br ${color} rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all`}
-  >
-    <div className="flex items-start justify-between mb-4">
-      <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">{Icon}</div>
-      {change && (
-        <span className="text-xs font-semibold bg-white/20 px-2 py-1 rounded-full">
-          {change}
-        </span>
-      )}
-    </div>
-    <p className="text-white/70 text-sm mb-1">{label}</p>
-    <p className="text-3xl font-bold">{value}</p>
-  </motion.div>
+  <Card className={`border-l-4 ${color}`}>
+    <CardHeader className="pb-3">
+      <div className="flex items-center justify-between">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {label}
+        </CardTitle>
+        <div className="p-2 bg-muted rounded-lg">{Icon}</div>
+      </div>
+    </CardHeader>
+    <CardContent>
+      <div>
+        <p className="text-2xl font-bold">{value}</p>
+        {change && (
+          <p className="text-xs text-muted-foreground mt-2">{change}</p>
+        )}
+      </div>
+    </CardContent>
+  </Card>
 );
 
 export function DashboardStats({
@@ -58,36 +56,32 @@ export function DashboardStats({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <StatCard
-        icon={<Users className="w-6 h-6" />}
+        icon={<Users className="w-4 h-4" />}
         label="Всего пользователей"
         value={totalUsers.toLocaleString()}
         change={`${activeUserPercent}% активны`}
-        color="from-blue-500 to-cyan-500"
-        index={0}
+        color="border-l-blue-500"
       />
       <StatCard
-        icon={<ShoppingCart className="w-6 h-6" />}
+        icon={<ShoppingCart className="w-4 h-4" />}
         label="Всего заказов"
         value={totalOrders.toLocaleString()}
         change={"+12% этот месяц"}
-        color="from-emerald-500 to-teal-500"
-        index={1}
+        color="border-l-green-500"
       />
       <StatCard
-        icon={<Coins className="w-6 h-6" />}
+        icon={<Coins className="w-4 h-4" />}
         label="Выдано токенов"
         value={totalTokensEarned.toLocaleString()}
         change={"+8% эта неделя"}
-        color="from-orange-500 to-red-500"
-        index={2}
+        color="border-l-orange-500"
       />
       <StatCard
-        icon={<TrendingUp className="w-6 h-6" />}
+        icon={<TrendingUp className="w-4 h-4" />}
         label="Выручка"
         value="$45,231"
         change={"+23% YoY"}
-        color="from-purple-500 to-pink-500"
-        index={3}
+        color="border-l-purple-500"
       />
     </div>
   );

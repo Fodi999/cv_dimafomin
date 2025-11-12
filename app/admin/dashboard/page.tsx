@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { Loader, AlertCircle } from "lucide-react";
-import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { DashboardStats } from "@/components/admin/DashboardStats";
 import { UsersTable } from "@/components/admin/UsersTable";
 import { OrdersTable } from "@/components/admin/OrdersTable";
+import { Button } from "@/components/ui/button";
 import { adminApi } from "@/lib/api";
 
 // Mock data for admin dashboard
@@ -227,14 +226,11 @@ export default function AdminDashboardPage() {
 
   if (loading || !checked) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white via-sky-50 to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          className="text-sky-600 dark:text-sky-400"
-        >
-          <Loader className="w-12 h-12" />
-        </motion.div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader className="w-12 h-12 animate-spin text-sky-600 dark:text-sky-400 mx-auto mb-4" />
+          <p className="text-muted-foreground">Загрузка...</p>
+        </div>
       </div>
     );
   }
@@ -246,62 +242,45 @@ export default function AdminDashboardPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white via-sky-50 to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg max-w-md text-center"
-        >
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-            Ошибка
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
-          <button
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="bg-card rounded-lg p-8 shadow-lg max-w-md text-center border">
+          <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+          <h2 className="text-xl font-bold mb-2">Ошибка</h2>
+          <p className="text-muted-foreground mb-6">{error}</p>
+          <Button
             onClick={() => router.push("/login")}
-            className="px-6 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-semibold transition-colors"
+            className="w-full"
           >
             Вернуться на вход
-          </button>
-        </motion.div>
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
-      <AdminSidebar currentPage="dashboard" onLogout={handleLogout} />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold mb-2">
+          Панель администратора
+        </h1>
+        <p className="text-muted-foreground">
+          Добро пожаловать! Здесь вы можете управлять пользователями, заказами и статистикой.
+        </p>
+      </div>
 
-      <div className="flex-1 lg:ml-0">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-8"
-          >
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              Панель администратора
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Добро пожаловать! Здесь вы можете управлять пользователями, заказами и статистикой.
-            </p>
-          </motion.div>
+      <div className="mb-12">
+        <DashboardStats
+          totalUsers={stats?.totalUsers || 0}
+          activeUsers={stats?.activeUsers || 0}
+          totalOrders={stats?.totalOrders || 0}
+          totalTokensEarned={stats?.totalTokensEarned || 0}
+        />
+      </div>
 
-          <div className="mb-12">
-            <DashboardStats
-              totalUsers={stats?.totalUsers || 0}
-              activeUsers={stats?.activeUsers || 0}
-              totalOrders={stats?.totalOrders || 0}
-              totalTokensEarned={stats?.totalTokensEarned || 0}
-            />
-          </div>
-
-          <div className="space-y-6">
-            <UsersTable users={users} />
-            <OrdersTable orders={orders} />
-          </div>
-        </div>
+      <div className="space-y-6">
+        <UsersTable users={users} />
+        <OrdersTable orders={orders} />
       </div>
     </div>
   );

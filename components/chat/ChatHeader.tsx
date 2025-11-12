@@ -17,6 +17,7 @@ interface ChatHeaderProps {
   onLoadChat?: (chatId: string) => void;
   onDeleteChat?: (chatId: string) => void;
   onNewChat?: () => void;
+  tokenButton?: React.ReactNode;
 }
 
 export function ChatHeader({
@@ -26,6 +27,7 @@ export function ChatHeader({
   onLoadChat,
   onDeleteChat,
   onNewChat,
+  tokenButton,
 }: ChatHeaderProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -51,8 +53,8 @@ export function ChatHeader({
   };
 
   return (
-    <header className="bg-white dark:bg-slate-900 border-b border-sky-200 dark:border-slate-800 px-4 py-3">
-      <div className="flex items-center gap-2">
+    <header className="bg-white dark:bg-slate-900 border-b border-sky-200 dark:border-slate-800 px-4 py-0 overflow-hidden">
+      <div className="flex items-center gap-2 h-12">
         {/* Chef Icon & Title */}
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-cyan-500 flex items-center justify-center shadow-sm flex-shrink-0">
           <ChefHat className="w-4 h-4 text-white" />
@@ -131,6 +133,13 @@ export function ChatHeader({
               </motion.button>
             )}
           </>
+        )}
+
+        {/* Token Button - Right Side */}
+        {tokenButton && (
+          <div className="ml-auto flex-shrink-0">
+            {tokenButton}
+          </div>
         )}
       </div>
     </header>
