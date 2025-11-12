@@ -37,7 +37,7 @@ export default function SetAdminPage() {
     addLog(`🚀 Начинаем установку админ роли для ${user.email}...`);
 
     try {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem("token");
 
       if (!token) {
         throw new Error("Auth token не найден в localStorage");

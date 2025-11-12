@@ -60,7 +60,7 @@ export default function FridgePage() {
       try {
         setLoading(true);
         setError(null);
-        const token = localStorage.getItem("authToken");
+        const token = localStorage.getItem("token");
         if (!token) {
           router.push("/login");
           return;
@@ -112,7 +112,7 @@ export default function FridgePage() {
     try {
       setIsAdding(true);
       setError(null);
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem("token");
       if (!token) {
         router.push("/login");
         return;
@@ -160,7 +160,7 @@ export default function FridgePage() {
 
   const handleRemoveItem = async (id: string) => {
     try {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem("token");
       if (!token) {
         router.push("/login");
         return;

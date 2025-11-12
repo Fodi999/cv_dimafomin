@@ -7,6 +7,7 @@ import { UserProvider } from "@/contexts/UserContext";
 import { AuthProvider } from "@/src/contexts/AuthContext";
 import PWARegister from "@/components/PWARegister";
 import NavigationBurger from "@/components/NavigationBurger";
+import Navigation from "@/components/Navigation";
 
 const inter = Inter({ 
   subsets: ["latin", "cyrillic"],
@@ -65,6 +66,7 @@ export default function RootLayout({
         <AuthProvider>
           <LanguageProvider>
             <UserProvider>
+              <Navigation />
               <NavigationBurger />
               {children}
             </UserProvider>

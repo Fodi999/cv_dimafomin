@@ -1,391 +1,308 @@
-'use client';
+"use client";
 
-import { useAuth } from '@/src/contexts/AuthContext';
-import { withAuth } from '@/src/components/withAuth';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { Loader, AlertCircle } from "lucide-react";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { DashboardStats } from "@/components/admin/DashboardStats";
+import { UsersTable } from "@/components/admin/UsersTable";
+import { OrdersTable } from "@/components/admin/OrdersTable";
+import { adminApi } from "@/lib/api";
 
-function AdminDashboardPage() {
-  const { user, logout } = useAuth();
+// Mock data for admin dashboard
+const mockStats = {
+  totalUsers: 1542,
+  activeUsers: 342,
+  totalOrders: 4821,
+  totalRevenue: 125430.50,
+  pendingOrders: 12,
+  averageOrderValue: 26.00,
+};
+
+const mockUsers = [
+  {
+    id: "1",
+    name: "Иван Петров",
+    email: "ivan@example.com",
+    role: "user",
+    level: 8,
+    xp: 4200,
+    chefTokens: 2500,
+    createdAt: "2024-01-15",
+  },
+  {
+    id: "2",
+    name: "Мария Сидорова",
+    email: "maria@example.com",
+    role: "user",
+    level: 5,
+    xp: 2100,
+    chefTokens: 1500,
+    createdAt: "2024-02-20",
+  },
+  {
+    id: "3",
+    name: "Алексей Иванов",
+    email: "alexey@example.com",
+    role: "user",
+    level: 12,
+    xp: 6800,
+    chefTokens: 4200,
+    createdAt: "2024-01-05",
+  },
+];
+
+const mockOrders = [
+  {
+    id: "ORD-001",
+    customerId: "1",
+    customerName: "Иван Петров",
+    amount: 45.99,
+    itemCount: 3,
+    status: "completed",
+    createdAt: "2024-11-10",
+  },
+  {
+    id: "ORD-002",
+    customerId: "2",
+    customerName: "Мария Сидорова",
+    amount: 32.50,
+    itemCount: 2,
+    status: "pending",
+    createdAt: "2024-11-12",
+  },
+  {
+    id: "ORD-003",
+    customerId: "3",
+    customerName: "Алексей Иванов",
+    amount: 78.25,
+    itemCount: 5,
+    status: "completed",
+    createdAt: "2024-11-11",
+  },
+];
+
+export default function AdminDashboardPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'recipes' | 'settings'>('overview');
+  const [stats, setStats] = useState<any>(null);
+  const [users, setUsers] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
+
+        console.log("[AdminDashboard] Проверка роли:", role);
+
+        // ✅ Проверка роли ПЕРЕД началом загрузки данных
+        if (role !== "admin") {
+          console.log("[AdminDashboard] Не админ, редирект на /");
+          setChecked(true);
+          setIsAdmin(false);
+          setLoading(false);
+          router.push("/");
+          return;
+        }
+
+        // ✅ Роль подтверждена
+        setIsAdmin(true);
+        setChecked(true);
+
+        if (!token) {
+          console.log("[AdminDashboard] Токен не найден");
+          setError("Вы не авторизованы");
+          setLoading(false);
+          return;
+        }
+
+        // Попытка загрузить реальные данные с fallback на mock
+        const [statsResult, usersResult, ordersResult] = await Promise.all([
+          fetch("https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app/api/admin/dashboard", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          })
+            .then(res => {
+              if (!res.ok) {
+                console.warn(`[AdminDashboard] API returned ${res.status} for dashboard`);
+                return null;
+              }
+              return res.json();
+            })
+            .catch(err => {
+              console.warn("[AdminDashboard] Ошибка загрузки статистики:", err.message);
+              return null;
+            }),
+          fetch("https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app/api/admin/users", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          })
+            .then(res => {
+              if (!res.ok) {
+                console.warn(`[AdminDashboard] API returned ${res.status} for users`);
+                return null;
+              }
+              return res.json();
+            })
+            .catch(err => {
+              console.warn("[AdminDashboard] Ошибка загрузки пользователей:", err.message);
+              return null;
+            }),
+          fetch("https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app/api/admin/orders", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          })
+            .then(res => {
+              if (!res.ok) {
+                console.warn(`[AdminDashboard] API returned ${res.status} for orders`);
+                return null;
+              }
+              return res.json();
+            })
+            .catch(err => {
+              console.warn("[AdminDashboard] Ошибка загрузки заказов:", err.message);
+              return null;
+            }),
+        ]);
+
+        // Backend returns: {stats: {...}, tokenStats: {...}}
+        // Extract and merge stats from backend response
+        const backendStats = statsResult?.stats || statsResult?.data;
+        const mergedStats = backendStats ? {
+          totalUsers: backendStats.totalUsers || mockStats.totalUsers,
+          totalOrders: backendStats.totalOrders || mockStats.totalOrders,
+          activeUsers: mockStats.activeUsers,  // Not provided by backend
+          totalRevenue: mockStats.totalRevenue,  // Not provided by backend
+          pendingOrders: mockStats.pendingOrders,  // Not provided by backend
+          averageOrderValue: mockStats.averageOrderValue,  // Not provided by backend
+          // Add token stats if available
+          ...statsResult?.tokenStats,
+        } : mockStats;
+        
+        setStats(mergedStats);
+        setUsers((usersResult?.data && Array.isArray(usersResult?.data)) ? usersResult.data : mockUsers);
+        setOrders((ordersResult?.data && Array.isArray(ordersResult?.data)) ? ordersResult.data : mockOrders);
+        
+        console.log("[AdminDashboard] ✅ Данные загружены:");
+        console.log("  - Stats:", backendStats ? "✅ Real data" : "📋 Mock data", backendStats);
+        console.log("  - Users:", usersResult?.data ? "✅ Real data" : "📋 Mock data");
+        console.log("  - Orders:", ordersResult?.data ? "✅ Real data" : "📋 Mock data");
+      } catch (err: any) {
+        console.error("Error loading admin data:", err);
+        setError(err.message || "Ошибка при загрузке данных");
+        // Использовать mock данные на случай ошибки
+        setStats(mockStats);
+        setUsers(mockUsers);
+        setOrders(mockOrders);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [router]);
 
   const handleLogout = () => {
-    logout();
-    window.location.href = '/login';
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("user");
+    router.push("/login");
   };
 
+  if (loading || !checked) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-white via-sky-50 to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="text-sky-600 dark:text-sky-400"
+        >
+          <Loader className="w-12 h-12" />
+        </motion.div>
+      </div>
+    );
+  }
+
+  // ✅ Если role !== "admin", компонент редиректится
+  if (!isAdmin) {
+    return null;
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-white via-sky-50 to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg max-w-md text-center"
+        >
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+            Ошибка
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
+          <button
+            onClick={() => router.push("/login")}
+            className="px-6 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-semibold transition-colors"
+          >
+            Вернуться на вход
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Navigation */}
-      <nav className="bg-slate-800 border-b border-slate-700 shadow-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-3">
-              <div className="text-3xl">⚙️</div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
-                <p className="text-sm text-slate-400">Управление системой</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <p className="text-sm text-slate-300">
-                  👤 {user?.name || 'Администратор'}
-                </p>
-                <p className="text-xs text-slate-500">{user?.email}</p>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-medium"
-              >
-                Выход
-              </button>
-            </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+      <AdminSidebar currentPage="dashboard" onLogout={handleLogout} />
+
+      <div className="flex-1 lg:ml-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mb-8"
+          >
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+              Панель администратора
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Добро пожаловать! Здесь вы можете управлять пользователями, заказами и статистикой.
+            </p>
+          </motion.div>
+
+          <div className="mb-12">
+            <DashboardStats
+              totalUsers={stats?.totalUsers || 0}
+              activeUsers={stats?.activeUsers || 0}
+              totalOrders={stats?.totalOrders || 0}
+              totalTokensEarned={stats?.totalTokensEarned || 0}
+            />
           </div>
-        </div>
-      </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Tabs */}
-        <div className="flex space-x-1 mb-8 bg-slate-800 rounded-lg p-1 w-fit">
-          {(['overview', 'users', 'recipes', 'settings'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-md font-medium transition ${
-                activeTab === tab
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-              }`}
-            >
-              {tab === 'overview' && '📊 Обзор'}
-              {tab === 'users' && '👥 Пользователи'}
-              {tab === 'recipes' && '🍳 Рецепты'}
-              {tab === 'settings' && '⚙️ Настройки'}
-            </button>
-          ))}
-        </div>
-
-        {/* Overview Tab */}
-        {activeTab === 'overview' && (
-          <div className="space-y-8">
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <StatCard title="Всего пользователей" value="1,234" change="+12%" icon="👥" color="blue" />
-              <StatCard title="Активные рецепты" value="567" change="+23%" icon="🍳" color="green" />
-              <StatCard title="Завершённые курсы" value="789" change="+18%" icon="📚" color="purple" />
-              <StatCard title="Доход (месяц)" value="$45K" change="+15%" icon="💰" color="yellow" />
-            </div>
-
-            {/* Recent Activity */}
-            <div className="bg-slate-800 rounded-lg shadow-lg p-6 border border-slate-700">
-              <h2 className="text-xl font-bold text-white mb-6 flex items-center">
-                <span className="mr-2">📝</span> Последняя активность
-              </h2>
-              <div className="space-y-4">
-                <ActivityItem 
-                  title="Новый пользователь зарегистрирован"
-                  description="john.doe@example.com"
-                  time="5 минут назад"
-                  icon="✨"
-                />
-                <ActivityItem 
-                  title="Новый рецепт опубликован"
-                  description="'Пицца Маргарита' - от chef_mario"
-                  time="25 минут назад"
-                  icon="🍕"
-                />
-                <ActivityItem 
-                  title="Курс завершён"
-                  description="user_anna завершила 'Основы кулинарии'"
-                  time="1 час назад"
-                  icon="🎓"
-                />
-                <ActivityItem 
-                  title="Система обновлена"
-                  description="Выполнено обновление security patch v2.1.0"
-                  time="3 часа назад"
-                  icon="🔄"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Users Tab */}
-        {activeTab === 'users' && (
-          <div className="bg-slate-800 rounded-lg shadow-lg p-6 border border-slate-700">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-white flex items-center">
-                <span className="mr-2">👥</span> Управление пользователями
-              </h2>
-              <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition font-medium">
-                + Добавить пользователя
-              </button>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="border-b border-slate-600">
-                  <tr>
-                    <th className="px-4 py-3 text-slate-300 font-semibold">Имя</th>
-                    <th className="px-4 py-3 text-slate-300 font-semibold">Email</th>
-                    <th className="px-4 py-3 text-slate-300 font-semibold">Роль</th>
-                    <th className="px-4 py-3 text-slate-300 font-semibold">Статус</th>
-                    <th className="px-4 py-3 text-slate-300 font-semibold">Действие</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-700">
-                  <UserTableRow 
-                    name="John Doe"
-                    email="john@example.com"
-                    role="student"
-                    status="active"
-                  />
-                  <UserTableRow 
-                    name="Jane Smith"
-                    email="jane@example.com"
-                    role="instructor"
-                    status="active"
-                  />
-                  <UserTableRow 
-                    name="Mike Johnson"
-                    email="mike@example.com"
-                    role="student"
-                    status="inactive"
-                  />
-                  <UserTableRow 
-                    name="Sarah Williams"
-                    email="sarah@example.com"
-                    role="student"
-                    status="active"
-                  />
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Recipes Tab */}
-        {activeTab === 'recipes' && (
-          <div className="bg-slate-800 rounded-lg shadow-lg p-6 border border-slate-700">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-white flex items-center">
-                <span className="mr-2">🍳</span> Управление рецептами
-              </h2>
-              <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition font-medium">
-                + Добавить рецепт
-              </button>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <RecipeCard 
-                title="Паста Карбонара"
-                author="chef_mario"
-                rating={4.8}
-                status="published"
-              />
-              <RecipeCard 
-                title="Пицца Маргарита"
-                author="chef_luigi"
-                rating={4.6}
-                status="published"
-              />
-              <RecipeCard 
-                title="Борщ украинский"
-                author="chef_ivan"
-                rating={4.9}
-                status="draft"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Settings Tab */}
-        {activeTab === 'settings' && (
           <div className="space-y-6">
-            <div className="bg-slate-800 rounded-lg shadow-lg p-6 border border-slate-700">
-              <h2 className="text-xl font-bold text-white mb-6 flex items-center">
-                <span className="mr-2">🔧</span> Основные настройки
-              </h2>
-              
-              <div className="space-y-4">
-                <SettingItem label="Название сайта" value="Sushi Chef Academy" />
-                <SettingItem label="Email поддержки" value="support@sushichef.com" />
-                <SettingItem label="Часовой пояс" value="UTC+3 (Moscow)" />
-              </div>
-            </div>
-
-            <div className="bg-slate-800 rounded-lg shadow-lg p-6 border border-slate-700">
-              <h2 className="text-xl font-bold text-white mb-6 flex items-center">
-                <span className="mr-2">🔐</span> Безопасность
-              </h2>
-              
-              <div className="space-y-4">
-                <button className="w-full px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition text-left font-medium">
-                  🔑 Изменить пароль
-                </button>
-                <button className="w-full px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition text-left font-medium">
-                  📋 Просмотр логов доступа
-                </button>
-                <button className="w-full px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition text-left font-medium">
-                  🔒 Управление сессиями
-                </button>
-              </div>
-            </div>
+            <UsersTable users={users} />
+            <OrdersTable orders={orders} />
           </div>
-        )}
-      </main>
-    </div>
-  );
-}
-
-// Экспортируем с HOC для защиты по ролям (только админ)
-export default withAuth(AdminDashboardPage, { requiredRole: 'admin' });
-
-// ============ Helper Components ============
-
-interface StatCardProps {
-  title: string;
-  value: string;
-  change: string;
-  icon: string;
-  color: 'blue' | 'green' | 'purple' | 'yellow';
-}
-
-function StatCard({ title, value, change, icon, color }: StatCardProps) {
-  const colorClasses = {
-    blue: 'from-blue-600 to-blue-700',
-    green: 'from-green-600 to-green-700',
-    purple: 'from-purple-600 to-purple-700',
-    yellow: 'from-yellow-600 to-yellow-700',
-  };
-
-  return (
-    <div className={`bg-gradient-to-br ${colorClasses[color]} rounded-lg shadow-lg p-6 text-white border border-opacity-20 border-white`}>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-semibold opacity-90">{title}</p>
-          <p className="text-3xl font-bold mt-2">{value}</p>
-          <p className="text-xs mt-2 opacity-75">↑ {change}</p>
-        </div>
-        <div className="text-4xl opacity-20">{icon}</div>
-      </div>
-    </div>
-  );
-}
-
-interface ActivityItemProps {
-  title: string;
-  description: string;
-  time: string;
-  icon: string;
-}
-
-function ActivityItem({ title, description, time, icon }: ActivityItemProps) {
-  return (
-    <div className="flex items-center justify-between p-4 bg-slate-700 rounded-lg hover:bg-slate-600 transition">
-      <div className="flex items-start space-x-3">
-        <div className="text-2xl">{icon}</div>
-        <div>
-          <p className="font-semibold text-white">{title}</p>
-          <p className="text-sm text-slate-400">{description}</p>
         </div>
       </div>
-      <span className="text-xs text-slate-500 whitespace-nowrap ml-4">{time}</span>
-    </div>
-  );
-}
-
-interface UserTableRowProps {
-  name: string;
-  email: string;
-  role: string;
-  status: 'active' | 'inactive';
-}
-
-function UserTableRow({ name, email, role, status }: UserTableRowProps) {
-  const roleEmoji = {
-    student: '👤',
-    instructor: '👨‍🏫',
-    admin: '👑',
-  };
-
-  const statusColor = status === 'active' ? 'text-green-400' : 'text-red-400';
-  const statusLabel = status === 'active' ? 'Активен' : 'Неактивен';
-
-  return (
-    <tr>
-      <td className="px-4 py-3 text-white font-medium">{name}</td>
-      <td className="px-4 py-3 text-slate-300">{email}</td>
-      <td className="px-4 py-3 text-slate-300">
-        {roleEmoji[role as keyof typeof roleEmoji]} {role}
-      </td>
-      <td className="px-4 py-3">
-        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${statusColor}`}>
-          {statusLabel}
-        </span>
-      </td>
-      <td className="px-4 py-3">
-        <button className="text-purple-400 hover:text-purple-300 font-medium transition">
-          Редактировать
-        </button>
-      </td>
-    </tr>
-  );
-}
-
-interface RecipeCardProps {
-  title: string;
-  author: string;
-  rating: number;
-  status: 'published' | 'draft';
-}
-
-function RecipeCard({ title, author, rating, status }: RecipeCardProps) {
-  const statusColor = status === 'published' ? 'bg-green-900 text-green-200' : 'bg-yellow-900 text-yellow-200';
-  const statusLabel = status === 'published' ? 'Опубликовано' : 'Черновик';
-
-  return (
-    <div className="bg-slate-700 rounded-lg p-4 hover:bg-slate-600 transition border border-slate-600">
-      <div className="flex items-start justify-between mb-3">
-        <h3 className="text-white font-semibold text-lg">{title}</h3>
-        <span className={`px-2 py-1 rounded text-xs font-semibold ${statusColor}`}>
-          {statusLabel}
-        </span>
-      </div>
-      <p className="text-slate-400 text-sm mb-3">👨‍🍳 {author}</p>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <span className="text-yellow-400 mr-1">⭐</span>
-          <span className="text-white font-semibold">{rating}</span>
-        </div>
-        <button className="text-purple-400 hover:text-purple-300 text-sm font-medium transition">
-          Просмотр
-        </button>
-      </div>
-    </div>
-  );
-}
-
-interface SettingItemProps {
-  label: string;
-  value: string;
-}
-
-function SettingItem({ label, value }: SettingItemProps) {
-  return (
-    <div className="flex items-center justify-between p-4 bg-slate-700 rounded-lg hover:bg-slate-600 transition">
-      <div>
-        <p className="text-slate-300 text-sm">{label}</p>
-        <p className="text-white font-semibold">{value}</p>
-      </div>
-      <button className="text-purple-400 hover:text-purple-300 font-medium transition">
-        Изменить
-      </button>
     </div>
   );
 }

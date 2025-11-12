@@ -287,7 +287,7 @@ export default function CreateRecipeChatPage() {
 
     try {
       setUploadingImage(true);
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem("token");
       
       // Upload to backend
       const uploadResponse = await uploadApi.uploadImageFile(file, token || undefined);
@@ -315,7 +315,7 @@ export default function CreateRecipeChatPage() {
     }
 
     try {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem("token");
       if (!token) {
         addAIMessage("Требуется авторизация");
         return;
@@ -360,7 +360,7 @@ export default function CreateRecipeChatPage() {
     if (!generatedRecipe) return;
 
     try {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem("token");
       const response = await fetch("/api/recipes", {
         method: "POST",
         headers: {

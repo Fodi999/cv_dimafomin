@@ -11,7 +11,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { getToken, getRole, setAuth, logout as logoutUtil, checkAuth as checkAuthUtil } from '../utils/auth';
+import { getToken, getRole, getUser, setAuth, logout as logoutUtil, checkAuth as checkAuthUtil } from '../utils/auth';
 import { getApiUrl } from '../utils/api-url';
 import { migrateStorageKeys } from '../utils/storage-migration';
 
@@ -70,15 +70,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       try {
-        // Проверить валидность токена (парсим из JWT, без доп запроса)
-        const userData = await checkAuthUtil();
-        if (userData) {
-          setUser(userData);
+        // ✅ Получить user данные из localStorage (были сохранены при логине)
+        const storedUser = getUser();
+        
+        if (storedUser) {
+          console.log('[AuthContext] ✅ User найден в localStorage:', storedUser);
+          setUser(storedUser);
           setToken(storedToken);
           setRole(storedRole as 'admin' | 'user');
-          console.log('[AuthContext] Авторизация восстановлена:', userData);
+          console.log('[AuthContext] Авторизация восстановлена:', storedUser);
         } else {
-          console.log('[AuthContext] Токен невалиден');
+          // Fallback: попытаться парсить из JWT если user не в localStorage
+          console.log('[AuthContext] ⚠️ User не найден в localStorage, парсим JWT...');
+          const userData = await checkAuthUtil();
+          if (userData) {
+            setUser(userData);
+            setToken(storedToken);
+            setRole(storedRole as 'admin' | 'user');
+            console.log('[AuthContext] Авторизация восстановлена из JWT:', userData);
+          } else {
+            console.log('[AuthContext] ❌ Не удалось восстановить user data');
+            setIsLoading(false);
+            return;
+          }
         }
       } catch (error) {
         console.error('[AuthContext] Ошибка при проверке авторизации:', error);
@@ -192,11 +206,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         } else {
           console.log('[AuthContext] 👥 Пользователь - ОБЫЧНЫЙ ЮЗЕР');
-          console.log('[AuthContext] 🔄 Редирект на /user/dashboard');
+          console.log('[AuthContext] 🔄 Редирект на /profile/dashboard');
           console.log('[AuthContext] 📍 window.location.href установлен');
           if (typeof window !== 'undefined') {
             console.log('[AuthContext] ⏳ Перезагрузка страницы...');
-            window.location.href = '/user/dashboard';
+            window.location.href = '/profile/dashboard';
           }
         }
       } else {

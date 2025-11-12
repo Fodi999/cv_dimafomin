@@ -13,7 +13,7 @@ export default function AdminDiagnosticsPage() {
 
   useEffect(() => {
     // Gather all diagnostic information
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
 
     let decodedToken: any = null;
@@ -39,8 +39,8 @@ export default function AdminDiagnosticsPage() {
     setDiagnostics({
       timestamp: new Date().toLocaleString(),
       localStorage: {
-        authToken: token ? `${token.substring(0, 20)}...${token.substring(token.length - 20)}` : null,
-        authTokenLength: token?.length || 0,
+        token: token ? `${token.substring(0, 20)}...${token.substring(token.length - 20)}` : null,
+        tokenLength: token?.length || 0,
         userId: userId,
       },
       userContext: {
@@ -165,7 +165,7 @@ export default function AdminDiagnosticsPage() {
               <div className="bg-red-900/30 rounded p-3">
                 <p className="font-semibold mb-2">Проблемы:</p>
                 <ul className="space-y-1 text-sm">
-                  {!diagnostics.localStorage?.authToken && <li>• ❌ Нет токена в localStorage</li>}
+                  {!diagnostics.localStorage?.token && <li>• ❌ Нет токена в localStorage</li>}
                   {!diagnostics.localStorage?.userId && <li>• ❌ Нет userId в localStorage</li>}
                   {!diagnostics.userContext?.user && <li>• ❌ Пользователь не загружен</li>}
                   {diagnostics.userContext?.isLoading && <li>• ⏳ Еще загружается</li>}

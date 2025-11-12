@@ -35,15 +35,28 @@ export default function AdminLayout({
     console.log("  user.role:", user?.role);
     console.log("  is admin?", user?.role === "admin");
     
+    // 🔍 DEBUG: Проверим что в localStorage
+    const tokenInStorage = localStorage.getItem("token");
+    const roleInStorage = localStorage.getItem("role");
+    const userInStorage = localStorage.getItem("user");
+    console.log("🔍 LocalStorage Data:");
+    console.log("   token:", tokenInStorage?.substring(0, 20) + "...");
+    console.log("   role:", roleInStorage);
+    console.log("   user:", userInStorage ? JSON.parse(userInStorage) : null);
+    
+    // ⏱️ Ждем пока контекст полностью загрузится (setTimeout в UserContext гарантирует это)
     if (!isLoading) {
       if (!user) {
-        console.warn("❌ AdminLayout: No user, redirecting to /");
-        router.push("/");
+        console.warn("❌ AdminLayout: No user found after loading complete");
+        console.warn("   Redirecting to /login");
+        router.push("/login");
       } else if (user.role !== "admin") {
-        console.warn("❌ AdminLayout: User is not admin, role is:", user.role, "redirecting to /");
+        console.warn("❌ AdminLayout: User is not admin, role is:", user.role);
+        console.warn("   Redirecting to /");
         router.push("/");
       } else {
         console.log("✅ AdminLayout: Access granted, user is admin");
+        console.log("   User:", user.name, `(${user.email})`);
       }
     }
   }, [user, isLoading, router]);

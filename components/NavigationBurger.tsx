@@ -18,6 +18,7 @@ import {
   Refrigerator,
 } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
+import AuthModal from "@/components/auth/AuthModal";
 
 interface NavLink {
   label: string;
@@ -30,6 +31,7 @@ export default function NavigationBurger() {
   const router = useRouter();
   const { user, logout } = useUser();
   const [isOpen, setIsOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -261,7 +263,7 @@ export default function NavigationBurger() {
                   <>
                     <motion.div
                       whileHover={{ scale: 1.02 }}
-                      onClick={() => handleLinkClick("/profile")}
+                      onClick={() => handleLinkClick(user.role === "admin" ? "/admin/dashboard" : "/profile")}
                       className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500/10 to-cyan-500/10 border-2 border-sky-500/50 hover:border-sky-500 cursor-pointer transition-all"
                     >
                       {user.avatar ? (
@@ -304,7 +306,7 @@ export default function NavigationBurger() {
                     <motion.button
                       whileHover={{ x: 4 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => handleLinkClick("/login")}
+                      onClick={() => setIsAuthModalOpen(true)}
                       className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-medium transition-all"
                     >
                       <LogIn className="w-4 h-4" />
@@ -313,7 +315,7 @@ export default function NavigationBurger() {
                     <motion.button
                       whileHover={{ x: 4 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => handleLinkClick("/register")}
+                      onClick={() => setIsAuthModalOpen(true)}
                       className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 border-sky-500 text-sky-600 dark:text-sky-400 hover:bg-sky-500/10 font-medium transition-all"
                     >
                       <User className="w-4 h-4" />
@@ -356,6 +358,9 @@ export default function NavigationBurger() {
 
       {/* ========== SPACER FOR FIXED HEADER ========== */}
       <div className="h-16" />
+
+      {/* ========== AUTH MODAL ========== */}
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </>
   );
 }

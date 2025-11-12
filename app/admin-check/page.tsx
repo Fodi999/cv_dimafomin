@@ -174,7 +174,7 @@ export default function AdminAccessCheckPage() {
   checks: {
     isAdmin: user.role === "admin",
     isLoading: isLoading,
-    hasToken: !!localStorage.getItem("authToken"),
+    hasToken: !!localStorage.getItem("token"),
     hasUserId: !!localStorage.getItem("userId"),
   }
 }, null, 2)}

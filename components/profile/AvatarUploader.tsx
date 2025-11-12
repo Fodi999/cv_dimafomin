@@ -109,7 +109,7 @@ export default function AvatarUploader({
 
       // Check initial size and compress if needed
       let fileToUpload = file;
-      const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB
+      const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB (match backend limit)
       
       if (file.size > MAX_FILE_SIZE) {
         console.log(`⚠️ File size (${(file.size / (1024 * 1024)).toFixed(2)}MB) exceeds limit, compressing...`);
@@ -149,7 +149,7 @@ export default function AvatarUploader({
     console.log("🚀 Starting avatar upload...", { fileName: file.name, fileSize: file.size, fileType: file.type });
 
     try {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem("token");
       console.log("🔐 Auth token retrieved:", token ? "✓ Present" : "✗ Missing");
       
       if (!token) {
@@ -158,15 +158,15 @@ export default function AvatarUploader({
 
       // Create FormData and append the file
       const formData = new FormData();
-      formData.append("image", file);
-      console.log("📦 FormData created with image");
+      formData.append("file", file);
+      console.log("📦 FormData created with file");
 
-      // Upload via backend endpoint using FormData
+      // Upload directly to backend
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app/api';
       console.log("🌐 Backend URL:", backendUrl);
       
-      const uploadUrl = `${backendUrl}/upload/image`;
-      console.log("📤 Uploading to:", uploadUrl);
+      const uploadUrl = `${backendUrl}/user/avatar`;
+      console.log("📤 Uploading directly to backend:", uploadUrl);
       console.log("🔑 Headers:", { Authorization: `Bearer ${token.substring(0, 20)}...` });
       
       console.log("⏳ Sending fetch request...");
@@ -205,7 +205,8 @@ export default function AvatarUploader({
       const data = await response.json();
       console.log("✅ Response data:", data);
       
-      const imageUrl = data.data?.url || data.url;
+      // Extract URL from response - handle different response formats
+      const imageUrl = data.url || data.data?.url || data.secure_url;
       console.log("🖼️ Image URL extracted:", imageUrl);
       
       if (!imageUrl) {
@@ -258,13 +259,21 @@ export default function AvatarUploader({
         <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-sky-500 to-cyan-600 dark:from-sky-500 dark:to-cyan-600 shadow-lg border-4 border-white dark:border-gray-800">
           {isImageUrl ? (
             <>
-              <Image
-                src={displayAvatar}
-                alt={userName}
-                width={128}
-                height={128}
-                className="w-full h-full object-cover"
-              />
+              {displayAvatar && displayAvatar.includes("res.cloudinary.com") ? (
+                <img
+                  src={displayAvatar}
+                  alt={userName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Image
+                  src={displayAvatar}
+                  alt={userName}
+                  width={128}
+                  height={128}
+                  className="w-full h-full object-cover"
+                />
+              )}
               {preview && (
                 <div className="absolute top-0 right-0 bg-sky-500 text-white text-xs px-2 py-1 rounded-bl-lg">
                   Preview

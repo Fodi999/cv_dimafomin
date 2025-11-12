@@ -194,9 +194,13 @@ export default function ProfilePage() {
           <div className="bg-white rounded-3xl shadow-sm p-6">
             {/* Profile Header */}
             <ProfileHeader 
-              user={user!} 
-              postsCount={userPosts.length} 
-              translations={translations}
+              name={user!.name}
+              email={user!.email}
+              avatar={user!.avatar}
+              bio=""
+              location=""
+              followers={0}
+              following={0}
             />
 
             {/* Token Balance Card */}

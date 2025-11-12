@@ -1,34 +1,24 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Star, Clock, Users, ArrowRight, Fish, Shell, Utensils } from "lucide-react";
+import { BookOpen, Clock, Star, Users, ArrowRight, Bookmark, Share2, Play } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
-
-interface StudentWork {
-  id: string;
-  studentName: string;
-  courseName: string;
-  imageUrl: string;
-  rating: number;
-  completedDate: string;
-}
+import { Button } from "@/components/ui/button";
 
 interface Course {
-  id: string;
-  icon: React.ComponentType<any>;
+  id: number;
   title: string;
   description: string;
-  level: string;
+  difficulty: string;
   duration: string;
   rating: number;
-  students: number;
-  color: string;
-  gradient: string;
+  students: string;
+  progress: number;
+  lessons: number;
 }
 
 // Студенческие работы (Pinterest style)
-const studentWorks: StudentWork[] = [
+const studentWorks = [
   {
     id: "1",
     studentName: "Мария К.",
@@ -45,184 +35,173 @@ const studentWorks: StudentWork[] = [
     rating: 5.0,
     completedDate: "2024-11-03",
   },
-  {
-    id: "3",
-    studentName: "Анна Л.",
-    courseName: "Секреты устриц",
-    imageUrl: "https://images.unsplash.com/photo-1534080161776-9a095f3840d3?w=400&h=450&fit=crop",
-    rating: 4.8,
-    completedDate: "2024-11-02",
-  },
-  {
-    id: "4",
-    studentName: "Дмитро В.",
-    courseName: "Суши и роллы",
-    imageUrl: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=400&h=550&fit=crop",
-    rating: 5.0,
-    completedDate: "2024-11-01",
-  },
-  {
-    id: "5",
-    studentName: "Ксенія М.",
-    courseName: "Основы рыбы",
-    imageUrl: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=400&h=480&fit=crop",
-    rating: 4.7,
-    completedDate: "2024-10-31",
-  },
-  {
-    id: "6",
-    studentName: "Іван С.",
-    courseName: "Секреты устриц",
-    imageUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=520&fit=crop",
-    rating: 4.9,
-    completedDate: "2024-10-30",
-  },
 ];
 
 // Структурированные курсы
 const courses: Course[] = [
   {
-    id: "1",
-    icon: Fish,
+    id: 1,
     title: "Основы рыбы",
     description: "Научись выбирать, хранить и готовить рыбу как профессионал",
-    level: "Начинающий",
+    difficulty: "Начинающий",
     duration: "4 часа",
+    lessons: 12,
+    students: "250 учеников",
     rating: 4.9,
-    students: 250,
-    color: "from-sky-400 to-sky-600",
-    gradient: "from-sky-50 to-sky-100 dark:from-sky-950/20 dark:to-sky-900/20",
+    progress: 0,
   },
   {
-    id: "2",
-    icon: Shell,
-    title: "Секреты устриц",
-    description: "От открытия раковины до идеального сочетания со специями",
-    level: "Средний",
-    duration: "3 часа",
+    id: 2,
+    title: "Техники нарезки",
+    description: "Овладей основными техниками нарезки: угри, квадрат и диагональ",
+    difficulty: "Средний",
+    duration: "6 часов",
+    lessons: 18,
+    students: "180 учеников",
     rating: 4.8,
-    students: 180,
-    color: "from-cyan-400 to-cyan-600",
-    gradient: "from-cyan-50 to-cyan-100 dark:from-cyan-950/20 dark:to-cyan-900/20",
+    progress: 0,
   },
   {
-    id: "3",
-    icon: Utensils,
-    title: "Суши и роллы",
-    description: "Мастер-класс по изготовлению суши как в токийских ресторанах",
-    level: "Продвинутый",
-    duration: "5 часов",
+    id: 3,
+    title: "Advanced рецепты",
+    description: "Создавай авторские суши-рецепты и удивляй гостей",
+    difficulty: "Advanced",
+    duration: "8 часов",
+    lessons: 24,
+    students: "220 учеников",
     rating: 5.0,
-    students: 420,
-    color: "from-teal-400 to-teal-600",
-    gradient: "from-teal-50 to-teal-100 dark:from-teal-950/20 dark:to-teal-900/20",
+    progress: 0,
   },
 ];
 
 const difficultyColors: Record<string, string> = {
   "Начинающий": "bg-green-100 text-green-700",
-  "Средний": "bg-yellow-100 text-yellow-700",
-  "Продвинутый": "bg-red-100 text-red-700",
+  "Средний": "bg-amber-100 text-amber-700",
+  "Advanced": "bg-purple-100 text-purple-700",
 };
 
 export default function CoursesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-sky-50 to-blue-50 pt-24 pb-16">
       {/* Header */}
-      <section className="max-w-7xl mx-auto px-4 mb-16">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 sm:mb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
             Структурированные курсы
           </h1>
-          <p className="text-xl text-gray-600 mb-2">
+          <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-2 px-2 sm:px-0">
             От базовых техник до advanced рецептов от шефа Dima Fomin
           </p>
-          <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 rounded-full text-sm font-semibold whitespace-nowrap">
-            <Star className="w-4 h-4 fill-current" />
+          <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap">
+            <Star className="w-4 h-4 fill-current flex-shrink-0" />
             <span>3 курса • 650+ учеников</span>
           </div>
         </motion.div>
       </section>
 
       {/* Courses Grid */}
-      <section className="max-w-7xl mx-auto px-4 mb-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {courses.map((course, idx) => (
-            <motion.div
-              key={course.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1, duration: 0.6 }}
-              whileHover={{ translateY: -8, boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}
-              className="group cursor-pointer"
-            >
-              {/* Card */}
-              <div className={`bg-gradient-to-br ${course.gradient} rounded-2xl p-6 h-full border-2 border-white shadow-lg hover:shadow-2xl transition-all duration-300`}>
-                {/* Icon & Title */}
-                <div className="mb-4">
-                  <div className={`mb-3`}>
-                    <course.icon className="w-16 h-16 text-sky-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                    {course.title}
-                  </h3>
-                  <p className="text-gray-700 text-sm leading-relaxed">
-                    {course.description}
-                  </p>
-                </div>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          {courses.map((course, idx) => {
+            const difficultyConfig: Record<string, { bg: string; badge: string }> = {
+              "Начинающий": { bg: "from-green-400/20 to-emerald-400/20", badge: "bg-green-100 text-green-700" },
+              "Средний": { bg: "from-amber-400/20 to-orange-400/20", badge: "bg-amber-100 text-amber-700" },
+              "Advanced": { bg: "from-purple-400/20 to-pink-400/20", badge: "bg-purple-100 text-purple-700" },
+            };
+            const config = difficultyConfig[course.difficulty] || difficultyConfig["Начинающий"];
 
-                {/* Level Badge */}
-                <div className="mb-4">
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${difficultyColors[course.level]}`}>
-                    {course.level}
-                  </span>
-                </div>
+            return (
+              <motion.div
+                key={course.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1, duration: 0.6 }}
+                whileHover={{ translateY: -8 }}
+                className="group"
+              >
+                {/* Card */}
+                <div className={`bg-gradient-to-br ${config.bg} rounded-2xl p-6 sm:p-8 h-full border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-xl transition-all duration-300 backdrop-blur-sm`}>
+                  {/* Icon & Title */}
+                  <div className="mb-6">
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                      {course.title}
+                    </h3>
+                    <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
+                      {course.description}
+                    </p>
+                  </div>
 
-                {/* Meta Info */}
-                <div className="space-y-2 mb-6 pb-6 border-b border-gray-300/50">
-                  <div className="flex items-center gap-2 text-gray-700 text-sm">
-                    <Clock className="w-4 h-4" />
-                    <span>⏱️ {course.duration}</span>
+                  {/* Level Badge */}
+                  <div className="mb-4">
+                    <span className={`inline-block px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${config.badge}`}>
+                      {course.difficulty}
+                    </span>
                   </div>
-                  <div className="flex items-center gap-2 text-gray-700 text-sm">
-                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                    <span className="font-semibold">{course.rating}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-700 text-sm">
-                    <Users className="w-4 h-4" />
-                    <span>👥 {course.students.toLocaleString()} учеников</span>
-                  </div>
-                </div>
 
-                {/* CTA Button */}
-                <Link href={`/academy/courses/${course.id}`}>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={`w-full py-3 rounded-xl bg-gradient-to-r ${course.color} text-white font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group`}
-                  >
-                    Начать курс
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </motion.button>
-                </Link>
-              </div>
-            </motion.div>
-          ))}
+                  {/* Meta Info */}
+                  <div className="space-y-3 mb-6 pb-6 border-b border-gray-300/50 dark:border-gray-600/50">
+                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-sm sm:text-base">
+                      <Clock className="w-4 h-4 flex-shrink-0" />
+                      <span>⏱️ {course.duration}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-sm sm:text-base">
+                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 flex-shrink-0" />
+                      <span className="font-semibold">{course.rating}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-sm sm:text-base">
+                      <Users className="w-4 h-4 flex-shrink-0" />
+                      <span>👥 {course.students}</span>
+                    </div>
+                  </div>
+
+                  {/* Progress Bar (if applicable) */}
+                  {course.progress > 0 && (
+                    <div className="mb-6">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Прогресс</span>
+                        <span className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">{course.progress}%</span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${course.progress}%` }}
+                          transition={{ delay: idx * 0.1 + 0.4, duration: 0.8 }}
+                          className="h-full bg-gradient-to-r from-sky-500 to-blue-600"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CTA Button */}
+                  <Link href={`/academy/courses/${course.id}`}>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full py-3 sm:py-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group text-sm sm:text-base"
+                    >
+                      Начать курс
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </motion.button>
+                  </Link>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </section>
 
       {/* Student Works - Pinterest Style */}
-      <section className="max-w-7xl mx-auto px-4">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-20">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
-          className="text-4xl font-bold text-gray-900 mb-2 text-center"
+          className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-2 text-center"
         >
           Работы учеников
         </motion.h2>
@@ -230,13 +209,13 @@ export default function CoursesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35, duration: 0.6 }}
-          className="text-center text-gray-600 mb-12 text-lg"
+          className="text-center text-gray-600 dark:text-gray-400 mb-8 sm:mb-12 text-base sm:text-lg"
         >
           Вдохновляющие творения наших студентов
         </motion.p>
 
         {/* Masonry Grid */}
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+        <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 sm:gap-6 space-y-4 sm:space-y-6">
           {studentWorks.map((work, idx) => (
             <motion.div
               key={work.id}
@@ -246,7 +225,7 @@ export default function CoursesPage() {
               whileHover={{ scale: 1.02 }}
               className="break-inside-avoid group cursor-pointer"
             >
-              <div className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 bg-white">
+              <div className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 bg-white dark:bg-gray-800">
                 {/* Image */}
                 <div className="relative overflow-hidden h-auto">
                   <img
@@ -255,27 +234,27 @@ export default function CoursesPage() {
                     className="w-full h-auto object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                    <h4 className="text-white font-bold text-lg">{work.studentName}</h4>
-                    <p className="text-white/90 text-sm">{work.courseName}</p>
+                    <h4 className="text-white font-bold text-base sm:text-lg">{work.studentName}</h4>
+                    <p className="text-white/90 text-xs sm:text-sm">{work.courseName}</p>
                   </div>
                 </div>
 
                 {/* Card Footer */}
-                <div className="p-4 bg-white">
+                <div className="p-3 sm:p-4 bg-white dark:bg-gray-800">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                      <span className="font-bold text-gray-900">{work.rating}</span>
+                      <span className="font-bold text-gray-900 dark:text-white text-sm">{work.rating}</span>
                     </div>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(work.completedDate).toLocaleDateString("uk-UA", {
                         month: "short",
                         day: "numeric",
                       })}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 font-medium">{work.studentName}</p>
-                  <p className="text-xs text-gray-500">{work.courseName}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-medium">{work.studentName}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{work.courseName}</p>
                 </div>
               </div>
             </motion.div>
@@ -284,23 +263,23 @@ export default function CoursesPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="max-w-4xl mx-auto px-4 mt-20">
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-20">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.6 }}
-          className="bg-gradient-to-r from-sky-500 via-blue-500 to-teal-500 rounded-3xl p-8 md:p-12 text-white text-center shadow-2xl"
+          className="bg-gradient-to-r from-sky-500 via-blue-500 to-teal-500 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 text-white text-center shadow-2xl"
         >
-          <h3 className="text-3xl md:text-4xl font-bold mb-4">
+          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
             Готов стать шефом?
           </h3>
-          <p className="text-lg text-white/90 mb-8">
+          <p className="text-base sm:text-lg text-white/90 mb-6 sm:mb-8 px-2 sm:px-0">
             Выбери курс и начни своё путешествие в мир морепродуктов вместе с Dima Fomin
           </p>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-8 py-4 bg-white text-blue-600 font-bold rounded-xl hover:shadow-lg transition-all inline-flex items-center gap-2"
+            className="px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-600 font-bold rounded-xl hover:shadow-lg transition-all inline-flex items-center gap-2 text-sm sm:text-base"
           >
             Выбрать курс
             <ArrowRight className="w-5 h-5" />

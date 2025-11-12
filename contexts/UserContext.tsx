@@ -39,6 +39,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const initRef = useRef(false);
 
+  // 🔧 HMR Debug logging
+  if (process.env.NODE_ENV === "development") {
+    useEffect(() => {
+      console.log("[⚙️ HMR] UserContext: Development mode detected, context may reinitialize");
+    }, []);
+  }
+
   useEffect(() => {
     // Избежать двойного вызова в React 18 Strict Mode
     if (initRef.current) return;
@@ -46,71 +53,109 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
     // Check for stored auth token on mount
     const checkAuth = async () => {
-      // Используем НОВЫЕ ключи (из AuthContext)
+      console.log("🔐 [UserContext] checkAuth starting...");
+      
+      // Читаем токен и роль из localStorage
       const token = localStorage.getItem("token");
-      const userJson = localStorage.getItem("user");
+      const roleJson = localStorage.getItem("role");
       
-      console.log("🔍 UserContext.checkAuth: token exists?", !!token, "user exists?", !!userJson);
+      console.log("🔍 UserContext.checkAuth: token exists?", !!token, "role exists?", !!roleJson);
       
-      // Если есть токен и данные пользователя - восстановить сессию
-      if (token && userJson) {
-        console.log("✅ Found token and user, attempting to restore session");
+      // Если есть токен - ВСЕГДА делаем запрос к БД для свежих данных
+      if (token && roleJson) {
+        console.log("✅ Found token and role - fetching fresh data from database");
         try {
-          const userData = JSON.parse(userJson);
-          const userId = userData.id;
-          console.log("📍 userId:", userId);
+          const storedRole = roleJson as "student" | "instructor" | "admin";
           
-          try {
-            // Попробовать получить актуальные данные профиля
-            const profileData: ProfileData = await academyApi.getProfile(userId, token);
-            console.log("🔍 Profile data from backend:", JSON.stringify(profileData, null, 2));
-            
-            // ✅ ПРИОРИТЕТ РОЛЕЙ: JWT роль (из userData) > профиль роль > default
-            // JWT роль более надежна, так как выдается системой авторизации
-            const userRole = userData.role || profileData.role || "student";
-            console.log("📋 User role (JWT priority):", userRole);
-            console.log("   - userData.role (JWT):", userData.role);
-            console.log("   - profileData.role (backend):", profileData.role);
-            
-            setUser({
-              id: userId,
-              name: profileData.name || userData.name || "User",
-              email: profileData.email || userData.email || "",
-              avatar: profileData.avatarUrl || userData.avatar,
-              role: userRole as "student" | "instructor" | "admin",
-              level: profileData.level ?? userData.level,
-              xp: profileData.xp ?? userData.xp,
-              chefTokens: profileData.chefTokens ?? userData.chefTokens,
-            });
-          } catch (profileError: any) {
-            console.error("❌ Failed to fetch user profile:", profileError);
-            console.log("📌 Using stored user data from localStorage instead");
-            
-            // Fallback: использовать данные что уже есть в localStorage
-            setUser({
-              id: userId,
-              name: userData.name || "User",
-              email: userData.email || "",
-              avatar: userData.avatar,
-              role: userData.role as "student" | "instructor" | "admin",
-              level: userData.level,
-              xp: userData.xp,
-              chefTokens: userData.chefTokens,
-            });
-            
-            // На 401/403 очистить данные
-            if (profileError?.status === 401 || profileError?.status === 403) {
-              console.error("🔐 Auth error detected, clearing authentication");
-              localStorage.removeItem("token");
-              localStorage.removeItem("role");
-              localStorage.removeItem("user");
+          // � ГЛАВНОЕ: Всегда делаем запрос к БД вместо использования localStorage
+          // Это гарантирует что user имеет самые свежие данные
+          const response = await fetch(
+            "https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app/api/user/profile",
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+          }
+
+          const profileData = await response.json();
+          console.log("📥 Fresh profile data from DB:", profileData);
+
+          // Обновляем user с данными из БД
+          const userData = profileData.data || profileData;
+          const userId = userData.id || userData.userId;
+          
+          if (!userId) {
+            throw new Error("User ID not found in response");
+          }
+
+          const userRole = storedRole || userData.role || "student";
+          console.log("� Setting user with fresh DB data, role:", userRole);
+          
+          setUser({
+            id: userId,
+            name: userData.name || "User",
+            email: userData.email || "",
+            avatar: userData.avatarUrl || userData.avatar,
+            role: userRole,
+            level: userData.level,
+            xp: userData.xp,
+            chefTokens: userData.chefTokens || userData.walletBalance,
+          });
+          
+          console.log("✅ User state set with fresh DB data");
+        } catch (error: any) {
+          console.error("❌ Failed to fetch fresh profile from DB:", error);
+          
+          // На 401/403 очистить данные
+          if (error?.status === 401 || error?.status === 403) {
+            console.error("🔐 Auth error detected, clearing authentication");
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
+            localStorage.removeItem("user");
+            setUser(null);
+          } else {
+            // Fallback: если ошибка сети, используем localStorage как backup
+            console.log("📌 Using localStorage as fallback due to network error");
+            const userJson = localStorage.getItem("user");
+            if (userJson) {
+              try {
+                const userData = JSON.parse(userJson);
+                setUser({
+                  ...userData,
+                  role: (roleJson as "student" | "instructor" | "admin") || userData.role,
+                });
+              } catch (parseError) {
+                console.error("❌ Failed to parse cached user data");
+                setUser(null);
+              }
             }
           }
-        } catch (error) {
-          console.error("❌ UserContext.checkAuth error:", error);
         }
+      } else if (token || localStorage.getItem("user")) {
+        // ⚠️ Partial data detected - inconsistent state, clear all
+        console.warn("⚠️ Partial auth data detected, clearing");
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        localStorage.removeItem("user");
+        setUser(null);
+      } else {
+        // No auth data - completely normal
+        console.log("ℹ️ No auth data found - user is not logged in");
       }
-      setIsLoading(false);
+      
+      // ⏱️ ВАЖНО: setTimeout(150) гарантирует завершение hydration
+      // перед снятием флага isLoading
+      setTimeout(() => {
+        setIsLoading(false);
+        console.log("✅ UserContext.checkAuth complete - isLoading set to false");
+      }, 150);
     };
 
     checkAuth();
@@ -155,41 +200,48 @@ export function UserProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("user", JSON.stringify(userObj));
       
       console.log("💾 Stored auth data with new keys (token, role, user)");
+      console.log("📋 User role from response:", userRole);
       
-      // If user data is included in login response, use it directly
-      if (response.user) {
-        console.log("📋 User role from response:", userRole);
-        console.log("🔑 Full user data:", JSON.stringify(response.user, null, 2));
-        
-        setUser({
-          id: userId,
-          name: response.user.name || "User",
-          email: response.user.email || email,
-          avatar: response.user.avatarUrl,
-          role: userRole as "student" | "instructor" | "admin",
-          level: response.user.level,
-          xp: response.user.xp,
-          chefTokens: response.user.chefTokens,
-        });
-      } else {
-        // Otherwise fetch user profile
+      // 🔥 ВАЖНО: Всегда делаем запрос к backend для получения полного профиля с аватаром
+      console.log("� Fetching full profile from backend to get avatar...");
+      try {
         const profileData: ProfileData = await academyApi.getProfile(userId, response.token);
+        console.log("✅ Full profile from backend:", JSON.stringify(profileData, null, 2));
         
         // ✅ ПРИОРИТЕТ РОЛЕЙ: response роль (из JWT) > профиль роль
         const finalRole = userRole || profileData.role || "student";
-        console.log("📋 User role (JWT priority):", finalRole);
-        console.log("   - response.user.role (JWT):", userRole);
-        console.log("   - profileData.role (backend):", profileData.role);
         
+        const fullUserData = {
+          id: userId,
+          name: profileData.name || response.user?.name || "User",
+          email: profileData.email || response.user?.email || email,
+          avatar: profileData.avatarUrl, // ✅ Аватар из полного профиля
+          role: finalRole as "student" | "instructor" | "admin",
+          level: profileData.level ?? response.user?.level,
+          xp: profileData.xp ?? response.user?.xp,
+          chefTokens: profileData.chefTokens ?? response.user?.chefTokens,
+        };
+        
+        console.log("🖼️ Avatar URL:", profileData.avatarUrl);
+        console.log("📦 Full user object to store:", fullUserData);
+        
+        // Обновляем localStorage с полными данными
+        localStorage.setItem("user", JSON.stringify(fullUserData));
+        
+        setUser(fullUserData);
+      } catch (profileError: any) {
+        console.warn("⚠️ Failed to fetch full profile from backend, using login response data:", profileError?.message);
+        
+        // Fallback: использовать данные из login response
         setUser({
           id: userId,
-          name: profileData.name || "User",
-          email: profileData.email || email,
-          avatar: profileData.avatarUrl,
-          role: finalRole as "student" | "instructor" | "admin",
-          level: profileData.level,
-          xp: profileData.xp,
-          chefTokens: profileData.chefTokens,
+          name: response.user?.name || "User",
+          email: response.user?.email || email,
+          avatar: response.user?.avatarUrl, // Может быть undefined
+          role: userRole as "student" | "instructor" | "admin",
+          level: response.user?.level,
+          xp: response.user?.xp,
+          chefTokens: response.user?.chefTokens,
         });
       }
     } catch (error) {
@@ -239,39 +291,46 @@ export function UserProvider({ children }: { children: ReactNode }) {
       
       console.log("💾 Stored auth data with new keys (token, role, user)");
       
-      // If user data is included in register response, use it directly
-      if (response.user) {
-        console.log("📋 User role from response:", userRole);
-        
-        setUser({
-          id: userId,
-          name: response.user.name || name,
-          email: response.user.email || email,
-          avatar: response.user.avatarUrl,
-          role: userRole as "student" | "instructor" | "admin",
-          level: response.user.level,
-          xp: response.user.xp,
-          chefTokens: response.user.chefTokens,
-        });
-      } else {
-        // Otherwise fetch user profile
+      // 🔥 ВАЖНО: ВСЕГДА делаем запрос к backend для получения полного профиля с аватаром
+      console.log("📥 Fetching full profile from backend to get avatar...");
+      try {
         const profileData: ProfileData = await academyApi.getProfile(userId, response.token);
+        console.log("✅ Full profile from backend:", JSON.stringify(profileData, null, 2));
         
         // ✅ ПРИОРИТЕТ РОЛЕЙ: response роль (из JWT) > профиль роль
         const finalRole = userRole || profileData.role || "student";
-        console.log("📋 User role (JWT priority):", finalRole);
-        console.log("   - response.user.role (JWT):", userRole);
-        console.log("   - profileData.role (backend):", profileData.role);
         
+        const fullUserData = {
+          id: userId,
+          name: profileData.name || response.user?.name || name || "User",
+          email: profileData.email || response.user?.email || email,
+          avatar: profileData.avatarUrl, // ✅ Аватар из полного профиля
+          role: finalRole as "student" | "instructor" | "admin",
+          level: profileData.level ?? response.user?.level,
+          xp: profileData.xp ?? response.user?.xp,
+          chefTokens: profileData.chefTokens ?? response.user?.chefTokens,
+        };
+        
+        console.log("🖼️ Avatar URL:", profileData.avatarUrl);
+        console.log("📦 Full user object to store:", fullUserData);
+        
+        // Обновляем localStorage с полными данными
+        localStorage.setItem("user", JSON.stringify(fullUserData));
+        
+        setUser(fullUserData);
+      } catch (profileError: any) {
+        console.warn("⚠️ Failed to fetch full profile from backend, using registration response data:", profileError?.message);
+        
+        // Fallback: использовать данные из registration response
         setUser({
           id: userId,
-          name: profileData.name || name,
-          email: profileData.email || email,
-          avatar: profileData.avatarUrl,
-          role: finalRole as "student" | "instructor" | "admin",
-          level: profileData.level,
-          xp: profileData.xp,
-          chefTokens: profileData.chefTokens,
+          name: response.user?.name || name || "User",
+          email: response.user?.email || email,
+          avatar: response.user?.avatarUrl, // Может быть undefined
+          role: userRole as "student" | "instructor" | "admin",
+          level: response.user?.level,
+          xp: response.user?.xp,
+          chefTokens: response.user?.chefTokens,
         });
       }
     } catch (error) {
@@ -348,7 +407,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const uploadAvatar = async (file: File): Promise<string> => {
     setIsLoading(true);
     try {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem("token");
       
       // Upload to Cloudinary via backend
       const result = await uploadApi.uploadImageFile(file, token || undefined);
