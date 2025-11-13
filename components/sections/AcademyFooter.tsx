@@ -30,7 +30,6 @@ export default function AcademyFooter() {
 
   const footerLinks = [
     { label: "Контакты", href: "#contact" },
-    { label: "О проекте", href: "/academy" },
     { label: "Политика приватности", href: "#privacy" },
     { label: "Условия использования", href: "#terms" },
   ];
@@ -114,11 +113,11 @@ export default function AcademyFooter() {
                 href="mailto:fodi85999@gmail.com"
                 className="flex items-center gap-3 text-gray-400 hover:text-[#3BC864] transition-colors"
               >
-                <Mail className="w-5 h-5" />
+                <Mail className="w-6 h-6" />
                 <span className="text-sm">fodi85999@gmail.com</span>
               </a>
               <div className="flex items-center gap-3 text-gray-400">
-                <MapPin className="w-5 h-5" />
+                <MapPin className="w-6 h-6" />
                 <span className="text-sm">Gdańsk, Polska</span>
               </div>
             </div>
@@ -144,7 +143,7 @@ export default function AcademyFooter() {
         >
           {/* Copyright */}
           <motion.p variants={itemVariants} className="text-gray-400 text-sm text-center md:text-left">
-            © 2025 Dima Fomin. Все права защищены. | Powered by Dima Fomin AI — цифровой наставник по морепродуктам.
+            © 2025 Dima Fomin. Все права защищены. | Powered by Dima Fomin AI
           </motion.p>
 
           {/* Social links */}
@@ -157,9 +156,9 @@ export default function AcademyFooter() {
                 key={label}
                 href={href}
                 aria-label={label}
-                className="w-10 h-10 rounded-full bg-[#3BC864]/10 hover:bg-[#3BC864] text-[#3BC864] hover:text-white transition-all flex items-center justify-center"
+                className="w-12 h-12 rounded-full bg-[#3BC864]/10 hover:bg-[#3BC864] text-[#3BC864] hover:text-white transition-all flex items-center justify-center"
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-6 h-6" />
               </a>
             ))}
           </motion.div>

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { LogOut, LogIn, User, Sparkles } from "lucide-react";
+import { LogOut, LogIn, User, Sparkles, Menu } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import AuthModal from "@/components/auth/AuthModal";
 
@@ -30,70 +30,82 @@ export default function Navigation() {
     <>
       {/* Desktop Navigation Header */}
       <header className="hidden md:block fixed top-0 left-0 right-0 z-40 bg-white/60 dark:bg-gray-900/40 backdrop-blur-md shadow-sm border-b border-white/20 dark:border-gray-800/20 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Logo */}
-          <Link
-            href="/"
-            className="flex items-center gap-2 font-bold text-sm tracking-tight hover:opacity-80 transition group"
+        <div className="h-16 flex items-center justify-between px-[50px]">
+          {/* Burger Icon */}
+          <motion.div
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            className="cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
           >
-            <motion.div
-              whileHover={{ scale: 1.08, rotate: 5 }}
-              whileTap={{ scale: 0.95 }}
-              className="p-1.5 bg-gradient-to-br from-sky-500 to-cyan-500 rounded-lg"
-            >
-              <Sparkles className="w-5 h-5 text-white" />
-            </motion.div>
-            <div className="flex flex-col leading-tight">
-              <span className="text-gray-900 dark:text-white text-sm font-bold">
-                Seafood
-              </span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">Academy</span>
-            </div>
-          </Link>
+            <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+          </motion.div>
 
-          {/* Nav Links - Center */}
-          <nav className="flex items-center gap-8 flex-1 justify-center">
+          {/* Center Container */}
+          <div className="flex-1 flex items-center justify-center gap-8">
+            {/* Logo */}
             <Link
               href="/"
-              className={`text-sm font-medium transition-colors ${
-                pathname === "/"
-                  ? "text-sky-600 dark:text-sky-400"
-                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              }`}
+              className="flex items-center gap-2 font-bold text-sm tracking-tight hover:opacity-80 transition group"
             >
-              Головна
+              <motion.div
+                whileHover={{ scale: 1.08, rotate: 5 }}
+                whileTap={{ scale: 0.95 }}
+                className="p-1.5 bg-gradient-to-br from-sky-500 to-cyan-500 rounded-lg"
+              >
+                <Sparkles className="w-5 h-5 text-white" />
+              </motion.div>
+              <div className="flex flex-col leading-tight">
+                <span className="text-gray-900 dark:text-white text-sm font-bold">
+                  Seafood
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Academy</span>
+              </div>
             </Link>
-            <Link
-              href="/academy"
-              className={`text-sm font-medium transition-colors ${
-                pathname.startsWith("/academy")
-                  ? "text-sky-600 dark:text-sky-400"
-                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              }`}
-            >
-              Академія
-            </Link>
-            <Link
-              href="/market"
-              className={`text-sm font-medium transition-colors ${
-                pathname === "/market"
-                  ? "text-sky-600 dark:text-sky-400"
-                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              }`}
-            >
-              Маркет
-            </Link>
-            <Link
-              href="/chat/create-chat"
-              className={`text-sm font-medium transition-colors ${
-                pathname.startsWith("/chat")
-                  ? "text-sky-600 dark:text-sky-400"
-                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              }`}
-            >
-              AI-наставник
-            </Link>
-          </nav>
+
+            {/* Nav Links - Center */}
+            <nav className="flex items-center gap-8">
+              <Link
+                href="/"
+                className={`text-sm font-medium transition-colors ${
+                  pathname === "/"
+                    ? "text-sky-600 dark:text-sky-400"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                }`}
+              >
+                Головна
+              </Link>
+              <Link
+                href="/academy"
+                className={`text-sm font-medium transition-colors ${
+                  pathname.startsWith("/academy")
+                    ? "text-sky-600 dark:text-sky-400"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                }`}
+              >
+                Академія
+              </Link>
+              <Link
+                href="/market"
+                className={`text-sm font-medium transition-colors ${
+                  pathname === "/market"
+                    ? "text-sky-600 dark:text-sky-400"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                }`}
+              >
+                Маркет
+              </Link>
+              <Link
+                href="/chat/create-chat"
+                className={`text-sm font-medium transition-colors ${
+                  pathname.startsWith("/chat")
+                    ? "text-sky-600 dark:text-sky-400"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                }`}
+              >
+                AI-наставник
+              </Link>
+            </nav>
+          </div>
 
           {/* Auth Buttons - Right */}
           <div className="flex items-center gap-3">
