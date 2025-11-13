@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Gem, Wallet, Settings, AlertTriangle } from "lucide-react";
 import { useState as useStateImport } from "react";
 
 interface ChatMessage {
@@ -315,7 +315,12 @@ export default function CreateRecipeChatPage() {
         addAIMessage(aiData, cost);
       }
 
-      // Deduct tokens after successful response
+      // Deduct tokens immediately from UI (optimistic update)
+      if (user) {
+        user.chefTokens = (user.chefTokens || 0) - cost;
+      }
+
+      // Refresh balance from backend to sync
       await refreshBalance();
     } catch (error) {
       addAIMessage("Не вдалося отримати відповідь. Перевірте з'єднання 🙏");
@@ -451,7 +456,7 @@ export default function CreateRecipeChatPage() {
   ];
 
   return (
-    <div className="flex flex-col h-[calc(100vh-128px)] bg-white dark:bg-slate-950 overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-64px)] bg-white dark:bg-slate-950 overflow-hidden">
       <input
         ref={fileInputRef}
         type="file"
@@ -460,89 +465,95 @@ export default function CreateRecipeChatPage() {
       />
 
       {/* Header */}
-      <ChatHeader
-        title={tr.chefMentor}
-        chatHistory={chatHistory}
-        sessionId={sessionId}
-        onLoadChat={loadChat}
-        onDeleteChat={deleteChat}
-        onNewChat={startNewChat}
-      />
+      <div className="mt-16">
+        <ChatHeader
+          title={tr.chefMentor}
+          chatHistory={chatHistory}
+          sessionId={sessionId}
+          onLoadChat={loadChat}
+          onDeleteChat={deleteChat}
+          onNewChat={startNewChat}
+        />
+      </div>
 
       {/* Token Settings Sheet Panel */}
       <Sheet open={showTokenPanel} onOpenChange={setShowTokenPanel}>
-        <SheetContent side="right" className="w-96 overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle className="flex items-center gap-2">
-              <span>💎</span>
-              Параметры запиту
+        <SheetContent side="right" className="w-96 overflow-y-auto bg-white dark:bg-slate-900 border-l border-sky-200 dark:border-slate-800 px-6">
+          <SheetHeader className="border-b border-sky-200 dark:border-slate-800 pb-4">
+            <SheetTitle className="flex items-center gap-2 text-xl">
+              <Gem className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <span className="text-gray-800 dark:text-gray-100">Параметры запиту</span>
             </SheetTitle>
           </SheetHeader>
 
-          <div className="space-y-4 mt-6">
+          <div className="space-y-6 mt-6 pr-2">
             {/* Balance Card */}
             {user && (
-              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200 dark:border-blue-800">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Ваш баланс</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                      {user.chefTokens || 0}
-                    </span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">CT</span>
-                  </div>
-                  <Button 
-                    onClick={() => {
-                      router.push('/academy/earn-tokens');
-                      setShowTokenPanel(false);
-                    }}
-                    className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-                    size="sm"
-                  >
-                    Купити токени
-                  </Button>
-                </CardContent>
-              </Card>
+              <div className="bg-gradient-to-br from-sky-50 to-cyan-50 dark:from-sky-950 dark:to-cyan-900 border border-sky-200 dark:border-sky-800 rounded-2xl p-5 shadow-sm">
+                <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                  <Wallet className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                  Ваш баланс
+                </div>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="text-4xl font-bold text-sky-600 dark:text-sky-400">
+                    {user.chefTokens || 0}
+                  </span>
+                  <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Chef Tokens</span>
+                </div>
+                <Button 
+                  onClick={() => {
+                    router.push('/academy/earn-tokens');
+                    setShowTokenPanel(false);
+                  }}
+                  className="w-full bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-semibold rounded-xl transition-all"
+                  size="sm"
+                >
+                  <Gem className="w-4 h-4 mr-2" />
+                  Купити ще токенів
+                </Button>
+              </div>
             )}
 
             {/* Request Type Selector */}
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+            <div>
+              <p className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <Settings className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 Виберіть тип запиту
               </p>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {AI_REQUEST_TYPES.map((type) => {
                   const isSelected = selectedType === type.id;
                   return (
                     <motion.button
                       key={type.id}
-                      whileHover={{ x: 4 }}
+                      whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setSelectedType(type.id)}
-                      className={`w-full p-3 rounded-lg text-left transition-all border-2 ${
+                      className={`w-full p-4 rounded-xl text-left transition-all border-2 ${
                         isSelected
-                          ? 'bg-orange-50 dark:bg-orange-950 border-orange-400 dark:border-orange-700'
-                          : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600'
+                          ? 'bg-sky-100 dark:bg-sky-900/50 border-sky-400 dark:border-sky-600 shadow-md'
+                          : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 hover:border-sky-300 dark:hover:border-sky-700'
                       }`}
                     >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className={`font-semibold text-sm ${
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <div className={`font-bold text-sm ${
                             isSelected 
-                              ? 'text-orange-700 dark:text-orange-300' 
-                              : 'text-gray-700 dark:text-gray-300'
+                              ? 'text-sky-700 dark:text-sky-300' 
+                              : 'text-gray-800 dark:text-gray-200'
                           }`}>
                             {type.name}
                           </div>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                             {type.description}
                           </p>
                         </div>
                         <Badge 
-                          variant={isSelected ? "default" : "secondary"}
-                          className={isSelected ? "bg-orange-500 hover:bg-orange-600" : ""}
+                          className={`flex-shrink-0 font-bold ${
+                            isSelected 
+                              ? 'bg-sky-500 hover:bg-sky-600 text-white' 
+                              : 'bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-gray-300'
+                          }`}
                         >
                           {type.cost} CT
                         </Badge>
@@ -558,17 +569,17 @@ export default function CreateRecipeChatPage() {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg space-y-2"
+                className="p-4 bg-red-50 dark:bg-red-950/50 border-2 border-red-200 dark:border-red-800 rounded-xl space-y-3"
               >
-                <div className="flex gap-2">
-                  <AlertCircle className="h-4 w-4 text-yellow-700 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+                <div className="flex gap-3">
+                  <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
+                    <p className="text-sm font-bold text-red-800 dark:text-red-300">
                       Недостаточно токенов
                     </p>
-                    <p className="text-xs text-yellow-700 dark:text-yellow-400 mt-1">
-                      Нужно {AI_REQUEST_TYPES.find(t => t.id === selectedType)?.cost || 0} CT, 
-                      у вас {user.chefTokens || 0} CT
+                    <p className="text-xs text-red-700 dark:text-red-400 mt-2 leading-relaxed">
+                      Для запиту потрібно <span className="font-bold">{AI_REQUEST_TYPES.find(t => t.id === selectedType)?.cost || 0} CT</span>, 
+                      у вас є <span className="font-bold">{user.chefTokens || 0} CT</span>
                     </p>
                   </div>
                 </div>
@@ -577,10 +588,11 @@ export default function CreateRecipeChatPage() {
                     router.push('/academy/earn-tokens');
                     setShowTokenPanel(false);
                   }}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-all"
                   size="sm"
-                  className="w-full bg-yellow-600 hover:bg-yellow-700 text-white text-xs"
                 >
-                  Купити
+                  <Gem className="w-4 h-4 mr-2" />
+                  Купити токенів
                 </Button>
               </motion.div>
             )}
@@ -589,7 +601,7 @@ export default function CreateRecipeChatPage() {
       </Sheet>
 
       {/* Main Chat Area - Scrollable */}
-      <main className="flex-1 overflow-y-auto px-4 py-3 flex flex-col space-y-2 max-w-4xl w-full mx-auto min-w-0">
+      <main className="flex-1 overflow-y-auto px-4 py-3 flex flex-col space-y-2 max-w-4xl w-full mx-auto min-w-0 pb-32">
         <ChatMessages
           messages={chatMessages}
           isThinking={isAIThinking}
@@ -628,8 +640,8 @@ export default function CreateRecipeChatPage() {
       </main>
 
       {/* Footer - Fixed Input */}
-      <div className="bg-white dark:bg-slate-900 border-t border-sky-200 dark:border-slate-800 flex-shrink-0 px-4 py-3 flex items-center gap-3">
-        <div className="flex-1">
+      <div className="bg-white dark:bg-slate-900 border-t border-sky-200 dark:border-slate-800 flex-shrink-0 px-4 py-2 flex items-center gap-1 fixed bottom-0 left-0 right-0 z-30">
+        <div className="flex-1 max-w-4xl mx-auto w-full">
           <ChatInput
             value={userInput}
             onChange={setUserInput}
@@ -647,22 +659,10 @@ export default function CreateRecipeChatPage() {
             onImageUpload={handleImageUpload}
             onRemoveImage={() => setAttachedImage(null)}
             fileInputRef={fileInputRef}
+            tokenCount={user?.chefTokens || 0}
+            onTokenClick={() => setShowTokenPanel(true)}
           />
         </div>
-        
-        {/* Token Button - Right Side */}
-        {user && (
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowTokenPanel(true)}
-            className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border border-blue-200 dark:border-blue-800 hover:shadow-md transition-all"
-          >
-            <span className="text-lg">💎</span>
-            <span className="font-bold text-blue-600 dark:text-blue-400 text-sm">{user.chefTokens || 0}</span>
-            <span className="text-xs text-gray-600 dark:text-gray-400">CT</span>
-          </motion.button>
-        )}
       </div>
     </div>
   );

@@ -356,9 +356,6 @@ export default function NavigationBurger() {
         )}
       </AnimatePresence>
 
-      {/* ========== SPACER FOR FIXED HEADER ========== */}
-      <div className="h-16" />
-
       {/* ========== AUTH MODAL ========== */}
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </>

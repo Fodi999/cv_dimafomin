@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { ArrowLeft, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import RecipeCard from "@/components/market/RecipeCard";
 import RecipeFilters from "@/components/market/RecipeFilters";
 import { useUser } from "@/contexts/UserContext";
@@ -53,17 +52,6 @@ export default function MarketPage() {
 
   return (
     <div className="max-w-7xl mx-auto relative">
-      {/* Back to Profile Button */}
-      {isAuthenticated && (
-        <Link
-          href="/create-chat"
-          className="inline-flex items-center gap-2 mb-6 px-4 py-2 text-gray-900 dark:text-white hover:text-sky-600 dark:hover:text-sky-400 transition-colors group"
-        >
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-          <span className="font-medium">{t.academy?.dashboard?.backToProfile || "Назад до профілю"}</span>
-        </Link>
-      )}
-
       {/* Header */}
       <div className="mb-12">
         <div className="flex items-center gap-3 mb-4">

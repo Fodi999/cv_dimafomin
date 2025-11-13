@@ -70,19 +70,19 @@ export default function AcademyPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white/50 to-white dark:from-gray-950/50 dark:to-gray-950 pb-20">
+    <div className="min-h-screen bg-white dark:bg-gray-950 px-[40px] pt-[40px]">
       {/* Hero Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-6xl mx-auto px-4 pt-12 mb-16"
+        className="w-full pt-16 pb-12"
       >
         <div className="text-center mb-12">
           <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-500 dark:from-sky-400 dark:via-cyan-400 dark:to-sky-300 bg-clip-text text-transparent mb-4">
             Академія суші
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8">
-            Шиф-школа для всіх рівнів. Навчайтеся, мистецтво готування суші, подорожуйте по світовій кухні та станьте експертом.
+          <p className="text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto mb-10 leading-relaxed">
+            Шеф-школа для всіх рівнів. Навчайтеся мистецтву готування суші, подорожуйте по світовій кухні та станьте експертом.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -100,7 +100,7 @@ export default function AcademyPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-4 mb-12">
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4">
           {[
             { label: "Користувачів", value: "50K+" },
             { label: "Курсів", value: "120+" },
@@ -128,9 +128,9 @@ export default function AcademyPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="max-w-6xl mx-auto px-4 mb-16"
+        className="w-full py-16"
       >
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+        <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-12 text-center">
           Що вас цікавить?
         </h2>
 
@@ -182,9 +182,9 @@ export default function AcademyPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="max-w-6xl mx-auto px-4 mb-16"
+        className="w-full py-16"
       >
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+        <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-12 text-center">
           Чому вибирати Академію?
         </h2>
 
@@ -213,9 +213,9 @@ export default function AcademyPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="max-w-4xl mx-auto px-4"
+        className="w-full py-16"
       >
-        <div className="bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-500 dark:from-sky-600 dark:via-cyan-600 dark:to-sky-500 rounded-3xl p-8 md:p-12 text-white text-center shadow-2xl dark:shadow-sky-500/20">
+        <div className="bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-500 dark:from-sky-600 dark:via-cyan-600 dark:to-sky-500 rounded-3xl p-8 md:p-16 text-white text-center shadow-2xl dark:shadow-sky-500/20 mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Готові почати свою подорож?
           </h2>

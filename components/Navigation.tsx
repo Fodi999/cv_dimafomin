@@ -138,9 +138,6 @@ export default function Navigation() {
         </div>
       </header>
 
-      {/* Spacer for fixed header */}
-      <div className="hidden md:block h-16" />
-
       {/* Auth Modal */}
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </>

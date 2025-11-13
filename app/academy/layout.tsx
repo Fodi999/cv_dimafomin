@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Footer from "@/components/sections/Footer";
 
 export const metadata: Metadata = {
   title: "AI Culinary Academy | Dima Fomin",
@@ -13,11 +12,10 @@ export default function AcademyLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col bg-[#FEF9F5]">
-      <main className="flex-1 container mx-auto px-4 py-24 relative">
+    <div className="min-h-screen">
+      <main className="flex-1 relative">
         {children}
       </main>
-      <Footer />
     </div>
   );
 }

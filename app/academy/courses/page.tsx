@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BookOpen, Clock, Star, Users, ArrowRight, Bookmark, Share2, Play } from "lucide-react";
+import { BookOpen, Clock, Star, Users, ArrowRight, Bookmark, Share2, Play, Zap, Trophy } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -82,31 +82,31 @@ const difficultyColors: Record<string, string> = {
 
 export default function CoursesPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-sky-50 to-blue-50 pt-24 pb-16">
+    <div className="min-h-screen bg-white dark:bg-gray-950 px-[40px] pt-[80px] pb-[40px]">
       {/* Header */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 sm:mb-16">
+      <section className="mb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-4">
             Структурированные курсы
           </h1>
-          <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-2 px-2 sm:px-0">
+          <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
             От базовых техник до advanced рецептов от шефа Dima Fomin
           </p>
-          <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap">
-            <Star className="w-4 h-4 fill-current flex-shrink-0" />
+          <div className="inline-flex items-center gap-2 px-6 py-3 bg-sky-100/50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 rounded-full font-semibold">
+            <Star className="w-4 h-4 fill-current" />
             <span>3 курса • 650+ учеников</span>
           </div>
         </motion.div>
       </section>
 
       {/* Courses Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+      <section className="mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course, idx) => {
             const difficultyConfig: Record<string, { bg: string; badge: string }> = {
               "Начинающий": { bg: "from-green-400/20 to-emerald-400/20", badge: "bg-green-100 text-green-700" },
@@ -116,7 +116,7 @@ export default function CoursesPage() {
             const config = difficultyConfig[course.difficulty] || difficultyConfig["Начинающий"];
 
             return (
-              <motion.div
+                <motion.div
                 key={course.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -125,37 +125,37 @@ export default function CoursesPage() {
                 className="group"
               >
                 {/* Card */}
-                <div className={`bg-gradient-to-br ${config.bg} rounded-2xl p-6 sm:p-8 h-full border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-xl transition-all duration-300 backdrop-blur-sm`}>
+                <div className={`bg-gradient-to-br ${config.bg} rounded-2xl p-8 h-full border border-sky-200/50 dark:border-sky-800/50 shadow-lg hover:shadow-xl transition-all duration-300`}>
                   {/* Icon & Title */}
                   <div className="mb-6">
-                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
                       {course.title}
                     </h3>
-                    <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
+                    <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">
                       {course.description}
                     </p>
                   </div>
 
                   {/* Level Badge */}
                   <div className="mb-4">
-                    <span className={`inline-block px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${config.badge}`}>
+                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${config.badge}`}>
                       {course.difficulty}
                     </span>
                   </div>
 
                   {/* Meta Info */}
                   <div className="space-y-3 mb-6 pb-6 border-b border-gray-300/50 dark:border-gray-600/50">
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-sm sm:text-base">
+                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-base">
                       <Clock className="w-4 h-4 flex-shrink-0" />
-                      <span>⏱️ {course.duration}</span>
+                      <span>{course.duration}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-sm sm:text-base">
+                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-base">
                       <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 flex-shrink-0" />
                       <span className="font-semibold">{course.rating}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-sm sm:text-base">
+                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-base">
                       <Users className="w-4 h-4 flex-shrink-0" />
-                      <span>👥 {course.students}</span>
+                      <span>{course.students}</span>
                     </div>
                   </div>
 
@@ -182,7 +182,7 @@ export default function CoursesPage() {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full py-3 sm:py-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group text-sm sm:text-base"
+                      className="w-full py-4 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group"
                     >
                       Начать курс
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -196,12 +196,12 @@ export default function CoursesPage() {
       </section>
 
       {/* Student Works - Pinterest Style */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-20">
+      <section className="mt-20">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
-          className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-2 text-center"
+          className="text-4xl font-bold text-gray-900 dark:text-white mb-4 text-center"
         >
           Работы учеников
         </motion.h2>
@@ -209,13 +209,13 @@ export default function CoursesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35, duration: 0.6 }}
-          className="text-center text-gray-600 dark:text-gray-400 mb-8 sm:mb-12 text-base sm:text-lg"
+          className="text-center text-gray-600 dark:text-gray-400 mb-12 text-lg"
         >
           Вдохновляющие творения наших студентов
         </motion.p>
 
         {/* Masonry Grid */}
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 sm:gap-6 space-y-4 sm:space-y-6">
+        <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
           {studentWorks.map((work, idx) => (
             <motion.div
               key={work.id}
@@ -227,24 +227,24 @@ export default function CoursesPage() {
             >
               <div className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 bg-white dark:bg-gray-800">
                 {/* Image */}
-                <div className="relative overflow-hidden h-auto">
+                <div className="relative overflow-hidden">
                   <img
                     src={work.imageUrl}
                     alt={work.studentName}
                     className="w-full h-auto object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                    <h4 className="text-white font-bold text-base sm:text-lg">{work.studentName}</h4>
-                    <p className="text-white/90 text-xs sm:text-sm">{work.courseName}</p>
+                    <h4 className="text-white font-bold text-lg">{work.studentName}</h4>
+                    <p className="text-white/90 text-sm">{work.courseName}</p>
                   </div>
                 </div>
 
                 {/* Card Footer */}
-                <div className="p-3 sm:p-4 bg-white dark:bg-gray-800">
+                <div className="p-4 bg-white dark:bg-gray-800">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                      <span className="font-bold text-gray-900 dark:text-white text-sm">{work.rating}</span>
+                      <span className="font-bold text-gray-900 dark:text-white">{work.rating}</span>
                     </div>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(work.completedDate).toLocaleDateString("uk-UA", {
@@ -253,7 +253,7 @@ export default function CoursesPage() {
                       })}
                     </span>
                   </div>
-                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-medium">{work.studentName}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">{work.studentName}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{work.courseName}</p>
                 </div>
               </div>
@@ -263,23 +263,23 @@ export default function CoursesPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-20">
+      <section className="mt-20">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.6 }}
-          className="bg-gradient-to-r from-sky-500 via-blue-500 to-teal-500 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 text-white text-center shadow-2xl"
+          className="bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-500 dark:from-sky-600 dark:via-cyan-600 dark:to-sky-500 rounded-3xl p-16 text-white text-center shadow-2xl dark:shadow-sky-500/20 mx-auto"
         >
-          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
+          <h3 className="text-4xl font-bold mb-4">
             Готов стать шефом?
           </h3>
-          <p className="text-base sm:text-lg text-white/90 mb-6 sm:mb-8 px-2 sm:px-0">
+          <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
             Выбери курс и начни своё путешествие в мир морепродуктов вместе с Dima Fomin
           </p>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-600 font-bold rounded-xl hover:shadow-lg transition-all inline-flex items-center gap-2 text-sm sm:text-base"
+            className="px-8 py-4 bg-white text-sky-600 font-bold rounded-xl hover:shadow-lg transition-all inline-flex items-center gap-2"
           >
             Выбрать курс
             <ArrowRight className="w-5 h-5" />

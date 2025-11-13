@@ -3,13 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
-import { ProfileHeader } from "@/components/profile/ProfileHeader";
-import { TabsNavigation } from "@/components/profile/TabsNavigation";
-import { PostsGrid } from "@/components/profile/PostsGrid";
-import { CoursesGrid } from "@/components/profile/CoursesGrid";
-import { ActionButtons } from "@/components/profile/ActionButtons";
-import { TokenBalanceCard } from "@/components/profile/TokenBalanceCard";
-import { TransactionHistory } from "@/components/profile/TransactionHistory";
+import { ProfileTabs } from "@/components/profile/ProfileTabs";
 import type { TabType, UserProfile, Post, Transaction } from "@/lib/profile-types";
 import { useProfileTranslations } from "@/hooks/useProfileTranslations";
 
@@ -24,6 +18,15 @@ export default function ProfilePage() {
   const [pageLoading, setPageLoading] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [healthData, setHealthData] = useState({
+    age: 0,
+    weight: 0,
+    height: 0,
+    dailyCalories: 2000,
+    allergies: [] as string[],
+    dietaryRestrictions: [] as string[],
+    fitnessGoal: "maintenance",
+  });
   const { translations, language } = useProfileTranslations();
 
   // Load user profile, posts, and transactions - ONCE
@@ -91,25 +94,6 @@ export default function ProfilePage() {
     );
   }
 
-  const handleEditProfile = () => {
-    router.push("/profile/edit");
-  };
-
-  const handleToChat = () => {
-    router.push("/chat");
-  };
-
-  const handleToHome = () => {
-    router.push("/");
-  };
-
-  const handleLogout = () => {
-    // ✅ Don't call router.push here - let the useEffect handle it
-    // Because logout() sets user=null → isAuthenticated=false → effect redirects
-    // Calling router.push here causes race condition
-    logout();
-  };
-
   const handleEarn = () => {
     router.push("/academy");
   };
@@ -128,83 +112,22 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
       {/* Main Profile Container */}
-      <div className="max-w-4xl mx-auto px-4 py-8 sm:py-12">
-        {/* Action Buttons */}
-        <div className="mb-8">
-          <ActionButtons 
-            translations={translationsRecord}
-            onEditProfile={handleEditProfile}
-            onToChat={handleToChat}
-            onToHome={handleToHome}
-            onLogout={handleLogout}
-          />
-        </div>
-
-        {/* Profile Header */}
-        <div className="mb-8">
-          <ProfileHeader 
-            name={userProfile.name}
-            email={userProfile.email}
-            avatar={userProfile.avatar}
-            bio={userProfile.bio}
-            location={userProfile.location}
-            followers={userProfile.followers}
-            following={userProfile.following}
-          />
-        </div>
-
-        {/* Token Balance Card */}
-        <div className="mb-8">
-          <TokenBalanceCard 
-            balance={user.chefTokens || 0}
-            loading={pageLoading}
-            retryCount={retryCount}
-            transactionsCount={transactions.length}
-            translations={translationsRecord}
-            onEarnClick={handleEarn}
-            onBuyClick={handleBuy}
-            onRefreshClick={handleRefresh}
-          />
-        </div>
-
-        {/* Tabs Navigation */}
-        <TabsNavigation 
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          translations={translationsRecord}
+      <div className="max-w-4xl mx-auto px-4 pt-[120px] pb-8">
+        <ProfileTabs
+          userProfile={userProfile}
+          user={user}
+          posts={posts}
+          savedPosts={savedPosts}
+          transactions={transactions}
+          pageLoading={pageLoading}
+          retryCount={retryCount}
+          healthData={healthData}
+          translationsRecord={translationsRecord}
+          onHealthDataUpdate={setHealthData}
+          onEarnClick={handleEarn}
+          onBuyClick={handleBuy}
+          onRefreshClick={handleRefresh}
         />
-
-        {/* Tab Content */}
-        <div className="bg-white dark:bg-gray-900 rounded-b-3xl shadow-lg overflow-hidden">
-          {activeTab === "posts" && (
-            <PostsGrid 
-              posts={posts}
-              loading={pageLoading}
-              emptyMessage={translationsRecord.noPostsYet || "Нет постов"}
-              onCreatePost={() => router.push("/academy/create")}
-              translations={translationsRecord}
-            />
-          )}
-          {activeTab === "saved" && (
-            <PostsGrid 
-              posts={savedPosts}
-              loading={pageLoading}
-              emptyMessage={translationsRecord.noSavedPosts || "Нет сохраненных постов"}
-              translations={translationsRecord}
-            />
-          )}
-          {activeTab === "courses" && (
-            <CoursesGrid />
-          )}
-        </div>
-
-        {/* Transaction History */}
-        <div className="mt-8">
-          <TransactionHistory 
-            transactions={transactions}
-            translations={translationsRecord}
-          />
-        </div>
       </div>
     </div>
   );

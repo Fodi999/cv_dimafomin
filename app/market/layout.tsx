@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Footer from "@/components/sections/Footer";
 
 export const metadata: Metadata = {
   title: "Recipe Marketplace | Dima Fomin",
@@ -17,7 +16,6 @@ export default function MarketLayout({
       <main className="flex-1 container mx-auto px-4 py-24 relative">
         {children}
       </main>
-      <Footer />
     </div>
   );
 }

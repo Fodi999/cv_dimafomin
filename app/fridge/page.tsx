@@ -203,7 +203,7 @@ export default function FridgePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-sky-50 dark:from-gray-950 dark:to-slate-900 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto pt-[80px]">
         {/* ===== LOADING AUTH ===== */}
         {isLoading && (
           <div className="flex items-center justify-center py-12">
