@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 
 export default function AcademyHero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-40">
       {/* Animated background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-sky-950 to-cyan-950 dark:from-gray-950 dark:via-sky-950 dark:to-cyan-950 z-0">
         <div className="absolute inset-0 opacity-30">
@@ -58,7 +58,7 @@ export default function AcademyHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight text-white">
+          <h1 className="text-6xl lg:text-7xl font-bold mb-6 leading-tight text-white">
             Добро пожаловать в Seafood Academy
           </h1>
         </motion.div>
@@ -68,7 +68,7 @@ export default function AcademyHero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-xl md:text-2xl text-gray-300 font-medium mb-4 max-w-3xl mx-auto leading-relaxed"
+          className="text-xl md:text-2xl text-gray-300 font-medium mb-6 max-w-3xl mx-auto leading-relaxed"
         >
           Учебная платформа по морепродуктам от шефа Dima Fomin
         </motion.p>
@@ -88,7 +88,7 @@ export default function AcademyHero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-xl md:text-2xl font-semibold text-sky-300 mb-12 max-w-3xl mx-auto leading-relaxed"
+          className="text-2xl md:text-2xl font-semibold text-sky-300 mb-16 max-w-3xl mx-auto leading-relaxed"
         >
           Учись. Готовь. Зарабатывай ChefTokens.
         </motion.p>
@@ -98,19 +98,19 @@ export default function AcademyHero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
+          className="flex flex-col sm:flex-row gap-6 justify-center mb-20"
         >
           <Link href="/academy" className="group">
-            <Button className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-medium px-8 py-6 text-lg rounded-xl shadow-md hover:shadow-lg dark:shadow-sky-500/20 dark:hover:shadow-sky-500/30 transition-all duration-200 active:scale-95 w-full sm:w-auto">
+            <Button className="bg-white text-black hover:bg-gray-100 font-medium px-8 py-3 text-base rounded-lg border-2 border-white hover:border-gray-100 shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 w-full sm:w-auto">
               Начать обучение
-              <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform ml-2" />
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
             </Button>
           </Link>
 
           <Link href="/create-chat" className="group">
-            <Button className="bg-white/10 hover:bg-white/20 text-white font-medium px-8 py-6 text-lg rounded-xl border-2 border-white/30 hover:border-white/50 transition-all duration-200 active:scale-95 w-full sm:w-auto">
+            <Button className="bg-black text-white hover:bg-gray-900 border-2 border-white font-medium px-8 py-3 text-base rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 w-full sm:w-auto">
               Начать диалог
-              <Waves className="w-6 h-6 group-hover:translate-x-1 transition-transform ml-2" />
+              <Waves className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
             </Button>
           </Link>
         </motion.div>
@@ -120,7 +120,7 @@ export default function AcademyHero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="grid grid-cols-3 gap-6 max-w-2xl mx-auto"
+          className="grid grid-cols-3 gap-6 max-w-2xl mx-auto mt-20"
         >
           {[
             { number: "50+", label: "Рецептов" },

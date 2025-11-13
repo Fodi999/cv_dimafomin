@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { BookOpen, Users, TrendingUp, Award, Zap, Target, GraduationCap, Trophy, Coins, Globe, BarChart3, Bot } from "lucide-react";
+import { BookOpen, Users, TrendingUp, Award, Zap, Target, GraduationCap, Trophy, Coins, Globe, BarChart3, Bot, ArrowRight, Waves } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -12,114 +12,165 @@ export default function AcademyPage() {
   const categories = [
     {
       icon: BookOpen,
-      title: "Курси",
-      description: "Навчайтеся від основ до просунутих прийомів",
+      title: "Курсы",
+      description: "От базовых техник до продвинутых рецептов.",
       link: "/academy/courses",
       color: "from-blue-500 to-cyan-500",
-      count: "12+ курсів",
+      count: "12+ программ обучения →",
     },
     {
       icon: Users,
-      title: "Спільнота",
-      description: "Діліться рецептами та натхненням з друзями",
+      title: "Сообщество",
+      description: "Обменивайтесь опытом, делитесь блюдами и вдохновляйтесь.",
       link: "/academy/community",
       color: "from-green-500 to-emerald-500",
-      count: "2.3K учасників",
+      count: "2.3K участников →",
     },
     {
       icon: TrendingUp,
       title: "Рейтинг",
-      description: "Змагайтеся та набирайте досвід",
+      description: "Растите в мастерстве, зарабатывайте ChefTokens и поднимайтесь в топ.",
       link: "/academy/leaderboard",
       color: "from-purple-500 to-pink-500",
-      count: "Top 100 список",
+      count: "Топ-100 учеников →",
     },
     {
       icon: Award,
-      title: "Сертифікати",
-      description: "Підтвердіть свої навички офіційно",
+      title: "Сертификация",
+      description: "Получайте официальные сертификаты от Seafood Academy.",
       link: "/academy/certificates",
       color: "from-amber-500 to-orange-500",
-      count: "Мої сертифікати",
+      count: "Мои достижения →",
     },
     {
       icon: Zap,
-      title: "Заробити токени",
-      description: "Виконуйте завдання та заробляйте",
+      title: "Заработок токенов",
+      description: "Выполняйте задания, проходите уроки — получайте ChefTokens.",
       link: "/academy/earn-tokens",
       color: "from-rose-500 to-red-500",
-      count: "ChefTokens",
+      count: "Ваш баланс →",
     },
     {
       icon: Target,
-      title: "Глобальна стіна",
-      description: "Відкривайте рецепти зі всього світу",
+      title: "Глобальная стена",
+      description: "Открывайте блюда и рецепты из разных стран.",
       link: "/academy/feed",
       color: "from-indigo-500 to-blue-500",
-      count: "Світова спільнота",
+      count: "Мировое сообщество →",
     },
   ];
 
   const features = [
-    { icon: GraduationCap, title: "Структуровані курси", desc: "З уроками, тестами та проектами" },
-    { icon: Trophy, title: "Програма дипломування", desc: "Отримайте офіційний сертифікат" },
-    { icon: Coins, title: "Заробіток токенів", desc: "Закуповуйте преміум контент" },
-    { icon: Globe, title: "Глобальна спільнота", desc: "Мільйони учасників світу" },
-    { icon: BarChart3, title: "Слідкуйте прогресом", desc: "Детальна статистика та аналітика" },
-    { icon: Bot, title: "AI асистент", desc: "Персональний тренер для вас" },
+    { icon: GraduationCap, title: "Структурированные курсы", desc: "Материалы, уроки, практика и задания" },
+    { icon: Bot, title: "AI-наставник Dima Fomin", desc: "Персональные подсказки и обучение в формате диалога" },
+    { icon: Coins, title: "ChefTokens", desc: "Валюта обучения: получайте, тратьте, открывайте премиум-контент" },
+    { icon: Globe, title: "Глобальное сообщество", desc: "Ученики из разных стран и уровней подготовки" },
+    { icon: BarChart3, title: "Прогресс и статистика", desc: "Аналитика, достижения и путь роста" },
+    { icon: Trophy, title: "Подход от шефа", desc: "Все знания основаны на опыте Dima Fomin в сфере морепродуктов" },
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 px-[40px] pt-[40px]">
+    <div className="min-h-screen relative bg-gradient-to-br from-gray-950 via-sky-950 to-cyan-950 dark:from-gray-950 dark:via-sky-950 dark:to-cyan-950 overflow-hidden">
+      {/* Animated background gradient */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-sky-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-20 w-72 h-72 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000" />
+        <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-sky-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000" />
+      </div>
+
+      <div className="relative z-10">
       {/* Hero Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full pt-16 pb-12"
+        className="w-full pt-32 pb-40"
       >
-        <div className="text-center mb-12">
-          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-500 dark:from-sky-400 dark:via-cyan-400 dark:to-sky-300 bg-clip-text text-transparent mb-4">
-            Академія суші
-          </h1>
-          <p className="text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto mb-10 leading-relaxed">
-            Шеф-школа для всіх рівнів. Навчайтеся мистецтву готування суші, подорожуйте по світовій кухні та станьте експертом.
-          </p>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          {/* Top badge */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sky-500/20 border border-sky-400/50 mb-8 dark:bg-sky-500/20 dark:border-sky-600/50"
+          >
+            <span className="text-sm font-semibold text-white leading-relaxed">
+              Добро пожаловать в Seafood Academy
+            </span>
+          </motion.div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/academy/courses">
-              <Button size="lg" className="bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-semibold">
-                Почати навчання
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-10 leading-tight text-white">
+            Учись. Готовь. Расти вместе с AI.
+          </h1>
+
+          {/* Emotional subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-lg md:text-xl text-gray-300 font-medium mb-6 max-w-3xl mx-auto leading-relaxed"
+          >
+            Учебная платформа по морепродуктам от шефа Dima Fomin
+          </motion.p>
+
+          {/* AI value proposition */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="text-base md:text-lg text-gray-400 mb-8 max-w-3xl mx-auto leading-relaxed"
+          >
+            Персональный AI-наставник, структурированные курсы и сообщество профессионалов. От основ до уровня ресторана.
+          </motion.p>
+
+          {/* ChefTokens value highlight */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="text-2xl md:text-2xl font-semibold text-sky-300 mb-16 max-w-3xl mx-auto leading-relaxed"
+          >
+            Получайте ChefTokens за каждый урок и зарабатывайте на своём обучении
+          </motion.div>
+
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <Link href="/academy/courses" className="group">
+              <Button className="bg-white text-black hover:bg-gray-100 font-medium px-8 py-3 text-base rounded-lg border-2 border-white hover:border-gray-100 shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 w-full sm:w-auto">
+                Начать обучение
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
               </Button>
             </Link>
-            <Link href="/academy/feed">
-              <Button size="lg" variant="outline" className="border-2 border-sky-600 dark:border-sky-400 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/50 font-semibold">
-                Переглянути рецепти
+            <Link href="/chat/create-chat" className="group">
+              <Button className="bg-black text-white hover:bg-gray-900 border-2 border-white font-medium px-8 py-3 text-base rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 w-full sm:w-auto">
+                Перейти в AI-наставник
+                <Waves className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
               </Button>
             </Link>
           </div>
-        </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4">
-          {[
-            { label: "Користувачів", value: "50K+" },
-            { label: "Курсів", value: "120+" },
-            { label: "Рецептів", value: "2.5K+" },
-            { label: "Дипломів", value: "15K+" },
-            { label: "Токенів", value: "1M+" },
-            { label: "Країн", value: "180+" },
-          ].map((stat, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05 }}
-              className="bg-white dark:bg-gray-900 rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-shadow border border-sky-200/50 dark:border-sky-800/50"
-            >
-              <p className="text-2xl font-bold text-sky-600 dark:text-sky-400">{stat.value}</p>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{stat.label}</p>
-            </motion.div>
-          ))}
+          {/* Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="grid grid-cols-3 gap-6 max-w-2xl mx-auto mt-20"
+          >
+            {[
+              { number: "50+", label: "Рецептов" },
+              { number: "1000+", label: "Учеников" },
+              { number: "24/7", label: "AI-помощь" },
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                whileHover={{ y: -4 }}
+                className="bg-white/5 backdrop-blur-md rounded-xl p-6 border border-sky-300/40 shadow-md hover:shadow-lg hover:border-sky-300/60 transition-all duration-200"
+              >
+                <p className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-cyan-300 mb-2">
+                  {stat.number}
+                </p>
+                <p className="text-base md:text-lg text-gray-400 tracking-wide font-medium">{stat.label}</p>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </motion.div>
 
@@ -128,13 +179,14 @@ export default function AcademyPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="w-full py-16"
+        className="w-full py-20"
       >
-        <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-12 text-center">
-          Що вас цікавить?
-        </h2>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-16 text-center">
+            Что вы хотите изучать?
+          </h2>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {categories.map((cat, idx) => {
             const Icon = cat.icon;
             return (
@@ -146,34 +198,39 @@ export default function AcademyPage() {
                 whileHover={{ scale: 1.05, y: -5 }}
               >
                 <Link href={cat.link}>
-                  <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg hover:shadow-2xl transition-all cursor-pointer p-6 h-full group border border-sky-200/50 dark:border-sky-800/50">
-                    {/* Icon */}
-                    <div className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${cat.color} mb-4`}>
-                      <Icon className="w-8 h-8 text-white" />
-                    </div>
+                  <div className="bg-gray-800/60 backdrop-blur-md rounded-2xl shadow-xl hover:shadow-2xl hover:bg-gray-800/80 transition-all cursor-pointer p-8 h-full group border border-sky-500/40 hover:border-sky-500/60">
+                    <div className="flex flex-col h-full">
+                      {/* Top section with icon and arrow */}
+                      <div className="flex items-start justify-between mb-6">
+                        <div className={`inline-flex p-3 rounded-lg bg-gradient-to-br ${cat.color}`}>
+                          <Icon className="w-6 h-6 text-white" />
+                        </div>
+                        <span className="text-gray-400 group-hover:text-sky-300 transition-colors text-xl">
+                          →
+                        </span>
+                      </div>
 
-                    {/* Content */}
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
-                      {cat.title}
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                      {cat.description}
-                    </p>
+                      {/* Content */}
+                      <h3 className="text-lg md:text-xl font-bold text-white mb-3 group-hover:text-sky-300 transition-colors">
+                        {cat.title}
+                      </h3>
+                      <p className="text-sm text-gray-300 mb-6 leading-relaxed flex-grow">
+                        {cat.description}
+                      </p>
 
-                    {/* Footer */}
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800">
-                      <span className="text-xs font-semibold text-sky-600 dark:text-sky-400">
-                        {cat.count}
-                      </span>
-                      <span className="text-gray-400 dark:text-gray-600 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
-                        →
-                      </span>
+                      {/* Footer */}
+                      <div className="pt-6 border-t border-sky-500/30">
+                        <span className="text-xs font-semibold text-sky-300">
+                          {cat.count}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </Link>
               </motion.div>
             );
           })}
+        </div>
         </div>
       </motion.div>
 
@@ -182,29 +239,33 @@ export default function AcademyPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="w-full py-16"
+        className="w-full py-20"
       >
-        <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-12 text-center">
-          Чому вибирати Академію?
-        </h2>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-16 text-center">
+            Почему выбирают Seafood Academy
+          </h2>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, idx) => {
-            const Icon = feature.icon;
-            return (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.08 }}
-                className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all border border-sky-200/50 dark:border-sky-800/50"
-              >
-                <Icon className="w-8 h-8 text-sky-600 dark:text-sky-400 mb-3" />
-                <h3 className="font-bold text-gray-900 dark:text-white mb-2">{feature.title}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{feature.desc}</p>
-              </motion.div>
-            );
-          })}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, idx) => {
+              const Icon = feature.icon;
+              return (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.08 }}
+                  className="bg-gray-800/60 backdrop-blur-md rounded-2xl p-8 shadow-xl hover:shadow-2xl hover:bg-gray-800/80 transition-all border border-sky-500/40 hover:border-sky-500/60"
+                >
+                  <div className="flex flex-col h-full">
+                    <Icon className="w-8 h-8 text-sky-400 mb-4" />
+                    <h3 className="text-lg md:text-xl font-bold text-white mb-3">{feature.title}</h3>
+                    <p className="text-sm text-gray-300 leading-relaxed flex-grow">{feature.desc}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
       </motion.div>
 
@@ -213,30 +274,35 @@ export default function AcademyPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="w-full py-16"
+        className="w-full py-20"
       >
-        <div className="bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-500 dark:from-sky-600 dark:via-cyan-600 dark:to-sky-500 rounded-3xl p-8 md:p-16 text-white text-center shadow-2xl dark:shadow-sky-500/20 mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Готові почати свою подорож?
-          </h2>
-          <p className="text-white/90 text-lg mb-8 max-w-2xl mx-auto">
-            Приєднайтесь до тисяч учасників, які вже вивчають мистецтво готування суші
-          </p>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-gradient-to-r from-sky-600/80 via-cyan-600/80 to-sky-500/80 backdrop-blur-sm rounded-2xl p-12 md:p-20 text-white text-center shadow-2xl border border-sky-500/50">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-8">
+              Готовы начать своё обучение?
+            </h2>
+            <p className="text-base md:text-lg text-white/90 mb-12 max-w-2xl mx-auto leading-relaxed">
+              Присоединяйтесь к тем, кто уже прокачивает навыки в Seafood Academy
+            </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/academy/courses">
-              <Button size="lg" className="bg-white text-sky-600 hover:bg-gray-100 font-semibold">
-                Переглянути курси
-              </Button>
-            </Link>
-            <Link href="/academy/earn-tokens">
-              <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 font-semibold">
-                Заробити токени
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Link href="/academy/courses" className="group">
+                <Button className="bg-white text-black hover:bg-gray-100 font-medium px-8 py-3 text-base rounded-lg border-2 border-white hover:border-gray-100 shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 w-full sm:w-auto">
+                  Смотреть курсы
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
+                </Button>
+              </Link>
+              <Link href="/academy/earn-tokens" className="group">
+                <Button className="bg-black text-white hover:bg-gray-900 border-2 border-white font-medium px-8 py-3 text-base rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 w-full sm:w-auto">
+                  Зарабатывать ChefTokens
+                  <Coins className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </motion.div>
+      </div>
     </div>
   );
 }

@@ -110,8 +110,8 @@ export default function AcademyChefTokens() {
             className="text-center pt-4"
           >
             <Link href="/profile">
-              <Button className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-medium px-8 py-6 text-lg rounded-xl shadow-md hover:shadow-lg dark:shadow-sky-500/20 dark:hover:shadow-sky-500/30 transition-all active:scale-95 group w-full md:w-auto flex items-center justify-center gap-2">
-                <Coins className="w-6 h-6" />
+              <Button className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-medium px-8 py-3 text-base rounded-lg shadow-md hover:shadow-lg dark:shadow-sky-500/20 dark:hover:shadow-sky-500/30 transition-all active:scale-95 group w-full md:w-auto flex items-center justify-center gap-2">
+                <Coins className="w-5 h-5" />
                 Посмотреть баланс токенов
               </Button>
             </Link>

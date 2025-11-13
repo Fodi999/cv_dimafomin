@@ -40,13 +40,13 @@ export default function AcademyAbout() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-white/50 to-white dark:from-gray-950/50 dark:to-gray-950">
+    <section className="py-24 relative overflow-hidden bg-gradient-to-b from-white/50 to-white dark:from-gray-950/50 dark:to-gray-950">
       {/* Background elements */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-sky-500/5 to-cyan-500/5 dark:via-sky-500/10 dark:to-cyan-500/10 pointer-events-none" />
       <div className="absolute top-0 right-0 w-96 h-96 bg-sky-400/10 dark:bg-sky-500/20 rounded-full blur-3xl -translate-y-1/2" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-400/10 dark:bg-cyan-500/20 rounded-full blur-3xl translate-y-1/2" />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-24 py-24">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-24">
         {/* SECTION 1: HERO BLOCK - О ПРОЕКТЕ */}
         <motion.div
           variants={containerVariants}
@@ -56,7 +56,7 @@ export default function AcademyAbout() {
           className="text-center space-y-4"
         >
           <motion.div variants={itemVariants}>
-            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight text-center">
               О проекте
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
@@ -78,7 +78,7 @@ export default function AcademyAbout() {
               <Brain className="w-6 h-6 text-sky-600 dark:text-sky-400" />
               <span className="text-sm font-semibold text-sky-600 dark:text-sky-400">КТО ТАКОЙ AI DIMA FOMIN</span>
             </div>
-            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-6 leading-tight text-center">
               Цифровой наставник с опытом шефа
             </h3>
             <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
@@ -103,10 +103,11 @@ export default function AcademyAbout() {
                 <motion.div
                   key={idx}
                   variants={itemVariants}
-                  className="p-4 rounded-lg bg-white/40 dark:bg-white/5 border border-sky-200/50 dark:border-sky-800/50"
+                  whileHover={{ y: -4 }}
+                  className="p-8 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm dark:shadow-md hover:shadow-md dark:hover:shadow-lg transition-all duration-200"
                 >
-                  <h4 className="font-bold text-gray-900 dark:text-white mb-2">{item.title}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
+                  <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-3">{item.title}</h4>
+                  <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed">{item.desc}</p>
                 </motion.div>
               ))}
             </div>
@@ -242,9 +243,9 @@ export default function AcademyAbout() {
               AI проведёт вас от выбора свежих ингредиентов до блюда ресторанного уровня — через диалог, анализ и персональные подсказки.
             </p>
             <Link href="/create-chat">
-              <Button className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-medium px-8 py-6 text-lg rounded-xl shadow-md hover:shadow-lg dark:shadow-sky-500/20 dark:hover:shadow-sky-500/30 transition-all duration-200 active:scale-95 group">
+              <Button className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-medium px-8 py-3 text-base rounded-lg shadow-md hover:shadow-lg dark:shadow-sky-500/20 dark:hover:shadow-sky-500/30 transition-all duration-200 active:scale-95 group">
                 Начать обучение с AI
-                <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform ml-2" />
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
               </Button>
             </Link>
           </motion.div>

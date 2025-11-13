@@ -11,6 +11,7 @@ export default function AcademyCoursesPreview() {
       id: 1,
       title: "Основы рыбы",
       description: "Научись выбирать, хранить и готовить рыбу как профессионал",
+      image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=400&fit=crop",
       icon: Fish,
       level: "Начинающий",
       duration: "4 часа",
@@ -22,6 +23,7 @@ export default function AcademyCoursesPreview() {
       id: 2,
       title: "Секреты устриц",
       description: "От открытия раковины до идеального сочетания со специями",
+      image: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&h=400&fit=crop",
       icon: Shell,
       level: "Средний",
       duration: "3 часа",
@@ -33,6 +35,7 @@ export default function AcademyCoursesPreview() {
       id: 3,
       title: "Суши и роллы",
       description: "Мастер-класс по изготовлению суши как в токийских ресторанах",
+      image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=600&h=400&fit=crop",
       icon: Utensils,
       level: "Продвинутый",
       duration: "5 часов",
@@ -73,7 +76,7 @@ export default function AcademyCoursesPreview() {
       <div className="absolute inset-0 bg-gradient-to-b from-sky-500/5 via-transparent to-cyan-500/5 dark:from-sky-500/10 dark:to-cyan-500/10 pointer-events-none" />
       <div className="absolute top-20 left-1/4 w-72 h-72 bg-sky-500/10 dark:bg-sky-500/20 rounded-full blur-3xl" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -100,122 +103,105 @@ export default function AcademyCoursesPreview() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          className="grid md:grid-cols-3 gap-8 mb-12"
+          className="grid md:grid-cols-3 gap-10 mb-12"
         >
           {courses.map((course) => {
             const IconComponent = course.icon;
             return (
-            <motion.div
-              key={course.id}
-              variants={itemVariants}
-              whileHover={{ y: -8, transition: { duration: 0.3 } }}
-              className="group bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-md dark:shadow-sky-500/5 hover:shadow-lg dark:hover:shadow-sky-500/15 transition-all duration-200 border border-gray-100 dark:border-gray-800"
-            >
-              {/* Course header with icon and rating overlay */}
-              <div className="relative bg-gradient-to-br from-sky-500/20 via-cyan-500/10 to-teal-500/20 dark:from-sky-900/40 dark:via-cyan-900/30 dark:to-teal-900/40 p-8 text-center overflow-hidden h-48 flex items-center justify-center">
-                {/* Animated background */}
-                <motion.div 
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-sky-500/30 to-cyan-500/20 dark:from-sky-500/40 dark:to-cyan-500/30 transition-opacity"
-                  animate={{ scale: [1, 1.05] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                />
-                
-                {/* Icon */}
-                <motion.div
-                  className="relative z-10"
-                  whileHover={{ scale: 1.2, rotate: 10 }}
-                  transition={{ type: "spring" }}
-                >
-                  <IconComponent className="w-20 h-20 text-sky-600 dark:text-sky-400" />
-                </motion.div>
+              <motion.div
+                key={course.id}
+                variants={itemVariants}
+                whileHover={{ y: -8, transition: { duration: 0.3 } }}
+                className="group bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-lg dark:shadow-xl hover:shadow-2xl dark:hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-800 cursor-pointer"
+              >
+                {/* Pinterest-style image with overlay */}
+                <div className="relative overflow-hidden h-64">
+                  <img 
+                    src={course.image} 
+                    alt={course.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-                {/* Rating badge */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ duration: 0.3 }}
-                  className="absolute top-4 right-4 bg-gradient-to-br from-amber-400 to-orange-500 dark:from-amber-500 dark:to-orange-600 rounded-full p-3 shadow-lg dark:shadow-orange-500/40 z-20 flex items-center gap-1"
-                >
-                  <Star className="w-6 h-6 fill-white text-white" />
-                  <span className="font-bold text-white text-sm">{course.rating}</span>
-                </motion.div>
-              </div>
+                  {/* Rating badge - top right */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute top-4 right-4 bg-white dark:bg-gray-900 rounded-lg px-3 py-2 shadow-lg z-20 flex items-center gap-1.5 backdrop-blur-md"
+                  >
+                    <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
+                    <span className="font-bold text-gray-900 dark:text-white text-sm">{course.rating}</span>
+                  </motion.div>
 
-              {/* Course info */}
-              <div className="p-6 space-y-5">
-                {/* Title */}
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
-                  {course.title}
-                </h3>
-
-                {/* Description */}
-                <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-base">
-                  {course.description}
-                </p>
-
-                {/* Progress bar */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-base">
-                    <span className="font-medium text-gray-700 dark:text-gray-300">Пройдено</span>
-                    <span className="font-bold text-sky-600 dark:text-sky-400 text-lg">{course.progress}%</span>
-                  </div>
-                  <div className="w-full h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      whileInView={{ width: `${course.progress}%` }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1, delay: 0.2 }}
-                      className="h-full bg-gradient-to-r from-sky-500 to-cyan-500 dark:from-sky-600 dark:to-cyan-600 rounded-full"
-                    />
-                  </div>
-                </div>
-
-                {/* Meta info */}
-                <div className="space-y-3 py-3 border-t border-b border-gray-200 dark:border-gray-800">
-                  <div className="flex items-center justify-between text-base">
-                    <span className={`px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${{
-                      "Начинающий": "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400",
-                      "Средний": "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400",
-                      "Продвинутый": "bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400",
-                    }[course.level]}`}>
+                  {/* Level badge - bottom left */}
+                  <div className="absolute bottom-4 left-4 z-20">
+                    <span className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors ${
+                      course.level === "Начинающий" ? "bg-emerald-500/90 text-white" :
+                      course.level === "Средний" ? "bg-amber-500/90 text-white" :
+                      "bg-rose-500/90 text-white"
+                    }`}>
                       {course.level}
                     </span>
-                    <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1 text-sm font-medium">
-                      <TrendingUp className="w-6 h-6 text-sky-600 dark:text-sky-400" />
-                      {course.duration}
-                    </span>
-                  </div>
-
-                  {/* Students count */}
-                  <div className="flex items-center justify-between text-base">
-                    <span className="text-gray-600 dark:text-gray-400 text-sm font-medium flex items-center gap-1">
-                      <Users className="w-6 h-6 text-sky-600 dark:text-sky-400" />
-                      {course.students.toLocaleString()} учеников
-                    </span>
-                    <motion.div 
-                      animate={{ rotate: [0, 360] }}
-                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                      className="text-sky-600 dark:text-sky-400"
-                    >
-                      <Sparkles className="w-6 h-6" />
-                    </motion.div>
                   </div>
                 </div>
 
-                {/* CTA Button */}
-                <Link href="/academy/courses" className="block">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md dark:shadow-sky-500/20 hover:shadow-lg dark:hover:shadow-sky-500/30 flex items-center justify-center gap-2"
-                  >
-                    Подробнее
-                    <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-                  </motion.button>
-                </Link>
-              </div>
-            </motion.div>
+                {/* Content section */}
+                <div className="p-5 space-y-4">
+                  {/* Title */}
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-snug">
+                    {course.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-2">
+                    {course.description}
+                  </p>
+
+                  {/* Meta row - compact */}
+                  <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-800">
+                    <span className="flex items-center gap-1">
+                      <TrendingUp className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                      {course.duration}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Users className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                      {course.students}
+                    </span>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Пройдено</span>
+                      <span className="text-xs font-bold text-sky-600 dark:text-sky-400">{course.progress}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${course.progress}%` }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 1, delay: 0.2 }}
+                        className="h-full bg-gradient-to-r from-sky-500 to-cyan-500 dark:from-sky-600 dark:to-cyan-600"
+                      />
+                    </div>
+                  </div>
+
+                  {/* CTA Button */}
+                  <Link href="/academy/courses" className="block pt-1">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full bg-white/10 hover:bg-white/20 dark:bg-white/10 dark:hover:bg-white/20 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 font-medium py-2.5 rounded-lg transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-600 flex items-center justify-center gap-2 text-sm"
+                    >
+                      Подробнее
+                      <ArrowRight className="w-4 h-4" />
+                    </motion.button>
+                  </Link>
+                </div>
+              </motion.div>
             );
           })}
         </motion.div>
@@ -229,9 +215,9 @@ export default function AcademyCoursesPreview() {
           className="text-center"
         >
           <Link href="/academy/courses">
-            <Button className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-medium px-10 py-6 text-lg rounded-xl shadow-md hover:shadow-lg dark:shadow-sky-500/20 dark:hover:shadow-sky-500/30 transition-all duration-200 active:scale-95 group">
+            <Button className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-medium px-8 py-3 text-base rounded-lg shadow-md hover:shadow-lg dark:shadow-sky-500/20 dark:hover:shadow-sky-500/30 transition-all duration-200 active:scale-95 group">
               Смотреть все курсы
-              <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform ml-2" />
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
             </Button>
           </Link>
         </motion.div>

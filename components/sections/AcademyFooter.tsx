@@ -42,14 +42,14 @@ export default function AcademyFooter() {
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#00D9FF] rounded-full mix-blend-multiply filter blur-3xl" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Main footer content */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="py-20 grid md:grid-cols-4 gap-12"
+          className="py-24 grid md:grid-cols-4 gap-12"
         >
           {/* Brand section */}
           <motion.div variants={itemVariants} className="space-y-4">
@@ -139,7 +139,7 @@ export default function AcademyFooter() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="py-12 flex flex-col md:flex-row items-center justify-between gap-8"
+          className="py-8 flex flex-col md:flex-row items-center justify-between gap-8 border-t border-gray-700/50"
         >
           {/* Copyright */}
           <motion.p variants={itemVariants} className="text-gray-400 text-sm text-center md:text-left">
