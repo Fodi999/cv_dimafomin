@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   ArrowRight,
   Brain,
@@ -20,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 export default function AcademyAbout() {
+  const { t } = useLanguage();
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -57,11 +59,10 @@ export default function AcademyAbout() {
         >
           <motion.div variants={itemVariants}>
             <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-              О проекте
+              {t.sections.about.projectTitle}
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
-              Modern Food Academy — платформа современной кухни, рецептов и Food Pairing от шефа Dima Fomin.
-              Здесь вы изучаете современные рецепты, сочетания «закуска + напиток», развиваете вкус и открываете рецепты за ChefTokens с помощью персонального AI-наставника.
+              {t.sections.about.projectDescription}
             </p>
           </motion.div>
         </motion.div>
@@ -77,31 +78,17 @@ export default function AcademyAbout() {
           <motion.div variants={itemVariants} className="max-w-4xl">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sky-500/10 dark:bg-sky-500/20 border border-sky-200/50 dark:border-sky-800/50 mb-6">
               <Brain className="w-6 h-6 text-sky-600 dark:text-sky-400" />
-              <span className="text-sm font-semibold text-sky-600 dark:text-sky-400">КТО ТАКОЙ AI DIMA FOMIN</span>
+              <span className="text-sm font-semibold text-sky-600 dark:text-sky-400">{t.sections.about.aiMentorTitle}</span>
             </div>
             <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-              Цифровой наставник с опытом шефа
+              {t.sections.about.aiMentorSubtitle}
             </h3>
             <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-              AI Dima Fomin — цифровой кулинарный наставник, основанный на опыте и подходе шефа.
-              Он обучает через живой диалог, помогает создавать современные рецепты, анализирует фото ваших работ, подбирает сочетания вкусов и объясняет технику приготовления как настоящий профессионал.
+              {t.sections.about.aiMentorDesc}
             </p>
 
             <div className="grid sm:grid-cols-3 gap-6">
-              {[
-                {
-                  title: "Опыт",
-                  desc: "Знания основаны на многолетнем опыте шефа в современной кухне, подаче и сочетаниях вкусов.",
-                },
-                {
-                  title: "Философия",
-                  desc: "Каждый ответ передаёт авторский стиль, вкус и подход шефа к современному кулинарному искусству.",
-                },
-                {
-                  title: "Метод обучения",
-                  desc: "Обучение построено на диалоге, практике и разборе реальных блюд — без сухой теории.",
-                },
-              ].map((item, idx) => (
+              {t.sections.about.mentorTraits.map((item, idx) => (
                 <motion.div
                   key={idx}
                   variants={itemVariants}
@@ -126,10 +113,10 @@ export default function AcademyAbout() {
         >
           <motion.div variants={itemVariants} className="text-center">
             <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
-              Как проходит обучение
+              {t.sections.about.learningTitle}
             </h3>
             <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-              Выбирайте удобный формат — от живого диалога до разбора ваших блюд и сочетаний вкусов.
+              {t.sections.about.learningSubtitle}
             </p>
           </motion.div>
 
@@ -138,12 +125,12 @@ export default function AcademyAbout() {
             className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             {[
-              { icon: <MessageCircle className="w-6 h-6 text-sky-600 dark:text-sky-400" />, title: "Чат-диалоги", desc: "Задавайте любые вопросы о современной кухне, рецептах и сочетаниях — AI отвечает мгновенно." },
-              { icon: <Camera className="w-6 h-6 text-sky-600 dark:text-sky-400" />, title: "Фотоанализ", desc: "Отправьте фото блюда — AI оценит подачу, текстуру, технику и предложит улучшения." },
-              { icon: <PlayCircle className="w-6 h-6 text-sky-600 dark:text-sky-400" />, title: "Подбор видеоуроков", desc: "AI подбирает обучающие видео и материалы, соответствующие вашей цели, блюду или технике." },
-              { icon: <Lightbulb className="w-6 h-6 text-sky-600 dark:text-sky-400" />, title: "Персональные подсказки", desc: "Система адаптируется под ваш уровень, стиль готовки и предпочтения во вкусах." },
-              { icon: <Zap className="w-6 h-6 text-sky-600 dark:text-sky-400" />, title: "Помощь во время готовки", desc: "Получайте советы в реальном времени прямо на кухне — шаг за шагом." },
-              { icon: <Coins className="w-6 h-6 text-sky-600 dark:text-sky-400" />, title: "Оплата токенами", desc: "Каждый запрос к AI и дополнительные функции оплачиваются ChefTokens." },
+              { icon: <MessageCircle className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.learningMethods[0] },
+              { icon: <Camera className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.learningMethods[1] },
+              { icon: <PlayCircle className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.learningMethods[2] },
+              { icon: <Lightbulb className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.learningMethods[3] },
+              { icon: <Zap className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.learningMethods[4] },
+              { icon: <Coins className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.learningMethods[5] },
             ].map((item, idx) => (
               <motion.div
                 key={idx}
@@ -169,10 +156,10 @@ export default function AcademyAbout() {
         >
           <motion.div variants={itemVariants} className="text-center">
             <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
-              Возможности AI-наставника
+              {t.sections.about.capabilitiesTitle}
             </h3>
             <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-              Всё, что делает AI Dima Fomin, чтобы улучшать ваши навыки современной кухни и сочетаний вкусов.
+              {t.sections.about.capabilitiesSubtitle}
             </p>
           </motion.div>
 
@@ -181,36 +168,12 @@ export default function AcademyAbout() {
             className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             {[
-              {
-                icon: <Sparkles className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-                title: "Генерация рецептов",
-                desc: "AI создаёт современные рецепты и pairing-комбинации, исходя из ваших продуктов и предпочтений.",
-              },
-              {
-                icon: <BookOpen className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-                title: "Пошаговое приготовление",
-                desc: "Объясняет процесс блюда простыми действиями: от подготовки до подачи.",
-              },
-              {
-                icon: <Camera className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-                title: "Анализ блюда по фото",
-                desc: "Оценивает подачу, текстуру, прожарку, цвет и даёт рекомендации, как улучшить технику.",
-              },
-              {
-                icon: <Lightbulb className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-                title: "Персональный подбор",
-                desc: "Подбирает блюда и рецепты под ваш уровень, стиль готовки и цели обучения.",
-              },
-              {
-                icon: <Zap className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-                title: "Помощь в реальном времени",
-                desc: "Сопровождает во время готовки: отвечает на вопросы, подсказывает, что делать дальше.",
-              },
-              {
-                icon: <Clock className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-                title: "Работа 24/7 и адаптация",
-                desc: "Всегда доступен, изучает ваш стиль и адаптируется под ваши вкусовые предпочтения.",
-              },
+              { icon: <Sparkles className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.capabilities[0] },
+              { icon: <BookOpen className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.capabilities[1] },
+              { icon: <Camera className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.capabilities[2] },
+              { icon: <Lightbulb className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.capabilities[3] },
+              { icon: <Zap className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.capabilities[4] },
+              { icon: <Clock className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.capabilities[5] },
             ].map((item, idx) => (
               <motion.div
                 key={idx}
@@ -236,17 +199,17 @@ export default function AcademyAbout() {
         >
           <motion.div variants={itemVariants} className="max-w-2xl mx-auto">
             <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
-              Современная кухня с нуля
+              {t.sections.about.ctaTitle}
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 font-semibold uppercase tracking-wide">
-              Обучение от базовых техник до ресторанного уровня
+              {t.sections.about.ctaSubtitle}
             </p>
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-              AI-наставник проведёт вас от выбора продуктов до создания современных блюд и идеальных сочетаний вкусов — через диалог, анализ и персональные подсказки.
+              {t.sections.about.ctaDescription}
             </p>
             <Link href="/create-chat">
               <Button className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-medium px-8 py-3 text-base rounded-lg shadow-md hover:shadow-lg dark:shadow-sky-500/20 dark:hover:shadow-sky-500/30 transition-all duration-200 active:scale-95 group">
-                Начать обучение с AI
+                {t.sections.about.ctaButton}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
               </Button>
             </Link>

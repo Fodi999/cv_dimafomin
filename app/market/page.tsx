@@ -5,6 +5,7 @@ import { ShoppingBag, Search, Coins, Star, Users } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const mockRecipes = [
   {
@@ -82,6 +83,7 @@ const mockRecipes = [
 ];
 
 export default function MarketPage() {
+  const { t } = useLanguage();
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -121,14 +123,14 @@ export default function MarketPage() {
               <ShoppingBag className="w-8 h-8 text-white" />
             </motion.div>
             <h1 className="text-5xl md:text-6xl font-bold text-white">
-              Купуйте рецепти за ChefTokens
+              {t.market.title}
             </h1>
           </div>
           <p className="text-xl text-gray-300 max-w-2xl leading-relaxed mb-2">
-            Преміальні рецепти, техніки та pairing-комбінації від Dima Fomin.
+            {t.market.subtitle}
           </p>
           <p className="text-lg text-gray-400">
-            Вибирайте страви, відкривайте інструкції та використовуйте ChefTokens для покупки.
+            {t.market.subtitle}
           </p>
         </motion.div>
 
@@ -143,7 +145,7 @@ export default function MarketPage() {
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Пошук рецептів…"
+              placeholder={t.market.search}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-12 pr-6 py-4 bg-white/10 border border-sky-300/40 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-sky-300/60 focus:ring-1 focus:ring-sky-300/40 transition-all backdrop-blur-sm"
@@ -195,7 +197,7 @@ export default function MarketPage() {
                       <span>{recipe.studentsCount}</span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-400 text-sm">
-                      <span>Рівень: {recipe.difficulty}</span>
+                      <span>{t.common.level} {recipe.difficulty}</span>
                     </div>
                   </div>
 
@@ -210,7 +212,7 @@ export default function MarketPage() {
                       whileTap={{ scale: 0.95 }}
                       className="px-4 py-2 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white font-semibold rounded-lg transition-all"
                     >
-                      Купити
+                      {t.common.buy}
                     </motion.button>
                   </div>
                 </div>
@@ -228,8 +230,8 @@ export default function MarketPage() {
             className="text-center py-20"
           >
             <Search className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-white mb-2">Рецептів не знайдено</h3>
-            <p className="text-gray-400">Спробуйте інший запит пошуку</p>
+            <h3 className="text-2xl font-bold text-white mb-2">{t.common.notFound}</h3>
+            <p className="text-gray-400">{t.common.tryAgain}</p>
           </motion.div>
         )}
 
@@ -241,15 +243,15 @@ export default function MarketPage() {
           className="mt-24 bg-gradient-to-r from-sky-600/80 via-cyan-600/80 to-sky-500/80 backdrop-blur-sm rounded-3xl p-16 text-white text-center shadow-2xl border border-sky-500/50"
         >
           <h2 className="text-4xl font-bold mb-4">
-            Потрібні ChefTokens?
+            {t.market.title}
           </h2>
           <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
-            Зароби токени, проходячи курси та завдання, або купи пакет токенів для миттєвого доступу.
+            {t.hero.earnTokens}
           </p>
           <Link href="/academy/earn-tokens">
             <Button className="px-8 py-4 bg-white text-sky-600 hover:bg-gray-100 font-bold rounded-xl transition-all inline-flex items-center gap-2">
               <Coins className="w-5 h-5" />
-              Заробити ChefTokens
+              {t.hero.earnTokens}
             </Button>
           </Link>
         </motion.div>

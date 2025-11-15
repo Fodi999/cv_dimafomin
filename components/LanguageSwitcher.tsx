@@ -22,22 +22,7 @@ export default function LanguageSwitcher() {
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           />
         )}
-        <span className={`relative z-10 font-bold ${language === 'pl' ? 'text-white' : 'text-gray-700 dark:text-gray-400'}`}>PL</span>
-      </button>
-      
-      <button
-        onClick={() => setLanguage('ua')}
-        className="relative px-4 py-2 text-sm font-semibold rounded-full transition-all duration-300"
-      >
-        {language === 'ua' && (
-          <motion.div
-            layoutId="activeLang"
-            className={`absolute inset-0 ${gradients.primary} rounded-full shadow-lg dark:shadow-sky-500/30`}
-            initial={false}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          />
-        )}
-        <span className={`relative z-10 font-bold ${language === 'ua' ? 'text-white' : 'text-gray-700 dark:text-gray-400'}`}>UA</span>
+        <span className={`relative z-10 font-bold ${language === 'pl' ? 'text-white' : 'text-gray-700 dark:text-gray-400'}`}>Polski</span>
       </button>
     </div>
   );

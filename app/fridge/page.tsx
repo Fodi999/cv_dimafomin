@@ -16,6 +16,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { fridgeApi } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
@@ -30,6 +31,7 @@ interface FridgeItem {
 export default function FridgePage() {
   const router = useRouter();
   const { user, isLoading } = useUser();
+  const { t } = useLanguage();
   const [items, setItems] = useState<FridgeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -93,10 +95,10 @@ export default function FridgePage() {
   };
 
   const categoryLabels = {
-    protein: "Білки",
-    vegetable: "Овочі",
-    condiment: "Приправи",
-    other: "Інше",
+    protein: t.fridge.categories.protein,
+    vegetable: t.fridge.categories.vegetable,
+    condiment: t.fridge.categories.condiment,
+    other: t.fridge.categories.other,
   };
 
   const filteredItems = items.filter((item) =>
@@ -223,7 +225,7 @@ export default function FridgePage() {
               Потрібна авторизація
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Будь ласка, увійдіть, щоб використовувати холодильник
+              {t.fridge.empty.description}
             </p>
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -253,10 +255,10 @@ export default function FridgePage() {
                 </motion.div>
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                    Мій холодильник
+                    {t.fridge.title}
                   </h1>
                   <p className="text-gray-600 dark:text-gray-400">
-                    Керуйте своїми інгредієнтами, контролюйте свіжість та плануйте приготування.
+                    {t.fridge.subtitle}
                   </p>
                 </div>
               </div>
@@ -310,7 +312,7 @@ export default function FridgePage() {
                     <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                     <input
                       type="text"
-                      placeholder="Пошук інгредієнтів…"
+                      placeholder={t.fridge.search}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-full pl-10 pr-4 py-3 rounded-lg border border-sky-200 dark:border-sky-800 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
@@ -413,10 +415,10 @@ export default function FridgePage() {
                   >
                     <Refrigerator className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                      Холодильник порожній
+                      {t.fridge.empty.title}
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400">
-                      Додайте перший інгредієнт, щоб розпочати.
+                      {t.fridge.empty.description}
                     </p>
                   </motion.div>
                 ) : (

@@ -4,8 +4,11 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Waves } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function AcademyHero() {
+  const { t } = useLanguage();
+  
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-40">
       {/* Animated background gradient */}
@@ -48,7 +51,7 @@ export default function AcademyHero() {
         >
           <Sparkles className="w-6 h-6 text-sky-300 dark:text-sky-300" />
           <span className="text-sm font-semibold text-white leading-relaxed">
-            Современная кухня и идеальные вкусовые сочетания от Dima Fomin
+            {t.hero.badge}
           </span>
         </motion.div>
 
@@ -61,18 +64,18 @@ export default function AcademyHero() {
           <div className="space-y-2 mb-6">
             <h1 className="text-6xl lg:text-7xl font-bold leading-tight">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-cyan-300 to-sky-400">
-                Учись.
+                {t.hero.headingLine1}
               </span>
               <br />
-              <span className="text-white">Готовь.</span>
+              <span className="text-white">{t.hero.headingLine2}</span>
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-300 to-cyan-400">
-                Развивай вкус.
+                {t.hero.headingLine3}
               </span>
               <br />
-              <span className="text-white">Зарабатывай </span>
+              <span className="text-white">{t.hero.headingLine4}</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-cyan-300">
-                ChefTokens.
+                {t.hero.headingLine4Continuation}
               </span>
             </h1>
           </div>
@@ -85,7 +88,7 @@ export default function AcademyHero() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-xl md:text-2xl text-gray-300 font-medium mb-6 max-w-3xl leading-relaxed"
         >
-          Платформа современной кухни, авторских рецептов и сочетаний вкусов.
+          {t.hero.platformDescription}
         </motion.p>
 
         {/* AI Mentor description */}
@@ -95,7 +98,7 @@ export default function AcademyHero() {
           transition={{ duration: 0.6, delay: 0.25 }}
           className="text-lg md:text-xl text-gray-400 mb-6 max-w-3xl leading-relaxed"
         >
-          Твой персональный AI-наставник поможет создавать блюда ресторанного уровня, подбирать идеальные пары «закуска + напиток» и открывать рецепты за ChefTokens.
+          {t.hero.aiMentorDescription}
         </motion.p>
 
         {/* CTA phrase */}
@@ -116,14 +119,14 @@ export default function AcademyHero() {
         >
           <Link href="/academy" className="group">
             <Button className="bg-white text-black hover:bg-gray-100 font-medium px-8 py-3 text-base rounded-lg border-2 border-white hover:border-gray-100 shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 w-full sm:w-auto">
-              Начать обучение
+              {t.hero.startLearning}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
             </Button>
           </Link>
 
           <Link href="/create-chat" className="group">
             <Button className="bg-black text-white hover:bg-gray-900 border-2 border-white font-medium px-8 py-3 text-base rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 w-full sm:w-auto">
-              Начать диалог
+              {t.hero.startDialog}
               <Waves className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
             </Button>
           </Link>
@@ -137,9 +140,9 @@ export default function AcademyHero() {
           className="grid grid-cols-3 gap-6 max-w-2xl mx-auto mt-20"
         >
           {[
-            { number: "50+", label: "Готовых рецептов" },
-            { number: "1000+", label: "Учеников" },
-            { number: "24/7", label: "AI-помощь" },
+            { number: t.hero.stats.recipes, label: t.hero.stats.recipesLabel },
+            { number: t.hero.stats.students, label: t.hero.stats.studentsLabel },
+            { number: t.hero.stats.support, label: t.hero.stats.supportLabel },
           ].map((stat, index) => (
             <motion.div
               key={index}
