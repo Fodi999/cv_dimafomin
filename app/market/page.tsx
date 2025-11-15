@@ -1,82 +1,258 @@
 "use client";
 
-import { useState } from "react";
-import { ShoppingBag } from "lucide-react";
-import RecipeCard from "@/components/market/RecipeCard";
-import RecipeFilters from "@/components/market/RecipeFilters";
-import { useUser } from "@/contexts/UserContext";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useState, useEffect } from "react";
+import { ShoppingBag, Search, Coins, Star, Users } from "lucide-react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 
 const mockRecipes = [
   {
     id: "1",
-    title: "Професійне нігірі: від А до Я",
+    title: "⭐ Професійне нігірі: від А до Я",
     description: "Повний курс приготування нігірі суші з секретами японських майстрів",
-    price: 149,
+    price: 150,
     rating: 4.9,
     studentsCount: 234,
     image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=400",
     author: "Dima Fomin",
-    difficulty: "advanced" as const,
+    difficulty: "Продвинутий",
+    tokens: "150 CT",
   },
   {
     id: "2",
-    title: "Макі та уромакі для початківців",
+    title: "⭐ Макі та уромакі для початківців",
     description: "Навчіться готувати популярні ролли всього за 2 години",
-    price: 99,
+    price: 100,
     rating: 4.7,
     studentsCount: 567,
     image: "https://images.unsplash.com/photo-1611143669185-af224c5e3252?w=400",
-    author: "Anna Kowalska",
-    difficulty: "beginner" as const,
+    author: "Dima Fomin",
+    difficulty: "Початківець",
+    tokens: "100 CT",
   },
   {
     id: "3",
-    title: "Fusion суші: сучасний підхід",
+    title: "⭐ Fusion суші: сучасний підхід",
     description: "Створюйте унікальні авторські суші з європейськими інгредієнтами",
-    price: 199,
+    price: 200,
     rating: 4.8,
     studentsCount: 189,
     image: "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=400",
     author: "Dima Fomin",
-    difficulty: "intermediate" as const,
+    difficulty: "Середній",
+    tokens: "200 CT",
+  },
+  {
+    id: "4",
+    title: "⭐ Food Pairing: идеальні сочетання",
+    description: "Винахідіть ідеальні комбінації закусок і напоїв як професіонал",
+    price: 180,
+    rating: 5.0,
+    studentsCount: 312,
+    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400",
+    author: "Dima Fomin",
+    difficulty: "Середній",
+    tokens: "180 CT",
+  },
+  {
+    id: "5",
+    title: "⭐ Техніки нарізки професіоналів",
+    description: "Оволодійте всіма способами нарізки для ресторанного рівня",
+    price: 120,
+    rating: 4.9,
+    studentsCount: 445,
+    image: "https://images.unsplash.com/photo-1553504653527-7dd5b39ef828?w=400",
+    author: "Dima Fomin",
+    difficulty: "Середній",
+    tokens: "120 CT",
+  },
+  {
+    id: "6",
+    title: "⭐ Авторські блюда: створіть свій стиль",
+    description: "Розробіть унікальну авторську рецептуру, що відображає ваш стиль",
+    price: 220,
+    rating: 4.8,
+    studentsCount: 256,
+    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400",
+    author: "Dima Fomin",
+    difficulty: "Продвинутий",
+    tokens: "220 CT",
   },
 ];
 
 export default function MarketPage() {
   const [search, setSearch] = useState("");
-  const [difficulty, setDifficulty] = useState("");
-  const [sort, setSort] = useState("popular");
-  const { isAuthenticated } = useUser();
-  const { t } = useLanguage();
+
+  useEffect(() => {
+    // Set body background to dark gradient
+    document.body.style.backgroundColor = "#030712";
+    return () => {
+      document.body.style.backgroundColor = "";
+    };
+  }, []);
+
+  const filteredRecipes = mockRecipes.filter((recipe) =>
+    recipe.title.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className="max-w-7xl mx-auto relative">
-      {/* Header */}
-      <div className="mb-12">
-        <div className="flex items-center gap-3 mb-4">
-          <ShoppingBag className="w-10 h-10 text-sky-600 dark:text-sky-400" />
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">
-            Маркетплейс рецептів
-          </h1>
-        </div>
-        <p className="text-lg text-gray-600 dark:text-gray-400">
-          Професійні рецепти від досвідчених суші-шефів
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-sky-950 to-cyan-950 pt-24 pb-20">
+      {/* Animated background gradient */}
+      <div className="fixed inset-0 opacity-30 pointer-events-none">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-sky-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-20 w-72 h-72 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000" />
+        <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-sky-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000" />
       </div>
 
-      {/* Filters */}
-      <RecipeFilters
-        onSearchChange={setSearch}
-        onDifficultyChange={setDifficulty}
-        onSortChange={setSort}
-      />
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-16"
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <motion.div
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              className="p-3 bg-gradient-to-br from-sky-500 to-cyan-500 rounded-lg"
+            >
+              <ShoppingBag className="w-8 h-8 text-white" />
+            </motion.div>
+            <h1 className="text-5xl md:text-6xl font-bold text-white">
+              Купуйте рецепти за ChefTokens
+            </h1>
+          </div>
+          <p className="text-xl text-gray-300 max-w-2xl leading-relaxed mb-2">
+            Преміальні рецепти, техніки та pairing-комбінації від Dima Fomin.
+          </p>
+          <p className="text-lg text-gray-400">
+            Вибирайте страви, відкривайте інструкції та використовуйте ChefTokens для покупки.
+          </p>
+        </motion.div>
 
-      {/* Recipes Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {mockRecipes.map((recipe) => (
-          <RecipeCard key={recipe.id} {...recipe} />
-        ))}
+        {/* Search Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="mb-20"
+        >
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Пошук рецептів…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-12 pr-6 py-4 bg-white/10 border border-sky-300/40 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-sky-300/60 focus:ring-1 focus:ring-sky-300/40 transition-all backdrop-blur-sm"
+            />
+          </div>
+        </motion.div>
+
+        {/* Recipes Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredRecipes.map((recipe, idx) => (
+            <motion.div
+              key={recipe.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.08, duration: 0.6 }}
+              whileHover={{ y: -8 }}
+              className="group cursor-pointer"
+            >
+              <div className="bg-gradient-to-br from-sky-500/10 to-cyan-500/10 rounded-2xl overflow-hidden border border-sky-300/40 hover:border-sky-300/60 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm h-full flex flex-col">
+                {/* Image */}
+                <div className="relative overflow-hidden h-56">
+                  <img
+                    src={recipe.image}
+                    alt={recipe.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                </div>
+
+                {/* Content */}
+                <div className="p-6 flex flex-col flex-grow">
+                  {/* Title */}
+                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-sky-300 transition-colors">
+                    {recipe.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-gray-300 text-sm mb-6 flex-grow leading-relaxed">
+                    {recipe.description}
+                  </p>
+
+                  {/* Meta Info */}
+                  <div className="space-y-3 mb-6 pb-6 border-t border-sky-300/30">
+                    <div className="flex items-center gap-2 text-gray-300 text-sm">
+                      <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                      <span className="font-semibold">{recipe.rating}</span>
+                      <span className="text-gray-400">•</span>
+                      <Users className="w-4 h-4 text-sky-400" />
+                      <span>{recipe.studentsCount}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-400 text-sm">
+                      <span>Рівень: {recipe.difficulty}</span>
+                    </div>
+                  </div>
+
+                  {/* Price & Button */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Coins className="w-5 h-5 text-sky-400" />
+                      <span className="font-bold text-lg text-white">{recipe.tokens}</span>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-4 py-2 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white font-semibold rounded-lg transition-all"
+                    >
+                      Купити
+                    </motion.button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Empty State */}
+        {filteredRecipes.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
+            className="text-center py-20"
+          >
+            <Search className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+            <h3 className="text-2xl font-bold text-white mb-2">Рецептів не знайдено</h3>
+            <p className="text-gray-400">Спробуйте інший запит пошуку</p>
+          </motion.div>
+        )}
+
+        {/* CTA Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+          className="mt-24 bg-gradient-to-r from-sky-600/80 via-cyan-600/80 to-sky-500/80 backdrop-blur-sm rounded-3xl p-16 text-white text-center shadow-2xl border border-sky-500/50"
+        >
+          <h2 className="text-4xl font-bold mb-4">
+            Потрібні ChefTokens?
+          </h2>
+          <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
+            Зароби токени, проходячи курси та завдання, або купи пакет токенів для миттєвого доступу.
+          </p>
+          <Link href="/academy/earn-tokens">
+            <Button className="px-8 py-4 bg-white text-sky-600 hover:bg-gray-100 font-bold rounded-xl transition-all inline-flex items-center gap-2">
+              <Coins className="w-5 h-5" />
+              Заробити ChefTokens
+            </Button>
+          </Link>
+        </motion.div>
       </div>
     </div>
   );

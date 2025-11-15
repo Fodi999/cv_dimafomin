@@ -84,6 +84,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
           );
 
           if (!response.ok) {
+            // 401 - неавторизован, 403 - доступ запрещён
+            if (response.status === 401 || response.status === 403) {
+              console.error("🔐 Auth error detected (401/403), clearing authentication");
+              localStorage.removeItem("token");
+              localStorage.removeItem("role");
+              localStorage.removeItem("user");
+              setUser(null);
+              setIsLoading(false);
+              return;
+            }
             throw new Error(`API error: ${response.status}`);
           }
 
@@ -117,7 +127,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
           console.error("❌ Failed to fetch fresh profile from DB:", error);
           
           // На 401/403 очистить данные
-          if (error?.status === 401 || error?.status === 403) {
+          if (error?.message?.includes("401") || error?.message?.includes("403")) {
             console.error("🔐 Auth error detected, clearing authentication");
             localStorage.removeItem("token");
             localStorage.removeItem("role");
@@ -155,6 +165,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       
       // ⏱️ ВАЖНО: setTimeout(150) гарантирует завершение hydration
       // перед снятием флага isLoading
+      // Это выполнится в ЛЮБОМ случае (даже при return в try блоке)
       setTimeout(() => {
         setIsLoading(false);
         console.log("✅ UserContext.checkAuth complete - isLoading set to false");

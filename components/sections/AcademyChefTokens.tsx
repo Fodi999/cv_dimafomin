@@ -10,17 +10,22 @@ export default function AcademyChefTokens() {
     {
       icon: <Coins className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
       title: "Зарабатывай",
-      description: "Проходи уроки, учись активно — получай токены",
+      description: "Проходи уроки, вовлекайся в обучение — получай ChefTokens за активность.",
     },
     {
       icon: <TrendingUp className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
+      title: "Трать выгодно",
+      description: "Покупай авторские рецепты, современные рецепты, курсы и разборы вкусовых сочетаний.",
+    },
+    {
+      icon: <Gem className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
       title: "Оплата запросов к AI",
-      description: "Каждый запрос к AI списывает небольшое количество токенов",
+      description: "Расширенные функции AI-наставника списывают небольшое количество токенов.",
     },
     {
       icon: <Gift className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
       title: "Обменивай",
-      description: "Эксклюзивные рецепты, мастер-классы, личные разборы",
+      description: "Доступ к эксклюзивным рецептам, мастер-классам и персональным рекомендациям.",
     },
   ];
 
@@ -59,15 +64,15 @@ export default function AcademyChefTokens() {
         >
           <motion.div variants={itemVariants} className="text-center">
             <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
-              ChefTokens — твоя валюта мастерства
+              ChefTokens — твоя внутренняя кулинарная валюта
             </h2>
             <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-              ChefTokens — это валюта обучения в Seafood Academy. Зарабатывайте, тратьте и обменивайте.
+              ChefTokens — это валюта обучения и покупок в Modern Food Academy. Используй её, чтобы открывать современные рецепты, видеоуроки, pairing-комбинации и получать помощь AI-наставника.
             </p>
           </motion.div>
 
           {/* Benefits */}
-          <motion.div variants={containerVariants} className="grid sm:grid-cols-3 gap-6 mb-12">
+          <motion.div variants={containerVariants} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {benefits.map((benefit, idx) => (
               <motion.div
                 key={idx}
@@ -88,9 +93,9 @@ export default function AcademyChefTokens() {
             className="grid sm:grid-cols-3 gap-6"
           >
             {[
-              { icon: <TrendingUp className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "50,000+", label: "токенов в обороте" },
-              { icon: <Users className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "1000+", label: "активных пользователей" },
-              { icon: <Zap className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "24/7", label: "доступность" },
+              { icon: <TrendingUp className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "50,000+", label: "ChefTokens в обороте" },
+              { icon: <Users className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "1000+", label: "Активных пользователей" },
+              { icon: <Zap className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "24/7", label: "Доступность AI-наставника" },
             ].map((item, idx) => (
               <motion.div
                 key={idx}

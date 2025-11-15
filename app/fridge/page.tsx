@@ -256,7 +256,7 @@ export default function FridgePage() {
                     Мій холодильник
                   </h1>
                   <p className="text-gray-600 dark:text-gray-400">
-                    Управляйте своїми інгредієнтами та датами зберігання
+                    Керуйте своїми інгредієнтами, контролюйте свіжість та плануйте приготування.
                   </p>
                 </div>
               </div>
@@ -310,7 +310,7 @@ export default function FridgePage() {
                     <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                     <input
                       type="text"
-                      placeholder="Пошук інгредієнтів..."
+                      placeholder="Пошук інгредієнтів…"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-full pl-10 pr-4 py-3 rounded-lg border border-sky-200 dark:border-sky-800 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
@@ -416,7 +416,7 @@ export default function FridgePage() {
                       Холодильник порожній
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400">
-                      Додайте перший інгредієнт щоб почати
+                      Додайте перший інгредієнт, щоб розпочати.
                     </p>
                   </motion.div>
                 ) : (
@@ -506,9 +506,7 @@ export default function FridgePage() {
                   <AlertCircle className="w-5 h-5 text-sky-600 dark:text-sky-400 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm text-sky-900 dark:text-sky-100">
-                      <span className="font-semibold">Порада:</span> Перевіряйте дати
-                      закінчення поживності ваших інгредієнтів. Критичні інгредієнти
-                      помічаються попередженням при наближенні до дати закінчення.
+                      <span className="font-semibold">Порада:</span> Слідкуйте за термінами зберігання продуктів. Інгредієнти, термін яких наближається до завершення, будуть позначені попередженням.
                     </p>
                   </div>
                 </motion.div>

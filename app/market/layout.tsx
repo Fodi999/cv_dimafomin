@@ -11,11 +11,5 @@ export default function MarketLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="min-h-screen flex flex-col bg-[#FEF9F5]">
-      <main className="flex-1 container mx-auto px-4 py-24 relative">
-        {children}
-      </main>
-    </div>
-  );
+  return children;
 }

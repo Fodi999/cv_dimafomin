@@ -9,8 +9,8 @@ export default function AcademyCoursesPreview() {
   const courses = [
     {
       id: 1,
-      title: "Основы рыбы",
-      description: "Научись выбирать, хранить и готовить рыбу как профессионал",
+      title: "⭐ Современная кухня: основы",
+      description: "Научись работать с продуктами, нарезкой, термической обработкой и подачей. От первых шагов — к современному стилю приготовления.",
       image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=400&fit=crop",
       icon: Fish,
       level: "Начинающий",
@@ -21,8 +21,8 @@ export default function AcademyCoursesPreview() {
     },
     {
       id: 2,
-      title: "Секреты устриц",
-      description: "От открытия раковины до идеального сочетания со специями",
+      title: "⭐ Food Pairing: основы сочетаний вкусов",
+      description: "Изучи баланс вкусов, текстуру, температуру и научись сочетать блюда с коктейлями и напитками. Создай свои первые пары «закуска + напиток».",
       image: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&h=400&fit=crop",
       icon: Shell,
       level: "Средний",
@@ -33,8 +33,8 @@ export default function AcademyCoursesPreview() {
     },
     {
       id: 3,
-      title: "Суши и роллы",
-      description: "Мастер-класс по изготовлению суши как в токийских ресторанах",
+      title: "⭐ Современные техники и авторские блюда",
+      description: "Мастер-класс по современным приёмам: маринование, эмульсии, фьюжн-техники, подача и работа с текстурой. Идеально для тех, кто хочет готовить в стиле премиум-ресторанов.",
       image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=600&h=400&fit=crop",
       icon: Utensils,
       level: "Продвинутый",
@@ -87,13 +87,12 @@ export default function AcademyCoursesPreview() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sky-500/10 dark:bg-sky-500/20 border border-sky-200/50 dark:border-sky-800/50 mb-6">
             <BookOpen className="w-6 h-6 text-sky-600 dark:text-sky-400" />
-            <span className="text-sm font-semibold text-sky-600 dark:text-sky-400 leading-relaxed">Курсы Академии</span>
           </div>
           <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
-            Структурированные курсы
+            Курсы современной кухни
           </h2>
           <p className="text-base sm:text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            От базовых техник до продвинутых рецептов от шефа Dima Fomin
+            Овладей техниками современной кухни и искусством пищевых сочетаний от шефа Dima Fomin
           </p>
         </motion.div>
 

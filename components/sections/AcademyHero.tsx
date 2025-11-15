@@ -38,7 +38,7 @@ export default function AcademyHero() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-left">
         {/* Top badge */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -48,7 +48,7 @@ export default function AcademyHero() {
         >
           <Sparkles className="w-6 h-6 text-sky-300 dark:text-sky-300" />
           <span className="text-sm font-semibold text-white leading-relaxed">
-            Ценности и преимущества
+            Современная кухня и идеальные вкусовые сочетания от Dima Fomin
           </span>
         </motion.div>
 
@@ -58,9 +58,24 @@ export default function AcademyHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          <h1 className="text-6xl lg:text-7xl font-bold mb-6 leading-tight text-white">
-            Добро пожаловать в Seafood Academy
-          </h1>
+          <div className="space-y-2 mb-6">
+            <h1 className="text-6xl lg:text-7xl font-bold leading-tight">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-cyan-300 to-sky-400">
+                Учись.
+              </span>
+              <br />
+              <span className="text-white">Готовь.</span>
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-300 to-cyan-400">
+                Развивай вкус.
+              </span>
+              <br />
+              <span className="text-white">Зарабатывай </span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-cyan-300">
+                ChefTokens.
+              </span>
+            </h1>
+          </div>
         </motion.div>
 
         {/* Subtitle - Project description */}
@@ -68,9 +83,9 @@ export default function AcademyHero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-xl md:text-2xl text-gray-300 font-medium mb-6 max-w-3xl mx-auto leading-relaxed"
+          className="text-xl md:text-2xl text-gray-300 font-medium mb-6 max-w-3xl leading-relaxed"
         >
-          Учебная платформа по морепродуктам от шефа Dima Fomin
+          Платформа современной кухни, авторских рецептов и сочетаний вкусов.
         </motion.p>
 
         {/* AI Mentor description */}
@@ -78,9 +93,9 @@ export default function AcademyHero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.25 }}
-          className="text-lg md:text-xl text-gray-400 mb-6 max-w-3xl mx-auto leading-relaxed"
+          className="text-lg md:text-xl text-gray-400 mb-6 max-w-3xl leading-relaxed"
         >
-          Твой персональный AI-наставник по морепродуктам и здоровой кухне.
+          Твой персональный AI-наставник поможет создавать блюда ресторанного уровня, подбирать идеальные пары «закуска + напиток» и открывать рецепты за ChefTokens.
         </motion.p>
 
         {/* CTA phrase */}
@@ -90,7 +105,6 @@ export default function AcademyHero() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="text-2xl md:text-2xl font-semibold text-sky-300 mb-16 max-w-3xl mx-auto leading-relaxed"
         >
-          Учись. Готовь. Зарабатывай ChefTokens.
         </motion.p>
 
         {/* CTA Buttons */}
@@ -123,7 +137,7 @@ export default function AcademyHero() {
           className="grid grid-cols-3 gap-6 max-w-2xl mx-auto mt-20"
         >
           {[
-            { number: "50+", label: "Рецептов" },
+            { number: "50+", label: "Готовых рецептов" },
             { number: "1000+", label: "Учеников" },
             { number: "24/7", label: "AI-помощь" },
           ].map((stat, index) => (

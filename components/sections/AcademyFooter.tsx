@@ -38,8 +38,8 @@ export default function AcademyFooter() {
     <footer className="bg-gradient-to-b from-[#1E1A41] to-[#0f0d25] text-white relative overflow-hidden">
       {/* Background elements */}
       <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#3BC864] rounded-full mix-blend-multiply filter blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#00D9FF] rounded-full mix-blend-multiply filter blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-sky-400 rounded-full mix-blend-multiply filter blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl" />
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -55,14 +55,14 @@ export default function AcademyFooter() {
           <motion.div variants={itemVariants} className="space-y-4">
             <div>
               <h2 className="text-2xl font-bold mb-2">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3BC864] to-[#00D9FF]">
-                  Seafood Academy
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-cyan-300">
+                  Modern Food Academy
                 </span>
               </h2>
               <p className="text-gray-400 text-sm">by Dima Fomin</p>
             </div>
             <p className="text-gray-300 leading-relaxed">
-              Твой AI-наставник по морепродуктам и кулинарии. Учись от шефа, расти вместе с сообществом.
+              Твой AI-наставник по современной кухне и Food Pairing. Учись у шефа, развивай вкус, открывай рецепты.
             </p>
           </motion.div>
 
@@ -79,7 +79,7 @@ export default function AcademyFooter() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-[#3BC864] transition-colors"
+                    className="text-gray-400 hover:text-sky-400 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -96,7 +96,7 @@ export default function AcademyFooter() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-[#3BC864] transition-colors"
+                    className="text-gray-400 hover:text-sky-400 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -111,7 +111,7 @@ export default function AcademyFooter() {
             <div className="space-y-3">
               <a
                 href="mailto:fodi85999@gmail.com"
-                className="flex items-center gap-3 text-gray-400 hover:text-[#3BC864] transition-colors"
+                className="flex items-center gap-3 text-gray-400 hover:text-sky-400 transition-colors"
               >
                 <Mail className="w-6 h-6" />
                 <span className="text-sm">fodi85999@gmail.com</span>
@@ -130,7 +130,7 @@ export default function AcademyFooter() {
           whileInView={{ scaleX: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="h-px bg-gradient-to-r from-transparent via-[#3BC864]/30 to-transparent"
+          className="h-px bg-gradient-to-r from-transparent via-sky-400/30 to-transparent"
         />
 
         {/* Bottom section */}
@@ -143,7 +143,7 @@ export default function AcademyFooter() {
         >
           {/* Copyright */}
           <motion.p variants={itemVariants} className="text-gray-400 text-sm text-center md:text-left">
-            © 2025 Dima Fomin. Все права защищены. | Powered by Dima Fomin AI
+            © 2025 Modern Food Academy. Все права защищены. | by Dima Fomin
           </motion.p>
 
           {/* Social links */}
@@ -156,7 +156,7 @@ export default function AcademyFooter() {
                 key={label}
                 href={href}
                 aria-label={label}
-                className="w-12 h-12 rounded-full bg-[#3BC864]/10 hover:bg-[#3BC864] text-[#3BC864] hover:text-white transition-all flex items-center justify-center"
+                className="w-12 h-12 rounded-full bg-sky-400/10 hover:bg-sky-400 text-sky-400 hover:text-white transition-all flex items-center justify-center"
               >
                 <Icon className="w-6 h-6" />
               </a>

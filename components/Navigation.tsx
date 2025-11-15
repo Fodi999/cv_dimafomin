@@ -56,9 +56,9 @@ export default function Navigation() {
               </motion.div>
               <div className="flex flex-col leading-tight">
                 <span className="text-gray-900 dark:text-white text-sm font-bold">
-                  Seafood
+                  Modern
                 </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">Academy</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Food Academy</span>
               </div>
             </Link>
 

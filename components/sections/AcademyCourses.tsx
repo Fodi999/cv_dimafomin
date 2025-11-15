@@ -48,7 +48,7 @@ export default function AcademyAIMentor() {
             Поговори с AI-наставником
           </h2>
           <p className="text-base sm:text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Получай советы в реальном времени, генерируй рецепты и совершенствуй свое мастерство
+            Получай советы в реальном времени, генерируй рецепты, сочетания вкусов и улучшай своё мастерство
           </p>
         </motion.div>
 
@@ -96,7 +96,7 @@ export default function AcademyAIMentor() {
                 <div className="flex flex-col gap-1 max-w-sm">
                   <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg rounded-tl-none">
                     <p className="text-gray-800 dark:text-gray-100 text-sm leading-relaxed">
-                      Привет! Хочешь научиться готовить морепродукты как настоящий шеф?
+                      Привет! Хочешь научиться готовить современные рецепты и подбирать идеальные сочетания «закуска + напиток»?
                     </p>
                   </div>
                   <p className="text-gray-500 dark:text-gray-400 text-xs px-1">12:45</p>
@@ -114,7 +114,7 @@ export default function AcademyAIMentor() {
                 <div className="flex flex-col gap-1 max-w-sm items-end">
                   <div className="bg-sky-500 dark:bg-sky-600 text-white p-4 rounded-lg rounded-tr-none shadow-sm">
                     <p className="text-sm leading-relaxed font-medium">
-                      Как готовить лосось как профессионал?
+                      Как приготовить стильное блюдо в современном формате?
                     </p>
                   </div>
                   <p className="text-gray-500 dark:text-gray-400 text-xs px-1">12:46</p>
@@ -135,7 +135,7 @@ export default function AcademyAIMentor() {
                 <div className="flex flex-col gap-1 max-w-sm">
                   <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg rounded-tl-none">
                     <p className="text-gray-800 dark:text-gray-100 text-sm leading-relaxed">
-                      Лосось — это кладезь техник. Расскажу о температуре, сухой засолке и правильном сочетании с приправами. Начнём?
+                      Расскажу про баланс вкусов, текстуру, подачу и правильное сочетание с напитком. Готов начать?
                     </p>
                   </div>
                   <p className="text-gray-500 dark:text-gray-400 text-xs px-1">12:47</p>

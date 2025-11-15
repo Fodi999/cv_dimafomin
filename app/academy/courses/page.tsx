@@ -22,17 +22,19 @@ const studentWorks = [
   {
     id: "1",
     studentName: "Мария К.",
-    courseName: "Основы рыбы",
+    courseName: "Работа по курсу «Основы современной кухни»",
     imageUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=500&fit=crop",
     rating: 4.9,
+    sheets: "5 листов",
     completedDate: "2024-11-05",
   },
   {
     id: "2",
     studentName: "Олег П.",
-    courseName: "Суши и роллы",
+    courseName: "Работа по курсу «Современные авторские рецепты»",
     imageUrl: "https://images.unsplash.com/photo-1553504653527-7dd5b39ef828?w=400&h=600&fit=crop",
     rating: 5.0,
+    sheets: "3 листа",
     completedDate: "2024-11-03",
   },
 ];
@@ -41,8 +43,8 @@ const studentWorks = [
 const courses: Course[] = [
   {
     id: 1,
-    title: "Основы рыбы",
-    description: "Научись выбирать, хранить и готовить рыбу как профессионал",
+    title: "⭐ Основы современной кухни",
+    description: "Освой базовые техники: работа с продуктами, нарезка, текстуры, тепловая обработка и подача. Твёрдый фундамент для любого уровня.",
     difficulty: "Начинающий",
     duration: "4 часа",
     lessons: 12,
@@ -52,8 +54,8 @@ const courses: Course[] = [
   },
   {
     id: 2,
-    title: "Техники нарезки",
-    description: "Овладей основными техниками нарезки: угри, квадрат и диагональ",
+    title: "⭐ Техники нарезки и подготовки продуктов",
+    description: "Изучи профессиональные способы нарезки, работу с формами, углами и скоростью. Идеально для тех, кто хочет максимально улучшить технику.",
     difficulty: "Средний",
     duration: "6 часов",
     lessons: 18,
@@ -63,9 +65,9 @@ const courses: Course[] = [
   },
   {
     id: 3,
-    title: "Advanced рецепты",
-    description: "Создавай авторские суши-рецепты и удивляй гостей",
-    difficulty: "Advanced",
+    title: "⭐ Современные авторские рецепты и Food Pairing",
+    description: "Создавай стильные блюда, работай с балансом вкусов, текстурами и подбирай напитки для идеальных сочетаний.",
+    difficulty: "Продвинутый",
     duration: "8 часов",
     lessons: 24,
     students: "220 учеников",
@@ -77,41 +79,49 @@ const courses: Course[] = [
 const difficultyColors: Record<string, string> = {
   "Начинающий": "bg-green-100 text-green-700",
   "Средний": "bg-amber-100 text-amber-700",
-  "Advanced": "bg-purple-100 text-purple-700",
+  "Продвинутый": "bg-purple-100 text-purple-700",
 };
 
 export default function CoursesPage() {
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 px-[40px] pt-[80px] pb-[40px]">
-      {/* Header */}
-      <section className="mb-16">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center"
-        >
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-4">
-            Структурированные курсы
-          </h1>
-          <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-            От базовых техник до advanced рецептов от шефа Dima Fomin
-          </p>
-          <div className="inline-flex items-center gap-2 px-6 py-3 bg-sky-100/50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 rounded-full font-semibold">
-            <Star className="w-4 h-4 fill-current" />
-            <span>3 курса • 650+ учеников</span>
-          </div>
-        </motion.div>
-      </section>
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-sky-950 to-cyan-950 px-4 sm:px-6 lg:px-8 pt-24 pb-20">
+      {/* Animated background gradient */}
+      <div className="fixed inset-0 opacity-30 pointer-events-none">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-sky-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-20 w-72 h-72 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000" />
+        <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-sky-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000" />
+      </div>
 
-      {/* Courses Grid */}
-      <section className="mb-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="relative z-10 max-w-6xl mx-auto">
+        {/* Header */}
+        <section className="mb-20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center"
+          >
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+              Структурированные курсы
+            </h1>
+            <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+              От базовых техник до современных авторских рецептов от шефа Dima Fomin
+            </p>
+            <div className="inline-flex items-center gap-2 px-6 py-3 bg-sky-500/20 border border-sky-400/50 rounded-full text-sky-300 font-semibold">
+              <Star className="w-4 h-4 fill-current" />
+              <span>3 курса • 650+ учеников</span>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* Courses Grid */}
+        <section className="mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {courses.map((course, idx) => {
             const difficultyConfig: Record<string, { bg: string; badge: string }> = {
-              "Начинающий": { bg: "from-green-400/20 to-emerald-400/20", badge: "bg-green-100 text-green-700" },
-              "Средний": { bg: "from-amber-400/20 to-orange-400/20", badge: "bg-amber-100 text-amber-700" },
-              "Advanced": { bg: "from-purple-400/20 to-pink-400/20", badge: "bg-purple-100 text-purple-700" },
+              "Начинающий": { bg: "from-green-400/20 to-emerald-400/20", badge: "bg-green-500/20 text-green-300 border border-green-500/50" },
+              "Средний": { bg: "from-amber-400/20 to-orange-400/20", badge: "bg-amber-500/20 text-amber-300 border border-amber-500/50" },
+              "Продвинутый": { bg: "from-purple-400/20 to-pink-400/20", badge: "bg-purple-500/20 text-purple-300 border border-purple-500/50" },
             };
             const config = difficultyConfig[course.difficulty] || difficultyConfig["Начинающий"];
 
@@ -125,57 +135,39 @@ export default function CoursesPage() {
                 className="group"
               >
                 {/* Card */}
-                <div className={`bg-gradient-to-br ${config.bg} rounded-2xl p-8 h-full border border-sky-200/50 dark:border-sky-800/50 shadow-lg hover:shadow-xl transition-all duration-300`}>
+                <div className={`bg-gradient-to-br ${config.bg} rounded-2xl p-8 h-full border border-sky-300/40 shadow-lg hover:shadow-xl hover:border-sky-300/60 transition-all duration-300 backdrop-blur-sm`}>
                   {/* Icon & Title */}
                   <div className="mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                    <h3 className="text-2xl font-bold text-white mb-3">
                       {course.title}
                     </h3>
-                    <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">
+                    <p className="text-gray-300 text-base leading-relaxed">
                       {course.description}
                     </p>
                   </div>
 
                   {/* Level Badge */}
                   <div className="mb-4">
-                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${config.badge}`}>
-                      {course.difficulty}
+                    <span className={`inline-block px-4 py-2 rounded-lg text-sm font-semibold ${config.badge}`}>
+                      Уровень: {course.difficulty}
                     </span>
                   </div>
 
                   {/* Meta Info */}
-                  <div className="space-y-3 mb-6 pb-6 border-b border-gray-300/50 dark:border-gray-600/50">
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-base">
-                      <Clock className="w-4 h-4 flex-shrink-0" />
-                      <span>{course.duration}</span>
+                  <div className="space-y-3 mb-6 pb-6 border-b border-sky-300/30">
+                    <div className="flex items-center gap-3 text-gray-300 text-base">
+                      <Clock className="w-5 h-5 flex-shrink-0 text-sky-400" />
+                      <span>Длительность: {course.duration}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-base">
-                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 flex-shrink-0" />
-                      <span className="font-semibold">{course.rating}</span>
+                    <div className="flex items-center gap-3 text-gray-300 text-base">
+                      <Star className="w-5 h-5 text-yellow-400 fill-yellow-400 flex-shrink-0" />
+                      <span className="font-semibold">Рейтинг: {course.rating}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-base">
-                      <Users className="w-4 h-4 flex-shrink-0" />
-                      <span>{course.students}</span>
+                    <div className="flex items-center gap-3 text-gray-300 text-base">
+                      <Users className="w-5 h-5 flex-shrink-0 text-sky-400" />
+                      <span>Прошли: {course.students}</span>
                     </div>
                   </div>
-
-                  {/* Progress Bar (if applicable) */}
-                  {course.progress > 0 && (
-                    <div className="mb-6">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Прогресс</span>
-                        <span className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">{course.progress}%</span>
-                      </div>
-                      <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${course.progress}%` }}
-                          transition={{ delay: idx * 0.1 + 0.4, duration: 0.8 }}
-                          className="h-full bg-gradient-to-r from-sky-500 to-blue-600"
-                        />
-                      </div>
-                    </div>
-                  )}
 
                   {/* CTA Button */}
                   <Link href={`/academy/courses/${course.id}`}>
@@ -201,7 +193,7 @@ export default function CoursesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
-          className="text-4xl font-bold text-gray-900 dark:text-white mb-4 text-center"
+          className="text-4xl font-bold text-white mb-4 text-center"
         >
           Работы учеников
         </motion.h2>
@@ -209,9 +201,9 @@ export default function CoursesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35, duration: 0.6 }}
-          className="text-center text-gray-600 dark:text-gray-400 mb-12 text-lg"
+          className="text-center text-gray-300 mb-12 text-lg"
         >
-          Вдохновляющие творения наших студентов
+          Реальные результаты студентов Modern Food Academy
         </motion.p>
 
         {/* Masonry Grid */}
@@ -225,7 +217,7 @@ export default function CoursesPage() {
               whileHover={{ scale: 1.02 }}
               className="break-inside-avoid group cursor-pointer"
             >
-              <div className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 bg-white dark:bg-gray-800">
+              <div className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 bg-gray-900/40 border border-sky-300/40 backdrop-blur-sm">
                 {/* Image */}
                 <div className="relative overflow-hidden">
                   <img
@@ -240,21 +232,15 @@ export default function CoursesPage() {
                 </div>
 
                 {/* Card Footer */}
-                <div className="p-4 bg-white dark:bg-gray-800">
+                <div className="p-4 bg-gray-900/60 backdrop-blur-sm">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                      <span className="font-bold text-gray-900 dark:text-white">{work.rating}</span>
+                      <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                      <span className="font-bold text-white">{work.rating}</span>
+                      <span className="text-sm text-gray-400 ml-2">• {work.sheets}</span>
                     </div>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {new Date(work.completedDate).toLocaleDateString("uk-UA", {
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </span>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">{work.studentName}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{work.courseName}</p>
+                  <p className="text-sm text-gray-300 font-medium">{work.studentName}</p>
                 </div>
               </div>
             </motion.div>
@@ -268,13 +254,13 @@ export default function CoursesPage() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.6 }}
-          className="bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-500 dark:from-sky-600 dark:via-cyan-600 dark:to-sky-500 rounded-3xl p-16 text-white text-center shadow-2xl dark:shadow-sky-500/20 mx-auto"
+          className="bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-500 backdrop-blur-sm rounded-3xl p-16 text-white text-center shadow-2xl border border-sky-500/50 mx-auto"
         >
           <h3 className="text-4xl font-bold mb-4">
-            Готов стать шефом?
+            Готов начать?
           </h3>
           <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
-            Выбери курс и начни своё путешествие в мир морепродуктов вместе с Dima Fomin
+            Выбери курс и начни свой путь в современной кухне вместе с Dima Fomin.
           </p>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -286,6 +272,7 @@ export default function CoursesPage() {
           </motion.button>
         </motion.div>
       </section>
+      </div>
     </div>
   );
 }
