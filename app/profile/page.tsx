@@ -126,7 +126,7 @@ export default function ProfilePage() {
   };
 
   const handleBuy = () => {
-    console.log("Buy tokens");
+    console.log("Buy tokens - open purchase sheet");
   };
 
   const handleRefresh = () => {
@@ -179,16 +179,11 @@ export default function ProfilePage() {
       savedPosts={savedPosts}
       transactions={transactions}
       healthData={healthData}
-      formData={formData}
       pageLoading={pageLoading}
       retryCount={retryCount}
-      isSaving={isSaving}
       isOwn={true}
       translations={translationsRecord}
       onHealthDataUpdate={setHealthData}
-      onFormChange={handleFormChange}
-      onSave={handleSave}
-      onAvatarUpload={handleAvatarUpload}
       onEarnClick={handleEarn}
       onBuyClick={handleBuy}
       onRefreshClick={handleRefresh}

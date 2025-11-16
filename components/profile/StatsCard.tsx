@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BarChart3, TrendingUp, Award, Zap } from "lucide-react";
+import { BarChart3, TrendingUp, Award, Zap, BookOpen } from "lucide-react";
 
 interface StatsCardProps {
   icon: React.ReactNode;
@@ -12,19 +12,8 @@ interface StatsCardProps {
   index?: number;
 }
 
-const colorMap = {
-  blue: "from-blue-500/20 to-cyan-500/20",
-  green: "from-emerald-500/20 to-teal-500/20",
-  purple: "from-purple-500/20 to-pink-500/20",
-  orange: "from-orange-500/20 to-red-500/20",
-};
-
-const iconColorMap = {
-  blue: "text-blue-600 dark:text-blue-400",
-  green: "text-emerald-600 dark:text-emerald-400",
-  purple: "text-purple-600 dark:text-purple-400",
-  orange: "text-orange-600 dark:text-orange-400",
-};
+// Unified subtle gradient - more transparent
+const UNIFIED_GRADIENT = "rgba(139, 92, 246, 0.12)";
 
 export function StatsCard({
   icon,
@@ -39,24 +28,35 @@ export function StatsCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1, duration: 0.5 }}
-      whileHover={{ translateY: -2 }}
-      className={`bg-gradient-to-br ${colorMap[color]} rounded-lg p-3 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-md hover:shadow-lg transition-all overflow-hidden`}
+      whileHover={{ translateY: -4 }}
+      className="rounded-xl p-4 transition-all overflow-hidden border border-violet-500/10 flex items-center gap-3"
+      style={{ 
+        background: "rgba(139, 92, 246, 0.12)",
+        backdropFilter: 'blur(18px)',
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)'
+      }}
     >
-      <div className="flex items-start justify-between mb-2">
-        <div className={`p-2 rounded-lg bg-white/50 dark:bg-gray-800/50 ${iconColorMap[color]} flex items-center justify-center`}>
-          <div className="w-4 h-4">{icon}</div>
+      {/* Icon */}
+      <div className="flex-shrink-0 text-violet-300/60 opacity-70">
+        <div className="w-6 h-6">
+          {icon}
         </div>
-        {change && (
-          <div className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-            <TrendingUp className="w-3 h-3" />
-            {change}
-          </div>
-        )}
       </div>
-      <p className="text-gray-600 dark:text-gray-400 text-xs mb-1">{label}</p>
-      <p className="text-xl font-bold text-gray-900 dark:text-white break-words overflow-hidden max-w-full">
-        {value}
-      </p>
+
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold text-white/80 uppercase tracking-tight mb-0.5">{label}</p>
+        <div className="flex items-baseline gap-2">
+          <p className="text-xl font-bold text-white">
+            {value}
+          </p>
+          {change && (
+            <span className="text-xs font-semibold text-violet-300">
+              {change}
+            </span>
+          )}
+        </div>
+      </div>
     </motion.div>
   );
 }
@@ -76,69 +76,108 @@ export function StatsGrid({
   balance = 5000,
   coursesCount = 3,
 }: StatsGridProps) {
-  const xpPercent = (xp / maxXp) * 100;
-
   return (
-    <div className="space-y-3">
-      {/* Main Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-        <StatsCard
-          icon={<Award className="w-6 h-6" />}
-          label="Уровень"
-          value={level}
-          color="purple"
-          index={0}
-        />
-        <StatsCard
-          icon={<Zap className="w-6 h-6" />}
-          label="Опыт"
-          value={`${xp}/${maxXp}`}
-          color="orange"
-          index={1}
-        />
-        <StatsCard
-          icon={<BarChart3 className="w-6 h-6" />}
-          label="Баланс токенов"
-          value={balance.toLocaleString()}
-          color="green"
-          index={2}
-        />
-        <StatsCard
-          icon={<TrendingUp className="w-6 h-6" />}
-          label="Курсы"
-          value={coursesCount}
-          color="blue"
-          index={3}
-        />
-      </div>
+    <div className="space-y-4">
+      {/* Courses Section */}
+      <div>
+        <h3 className="font-semibold text-base text-white/80 uppercase tracking-tight mb-4">
+          Мои курсы
+        </h3>
 
-      {/* XP Progress Bar */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4, duration: 0.5 }}
-        className="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-md"
-      >
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-bold text-sm text-gray-900 dark:text-white">
-            Прогресс к уровню {level + 1}
-          </h3>
-          <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">
-            {Math.round(xpPercent)}%
-          </span>
-        </div>
-        <div className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div className="space-y-3">
+          {/* Completed Course */}
           <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${xpPercent}%` }}
-            transition={{ delay: 0.5, duration: 1 }}
-            className="h-full bg-gradient-to-r from-orange-400 via-orange-500 to-red-500 rounded-full shadow-lg"
-          />
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            whileHover={{ translateY: -2 }}
+            className="rounded-xl p-4 border border-violet-400/30 transition-all"
+            style={{ 
+              background: "rgba(139, 92, 246, 0.08)",
+              backdropFilter: 'blur(12px)',
+            }}
+          >
+            <div className="flex items-start gap-4">
+              {/* Course Icon */}
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-600 to-violet-400 rounded-lg flex items-center justify-center shadow-md">
+                <Award className="w-6 h-6 text-white" />
+              </div>
+
+              {/* Course Info */}
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-sm text-white truncate">Майстер суші: професійний</h4>
+                <p className="text-xs text-gray-300 mt-1">Завершено • 100%</p>
+              </div>
+
+              {/* Progress Circle */}
+              <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 relative">
+                <svg className="w-10 h-10 transform -rotate-90" viewBox="0 0 40 40">
+                  <circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-700" />
+                  <circle 
+                    cx="20" 
+                    cy="20" 
+                    r="16" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    className="text-violet-500"
+                    strokeDasharray="100.5"
+                    strokeDashoffset="0"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <span className="absolute text-xs font-bold text-white">100%</span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* In Progress Course */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55 }}
+            whileHover={{ translateY: -2 }}
+            className="rounded-xl p-4 border border-cyan-400/30 transition-all"
+            style={{ 
+              background: "rgba(34, 211, 238, 0.08)",
+              backdropFilter: 'blur(12px)',
+            }}
+          >
+            <div className="flex items-start gap-4">
+              {/* Course Icon */}
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
+                <BookOpen className="w-6 h-6 text-white" />
+              </div>
+
+              {/* Course Info */}
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-sm text-white truncate">Японська кухня для початківців</h4>
+                <p className="text-xs text-gray-300 mt-1">В процесі • 30%</p>
+              </div>
+
+              {/* Progress Circle */}
+              <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 relative">
+                <svg className="w-10 h-10 transform -rotate-90" viewBox="0 0 40 40">
+                  <circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-700" />
+                  <circle 
+                    cx="20" 
+                    cy="20" 
+                    r="16" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    className="text-cyan-500"
+                    strokeDasharray="100.5"
+                    strokeDashoffset="70.35"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <span className="absolute text-xs font-bold text-white">30%</span>
+              </div>
+            </div>
+          </motion.div>
         </div>
-        <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-          Ещё {maxXp - xp} XP до следующего уровня
-        </p>
-      </motion.div>
+      </div>
     </div>
   );
 }

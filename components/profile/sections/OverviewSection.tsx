@@ -1,10 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ProfileHeader } from "../ProfileHeader";
-import { StatsGrid } from "../StatsCard";
-import { WalletSummary } from "../WalletSummary";
+import { StatsCard } from "../StatsCard";
+import { WalletCard } from "../WalletCard";
 import type { UserProfile } from "@/lib/profile-types";
+import { Award, Zap, BarChart3, TrendingUp } from "lucide-react";
 
 interface OverviewSectionProps {
   userProfile: UserProfile;
@@ -20,6 +20,7 @@ interface OverviewSectionProps {
   onBuyClick: () => void;
   onRefreshClick: () => void;
   retryCount: number;
+  onPurchaseTokensOpen?: () => void;
 }
 
 export function OverviewSection({
@@ -30,52 +31,120 @@ export function OverviewSection({
   onBuyClick,
   onRefreshClick,
   retryCount,
+  onPurchaseTokensOpen,
 }: OverviewSectionProps) {
+  const level = 5;
+  const xp = 2450;
+  const maxXp = 5000;
+  const balance = user?.chefTokens || 0;
+  const coursesCount = 3;
+  const xpPercent = (xp / maxXp) * 100;
+
   return (
-    <div className="space-y-3">
-      {/* Profile Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <ProfileHeader
-          name={userProfile.name}
-          email={userProfile.email}
-          avatar={userProfile.avatar}
-          bio={userProfile.bio}
-          location={userProfile.location}
-          followers={userProfile.followers}
-          following={userProfile.following}
-        />
-      </motion.div>
-
-      {/* Stats Grid and Wallet */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.05 }}
-        className="grid grid-cols-1 lg:grid-cols-2 gap-3"
-      >
-        <div>
-          <StatsGrid
-            level={5}
-            xp={2450}
-            maxXp={5000}
-            balance={user?.chefTokens || 0}
-            coursesCount={3}
-          />
-        </div>
-
-        <div>
-          <WalletSummary
-            balance={user?.chefTokens || 0}
+    <div>
+      {/* WALLET + STATS + PROGRESS */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '0.8fr 1.5fr',
+        gap: '32px',
+        gridAutoRows: 'auto'
+      }}>
+        {/* LEFT COLUMN - WALLET */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+        >
+          <WalletCard
+            balance={balance}
             earned={15000}
             spent={10000}
             pending={500}
+            onPurchaseClick={onPurchaseTokensOpen}
+          />
+        </motion.div>
+
+        {/* RIGHT COLUMN - STATS + PROGRESS */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+        >
+        {/* STATISTICS - 4 Cards in 2x2 grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
+          <StatsCard
+            icon={<Award className="w-8 h-8" />}
+            label="Уровень"
+            value={level}
+            color="purple"
+            index={0}
+          />
+          <StatsCard
+            icon={<Zap className="w-8 h-8" />}
+            label="Опыт"
+            value={`${xp}`}
+            change={`/ ${maxXp}`}
+            color="orange"
+            index={1}
+          />
+          <StatsCard
+            icon={<BarChart3 className="w-8 h-8" />}
+            label="Баланс"
+            value={balance.toLocaleString()}
+            color="green"
+            index={2}
+          />
+          <StatsCard
+            icon={<TrendingUp className="w-8 h-8" />}
+            label="Курсы"
+            value={coursesCount}
+            color="blue"
+            index={3}
           />
         </div>
-      </motion.div>
+
+        {/* PROGRESS BAR */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+          className="rounded-2xl p-5 border border-violet-500/10 transition-all"
+          style={{ 
+            background: "rgba(139, 92, 246, 0.12)",
+            backdropFilter: 'blur(18px)',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)'
+          }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="font-semibold text-xs text-white/80 uppercase tracking-tight mb-1">
+                Прогресс к уровню {level + 1}
+              </h3>
+              <p className="text-xl font-bold text-white">
+                {xp.toLocaleString()} / {maxXp.toLocaleString()}
+              </p>
+            </div>
+            <span className="text-2xl font-bold text-violet-300">
+              {Math.round(xpPercent)}%
+            </span>
+          </div>
+          <div className="w-full h-2.5 bg-gray-700/40 rounded-full overflow-hidden border border-gray-700/30">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${xpPercent}%` }}
+              transition={{ delay: 0.5, duration: 1 }}
+              className="h-full bg-gradient-to-r from-violet-500 via-violet-600 to-violet-400 rounded-full"
+              style={{ boxShadow: '0 0 16px rgba(139, 92, 246, 0.8)' }}
+            />
+          </div>
+          <p className="text-xs text-gray-400 mt-3">
+            Ещё {maxXp - xp} XP до следующего уровня
+          </p>
+        </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 }

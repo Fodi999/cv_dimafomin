@@ -197,20 +197,11 @@ export default function PublicProfilePage() {
         savedPosts={savedPosts}
         transactions={transactions}
         healthData={healthData}
-        formData={formData}
         pageLoading={pageLoading}
         retryCount={retryCount}
-        isSaving={false}
         isOwn={isOwnProfile}
         translations={translationsRecord}
         onHealthDataUpdate={setHealthData}
-        onFormChange={(data) => setFormData((prev) => ({ ...prev, ...data }))}
-        onSave={async () => {
-          console.log("Save profile");
-        }}
-        onAvatarUpload={async (url) => {
-          console.log("Upload avatar:", url);
-        }}
         onEarnClick={handleEarn}
         onBuyClick={handleBuy}
         onRefreshClick={handleRefresh}

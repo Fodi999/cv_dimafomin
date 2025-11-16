@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { motion, AnimatePresence } from "framer-motion";
+import { ProfileHeader } from "./ProfileHeader";
 import { OverviewSection } from "./sections/OverviewSection";
 import { StatsSection } from "./sections/StatsSection";
 import { ContentSection } from "./sections/ContentSection";
-import { WalletSection } from "./sections/WalletSection";
-import { EditSection } from "./sections/EditSection";
+import { PurchaseTokenSheet } from "@/components/wallet/PurchaseTokenSheet";
 import type { TabType, UserProfile, Post, Transaction } from "@/lib/profile-types";
 import type { FormData } from "@/lib/profile-types";
 import { colors } from "@/lib/design-tokens";
@@ -36,20 +35,14 @@ interface ProfileViewProps {
     dietaryRestrictions: string[];
     fitnessGoal: string;
   };
-  // Form data for editing
-  formData: FormData;
   // Flags
   pageLoading: boolean;
   retryCount: number;
-  isSaving?: boolean;
-  isOwn: boolean; // If true - show edit and wallet tabs, if false - only public tabs
+  isOwn: boolean; // If true - show wallet tab, if false - only public tabs
   // Translations
   translations: Record<string, string>;
   // Handlers
   onHealthDataUpdate: (data: any) => void;
-  onFormChange: (data: Partial<FormData>) => void;
-  onSave: () => Promise<void>;
-  onAvatarUpload: (url: string) => Promise<void>;
   onEarnClick: () => void;
   onBuyClick: () => void;
   onRefreshClick: () => void;
@@ -62,32 +55,20 @@ export function ProfileView({
   savedPosts,
   transactions,
   healthData,
-  formData,
   pageLoading,
   retryCount,
-  isSaving = false,
   isOwn,
   translations,
   onHealthDataUpdate,
-  onFormChange,
-  onSave,
-  onAvatarUpload,
   onEarnClick,
   onBuyClick,
   onRefreshClick,
 }: ProfileViewProps) {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
-
-  // Disable body scroll when profile is mounted
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, []);
+  const [isPurchaseOpen, setIsPurchaseOpen] = useState(false);
 
   return (
-    <div className={`h-screen w-screen fixed inset-0 ${colors.primary.dark.gradient} overflow-hidden flex flex-col`}>
+    <div className={`min-h-screen w-screen ${colors.primary.dark.gradient} flex flex-col`}>
       {/* Animated background gradient */}
       <div className="fixed inset-0 opacity-20 pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 bg-sky-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
@@ -95,124 +76,156 @@ export function ProfileView({
         <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-sky-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000" />
       </div>
 
-      {/* Main Profile Container */}
-      <div className="relative z-10 flex-1 overflow-hidden max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-24 pb-20">
+      {/* PurchaseTokenSheet */}
+      <PurchaseTokenSheet
+        isOpen={isPurchaseOpen}
+        onClose={() => setIsPurchaseOpen(false)}
+        currentBalance={user?.chefTokens || 0}
+        onPurchase={async (packageId, tokens, price) => {
+          // Simulate purchase (real implementation would call API)
+          console.log(`Purchasing package: ${packageId} for $${price} (${tokens} tokens)`);
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+          console.log("Purchase completed!");
+        }}
+      />
+
+      {/* Main Profile Container - Scrollable */}
+      <div className="relative z-10 flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-24 pb-20 overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabType)}>
-            {/* Tabs List */}
-            <TabsList className={`grid w-full ${isOwn ? 'grid-cols-5' : 'grid-cols-3'} bg-gray-900/60 p-1 rounded-lg border border-sky-400/30 shadow-lg backdrop-blur-sm mb-6`}>
-              <TabsTrigger
-                value="overview"
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white transition-all"
-              >
-                <span className="hidden sm:inline text-xs font-semibold">Обзор</span>
-                <span className="sm:hidden text-xs font-semibold">📊</span>
-              </TabsTrigger>
+          {/* PROFILE HEADER - Static, doesn't change with tabs */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="mb-8 mt-6"
+          >
+            <ProfileHeader
+              name={userProfile.name}
+              email={userProfile.email}
+              avatar={userProfile.avatar}
+              bio={userProfile.bio}
+              location={userProfile.location}
+              followers={userProfile.followers}
+              following={userProfile.following}
+              profile={userProfile}
+              level={5}
+              xp={2450}
+              maxXp={5000}
+              balance={user?.chefTokens || 0}
+              coursesCount={3}
+            />
+          </motion.div>
 
-              <TabsTrigger
-                value="stats"
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white transition-all"
-              >
-                <span className="hidden sm:inline text-xs font-semibold">Статистика</span>
-                <span className="sm:hidden text-xs font-semibold">📈</span>
-              </TabsTrigger>
+          {/* Tab Navigation - NOT in Tabs/AnimatePresence so it doesn't flicker */}
+          <div className="flex gap-2 border-b border-gray-700/50 pb-4 mb-8">
+            <motion.button
+              onClick={() => setActiveTab("overview")}
+              className={`py-2 px-4 rounded-lg text-sm sm:text-base font-semibold transition-all ${
+                activeTab === "overview"
+                  ? "bg-violet-500/30 text-violet-300"
+                  : "text-gray-400 hover:text-white hover:bg-violet-500/10"
+              }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <span className="hidden sm:inline">Обзор</span>
+              <span className="sm:hidden">📊</span>
+            </motion.button>
+            <motion.button
+              onClick={() => setActiveTab("stats")}
+              className={`py-2 px-4 rounded-lg text-sm sm:text-base font-semibold transition-all ${
+                activeTab === "stats"
+                  ? "bg-violet-500/30 text-violet-300"
+                  : "text-gray-400 hover:text-white hover:bg-violet-500/10"
+              }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <span className="hidden sm:inline">Статистика</span>
+              <span className="sm:hidden">📈</span>
+            </motion.button>
+            <motion.button
+              onClick={() => setActiveTab("content")}
+              className={`py-2 px-4 rounded-lg text-sm sm:text-base font-semibold transition-all ${
+                activeTab === "content"
+                  ? "bg-violet-500/30 text-violet-300"
+                  : "text-gray-400 hover:text-white hover:bg-violet-500/10"
+              }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <span className="hidden sm:inline">Контент</span>
+              <span className="sm:hidden">📝</span>
+            </motion.button>
+          </div>
 
-              <TabsTrigger
-                value="content"
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white transition-all"
-              >
-                <span className="hidden sm:inline text-xs font-semibold">Контент</span>
-                <span className="sm:hidden text-xs font-semibold">📝</span>
-              </TabsTrigger>
-
-              {/* Wallet - only for own profile */}
-              {isOwn && (
-                <TabsTrigger
-                  value="wallet"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white transition-all"
-                >
-                  <span className="hidden sm:inline text-xs font-semibold">Кошелёк</span>
-                  <span className="sm:hidden text-xs font-semibold">💰</span>
-                </TabsTrigger>
-              )}
-
-              {/* Edit - only for own profile */}
-              {isOwn && (
-                <TabsTrigger
-                  value="edit"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white transition-all"
-                >
-                  <span className="hidden sm:inline text-xs font-semibold">Редактирование</span>
-                  <span className="sm:hidden text-xs font-semibold">✏️</span>
-                </TabsTrigger>
-              )}
-            </TabsList>
-
+          {/* Animated Tab Content - only content animates */}
+          <AnimatePresence mode="wait">
             {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-6">
-              <OverviewSection
-                userProfile={userProfile}
-                user={user}
-                translations={translations}
-                onEarnClick={onEarnClick}
-                onBuyClick={onBuyClick}
-                onRefreshClick={onRefreshClick}
-                retryCount={retryCount}
-              />
-            </TabsContent>
-
-            {/* Stats Tab */}
-            <TabsContent value="stats" className="space-y-6">
-              <StatsSection
-                userProfile={userProfile}
-                healthData={healthData}
-                onHealthDataUpdate={onHealthDataUpdate}
-              />
-            </TabsContent>
-
-            {/* Content Tab */}
-            <TabsContent value="content" className="space-y-6">
-              <ContentSection
-                posts={posts}
-                savedPosts={savedPosts}
-                translations={translations}
-              />
-            </TabsContent>
-
-            {/* Wallet Tab - only for own profile */}
-            {isOwn && (
-              <TabsContent value="wallet" className="space-y-6">
-                <WalletSection
-                  balance={user?.chefTokens || 0}
-                  transactions={transactions}
-                  retryCount={retryCount}
+            {activeTab === "overview" && (
+              <motion.div
+                key="overview"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <OverviewSection
+                  userProfile={userProfile}
+                  user={user}
                   translations={translations}
                   onEarnClick={onEarnClick}
                   onBuyClick={onBuyClick}
                   onRefreshClick={onRefreshClick}
+                  retryCount={retryCount}
+                  onPurchaseTokensOpen={() => setIsPurchaseOpen(true)}
                 />
-              </TabsContent>
+              </motion.div>
             )}
 
-            {/* Edit Tab - only for own profile */}
-            {isOwn && (
-              <TabsContent value="edit" className="space-y-6">
-                <EditSection
-                  user={userProfile}
-                  formData={formData}
-                  onFormChange={onFormChange}
-                  onSave={onSave}
-                  onAvatarUpload={onAvatarUpload}
-                  isSaving={isSaving}
-                  translations={translations}
+            {/* Stats Tab */}
+            {activeTab === "stats" && (
+              <motion.div
+                key="stats"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <StatsSection
+                  userProfile={userProfile}
+                  healthData={healthData}
+                  onHealthDataUpdate={onHealthDataUpdate}
                 />
-              </TabsContent>
+              </motion.div>
             )}
-          </Tabs>
+
+            {/* Content Tab */}
+            {activeTab === "content" && (
+              <motion.div
+                key="content"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <ContentSection
+                  posts={posts}
+                  savedPosts={savedPosts}
+                  translations={translations}
+                  userProfile={userProfile}
+                  user={user}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </div>
     </div>
