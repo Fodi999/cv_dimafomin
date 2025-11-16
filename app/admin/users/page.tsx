@@ -1,387 +1,396 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useUser } from "@/contexts/UserContext";
-import { adminApi } from "@/src/lib/admin-api";
-import { Search, Trash2, Shield, UserPlus, Eye, AlertCircle, Users, Mail, CheckCircle, Activity, Calendar, Settings } from "lucide-react";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { UserProfileModal } from "@/components/admin/UserProfileModal";
+import { Users, Search, Filter, Download, Plus, Eye, Edit2, Trash2, ShieldCheck } from "lucide-react";
 
-interface AdminUser {
+interface User {
   id: string;
-  name?: string;
-  email?: string;
-  role?: 'student' | 'instructor' | 'admin';
-  level?: number;
-  xp?: number;
-  chefTokens?: number;
-  createdAt?: string;
-  updatedAt?: string;
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+  role: "admin" | "premium" | "user";
+  status: "active" | "inactive" | "banned";
+  joinDate: Date;
+  orders: number;
+  totalSpent: number;
+  lastLogin?: Date;
+  verificationStatus: "verified" | "pending" | "unverified";
 }
 
+const mockUsers: User[] = [
+  {
+    id: "1",
+    name: "Іван Петров",
+    email: "ivan@example.com",
+    phone: "+380 95 123 4567",
+    location: "Київ, Україна",
+    role: "user",
+    status: "active",
+    joinDate: new Date(2024, 0, 15),
+    orders: 5,
+    totalSpent: 245.50,
+    lastLogin: new Date(Date.now() - 2 * 3600000),
+    verificationStatus: "verified",
+  },
+  {
+    id: "2",
+    name: "Марія Сидорова",
+    email: "maria@example.com",
+    phone: "+380 96 234 5678",
+    location: "Львів, Україна",
+    role: "premium",
+    status: "active",
+    joinDate: new Date(2023, 11, 20),
+    orders: 12,
+    totalSpent: 1250.75,
+    lastLogin: new Date(Date.now() - 6 * 3600000),
+    verificationStatus: "verified",
+  },
+  {
+    id: "3",
+    name: "Алексей Иванов",
+    email: "alexey@example.com",
+    phone: "+380 97 345 6789",
+    location: "Одеса, Україна",
+    role: "user",
+    status: "active",
+    joinDate: new Date(2024, 1, 5),
+    orders: 3,
+    totalSpent: 125.25,
+    lastLogin: new Date(Date.now() - 24 * 3600000),
+    verificationStatus: "pending",
+  },
+  {
+    id: "4",
+    name: "Анна Коваль",
+    email: "anna@example.com",
+    phone: "+380 98 456 7890",
+    location: "Харків, Україна",
+    role: "premium",
+    status: "active",
+    joinDate: new Date(2023, 10, 10),
+    orders: 18,
+    totalSpent: 1850.00,
+    lastLogin: new Date(Date.now() - 1 * 3600000),
+    verificationStatus: "verified",
+  },
+  {
+    id: "5",
+    name: "Петро Бондар",
+    email: "petro@example.com",
+    phone: "+380 99 567 8901",
+    location: "Вінниця, Україна",
+    role: "user",
+    status: "inactive",
+    joinDate: new Date(2024, 2, 1),
+    orders: 1,
+    totalSpent: 45.99,
+    lastLogin: undefined,
+    verificationStatus: "unverified",
+  },
+];
+
 export default function UsersPage() {
-  const { user } = useUser();
-  const [users, setUsers] = useState<AdminUser[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [actionInProgress, setActionInProgress] = useState(false);
+  const [users, setUsers] = useState(mockUsers);
+  const [filteredUsers, setFilteredUsers] = useState(mockUsers);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        console.log('[UsersPage] Загрузка пользователей...');
-        
-        const data = await adminApi.getUsers();
-        console.log('[UsersPage] Получены пользователи:', data);
-        if (Array.isArray(data) && data.length > 0) {
-          console.log('[UsersPage] Первый пользователь структура:', JSON.stringify(data[0], null, 2));
-        }
-        
-        setUsers(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error('[UsersPage] Ошибка при загрузке пользователей:', err);
-        setError(err instanceof Error ? err.message : "Ошибка при загрузке пользователей");
-        
-        // Mock-данные для тестирования
-        setUsers([
-          {
-            id: '1',
-            name: 'John Doe',
-            email: 'john@example.com',
-            role: 'student',
-            level: 5,
-            xp: 2450,
-            chefTokens: 1250,
-            createdAt: new Date(Date.now() - 30*24*60*60*1000).toISOString(),
-          },
-          {
-            id: '2',
-            name: 'Jane Smith',
-            email: 'jane@example.com',
-            role: 'instructor',
-            level: 12,
-            xp: 5890,
-            chefTokens: 3450,
-            createdAt: new Date(Date.now() - 60*24*60*60*1000).toISOString(),
-          },
-          {
-            id: '3',
-            name: 'Mike Johnson',
-            email: 'mike@example.com',
-            role: 'student',
-            level: 3,
-            xp: 890,
-            chefTokens: 450,
-            createdAt: new Date(Date.now() - 7*24*60*60*1000).toISOString(),
-          },
-        ]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
-  const filteredUsers = users.filter(
-    (u) =>
-      (u.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (u.email?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-  );
-
-  const handleDeleteUser = async (userId: string, userName: string) => {
-    if (!confirm(`Вы уверены, что хотите удалить пользователя "${userName}"?`)) {
-      return;
-    }
-
-    try {
-      setActionInProgress(true);
-      console.log('[UsersPage] Удаление пользователя:', userId);
-      
-      await adminApi.deleteUser(userId);
-      setUsers(users.filter((u) => u.id !== userId));
-      console.log('[UsersPage] ✅ Пользователь удалён');
-    } catch (err) {
-      console.error('[UsersPage] ❌ Ошибка при удалении:', err);
-      alert('Ошибка при удалении пользователя: ' + (err instanceof Error ? err.message : 'Неизвестная ошибка'));
-    } finally {
-      setActionInProgress(false);
-    }
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    filterUsers(query, selectedRole, selectedStatus);
   };
 
-  const handleUpdateRole = async (userId: string, newRole: 'student' | 'instructor' | 'admin') => {
-    try {
-      setActionInProgress(true);
-      console.log('[UsersPage] Обновление роли:', userId, newRole);
-      
-      await adminApi.updateUserRole(userId, newRole);
-      setUsers(
-        users.map((u) =>
-          u.id === userId ? { ...u, role: newRole } : u
-        )
+  const handleRoleFilter = (role: string | null) => {
+    setSelectedRole(role);
+    filterUsers(searchQuery, role, selectedStatus);
+  };
+
+  const handleStatusFilter = (status: string | null) => {
+    setSelectedStatus(status);
+    filterUsers(searchQuery, selectedRole, status);
+  };
+
+  const filterUsers = (query: string, role: string | null, status: string | null) => {
+    let filtered = users;
+
+    if (query.trim()) {
+      const lowerQuery = query.toLowerCase();
+      filtered = filtered.filter(
+        (user) =>
+          user.name.toLowerCase().includes(lowerQuery) ||
+          user.email.toLowerCase().includes(lowerQuery)
       );
-      console.log('[UsersPage] ✅ Роль обновлена');
-    } catch (err) {
-      console.error('[UsersPage] ❌ Ошибка при обновлении роли:', err);
-      alert('Ошибка при обновлении роли: ' + (err instanceof Error ? err.message : 'Неизвестная ошибка'));
-    } finally {
-      setActionInProgress(false);
     }
+
+    if (role) {
+      filtered = filtered.filter((user) => user.role === role);
+    }
+
+    if (status) {
+      filtered = filtered.filter((user) => user.status === status);
+    }
+
+    setFilteredUsers(filtered);
   };
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin':
-        return 'bg-red-100 text-red-700';
-      case 'instructor':
-        return 'bg-blue-100 text-blue-700';
-      case 'student':
-        return 'bg-gray-100 text-gray-700';
+      case "admin":
+        return "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400";
+      case "premium":
+        return "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400";
       default:
-        return 'bg-gray-100 text-gray-700';
+        return "bg-slate-100 dark:bg-slate-900/30 text-slate-700 dark:text-slate-400";
     }
   };
 
-  const getRoleEmoji = (role: string) => {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "active":
+        return "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400";
+      case "inactive":
+        return "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400";
+      case "banned":
+        return "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400";
+      default:
+        return "bg-slate-100 dark:bg-slate-900/30 text-slate-700 dark:text-slate-400";
+    }
+  };
+
+  const getRoleLabel = (role: string) => {
     switch (role) {
-      case 'admin':
-        return '👑';
-      case 'instructor':
-        return '👨‍🏫';
-      case 'student':
-        return '👤';
+      case "admin":
+        return "� Адміністратор";
+      case "premium":
+        return "✨ Преміум";
       default:
-        return '❓';
+        return "👤 Користувач";
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">Загрузка пользователей...</p>
-        </div>
-      </div>
-    );
-  }
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "active":
+        return "Активний";
+      case "inactive":
+        return "Неактивний";
+      case "banned":
+        return "Заблокований";
+      default:
+        return status;
+    }
+  };
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-8"
+    >
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-lg sm:rounded-xl p-4 sm:p-6 text-white border border-slate-700">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-          <div className="min-w-0">
-            <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2 flex items-center gap-2">
-              <Users className="w-6 sm:w-8 h-6 sm:h-8 flex-shrink-0" /> 
-              <span className="truncate">Пользователи</span>
-            </h1>
-            <p className="text-xs sm:text-base text-slate-300">
-              Всего: <span className="font-bold">{users.length}</span> | 
-              Найдено: <span className="font-bold">{filteredUsers.length}</span>
-            </p>
-          </div>
-          <button className="px-3 sm:px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition flex items-center gap-2 text-sm sm:text-base whitespace-nowrap flex-shrink-0">
-            <UserPlus className="w-4 sm:w-5 h-4 sm:h-5" />
-            <span className="hidden sm:inline">Добавить</span>
-            <span className="sm:hidden">+</span>
-          </button>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+            <Users size={32} className="text-purple-600" />
+            Користувачі
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400">
+            Керуйте користувачами системи
+          </p>
         </div>
+        <Button className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2">
+          <Plus size={18} />
+          Новий користувач
+        </Button>
       </div>
 
-      {/* Error Alert */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-red-900 text-sm">Ошибка при загрузке</p>
-            <p className="text-xs text-red-700 mt-1">Используются тестовые данные</p>
+      {/* Filters */}
+      <Card className="p-4 space-y-4">
+        <div className="flex gap-4 items-center">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-3 text-slate-400 size-5" />
+            <Input
+              placeholder="Пошук по імені чи email..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-10 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+            />
           </div>
+          <Button variant="outline" className="flex items-center gap-2">
+            <Download size={18} />
+            Експорт
+          </Button>
         </div>
-      )}
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-foreground/40 flex-shrink-0" />
-        <input
-          type="text"
-          placeholder="Поиск..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-3 bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground placeholder-foreground/40 text-sm sm:text-base"
-        />
-      </div>
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            onClick={() => handleStatusFilter(null)}
+            variant={selectedStatus === null ? "default" : "outline"}
+            className={selectedStatus === null ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}
+          >
+            Усі статуси ({users.length})
+          </Button>
+          {["active", "inactive", "banned"].map((status) => (
+            <Button
+              key={status}
+              onClick={() => handleStatusFilter(status)}
+              variant={selectedStatus === status ? "default" : "outline"}
+              className={selectedStatus === status ? `${getStatusColor(status)}` : ""}
+            >
+              {getStatusLabel(status)} ({users.filter((u) => u.status === status).length})
+            </Button>
+          ))}
+        </div>
 
-      {/* Desktop Table View */}
-      <div className="hidden md:block bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            onClick={() => handleRoleFilter(null)}
+            variant={selectedRole === null ? "default" : "outline"}
+            className={selectedRole === null ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}
+          >
+            Усі ролі ({users.length})
+          </Button>
+          {["user", "premium", "admin"].map((role) => (
+            <Button
+              key={role}
+              onClick={() => handleRoleFilter(role)}
+              variant={selectedRole === role ? "default" : "outline"}
+              className={selectedRole === role ? `${getRoleColor(role)}` : ""}
+            >
+              {getRoleLabel(role)} ({users.filter((u) => u.role === role).length})
+            </Button>
+          ))}
+        </div>
+      </Card>
+
+      {/* Users Table */}
+      <Card className="overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full table-auto border-collapse border border-gray-200 text-sm">
-            <thead className="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
-              <tr>
-                <th className="px-4 py-3 text-left">Имя</th>
-                <th className="px-4 py-3 text-left">Email</th>
-                <th className="px-4 py-3 text-left">Роль</th>
-                <th className="px-4 py-3 text-left">Статус</th>
-                <th className="px-4 py-3 text-left">Регистрация</th>
-                <th className="px-4 py-3 text-center">Действия</th>
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">Користувач</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">Email</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">Роль</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">Статус</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">Замовлення</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">Витрачено</th>
+                <th className="px-6 py-4 text-right text-sm font-semibold text-slate-900 dark:text-white">Дії</th>
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((u) => (
-                <tr
-                  key={u.id}
-                  className="border-t hover:bg-gray-50 transition-colors"
+              {filteredUsers.map((user, idx) => (
+                <motion.tr
+                  key={user.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                 >
-                  <td className="px-4 py-3 font-medium text-slate-900">
-                    {u.name || '—'}
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold text-sm">
+                        {user.name.split(" ").map((n) => n[0]).join("")}
+                      </div>
+                      <div>
+                        <p className="font-medium text-slate-900 dark:text-white">{user.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">ID: {user.id}</p>
+                      </div>
+                    </div>
                   </td>
-                  <td className="px-4 py-3 text-slate-600 text-xs sm:text-sm">
-                    {u.email || '—'}
+                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{user.email}</td>
+                  <td className="px-6 py-4">
+                    <Badge className={getRoleColor(user.role)}>
+                      {getRoleLabel(user.role)}
+                    </Badge>
                   </td>
-                  <td className="px-4 py-3">
-                    <select
-                      value={u.role || 'student'}
-                      onChange={(e) => handleUpdateRole(u.id, e.target.value as 'student' | 'instructor' | 'admin')}
-                      disabled={actionInProgress}
-                      className={`px-3 py-1 rounded text-xs sm:text-sm font-medium border focus:outline-none cursor-pointer disabled:opacity-50 ${
-                        u.role === 'admin' ? 'bg-red-100 text-red-700 border-red-300' :
-                        u.role === 'instructor' ? 'bg-blue-100 text-blue-700 border-blue-300' :
-                        'bg-gray-100 text-gray-700 border-gray-300'
-                      }`}
-                    >
-                      <option value="student">Student</option>
-                      <option value="instructor">Instructor</option>
-                      <option value="admin">Admin</option>
-                    </select>
+                  <td className="px-6 py-4">
+                    <Badge className={getStatusColor(user.status)}>
+                      {getStatusLabel(user.status)}
+                    </Badge>
                   </td>
-                  <td className="px-4 py-3 text-green-600 font-medium text-xs sm:text-sm">
-                    ✓
+                  <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">
+                    {user.orders}
                   </td>
-                  <td className="px-4 py-3 text-slate-600 text-xs sm:text-sm">
-                    {u.createdAt ? new Date(u.createdAt).toLocaleDateString("ru-RU") : "—"}
+                  <td className="px-6 py-4 text-sm font-medium text-green-600 dark:text-green-400">
+                    ${user.totalSpent.toFixed(2)}
                   </td>
-                  <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => handleDeleteUser(u.id, u.name || 'Пользователь')}
-                      disabled={actionInProgress}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded transition disabled:opacity-50 inline-flex"
-                      title="Удалить"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        onClick={() => {
+                          setSelectedUser(user);
+                          setIsModalOpen(true);
+                        }}
+                        size="sm"
+                        variant="outline"
+                        className="flex items-center gap-1"
+                      >
+                        <Eye size={16} />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex items-center gap-1"
+                      >
+                        <Edit2 size={16} />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
                   </td>
-                </tr>
+                </motion.tr>
               ))}
             </tbody>
           </table>
         </div>
+      </Card>
 
-        {filteredUsers.length === 0 && (
-          <div className="text-center py-12">
-            <Eye className="w-12 h-12 text-slate-400 mx-auto mb-3 opacity-50" />
-            <p className="text-slate-600 font-semibold">Пользователи не найдены</p>
-          </div>
-        )}
-      </div>
+      {/* Empty State */}
+      {filteredUsers.length === 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col items-center justify-center py-12 bg-slate-50 dark:bg-slate-800/50 rounded-lg"
+        >
+          <Users size={48} className="text-slate-400 mb-4" />
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+            Користувачів не знайдено
+          </h3>
+          <p className="text-slate-600 dark:text-slate-400 text-center">
+            Спробуйте змінити фільтри або параметри пошуку
+          </p>
+        </motion.div>
+      )}
 
-      {/* Mobile Cards View */}
-      <div className="md:hidden space-y-3">
-        {filteredUsers.length > 0 ? (
-          filteredUsers.map((u) => (
-            <div
-              key={u.id}
-              className="bg-card border border-border rounded-lg p-4 space-y-3"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-slate-900 truncate">{u.name || '—'}</p>
-                  <p className="text-xs text-slate-600 truncate">{u.email || '—'}</p>
-                </div>
-                <button
-                  onClick={() => handleDeleteUser(u.id, u.name || 'Пользователь')}
-                  disabled={actionInProgress}
-                  className="text-red-500 hover:text-red-700 p-2 rounded hover:bg-red-50 transition flex-shrink-0"
-                  title="Удалить"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <select
-                  value={u.role || 'student'}
-                  onChange={(e) => handleUpdateRole(u.id, e.target.value as 'student' | 'instructor' | 'admin')}
-                  disabled={actionInProgress}
-                  className={`px-2 py-1 rounded text-xs font-medium border focus:outline-none cursor-pointer disabled:opacity-50 flex-1 min-w-[100px] ${
-                    u.role === 'admin' ? 'bg-red-100 text-red-700 border-red-300' :
-                    u.role === 'instructor' ? 'bg-blue-100 text-blue-700 border-blue-300' :
-                    'bg-gray-100 text-gray-700 border-gray-300'
-                  }`}
-                >
-                  <option value="student">Student</option>
-                  <option value="instructor">Instructor</option>
-                  <option value="admin">Admin</option>
-                </select>
-                <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium whitespace-nowrap">
-                  ✓ Активен
-                </span>
-              </div>
-
-              {u.createdAt && (
-                <p className="text-xs text-slate-600">
-                  <Calendar className="w-3 h-3 inline mr-1" />
-                  {new Date(u.createdAt).toLocaleDateString("ru-RU")}
-                </p>
-              )}
-            </div>
-          ))
-        ) : (
-          <div className="text-center py-12 bg-card border border-border rounded-lg">
-            <Eye className="w-12 h-12 text-slate-400 mx-auto mb-3 opacity-50" />
-            <p className="text-slate-600 font-semibold">Нет результатов</p>
-          </div>
-        )}
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
-        <div className="bg-white rounded-lg sm:rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
-          <p className="text-slate-600 text-xs md:text-sm font-semibold mb-1 md:mb-2 flex items-center gap-2">
-            <Users className="w-4 h-4" /> Студентов
-          </p>
-          <p className="text-2xl md:text-3xl font-bold text-slate-900">
-            {users.filter(u => u.role === 'student').length}
-          </p>
-          <p className="text-xs text-slate-500 mt-1 md:mt-2">
-            {users.length > 0 ? ((users.filter(u => u.role === 'student').length / users.length) * 100).toFixed(1) : 0}%
-          </p>
-        </div>
-
-        <div className="bg-white rounded-lg sm:rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
-          <p className="text-slate-600 text-xs md:text-sm font-semibold mb-1 md:mb-2 flex items-center gap-2">
-            <Shield className="w-4 h-4" /> Инструкторов
-          </p>
-          <p className="text-2xl md:text-3xl font-bold text-slate-900">
-            {users.filter(u => u.role === 'instructor').length}
-          </p>
-          <p className="text-xs text-slate-500 mt-1 md:mt-2">
-            {users.length > 0 ? ((users.filter(u => u.role === 'instructor').length / users.length) * 100).toFixed(1) : 0}%
-          </p>
-        </div>
-
-        <div className="bg-white rounded-lg sm:rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
-          <p className="text-slate-600 text-xs md:text-sm font-semibold mb-1 md:mb-2 flex items-center gap-2">
-            <Shield className="w-4 h-4" /> Администраторов
-          </p>
-          <p className="text-2xl md:text-3xl font-bold text-slate-900">
-            {users.filter(u => u.role === 'admin').length}
-          </p>
-          <p className="text-xs text-slate-500 mt-1 md:mt-2">
-            {users.length > 0 ? ((users.filter(u => u.role === 'admin').length / users.length) * 100).toFixed(1) : 0}%
-          </p>
-        </div>
-      </div>
-    </div>
+      {/* User Profile Modal */}
+      {selectedUser && (
+        <UserProfileModal
+          user={selectedUser}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedUser(null);
+          }}
+        />
+      )}
+    </motion.div>
   );
 }

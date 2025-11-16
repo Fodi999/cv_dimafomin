@@ -14,11 +14,19 @@ import {
   User,
   Sparkles,
   LogOut,
+  LayoutDashboard,
+  Package,
+  Users,
+  Activity,
+  Puzzle,
+  Settings,
+  Shield,
   LogIn,
   Refrigerator,
 } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import AuthModal from "@/components/auth/AuthModal";
+import { NotificationBell } from "@/components/NotificationBell";
 
 interface NavLink {
   label: string;
@@ -170,6 +178,11 @@ export default function NavigationBurger() {
               <span className="text-xs text-gray-500 dark:text-gray-400">Food Academy</span>
             </div>
           </Link>
+
+          {/* ===== NOTIFICATIONS + PROFILE - RIGHT SIDE ===== */}
+          <div className="ml-auto flex items-center gap-2">
+            <NotificationBell />
+          </div>
         </div>
       </header>
 
@@ -247,6 +260,58 @@ export default function NavigationBurger() {
                   </motion.div>
                 ))}
               </nav>
+
+              {/* ===== ADMIN SECTION ===== */}
+              {user && user.role === "admin" && (
+                <>
+                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent my-6" />
+                  
+                  <div className="mb-4">
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 px-4">
+                      <Shield size={16} />
+                      Адміністрація
+                    </div>
+                    <nav className="space-y-2">
+                      {[
+                        { label: "Панель керування", href: "/admin/dashboard", Icon: LayoutDashboard },
+                        { label: "Замовлення", href: "/admin/orders", Icon: Package },
+                        { label: "Користувачі", href: "/admin/users", Icon: Users },
+                        { label: "Активність", href: "/admin/activity-log", Icon: Activity },
+                        { label: "Інтеграції", href: "/admin/integrations", Icon: Puzzle },
+                        { label: "Налаштування", href: "/admin/settings", Icon: Settings },
+                      ].map((link, idx) => (
+                        <motion.div
+                          key={link.href}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.3 + idx * 0.05 }}
+                        >
+                          <motion.div
+                            whileHover={{ x: 8 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => handleLinkClick(link.href)}
+                            className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all cursor-pointer text-sm ${
+                              pathname === link.href
+                                ? "bg-purple-500/20 text-purple-600 dark:text-purple-400 border-l-4 border-purple-500"
+                                : "text-gray-700 dark:text-gray-300 hover:bg-purple-500/10 dark:hover:bg-purple-900/20 border-l-4 border-transparent"
+                            }`}
+                          >
+                            <link.Icon size={18} />
+                            <span className="font-medium text-sm">{link.label}</span>
+                            {pathname === link.href && (
+                              <motion.div
+                                layoutId="admin-active"
+                                className="ml-auto w-2 h-2 rounded-full bg-purple-500"
+                                transition={{ type: "spring", damping: 20 }}
+                              />
+                            )}
+                          </motion.div>
+                        </motion.div>
+                      ))}
+                    </nav>
+                  </div>
+                </>
+              )}
 
               {/* ===== DIVIDER ===== */}
               <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent my-6" />
