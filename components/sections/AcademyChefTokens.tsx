@@ -4,28 +4,31 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Coins, TrendingUp, Gift, Gem, Award, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function AcademyChefTokens() {
+  const { t } = useLanguage();
+  
   const benefits = [
     {
       icon: <Coins className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-      title: "Зарабатывай",
-      description: "Проходи уроки, вовлекайся в обучение — получай ChefTokens за активность.",
+      title: t.tokens.earn.title,
+      description: t.tokens.earn.description,
     },
     {
       icon: <TrendingUp className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-      title: "Трать выгодно",
-      description: "Покупай авторские рецепты, современные рецепты, курсы и разборы вкусовых сочетаний.",
+      title: t.tokens.spend.title,
+      description: t.tokens.spend.description,
     },
     {
       icon: <Gem className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-      title: "Оплата запросов к AI",
-      description: "Расширенные функции AI-наставника списывают небольшое количество токенов.",
+      title: t.tokens.aiPayment.title,
+      description: t.tokens.aiPayment.description,
     },
     {
       icon: <Gift className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-      title: "Обменивай",
-      description: "Доступ к эксклюзивным рецептам, мастер-классам и персональным рекомендациям.",
+      title: t.tokens.exchange.title,
+      description: t.tokens.exchange.description,
     },
   ];
 
@@ -64,10 +67,10 @@ export default function AcademyChefTokens() {
         >
           <motion.div variants={itemVariants} className="text-center">
             <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
-              ChefTokens — твоя внутренняя кулинарная валюта
+              {t.tokens.title}
             </h2>
             <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-              ChefTokens — это валюта обучения и покупок в Modern Food Academy. Используй её, чтобы открывать современные рецепты, видеоуроки, pairing-комбинации и получать помощь AI-наставника.
+              {t.tokens.description}
             </p>
           </motion.div>
 
@@ -93,9 +96,9 @@ export default function AcademyChefTokens() {
             className="grid sm:grid-cols-3 gap-6"
           >
             {[
-              { icon: <TrendingUp className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "50,000+", label: "ChefTokens в обороте" },
-              { icon: <Users className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "1000+", label: "Активных пользователей" },
-              { icon: <Zap className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "24/7", label: "Доступность AI-наставника" },
+              { icon: <TrendingUp className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "50,000+", label: t.tokens.stats.inCirculation },
+              { icon: <Users className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "1000+", label: t.tokens.stats.activeUsers },
+              { icon: <Zap className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "24/7", label: t.tokens.stats.aiAvailability },
             ].map((item, idx) => (
               <motion.div
                 key={idx}
@@ -117,7 +120,7 @@ export default function AcademyChefTokens() {
             <Link href="/profile">
               <Button className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-medium px-8 py-3 text-base rounded-lg shadow-md hover:shadow-lg dark:shadow-sky-500/20 dark:hover:shadow-sky-500/30 transition-all active:scale-95 group w-full md:w-auto flex items-center justify-center gap-2">
                 <Coins className="w-5 h-5" />
-                Посмотреть баланс токенов
+                Sprawdzić saldo tokenów
               </Button>
             </Link>
           </motion.div>

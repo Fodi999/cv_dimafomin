@@ -48,5 +48,5 @@ export interface FormData {
   whatsapp: string;
 }
 
-export type TabType = 'posts' | 'saved' | 'courses';
+export type TabType = 'overview' | 'stats' | 'content' | 'wallet' | 'edit' | 'posts' | 'saved' | 'courses';
 export type ViewType = 'chat' | 'profile';

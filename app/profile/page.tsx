@@ -3,20 +3,22 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
-import { ProfileTabs } from "@/components/profile/ProfileTabs";
-import type { TabType, UserProfile, Post, Transaction } from "@/lib/profile-types";
+import { ProfileView } from "@/components/profile/ProfileView";
+import type { UserProfile, Post, Transaction, FormData } from "@/lib/profile-types";
 import { useProfileTranslations } from "@/hooks/useProfileTranslations";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, isLoading, logout, updateProfile } = useUser();
-  const [activeTab, setActiveTab] = useState<TabType>("posts");
+  const { user, isLoading, updateProfile } = useUser();
+  const { translations } = useProfileTranslations();
+
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [savedPosts, setSavedPosts] = useState<Post[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [pageLoading, setPageLoading] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [healthData, setHealthData] = useState({
     age: 0,
@@ -27,36 +29,61 @@ export default function ProfilePage() {
     dietaryRestrictions: [] as string[],
     fitnessGoal: "maintenance",
   });
-  const { translations, language } = useProfileTranslations();
 
-  // Load user profile, posts, and transactions - ONCE
+  const [formData, setFormData] = useState<FormData>({
+    name: "",
+    email: "",
+    bio: "",
+    location: "",
+    phone: "",
+    instagram: "",
+    telegram: "",
+    whatsapp: "",
+  });
+
+  // Load user profile, posts, and transactions
   useEffect(() => {
-    // ✅ Layout уже проверил авторизацию, просто загружаем данные
     if (isLoading || !user || dataLoaded) return;
 
     const loadData = async () => {
       try {
         setPageLoading(true);
-        
+
         // Load profile
         setUserProfile({
           id: user.id,
           name: user.name,
           email: user.email,
           avatar: user.avatar,
-          bio: "",
-          location: "",
+          bio: user.bio || "",
+          location: user.location || "",
+          phone: user.phone || "",
+          instagram: user.instagram || "",
+          telegram: user.telegram || "",
+          whatsapp: user.whatsapp || "",
           followers: 0,
           following: 0,
         });
-        
-        // Load posts
+
+        // Initialize form with user data
+        setFormData({
+          name: user.name,
+          email: user.email,
+          bio: user.bio || "",
+          location: user.location || "",
+          phone: user.phone || "",
+          instagram: user.instagram || "",
+          telegram: user.telegram || "",
+          whatsapp: user.whatsapp || "",
+        });
+
+        // Load posts (empty for now)
         setPosts([]);
         setSavedPosts([]);
-        
-        // Load transactions
+
+        // Load transactions (empty for now)
         setTransactions([]);
-        
+
         setDataLoaded(true);
       } catch (error) {
         console.error("Failed to load data:", error);
@@ -99,36 +126,72 @@ export default function ProfilePage() {
   };
 
   const handleBuy = () => {
-    // TODO: Implement token purchase
     console.log("Buy tokens");
   };
 
   const handleRefresh = () => {
-    setRetryCount(prev => (prev + 1) % 3);
+    setRetryCount((prev) => (prev + 1) % 3);
+  };
+
+  const handleFormChange = (data: Partial<FormData>) => {
+    setFormData((prev) => ({ ...prev, ...data }));
+  };
+
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      await updateProfile({
+        name: formData.name,
+        email: formData.email,
+        bio: formData.bio,
+        location: formData.location,
+        phone: formData.phone,
+        instagram: formData.instagram,
+        telegram: formData.telegram,
+        whatsapp: formData.whatsapp,
+      });
+      console.log("✅ Profile updated successfully");
+    } catch (error) {
+      console.error("❌ Failed to save profile:", error);
+      throw error;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleAvatarUpload = async (url: string) => {
+    try {
+      await updateProfile({ avatar: url });
+      console.log("✅ Avatar updated successfully");
+    } catch (error) {
+      console.error("❌ Failed to upload avatar:", error);
+      throw error;
+    }
   };
 
   const translationsRecord = translations as Record<string, string>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
-      {/* Main Profile Container */}
-      <div className="max-w-4xl mx-auto px-4 pt-[120px] pb-8">
-        <ProfileTabs
-          userProfile={userProfile}
-          user={user}
-          posts={posts}
-          savedPosts={savedPosts}
-          transactions={transactions}
-          pageLoading={pageLoading}
-          retryCount={retryCount}
-          healthData={healthData}
-          translationsRecord={translationsRecord}
-          onHealthDataUpdate={setHealthData}
-          onEarnClick={handleEarn}
-          onBuyClick={handleBuy}
-          onRefreshClick={handleRefresh}
-        />
-      </div>
-    </div>
+    <ProfileView
+      userProfile={userProfile}
+      user={user}
+      posts={posts}
+      savedPosts={savedPosts}
+      transactions={transactions}
+      healthData={healthData}
+      formData={formData}
+      pageLoading={pageLoading}
+      retryCount={retryCount}
+      isSaving={isSaving}
+      isOwn={true}
+      translations={translationsRecord}
+      onHealthDataUpdate={setHealthData}
+      onFormChange={handleFormChange}
+      onSave={handleSave}
+      onAvatarUpload={handleAvatarUpload}
+      onEarnClick={handleEarn}
+      onBuyClick={handleBuy}
+      onRefreshClick={handleRefresh}
+    />
   );
 }

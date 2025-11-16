@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { BookOpen, Clock, Star, Users, ArrowRight, Bookmark, Share2, Play, Zap, Trophy } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 
 interface Course {
@@ -17,72 +18,74 @@ interface Course {
   lessons: number;
 }
 
-// Студенческие работы (Pinterest style)
+// Prace Uczniów (Pinterest style)
 const studentWorks = [
   {
     id: "1",
-    studentName: "Мария К.",
-    courseName: "Работа по курсу «Основы современной кухни»",
+    studentName: "Maria K.",
+    courseName: 'Praca z kursu "Podstawy Nowoczesnej Kuchni"',
     imageUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=500&fit=crop",
     rating: 4.9,
-    sheets: "5 листов",
+    sheets: "5 karty",
     completedDate: "2024-11-05",
   },
   {
     id: "2",
-    studentName: "Олег П.",
-    courseName: "Работа по курсу «Современные авторские рецепты»",
+    studentName: "Oleg P.",
+    courseName: 'Praca z kursu "Nowoczesne Przepisy Autorskie"',
     imageUrl: "https://images.unsplash.com/photo-1553504653527-7dd5b39ef828?w=400&h=600&fit=crop",
     rating: 5.0,
-    sheets: "3 листа",
+    sheets: "3 karty",
     completedDate: "2024-11-03",
   },
 ];
 
-// Структурированные курсы
+// Strukturyzowane kursy
 const courses: Course[] = [
   {
     id: 1,
-    title: "⭐ Основы современной кухни",
-    description: "Освой базовые техники: работа с продуктами, нарезка, текстуры, тепловая обработка и подача. Твёрдый фундамент для любого уровня.",
-    difficulty: "Начинающий",
-    duration: "4 часа",
+    title: "⭐ Nowoczesna Kuchnia: Podstawy",
+    description: "Naucz się pracować z produktami, krojeniem, obróbką termiczną i podaniem. Od pierwszych kroków — do nowoczesnego stylu gotowania.",
+    difficulty: "Początkujący",
+    duration: "4 godziny",
     lessons: 12,
-    students: "250 учеников",
+    students: "250 uczniów",
     rating: 4.9,
     progress: 0,
   },
   {
     id: 2,
-    title: "⭐ Техники нарезки и подготовки продуктов",
-    description: "Изучи профессиональные способы нарезки, работу с формами, углами и скоростью. Идеально для тех, кто хочет максимально улучшить технику.",
-    difficulty: "Средний",
-    duration: "6 часов",
+    title: "⭐ Food Pairing: Podstawy Połączeń Smaków",
+    description: "Studium równowagi smaków, tekstury, temperatury i naucz się łączyć potrawy z koktajlami i napojami. Stwórz swoje pierwsze pary „zakąska + napój\".",
+    difficulty: "Średniozaawansowany",
+    duration: "3 godziny",
     lessons: 18,
-    students: "180 учеников",
+    students: "180 uczniów",
     rating: 4.8,
     progress: 0,
   },
   {
     id: 3,
-    title: "⭐ Современные авторские рецепты и Food Pairing",
-    description: "Создавай стильные блюда, работай с балансом вкусов, текстурами и подбирай напитки для идеальных сочетаний.",
-    difficulty: "Продвинутый",
-    duration: "8 часов",
+    title: "⭐ Nowoczesne Techniki i Potrawy Autorskie",
+    description: "Masterclass Nowoczesnych Technik: Marynowanie, Emulsje, Fuzja-Techniki, Podanie i Praca z Teksturą. Idealnie dla tych, którzy chcą gotować w stylu premium-restauracji.",
+    difficulty: "Zaawansowany",
+    duration: "5 godzin",
     lessons: 24,
-    students: "220 учеников",
+    students: "220 uczniów",
     rating: 5.0,
     progress: 0,
   },
 ];
 
 const difficultyColors: Record<string, string> = {
-  "Начинающий": "bg-green-100 text-green-700",
-  "Средний": "bg-amber-100 text-amber-700",
-  "Продвинутый": "bg-purple-100 text-purple-700",
+  "Początkujący": "bg-green-100 text-green-700",
+  "Średniozaawansowany": "bg-amber-100 text-amber-700",
+  "Zaawansowany": "bg-purple-100 text-purple-700",
 };
 
 export default function CoursesPage() {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-sky-950 to-cyan-950 px-4 sm:px-6 lg:px-8 pt-24 pb-20">
       {/* Animated background gradient */}
@@ -102,14 +105,14 @@ export default function CoursesPage() {
             className="text-center"
           >
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-              Структурированные курсы
+              {t.academy.courses.pageTitle}
             </h1>
             <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-              От базовых техник до современных авторских рецептов от шефа Dima Fomin
+              {t.academy.courses.subtitle}
             </p>
             <div className="inline-flex items-center gap-2 px-6 py-3 bg-sky-500/20 border border-sky-400/50 rounded-full text-sky-300 font-semibold">
               <Star className="w-4 h-4 fill-current" />
-              <span>3 курса • 650+ учеников</span>
+              <span>3 kursy • 650+ uczniów</span>
             </div>
           </motion.div>
         </section>
@@ -119,11 +122,11 @@ export default function CoursesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {courses.map((course, idx) => {
             const difficultyConfig: Record<string, { bg: string; badge: string }> = {
-              "Начинающий": { bg: "from-green-400/20 to-emerald-400/20", badge: "bg-green-500/20 text-green-300 border border-green-500/50" },
-              "Средний": { bg: "from-amber-400/20 to-orange-400/20", badge: "bg-amber-500/20 text-amber-300 border border-amber-500/50" },
-              "Продвинутый": { bg: "from-purple-400/20 to-pink-400/20", badge: "bg-purple-500/20 text-purple-300 border border-purple-500/50" },
+              "Początkujący": { bg: "from-green-400/20 to-emerald-400/20", badge: "bg-green-500/20 text-green-300 border border-green-500/50" },
+              "Średniozaawansowany": { bg: "from-amber-400/20 to-orange-400/20", badge: "bg-amber-500/20 text-amber-300 border border-amber-500/50" },
+              "Zaawansowany": { bg: "from-purple-400/20 to-pink-400/20", badge: "bg-purple-500/20 text-purple-300 border border-purple-500/50" },
             };
-            const config = difficultyConfig[course.difficulty] || difficultyConfig["Начинающий"];
+            const config = difficultyConfig[course.difficulty] || difficultyConfig["Początkujący"];
 
             return (
                 <motion.div
@@ -149,7 +152,7 @@ export default function CoursesPage() {
                   {/* Level Badge */}
                   <div className="mb-4">
                     <span className={`inline-block px-4 py-2 rounded-lg text-sm font-semibold ${config.badge}`}>
-                      Уровень: {course.difficulty}
+                      Poziom: {course.difficulty}
                     </span>
                   </div>
 
@@ -157,15 +160,15 @@ export default function CoursesPage() {
                   <div className="space-y-3 mb-6 pb-6 border-b border-sky-300/30">
                     <div className="flex items-center gap-3 text-gray-300 text-base">
                       <Clock className="w-5 h-5 flex-shrink-0 text-sky-400" />
-                      <span>Длительность: {course.duration}</span>
+                      <span>Czas Trwania: {course.duration}</span>
                     </div>
                     <div className="flex items-center gap-3 text-gray-300 text-base">
                       <Star className="w-5 h-5 text-yellow-400 fill-yellow-400 flex-shrink-0" />
-                      <span className="font-semibold">Рейтинг: {course.rating}</span>
+                      <span className="font-semibold">Ocena: {course.rating}</span>
                     </div>
                     <div className="flex items-center gap-3 text-gray-300 text-base">
                       <Users className="w-5 h-5 flex-shrink-0 text-sky-400" />
-                      <span>Прошли: {course.students}</span>
+                      <span>Zaliczyło: {course.students}</span>
                     </div>
                   </div>
 
@@ -176,7 +179,7 @@ export default function CoursesPage() {
                       whileTap={{ scale: 0.98 }}
                       className="w-full py-4 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group"
                     >
-                      Начать курс
+                      Rozpocznij Kurs
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </motion.button>
                   </Link>
@@ -195,7 +198,7 @@ export default function CoursesPage() {
           transition={{ delay: 0.3, duration: 0.6 }}
           className="text-4xl font-bold text-white mb-4 text-center"
         >
-          Работы учеников
+          Prace Uczniów
         </motion.h2>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -203,7 +206,7 @@ export default function CoursesPage() {
           transition={{ delay: 0.35, duration: 0.6 }}
           className="text-center text-gray-300 mb-12 text-lg"
         >
-          Реальные результаты студентов Modern Food Academy
+          Rzeczywiste Wyniki Studentów Modern Food Academy
         </motion.p>
 
         {/* Masonry Grid */}
@@ -257,17 +260,17 @@ export default function CoursesPage() {
           className="bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-500 backdrop-blur-sm rounded-3xl p-16 text-white text-center shadow-2xl border border-sky-500/50 mx-auto"
         >
           <h3 className="text-4xl font-bold mb-4">
-            Готов начать?
+            Gotów do Rozpoczęcia?
           </h3>
           <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
-            Выбери курс и начни свой путь в современной кухне вместе с Dima Fomin.
+            Wybierz kurs i zacznij swoją podróż w nowoczesnej kuchni z Dima Fomin.
           </p>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="px-8 py-4 bg-white text-sky-600 font-bold rounded-xl hover:shadow-lg transition-all inline-flex items-center gap-2"
           >
-            Выбрать курс
+            Wybierz Kurs
             <ArrowRight className="w-5 h-5" />
           </motion.button>
         </motion.div>

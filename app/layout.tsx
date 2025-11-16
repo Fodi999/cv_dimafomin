@@ -5,9 +5,9 @@ import { getMetadata } from "@/lib/seo";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserProvider } from "@/contexts/UserContext";
 import { AuthProvider } from "@/src/contexts/AuthContext";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import PWARegister from "@/components/PWARegister";
 import NavigationBurger from "@/components/NavigationBurger";
-import Navigation from "@/components/Navigation";
 
 const inter = Inter({ 
   subsets: ["latin", "cyrillic"],
@@ -63,15 +63,16 @@ export default function RootLayout({
       </head>
       <body className="antialiased relative">
         <PWARegister />
-        <AuthProvider>
-          <LanguageProvider>
-            <UserProvider>
-              <Navigation />
-              <NavigationBurger />
-              {children}
-            </UserProvider>
-          </LanguageProvider>
-        </AuthProvider>
+        <ThemeProvider defaultTheme="system">
+          <AuthProvider>
+            <LanguageProvider>
+              <UserProvider>
+                <NavigationBurger />
+                {children}
+              </UserProvider>
+            </LanguageProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

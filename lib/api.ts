@@ -778,6 +778,17 @@ export const userApi = {
 
     return apiFetch(`/user/wallet?${params}`, { token });
   },
+
+  /**
+   * GET /api/users/{userId}
+   * Получить публичный профиль конкретного пользователя
+   */
+  getUserProfile: async (userId: string, token?: string | null) => {
+    const actualToken = token || undefined;
+    return apiFetch<ProfileData>(`/users/${userId}`, { 
+      ...(actualToken && { token: actualToken }) 
+    });
+  },
 };
 
 // ==================== ADMIN API ====================

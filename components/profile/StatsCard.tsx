@@ -39,12 +39,12 @@ export function StatsCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1, duration: 0.5 }}
-      whileHover={{ translateY: -4 }}
-      className={`bg-gradient-to-br ${colorMap[color]} rounded-xl p-6 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-md hover:shadow-lg transition-all`}
+      whileHover={{ translateY: -2 }}
+      className={`bg-gradient-to-br ${colorMap[color]} rounded-lg p-3 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-md hover:shadow-lg transition-all overflow-hidden`}
     >
-      <div className="flex items-start justify-between mb-3">
-        <div className={`p-3 rounded-lg bg-white/50 dark:bg-gray-800/50 ${iconColorMap[color]}`}>
-          {icon}
+      <div className="flex items-start justify-between mb-2">
+        <div className={`p-2 rounded-lg bg-white/50 dark:bg-gray-800/50 ${iconColorMap[color]} flex items-center justify-center`}>
+          <div className="w-4 h-4">{icon}</div>
         </div>
         {change && (
           <div className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
@@ -53,8 +53,8 @@ export function StatsCard({
           </div>
         )}
       </div>
-      <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">{label}</p>
-      <p className="text-3xl font-bold text-gray-900 dark:text-white">
+      <p className="text-gray-600 dark:text-gray-400 text-xs mb-1">{label}</p>
+      <p className="text-xl font-bold text-gray-900 dark:text-white break-words overflow-hidden max-w-full">
         {value}
       </p>
     </motion.div>
@@ -79,9 +79,9 @@ export function StatsGrid({
   const xpPercent = (xp / maxXp) * 100;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Main Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
         <StatsCard
           icon={<Award className="w-6 h-6" />}
           label="Уровень"
@@ -117,17 +117,17 @@ export function StatsGrid({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.5 }}
-        className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md"
+        className="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-md"
       >
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-bold text-gray-900 dark:text-white">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-bold text-sm text-gray-900 dark:text-white">
             Прогресс к уровню {level + 1}
           </h3>
-          <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+          <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">
             {Math.round(xpPercent)}%
           </span>
         </div>
-        <div className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${xpPercent}%` }}
@@ -135,7 +135,7 @@ export function StatsGrid({
             className="h-full bg-gradient-to-r from-orange-400 via-orange-500 to-red-500 rounded-full shadow-lg"
           />
         </div>
-        <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">
+        <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
           Ещё {maxXp - xp} XP до следующего уровня
         </p>
       </motion.div>

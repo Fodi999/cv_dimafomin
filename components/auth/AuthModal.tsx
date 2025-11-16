@@ -143,13 +143,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 </button>
                 <h2 className="text-2xl font-bold text-white">
                   {activeTab === "login"
-                    ? t.auth?.loginTitle || "Zaloguj się"
-                    : t.auth?.registerTitle || "Zarejestruj się"}
+                    ? t.auth?.login?.title || "Zaloguj się"
+                    : t.auth?.register?.title || "Zarejestruj się"}
                 </h2>
                 <p className="text-white/80 text-sm mt-1">
                   {activeTab === "login"
-                    ? t.auth?.loginSubtitle || "Witaj ponownie!"
-                    : t.auth?.registerSubtitle || "Utwórz nowe konto"}
+                    ? t.auth?.login?.subtitle || "Zaloguj się do swojego konta"
+                    : t.auth?.register?.subtitle || "Stwórz nowe konto"}
                 </p>
               </div>
 

@@ -2,85 +2,63 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Mail, MapPin, Facebook, Instagram, Linkedin } from "lucide-react";
+import { Mail, MapPin, Instagram } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function AcademyFooter() {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 },
-    },
-  };
+  const { t } = useLanguage();
 
   const socialLinks = [
-    { icon: Facebook, href: "#", label: "Facebook" },
-    { icon: Instagram, href: "#", label: "Instagram" },
-    { icon: Linkedin, href: "#", label: "LinkedIn" },
+    { icon: Instagram, href: "https://instagram.com/fodifood", label: "Instagram" },
   ];
 
   const footerLinks = [
-    { label: "Контакты", href: "#contact" },
-    { label: "Политика приватности", href: "#privacy" },
-    { label: "Условия использования", href: "#terms" },
+    { label: t.footer.contact.title, href: "#contact" },
+    { label: 'Polityka Prywatności', href: "#privacy" },
+    { label: 'Warunki Użytkowania', href: "#terms" },
   ];
 
   return (
-    <footer className="bg-gradient-to-b from-[#1E1A41] to-[#0f0d25] text-white relative overflow-hidden">
-      {/* Background elements */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-sky-400 rounded-full mix-blend-multiply filter blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl" />
-      </div>
-
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Main footer content */}
+    <footer className="bg-gray-950 text-white py-12 px-4 border-t border-sky-500">
+      <div className="max-w-6xl mx-auto">
+        {/* Main Grid */}
         <motion.div
-          variants={containerVariants}
+          variants={{
+            hidden: { opacity: 0 },
+            visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+          }}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="py-24 grid md:grid-cols-4 gap-12"
+          className="grid md:grid-cols-4 gap-8 mb-12"
         >
-          {/* Brand section */}
-          <motion.div variants={itemVariants} className="space-y-4">
-            <div>
-              <h2 className="text-2xl font-bold mb-2">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-cyan-300">
-                  Modern Food Academy
-                </span>
-              </h2>
-              <p className="text-gray-400 text-sm">by Dima Fomin</p>
-            </div>
-            <p className="text-gray-300 leading-relaxed">
-              Твой AI-наставник по современной кухне и Food Pairing. Учись у шефа, развивай вкус, открывай рецепты.
+          {/* Brand */}
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="space-y-2">
+            <h3 className="text-lg font-bold text-sky-400">
+              {t.footer.title}
+            </h3>
+            <p className="text-sm text-sky-300/80">
+              {t.footer.byAuthor}
+            </p>
+            <p className="text-sm text-neutral-400 leading-relaxed">
+              {t.footer.description}
             </p>
           </motion.div>
 
-          {/* Quick links */}
-          <motion.div variants={itemVariants}>
-            <h3 className="font-bold text-lg mb-6 text-white">Навигация</h3>
-            <ul className="space-y-3">
+          {/* Navigation */}
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="space-y-3">
+            <h4 className="font-semibold text-sky-400 text-sm uppercase tracking-wide">
+              {t.footer.navigation.title}
+            </h4>
+            <ul className="space-y-2">
               {[
-                { label: "Главная", href: "/" },
-                { label: "Академия", href: "/academy" },
-                { label: "AI-наставник", href: "/create-chat" },
-                { label: "Профиль", href: "/profile" },
+                { label: t.footer.navigation.home, href: "/" },
+                { label: t.footer.navigation.academy, href: "/academy" },
+                { label: t.footer.navigation.chat, href: "/create-chat" },
+                { label: t.footer.navigation.profile, href: "/profile" },
               ].map((link) => (
                 <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-gray-400 hover:text-sky-400 transition-colors"
-                  >
+                  <Link href={link.href} className="text-sm text-neutral-400 hover:text-cyan-400 transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -89,15 +67,19 @@ export default function AcademyFooter() {
           </motion.div>
 
           {/* Resources */}
-          <motion.div variants={itemVariants}>
-            <h3 className="font-bold text-lg mb-6 text-white">Ресурсы</h3>
-            <ul className="space-y-3">
-              {footerLinks.map((link) => (
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="space-y-3">
+            <h4 className="font-semibold text-sky-400 text-sm uppercase tracking-wide">
+              {t.footer.resources.title}
+            </h4>
+            <ul className="space-y-2">
+              {[
+                { label: t.footer.resources.documentation, href: "#docs" },
+                { label: t.footer.resources.guides, href: "#guides" },
+                { label: t.footer.resources.faq, href: "#faq" },
+                { label: t.footer.resources.support, href: "#support" },
+              ].map((link) => (
                 <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-gray-400 hover:text-sky-400 transition-colors"
-                  >
+                  <Link href={link.href} className="text-sm text-neutral-400 hover:text-cyan-400 transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -105,20 +87,22 @@ export default function AcademyFooter() {
             </ul>
           </motion.div>
 
-          {/* Contact info */}
-          <motion.div variants={itemVariants} className="space-y-4">
-            <h3 className="font-bold text-lg mb-6 text-white">Контакты</h3>
-            <div className="space-y-3">
+          {/* Contact */}
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="space-y-3">
+            <h4 className="font-semibold text-sky-400 text-sm uppercase tracking-wide">
+              {t.footer.contact.title}
+            </h4>
+            <div className="space-y-2">
               <a
                 href="mailto:fodi85999@gmail.com"
-                className="flex items-center gap-3 text-gray-400 hover:text-sky-400 transition-colors"
+                className="flex items-center gap-2 text-sm text-neutral-400 hover:text-cyan-400 transition-colors"
               >
-                <Mail className="w-6 h-6" />
-                <span className="text-sm">fodi85999@gmail.com</span>
+                <Mail className="w-4 h-4" />
+                fodi85999@gmail.com
               </a>
-              <div className="flex items-center gap-3 text-gray-400">
-                <MapPin className="w-6 h-6" />
-                <span className="text-sm">Gdańsk, Polska</span>
+              <div className="flex items-center gap-2 text-sm text-neutral-400">
+                <MapPin className="w-4 h-4" />
+                {t.footer.contact.location}
               </div>
             </div>
           </motion.div>
@@ -130,38 +114,34 @@ export default function AcademyFooter() {
           whileInView={{ scaleX: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="h-px bg-gradient-to-r from-transparent via-sky-400/30 to-transparent"
+          className="h-px bg-sky-500/40 mb-8"
         />
 
-        {/* Bottom section */}
+        {/* Bottom Section */}
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="py-8 flex flex-col md:flex-row items-center justify-between gap-8 border-t border-gray-700/50"
+          transition={{ duration: 0.6 }}
+          className="flex flex-col md:flex-row items-center justify-between gap-4"
         >
-          {/* Copyright */}
-          <motion.p variants={itemVariants} className="text-gray-400 text-sm text-center md:text-left">
-            © 2025 Modern Food Academy. Все права защищены. | by Dima Fomin
-          </motion.p>
-
-          {/* Social links */}
-          <motion.div
-            variants={itemVariants}
-            className="flex items-center gap-6"
-          >
+          <p className="text-sm text-neutral-500 text-center md:text-left">
+            {t.footer.copyright}
+          </p>
+          <div className="flex gap-4">
             {socialLinks.map(({ icon: Icon, href, label }) => (
               <a
                 key={label}
                 href={href}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label={label}
-                className="w-12 h-12 rounded-full bg-sky-400/10 hover:bg-sky-400 text-sky-400 hover:text-white transition-all flex items-center justify-center"
+                className="p-2 text-sky-400 hover:text-cyan-300 hover:bg-sky-400/10 rounded-lg transition-all"
               >
-                <Icon className="w-6 h-6" />
+                <Icon className="w-5 h-5" />
               </a>
             ))}
-          </motion.div>
+          </div>
         </motion.div>
       </div>
     </footer>

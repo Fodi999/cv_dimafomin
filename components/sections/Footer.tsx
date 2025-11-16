@@ -45,7 +45,7 @@ export default function Footer() {
               <h3 className="text-2xl font-bold">{t.footer.title}</h3>
             </div>
             <p className="text-neutral-400 text-sm">
-              {t.footer.subtitle}
+              {t.footer.description}
             </p>
           </motion.div>
 
@@ -157,7 +157,7 @@ export default function Footer() {
           className="text-center"
         >
           <p className="text-xs text-neutral-600">
-            {t.footer.keywords}
+            {t.footer.copyright}
           </p>
         </motion.div>
       </div>

@@ -4,40 +4,18 @@ import { motion } from "framer-motion";
 import { BookOpen, Users, TrendingUp, Award, Zap, Target, GraduationCap, Trophy, Coins, Globe, BarChart3, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function AcademyPage() {
-  const advantages = [
-    {
-      icon: GraduationCap,
-      title: "Структура и практика",
-      description: "Каждый курс — это логичная программа с уроками, заданиями и обратной связью.",
-    },
-    {
-      icon: Target,
-      title: "Индивидуальные подсказки AI",
-      description: "AI-наставник адаптируется под твой уровень и задачи.",
-    },
-    {
-      icon: Coins,
-      title: "ChefTokens для прогресса",
-      description: "Получай токены за уроки и используй их для доступа к рецептам и премиум-контенту.",
-    },
-    {
-      icon: Users,
-      title: "Активное сообщество",
-      description: "Обменивайтесь идеями, делитесь блюдами и вдохновляйтесь вместе.",
-    },
-    {
-      icon: BarChart3,
-      title: "Прозрачный путь роста",
-      description: "Личная статистика, уровни, достижения — всё помогает двигаться вперёд.",
-    },
-    {
-      icon: Trophy,
-      title: "Авторский подход Dima Fomin",
-      description: "Методика основана на опыте шефа и его работе с техниками, подачей и сочетаниями вкусов.",
-    },
-  ];
+  const { t } = useLanguage();
+
+  const iconsMap = [GraduationCap, Target, Coins, Users, BarChart3, Trophy];
+
+  const advantages = t.academy.advantages.items.map((item, idx) => ({
+    icon: iconsMap[idx],
+    title: item.title,
+    description: item.description,
+  }));
 
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-gray-950 via-sky-950 to-cyan-950 overflow-hidden">
@@ -64,7 +42,7 @@ export default function AcademyPage() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sky-500/20 border border-sky-400/50 mb-8"
             >
               <span className="text-sm font-semibold text-white">
-                Кулинарная Академия и Food Pairing от Dima Fomin
+                {t.academy.hero.badge}
               </span>
             </motion.div>
 
@@ -75,7 +53,7 @@ export default function AcademyPage() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8 leading-tight"
             >
-              Учись готовить стильные блюда, прокачивай технику и зарабатывай ChefTokens за свой прогресс.
+              {t.academy.hero.mainTitle}
             </motion.h1>
 
             {/* Subtitle */}
@@ -85,7 +63,7 @@ export default function AcademyPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-lg md:text-xl text-gray-300 mb-12 max-w-3xl leading-relaxed"
             >
-              Modern Food Academy — это пространство, где рецепты, обучение и технология объединены в одну систему. AI-наставник действует как персональный шеф-консультант: подсказывает шаги, помогает улучшать подачу и подбирает подходящие напитки к каждому блюду.
+              {t.academy.hero.mainDescription}
             </motion.p>
 
             {/* Stats */}
@@ -96,9 +74,9 @@ export default function AcademyPage() {
               className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 max-w-3xl"
             >
               {[
-                { number: "50+", label: "профессиональных рецептов" },
-                { number: "1000+", label: "активных учеников" },
-                { number: "24/7", label: "поддержка AI-наставника" },
+                { number: t.academy.stats.recipes, label: t.academy.stats.recipesLabel },
+                { number: t.academy.stats.students, label: t.academy.stats.studentsLabel },
+                { number: t.academy.stats.support, label: t.academy.stats.supportLabel },
               ].map((stat, index) => (
                 <motion.div
                   key={index}
@@ -122,13 +100,13 @@ export default function AcademyPage() {
             >
               <Link href="/academy/courses" className="group">
                 <Button className="bg-white text-black hover:bg-gray-100 font-medium px-8 py-3 rounded-lg border-2 border-white transition-all w-full sm:w-auto">
-                  Начать обучение
+                  {t.academy.hero.startButton}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
                 </Button>
               </Link>
               <Link href="/chat/create-chat" className="group">
                 <Button className="bg-black text-white hover:bg-gray-900 border-2 border-white font-medium px-8 py-3 rounded-lg transition-all w-full sm:w-auto">
-                  Перейти в AI-наставник
+                  {t.academy.hero.aiButton}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
                 </Button>
               </Link>
@@ -151,10 +129,10 @@ export default function AcademyPage() {
               className="text-center mb-16"
             >
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
-                Выберите направление обучения
+                {t.academy.direction.title}
               </h2>
               <p className="text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
-                Курсы, задания, разборы работ и индивидуальные рекомендации — всё в одном месте.
+                {t.academy.direction.description}
               </p>
             </motion.div>
 
@@ -162,21 +140,21 @@ export default function AcademyPage() {
               {[
                 {
                   icon: BookOpen,
-                  title: "Курсы",
-                  description: "От базовых техник до продвинутых рецептов.",
-                  link: "/academy/courses",
+                  title: t.academy.direction.courses.title,
+                  description: t.academy.direction.courses.description,
+                  link: t.academy.direction.courses.link,
                 },
                 {
                   icon: Users,
-                  title: "Сообщество",
-                  description: "Обменивайтесь опытом и вдохновляйтесь.",
-                  link: "/academy/community",
+                  title: t.academy.direction.community.title,
+                  description: t.academy.direction.community.description,
+                  link: t.academy.direction.community.link,
                 },
                 {
                   icon: TrendingUp,
-                  title: "Рейтинг",
-                  description: "Растите в мастерстве и зарабатывайте ChefTokens.",
-                  link: "/academy/leaderboard",
+                  title: t.academy.direction.leaderboard.title,
+                  description: t.academy.direction.leaderboard.description,
+                  link: t.academy.direction.leaderboard.link,
                 },
               ].map((item, idx) => {
                 const Icon = item.icon;
@@ -215,7 +193,7 @@ export default function AcademyPage() {
               transition={{ duration: 0.6, delay: 0.8 }}
               className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-16 text-center"
             >
-              ⭐ Преимущества Modern Food Academy
+              {t.academy.advantages.title}
             </motion.h2>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -254,7 +232,7 @@ export default function AcademyPage() {
                 transition={{ delay: 1.1 }}
                 className="text-3xl md:text-4xl font-bold mb-6"
               >
-                Готовы начать?
+                {t.academy.hero.readyTitle}
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0 }}
@@ -262,7 +240,7 @@ export default function AcademyPage() {
                 transition={{ delay: 1.2 }}
                 className="text-lg text-white/90 mb-12 leading-relaxed"
               >
-                Присоединяйтесь к академии и развивайтесь в профессиональном темпе.
+                {t.academy.hero.readyDescription}
               </motion.p>
 
               <motion.div
@@ -273,13 +251,13 @@ export default function AcademyPage() {
               >
                 <Link href="/academy/courses" className="group">
                   <Button className="bg-white text-black hover:bg-gray-100 font-medium px-8 py-3 rounded-lg border-2 border-white transition-all w-full sm:w-auto">
-                    Начать обучение
+                    {t.academy.hero.startButton}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
                   </Button>
                 </Link>
                 <Link href="/chat/create-chat" className="group">
                   <Button className="bg-black text-white hover:bg-gray-900 border-2 border-white font-medium px-8 py-3 rounded-lg transition-all w-full sm:w-auto">
-                    Перейти в AI-наставник
+                    {t.academy.hero.aiButton}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
                   </Button>
                 </Link>

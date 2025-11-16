@@ -44,82 +44,181 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* ============================================
+   CSS VARIABLES - DESIGN TOKENS LAYER
+   ============================================ */
+
 :root {
   --radius: 0.625rem;
-  /* Custom color palette for chef portfolio */
-  --hot-white: #FEF9F5;
-  --sea-by-night: #1E1A41;
-  --waterberry: #2B6A79;
-  --irradiated-toad: #3BC864;
-  --avocado-smoothie: #C5E98A;
-  --mystic-void: #240F24;
-
-  /* Mapped to theme variables */
-  --background: #FEF9F5; /* Hot White */
-  --foreground: #240F24; /* Mystic Void */
+  
+  /* ===== COLOR TOKENS (RGB for alpha support) ===== */
+  /* Primary Colors */
+  --color-primary-rgb: 59 200 100; /* #3BC864 - Irradiated Toad */
+  --color-primary-light-rgb: 197 233 138; /* #C5E98A - Avocado Smoothie */
+  
+  /* Secondary Colors */
+  --color-secondary-rgb: 43 106 121; /* #2B6A79 - Waterberry */
+  --color-secondary-light-rgb: 254 249 245; /* #FEF9F5 - Hot White */
+  
+  /* Background Colors */
+  --color-bg-rgb: 254 249 245; /* Light: Hot White */
+  --color-bg-dark-rgb: 36 15 36; /* Dark: Mystic Void */
+  --color-bg-muted-rgb: 224 216 208; /* Muted: Border color */
+  
+  /* Text Colors */
+  --color-text-primary-rgb: 36 15 36; /* Mystic Void */
+  --color-text-secondary-rgb: 30 26 65; /* Sea by Night */
+  --color-text-muted-rgb: 224 216 208; /* Muted gray */
+  
+  /* Accent Colors */
+  --color-success-rgb: 59 200 100; /* Same as primary */
+  --color-warning-rgb: 255 184 0; /* Orange */
+  --color-error-rgb: 239 68 68; /* Red */
+  --color-info-rgb: 59 130 246; /* Blue */
+  
+  /* ===== SPACING (8px base) ===== */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 32px;
+  --spacing-3xl: 48px;
+  
+  /* ===== BORDER RADIUS ===== */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+  
+  /* ===== SHADOWS ===== */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+  --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.20);
+  --shadow-2xl: 0 16px 48px rgba(0, 0, 0, 0.24);
+  
+  /* ===== TRANSITIONS & ANIMATIONS ===== */
+  --transition-xs: 75ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-sm: 100ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-md: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-lg: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-xl: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* ===== Z-INDEX SCALE ===== */
+  --z-hide: -1;
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  
+  /* ===== TYPOGRAPHY (from design-tokens.ts) ===== */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  --font-mono: "Menlo", "Consolas", "Monaco", "Courier New", monospace;
+  
+  /* ===== THEME COLORS (mapped to semantic roles) ===== */
+  /* Light mode defaults */
+  --color-background: rgb(var(--color-bg-rgb));
+  --color-foreground: rgb(var(--color-text-primary-rgb));
   --card: #FFFFFF;
-  --card-foreground: #240F24;
+  --card-foreground: rgb(var(--color-text-primary-rgb));
   --popover: #FFFFFF;
-  --popover-foreground: #240F24;
-  --primary: #3BC864; /* Irradiated Toad */
+  --popover-foreground: rgb(var(--color-text-primary-rgb));
+  --primary: rgb(var(--color-primary-rgb));
   --primary-foreground: #FEF9F5;
-  --secondary: #C5E98A; /* Avocado Smoothie */
-  --secondary-foreground: #240F24;
-  --muted: #C5E98A;
-  --muted-foreground: #1E1A41;
-  --accent: #2B6A79; /* Waterberry */
+  --secondary: rgb(var(--color-primary-light-rgb));
+  --secondary-foreground: rgb(var(--color-text-primary-rgb));
+  --muted: #E0D8D0;
+  --muted-foreground: rgb(var(--color-text-muted-rgb));
+  --accent: rgb(var(--color-secondary-rgb));
   --accent-foreground: #FEF9F5;
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: rgb(239 68 68);
   --border: #E0D8D0;
   --input: #E0D8D0;
-  --ring: #3BC864;
+  --ring: rgb(var(--color-primary-rgb));
+  
+  /* Chart colors */
   --chart-1: #3BC864;
   --chart-2: #2B6A79;
   --chart-3: #C5E98A;
   --chart-4: #1E1A41;
   --chart-5: #240F24;
+  
+  /* Sidebar */
   --sidebar: #FEF9F5;
-  --sidebar-foreground: #240F24;
-  --sidebar-primary: #3BC864;
+  --sidebar-foreground: rgb(var(--color-text-primary-rgb));
+  --sidebar-primary: rgb(var(--color-primary-rgb));
   --sidebar-primary-foreground: #FEF9F5;
-  --sidebar-accent: #C5E98A;
-  --sidebar-accent-foreground: #240F24;
+  --sidebar-accent: rgb(var(--color-primary-light-rgb));
+  --sidebar-accent-foreground: rgb(var(--color-text-primary-rgb));
   --sidebar-border: #E0D8D0;
-  --sidebar-ring: #3BC864;
+  --sidebar-ring: rgb(var(--color-primary-rgb));
 }
 
+/* ============================================
+   DARK MODE - CSS VARIABLES OVERRIDE
+   ============================================ */
+
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Dark mode color overrides (RGB for alpha support) */
+  --color-bg-rgb: 15 15 20; /* Very dark background */
+  --color-bg-dark-rgb: 10 10 15; /* Even darker */
+  --color-bg-muted-rgb: 50 50 60; /* Dark muted */
+  
+  --color-text-primary-rgb: 250 250 255; /* Almost white */
+  --color-text-secondary-rgb: 200 200 210; /* Light gray */
+  --color-text-muted-rgb: 120 120 140; /* Muted gray */
+  
+  /* Keep accent colors more vibrant in dark mode */
+  --color-primary-rgb: 100 220 130; /* Brighter green */
+  --color-primary-light-rgb: 180 230 100; /* Brighter yellow-green */
+  --color-secondary-rgb: 80 180 200; /* Brighter cyan */
+  
+  /* Theme color overrides */
+  --background: rgb(var(--color-bg-rgb));
+  --foreground: rgb(var(--color-text-primary-rgb));
+  --card: #1a1a25;
+  --card-foreground: rgb(var(--color-text-primary-rgb));
+  --popover: #1a1a25;
+  --popover-foreground: rgb(var(--color-text-primary-rgb));
+  --primary: rgb(var(--color-primary-rgb));
+  --primary-foreground: #0f0f14;
+  --secondary: rgb(var(--color-primary-light-rgb));
+  --secondary-foreground: #0f0f14;
+  --muted: #404050;
+  --muted-foreground: rgb(var(--color-text-muted-rgb));
+  --accent: rgb(var(--color-secondary-rgb));
+  --accent-foreground: #0f0f14;
+  --destructive: #ff6b6b; /* Brighter red */
+  --border: #303040;
+  --input: #2a2a35;
+  --ring: rgb(var(--color-primary-rgb));
+  
+  /* Chart colors - brighter for dark mode */
+  --chart-1: #64dc82;
+  --chart-2: #50b4c8;
+  --chart-3: #b4e664;
+  --chart-4: #a78bfa;
+  --chart-5: #f97316;
+  
+  /* Sidebar dark mode */
+  --sidebar: #1a1a25;
+  --sidebar-foreground: rgb(var(--color-text-primary-rgb));
+  --sidebar-primary: rgb(var(--color-primary-rgb));
+  --sidebar-primary-foreground: #0f0f14;
+  --sidebar-accent: rgb(var(--color-primary-light-rgb));
+  --sidebar-accent-foreground: #0f0f14;
+  --sidebar-border: #303040;
+  --sidebar-ring: rgb(var(--color-primary-rgb));
 }
 
 @layer base {

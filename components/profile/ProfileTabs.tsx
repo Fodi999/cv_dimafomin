@@ -16,6 +16,7 @@ import React from "react";
 import { PostsCard } from "./PostsCard";
 import { SavedPostsCard } from "./SavedPostsCard";
 import { TransactionsCard } from "./TransactionsCard";
+import { borderRadius, colors } from "@/lib/design-tokens";
 
 interface ProfileTabsProps {
   userProfile: UserProfile;
@@ -89,57 +90,57 @@ export function ProfileTabs({
         transition={{ duration: 0.5, delay: 0.1 }}
       >
         <Tabs defaultValue="earn" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg">
+          <TabsList className={`grid w-full grid-cols-5 bg-gray-900/60 p-1 ${borderRadius.lg} border border-sky-400/30 shadow-lg backdrop-blur-sm`}>
             {/* Earn Tokens Tab */}
             <TabsTrigger 
               value="earn" 
-              className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800"
+              className={`flex items-center gap-2 ${borderRadius.md} data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all`}
             >
-              <Zap className="w-4 h-4 text-yellow-500" />
-              <span className="hidden sm:inline text-sm">Zarabiać</span>
+              <Zap className="w-4 h-4" />
+              <span className="hidden sm:inline text-sm font-semibold">Zarabiać</span>
             </TabsTrigger>
 
             {/* Health Profile Tab */}
             <TabsTrigger 
               value="health"
-              className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800"
+              className={`flex items-center gap-2 ${borderRadius.md} data-[state=active]:bg-gradient-to-r data-[state=active]:from-rose-500 data-[state=active]:to-pink-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all`}
             >
-              <Heart className="w-4 h-4 text-red-500" />
-              <span className="hidden sm:inline text-sm">Zdrowie</span>
+              <Heart className="w-4 h-4" />
+              <span className="hidden sm:inline text-sm font-semibold">Zdrowie</span>
             </TabsTrigger>
 
             {/* Posts Tab */}
             <TabsTrigger 
               value="posts"
-              className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800"
+              className={`flex items-center gap-2 ${borderRadius.md} data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-sky-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all`}
             >
-              <FileText className="w-4 h-4 text-blue-500" />
-              <span className="hidden sm:inline text-sm">Posty</span>
+              <FileText className="w-4 h-4" />
+              <span className="hidden sm:inline text-sm font-semibold">Posty</span>
             </TabsTrigger>
 
             {/* Saved Tab */}
             <TabsTrigger 
               value="saved"
-              className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800"
+              className={`flex items-center gap-2 ${borderRadius.md} data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all`}
             >
-              <ShoppingCart className="w-4 h-4 text-green-500" />
-              <span className="hidden sm:inline text-sm">Zapisane</span>
+              <ShoppingCart className="w-4 h-4" />
+              <span className="hidden sm:inline text-sm font-semibold">Zapisane</span>
             </TabsTrigger>
 
             {/* Transactions Tab */}
             <TabsTrigger 
               value="transactions"
-              className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800"
+              className={`flex items-center gap-2 ${borderRadius.md} data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all`}
             >
-              <BarChart3 className="w-4 h-4 text-purple-500" />
-              <span className="hidden sm:inline text-sm">Historia</span>
+              <BarChart3 className="w-4 h-4" />
+              <span className="hidden sm:inline text-sm font-semibold">Historia</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Tab Content */}
-          <div className="mt-6 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+          <div className={`mt-8 ${borderRadius.lg} overflow-hidden border border-sky-400/30 shadow-lg`}>
             {/* Earn Tokens Content */}
-            <TabsContent value="earn" className="p-4 bg-white dark:bg-gray-950">
+            <TabsContent value="earn" className="p-6 bg-gray-900/40 backdrop-blur-sm">
               <TokenBalanceCard
                 balance={user.chefTokens || 0}
                 loading={pageLoading}
@@ -153,7 +154,7 @@ export function ProfileTabs({
             </TabsContent>
 
             {/* Health Profile Content */}
-            <TabsContent value="health" className="p-4 bg-white dark:bg-gray-950">
+            <TabsContent value="health" className="p-6 bg-gray-900/40 backdrop-blur-sm">
               <HealthProfile
                 age={healthData.age}
                 weight={healthData.weight}
@@ -167,17 +168,17 @@ export function ProfileTabs({
             </TabsContent>
 
             {/* Posts Content */}
-            <TabsContent value="posts" className="p-4 bg-white dark:bg-gray-950">
+            <TabsContent value="posts" className="p-6 bg-gray-900/40 backdrop-blur-sm">
               <PostsCard posts={posts} onCreatePost={() => {}} />
             </TabsContent>
 
             {/* Saved Content */}
-            <TabsContent value="saved" className="p-4 bg-white dark:bg-gray-950">
+            <TabsContent value="saved" className="p-6 bg-gray-900/40 backdrop-blur-sm">
               <SavedPostsCard posts={savedPosts} />
             </TabsContent>
 
             {/* Transactions Content */}
-            <TabsContent value="transactions" className="p-4 bg-white dark:bg-gray-950">
+            <TabsContent value="transactions" className="p-6 bg-gray-900/40 backdrop-blur-sm">
               <TransactionsCard transactions={transactions} />
             </TabsContent>
           </div>

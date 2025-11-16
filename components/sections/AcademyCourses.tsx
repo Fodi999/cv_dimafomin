@@ -5,8 +5,10 @@ import Link from "next/link";
 import { MessageCircle, Sparkles, BrainCircuit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function AcademyAIMentor() {
+  const { t } = useLanguage();
   const containerVariants = {
     hidden: { opacity: 0, scale: 0.95 },
     visible: {
@@ -42,13 +44,13 @@ export default function AcademyAIMentor() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sky-500/10 dark:bg-sky-500/20 border border-sky-200/50 dark:border-sky-800/50 mb-6">
             <Sparkles className="w-6 h-6 text-sky-600 dark:text-sky-400" />
-            <span className="text-sm font-semibold text-sky-600 dark:text-sky-400 leading-relaxed">Превью AI-наставника</span>
+            <span className="text-sm font-semibold text-sky-600 dark:text-sky-400 leading-relaxed">{t.chat.preview.title}</span>
           </div>
           <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-            Поговори с AI-наставником
+            {t.chat.preview.subtitle}
           </h2>
           <p className="text-base sm:text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Получай советы в реальном времени, генерируй рецепты, сочетания вкусов и улучшай своё мастерство
+            {t.chat.preview.description}
           </p>
         </motion.div>
 
@@ -72,10 +74,10 @@ export default function AcademyAIMentor() {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h3 className="font-bold text-gray-900 dark:text-white text-base leading-tight">Dima Fomin AI</h3>
+                <h3 className="font-bold text-gray-900 dark:text-white text-base leading-tight">{t.chat.preview.aiMentorName}</h3>
                 <p className="text-gray-500 dark:text-gray-400 text-xs leading-relaxed flex items-center gap-1">
                   <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-                  Онлайн сейчас
+                  {t.chat.preview.status}
                 </p>
               </div>
             </div>
@@ -96,10 +98,10 @@ export default function AcademyAIMentor() {
                 <div className="flex flex-col gap-1 max-w-sm">
                   <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg rounded-tl-none">
                     <p className="text-gray-800 dark:text-gray-100 text-sm leading-relaxed">
-                      Привет! Хочешь научиться готовить современные рецепты и подбирать идеальные сочетания «закуска + напиток»?
+                      {t.chat.preview.greeting}
                     </p>
                   </div>
-                  <p className="text-gray-500 dark:text-gray-400 text-xs px-1">12:45</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-xs px-1">{t.chat.preview.greetingTime}</p>
                 </div>
               </motion.div>
 
@@ -114,10 +116,10 @@ export default function AcademyAIMentor() {
                 <div className="flex flex-col gap-1 max-w-sm items-end">
                   <div className="bg-sky-500 dark:bg-sky-600 text-white p-4 rounded-lg rounded-tr-none shadow-sm">
                     <p className="text-sm leading-relaxed font-medium">
-                      Как приготовить стильное блюдо в современном формате?
+                      {t.chat.preview.userQuestion}
                     </p>
                   </div>
-                  <p className="text-gray-500 dark:text-gray-400 text-xs px-1">12:46</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-xs px-1">{t.chat.preview.userQuestionTime}</p>
                 </div>
               </motion.div>
 
@@ -135,10 +137,10 @@ export default function AcademyAIMentor() {
                 <div className="flex flex-col gap-1 max-w-sm">
                   <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg rounded-tl-none">
                     <p className="text-gray-800 dark:text-gray-100 text-sm leading-relaxed">
-                      Расскажу про баланс вкусов, текстуру, подачу и правильное сочетание с напитком. Готов начать?
+                      {t.chat.preview.mentorResponse}
                     </p>
                   </div>
-                  <p className="text-gray-500 dark:text-gray-400 text-xs px-1">12:47</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-xs px-1">{t.chat.preview.mentorResponseTime}</p>
                 </div>
               </motion.div>
             </div>
@@ -147,7 +149,7 @@ export default function AcademyAIMentor() {
             <div className="border-t-2 border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-900 flex gap-3">
               <input
                 type="text"
-                placeholder="Введи вопрос..."
+                placeholder={t.chat.preview.inputPlaceholder}
                 disabled
                 className="flex-1 px-4 py-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-gray-600 dark:text-gray-400 text-sm focus:outline-none cursor-not-allowed font-medium border-2 border-gray-200 dark:border-gray-700 placeholder-gray-400 dark:placeholder-gray-500 transition-colors"
               />
@@ -170,7 +172,7 @@ export default function AcademyAIMentor() {
           >
             <Link href="/create-chat">
               <Button className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-medium px-8 py-3 text-base rounded-lg shadow-md hover:shadow-lg dark:shadow-sky-500/20 dark:hover:shadow-sky-500/30 transition-all duration-200 active:scale-95 group">
-                Начать разговор с AI
+                {t.sections.about.ctaButton}
               </Button>
             </Link>
           </motion.div>

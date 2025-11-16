@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useUser } from "@/contexts/UserContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { BrainCircuit, Check } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
   const { register, isLoading } = useUser();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -30,9 +32,9 @@ export default function RegisterPage() {
     if (/[0-9]/.test(pwd)) strength++;
     if (/[^A-Za-z0-9]/.test(pwd)) strength++;
 
-    if (strength <= 2) return { strength: 1, label: "Слаба", color: "bg-red-500" };
-    if (strength <= 3) return { strength: 2, label: "Середня", color: "bg-yellow-500" };
-    return { strength: 3, label: "Сильна", color: "bg-green-500" };
+    if (strength <= 2) return { strength: 1, label: t.auth.register.passwordStrength.weak, color: "bg-red-500" };
+    if (strength <= 3) return { strength: 2, label: t.auth.register.passwordStrength.medium, color: "bg-yellow-500" };
+    return { strength: 3, label: t.auth.register.passwordStrength.strong, color: "bg-green-500" };
   };
 
   const passwordStrength = getPasswordStrength(formData.password);
@@ -53,31 +55,31 @@ export default function RegisterPage() {
     try {
       // Validation
       if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
-        setError("Будь ласка, заповніть всі поля");
+        setError(t.auth.register.required);
         setIsSubmitting(false);
         return;
       }
 
       if (formData.name.length < 2) {
-        setError("Ім'я повинно бути не менше 2 символів");
+        setError(t.auth.register.nameTooShort);
         setIsSubmitting(false);
         return;
       }
 
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        setError("Будь ласка, введіть коректну email адресу");
+        setError(t.auth.register.invalidEmail);
         setIsSubmitting(false);
         return;
       }
 
       if (formData.password.length < 8) {
-        setError("Пароль повинен бути не менше 8 символів");
+        setError(t.auth.register.passwordTooShort);
         setIsSubmitting(false);
         return;
       }
 
       if (formData.password !== formData.confirmPassword) {
-        setError("Паролі не збігаються");
+        setError(t.auth.register.passwordsDontMatch);
         setIsSubmitting(false);
         return;
       }
@@ -90,7 +92,7 @@ export default function RegisterPage() {
     } catch (err: any) {
       console.error("Register error:", err);
       setError(
-        err?.message || "Помилка при реєстрації. Спробуйте ще раз"
+        err?.message || t.auth.register.registrationFailed
       );
       setIsSubmitting(false);
     }
@@ -125,9 +127,9 @@ export default function RegisterPage() {
                 <BrainCircuit className="w-8 h-8 text-white" />
               </div>
             </motion.div>
-            <h1 className="text-3xl font-bold text-white mb-2">Присоединяйтесь!</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">{t.auth.register.welcome}</h1>
             <p className="text-white/80 text-sm">
-              Створіть новий аккаунт та розпочніть свою подорож у світ кулінарії
+              {t.auth.register.subtitle}
             </p>
           </div>
 
@@ -148,14 +150,14 @@ export default function RegisterPage() {
               {/* Name input */}
               <div>
                 <label className="block text-sm font-medium text-white/90 mb-2">
-                  Ваше ім'я
+                  {t.auth.register.name}
                 </label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Іван Коваленко"
+                  placeholder={t.auth.register.namePlaceholder}
                   className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-slate-700/30 border border-white/20 dark:border-slate-600/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all"
                   disabled={isSubmitting || isLoading}
                 />
@@ -164,14 +166,14 @@ export default function RegisterPage() {
               {/* Email input */}
               <div>
                 <label className="block text-sm font-medium text-white/90 mb-2">
-                  Email адреса
+                  {t.auth.register.email}
                 </label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="your@email.com"
+                  placeholder={t.auth.register.emailPlaceholder}
                   className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-slate-700/30 border border-white/20 dark:border-slate-600/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all"
                   disabled={isSubmitting || isLoading}
                 />
@@ -180,14 +182,14 @@ export default function RegisterPage() {
               {/* Password input */}
               <div>
                 <label className="block text-sm font-medium text-white/90 mb-2">
-                  Пароль
+                  {t.auth.register.password}
                 </label>
                 <input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="••••••••"
+                  placeholder={t.auth.register.passwordPlaceholder}
                   className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-slate-700/30 border border-white/20 dark:border-slate-600/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all"
                   disabled={isSubmitting || isLoading}
                 />
@@ -215,14 +217,14 @@ export default function RegisterPage() {
               {/* Confirm password input */}
               <div>
                 <label className="block text-sm font-medium text-white/90 mb-2">
-                  Підтвердьте пароль
+                  {t.auth.register.confirmPassword}
                 </label>
                 <input
                   type="password"
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  placeholder="••••••••"
+                  placeholder={t.auth.register.confirmPasswordPlaceholder}
                   className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-slate-700/30 border border-white/20 dark:border-slate-600/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all"
                   disabled={isSubmitting || isLoading}
                 />
@@ -235,10 +237,10 @@ export default function RegisterPage() {
                     {formData.password === formData.confirmPassword ? (
                       <div className="flex items-center gap-2 text-green-300 text-sm">
                         <Check className="w-4 h-4" />
-                        Паролі збігаються
+                        {t.auth.register.passwordsMatch}
                       </div>
                     ) : (
-                      <div className="text-red-300 text-sm">Паролі не збігаються</div>
+                      <div className="text-red-300 text-sm">{t.auth.register.passwordsDontMatch}</div>
                     )}
                   </motion.div>
                 )}
@@ -246,7 +248,7 @@ export default function RegisterPage() {
 
               {/* Requirements */}
               <div className="p-3 bg-white/5 dark:bg-slate-900/30 rounded-lg border border-white/10">
-                <p className="text-xs text-white/60 font-semibold mb-2">Вимоги до пароля:</p>
+                <p className="text-xs text-white/60 font-semibold mb-2">{t.auth.register.passwordRequirements}</p>
                 <ul className="space-y-1 text-xs text-white/50">
                   <li className="flex items-center gap-2">
                     <div
@@ -256,7 +258,7 @@ export default function RegisterPage() {
                           : "bg-white/30"
                       }`}
                     />
-                    Мінімум 8 символів
+                    {t.auth.register.minChars}
                   </li>
                   <li className="flex items-center gap-2">
                     <div
@@ -266,7 +268,7 @@ export default function RegisterPage() {
                           : "bg-white/30"
                       }`}
                     />
-                    Велика літера (A-Z)
+                    {t.auth.register.uppercase}
                   </li>
                   <li className="flex items-center gap-2">
                     <div
@@ -276,7 +278,7 @@ export default function RegisterPage() {
                           : "bg-white/30"
                       }`}
                     />
-                    Цифра (0-9)
+                    {t.auth.register.number}
                   </li>
                 </ul>
               </div>
@@ -303,10 +305,10 @@ export default function RegisterPage() {
                       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                       className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
                     />
-                    Реєстрація у прогресі...
+                    {t.auth.register.loading}
                   </>
                 ) : (
-                  "Зареєструватися"
+                  t.auth.register.registerButton
                 )}
               </motion.button>
             </form>
@@ -318,19 +320,19 @@ export default function RegisterPage() {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-white/10 dark:bg-slate-800/50 text-white/60">
-                  або
+                  {t.common.or}
                 </span>
               </div>
             </div>
 
             {/* Login link */}
             <p className="text-center text-white/70 text-sm">
-              Уже зареєстровані?{" "}
+              {t.auth.register.haveAccount}{" "}
               <Link
                 href="/login"
                 className="text-cyan-300 hover:text-cyan-200 font-semibold transition-colors"
               >
-                Увійти
+                {t.auth.register.loginLink}
               </Link>
             </p>
           </div>
@@ -338,7 +340,7 @@ export default function RegisterPage() {
           {/* Footer */}
           <div className="bg-white/5 dark:bg-slate-900/50 px-6 py-4 text-center text-xs text-white/50 border-t border-white/10">
             <Link href="/" className="hover:text-white/80 transition-colors">
-              ← Повернутися на головну
+              {t.common.backHome}
             </Link>
           </div>
         </div>

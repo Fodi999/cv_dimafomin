@@ -71,32 +71,32 @@ export default function NavigationBurger() {
 
   const navLinks: NavLink[] = [
     {
-      label: "Головна",
+      label: "Strona główna",
       href: "/",
       icon: <Home className="w-5 h-5" />,
     },
     {
-      label: "Академія",
+      label: "Akademia",
       href: "/academy",
       icon: <BookOpen className="w-5 h-5" />,
     },
     {
-      label: "Курси",
+      label: "Kursy",
       href: "/academy/courses",
       icon: <Sparkles className="w-5 h-5" />,
     },
     {
-      label: "AI-наставник",
+      label: "Asystent AI",
       href: "/chat/create-chat",
       icon: <BrainCircuit className="w-5 h-5" />,
     },
     {
-      label: "Маркет",
+      label: "Rynek",
       href: "/market",
       icon: <ShoppingBag className="w-5 h-5" />,
     },
     {
-      label: "Холодильник",
+      label: "Lodówka",
       href: "/fridge",
       icon: <Refrigerator className="w-5 h-5" />,
     },
@@ -202,7 +202,7 @@ export default function NavigationBurger() {
               {/* Header */}
               <div className="mb-8">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                  Меню
+                  Menu
                 </h2>
                 <div className="h-1 w-12 bg-gradient-to-r from-sky-500 to-cyan-500 rounded-full" />
               </div>
@@ -284,7 +284,7 @@ export default function NavigationBurger() {
                           {user.name}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                          Мій профіль
+                          Mój profil
                         </p>
                       </div>
                       <User className="w-4 h-4 text-sky-600 dark:text-sky-400 flex-shrink-0" />
@@ -297,7 +297,7 @@ export default function NavigationBurger() {
                       className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 transition-all font-medium text-sm"
                     >
                       <LogOut className="w-4 h-4" />
-                      Вихід
+                      Wyloguj
                     </motion.button>
                   </>
                 ) : (
@@ -310,7 +310,7 @@ export default function NavigationBurger() {
                       className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-medium transition-all"
                     >
                       <LogIn className="w-4 h-4" />
-                      Увійти
+                      Zaloguj się
                     </motion.button>
                     <motion.button
                       whileHover={{ x: 4 }}
@@ -319,7 +319,7 @@ export default function NavigationBurger() {
                       className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 border-sky-500 text-sky-600 dark:text-sky-400 hover:bg-sky-500/10 font-medium transition-all"
                     >
                       <User className="w-4 h-4" />
-                      Реєстрація
+                      Zarejestruj się
                     </motion.button>
                   </>
                 )}
@@ -338,7 +338,7 @@ export default function NavigationBurger() {
                 <div className="text-center mb-4">
                   <p className="text-xs text-gray-500 dark:text-gray-500 leading-relaxed">
                     <span className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                      Версия AI
+                      Wersja AI
                     </span>
                     Dima Fomin v2.0
                   </p>

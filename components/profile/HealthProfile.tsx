@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Heart, AlertCircle, Target, Flame, Weight, Users, Leaf } from "lucide-react";
 import { useState } from "react";
+import { composite, borderRadius, colors } from "@/lib/design-tokens";
 
 interface HealthProfileProps {
   age?: number;
@@ -99,7 +100,7 @@ export function HealthProfile({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden"
+      className={`${composite.card.container} ${composite.card.hover} overflow-hidden`}
     >
       {/* Content */}
       <div className="px-4 pb-4 pt-4">
@@ -113,7 +114,7 @@ export function HealthProfile({
           </div>
           <button
             onClick={() => setIsEditing(!isEditing)}
-            className="px-3 py-1 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold transition-colors"
+            className={`px-3 py-1 ${borderRadius.md} ${colors.primary.light.gradient} text-white text-sm font-semibold transition-all hover:shadow-lg`}
           >
             {isEditing ? "Скасувати" : "Редагувати"}
           </button>
@@ -124,37 +125,37 @@ export function HealthProfile({
           <div className="space-y-3">
             {/* Basic Stats */}
             <div className="flex flex-wrap gap-3">
-              {/* Age */}
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 p-3 rounded-md flex-1 min-w-[120px]">
+            {/* Age */}
+              <div className={`${colors.primary.light.badge} p-3 ${borderRadius.md} flex-1 min-w-[120px]`}>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Вік</p>
-                <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                <p className={`text-xl font-bold ${colors.primary.light.text}`}>
                   {age > 0 ? age : "—"} років
                 </p>
               </div>
 
               {/* Weight */}
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 p-3 rounded-md flex-1 min-w-[120px]">
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1 flex items-center gap-1">
+              <div className="bg-gradient-to-br from-violet-500/10 to-purple-500/10 border border-violet-400/30 p-3 rounded-md flex-1 min-w-[120px]">
+                <p className="text-xs text-gray-400 mb-1 flex items-center gap-1">
                   <Weight className="w-3 h-3" /> Вага
                 </p>
-                <p className="text-xl font-bold text-purple-600 dark:text-purple-400">
+                <p className="text-xl font-bold text-violet-300">
                   {weight > 0 ? weight : "—"} кг
                 </p>
               </div>
 
               {/* Height */}
-              <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 dark:from-cyan-950 dark:to-cyan-900 p-3 rounded-md flex-1 min-w-[120px]">
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Ріст</p>
-                <p className="text-xl font-bold text-cyan-600 dark:text-cyan-400">
+              <div className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-400/30 p-3 rounded-md flex-1 min-w-[120px]">
+                <p className="text-xs text-gray-400 mb-1">Ріст</p>
+                <p className="text-xl font-bold text-cyan-300">
                   {height > 0 ? height : "—"} см
                 </p>
               </div>
 
               {/* BMI */}
-              <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 p-3 rounded-md flex-1 min-w-[120px]">
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">ІМТ</p>
+              <div className="bg-gradient-to-br from-orange-500/10 to-amber-500/10 border border-orange-400/30 p-3 rounded-md flex-1 min-w-[120px]">
+                <p className="text-xs text-gray-400 mb-1">ІМТ</p>
                 <div className="flex items-baseline gap-1">
-                  <p className="text-xl font-bold text-orange-600 dark:text-orange-400">
+                  <p className="text-xl font-bold text-orange-300">
                     {bmi > 0 ? bmi.toFixed(1) : "—"}
                   </p>
                   {bmi > 0 && <p className={`text-xs font-semibold ${bmiColor}`}>{bmiCategory}</p>}
@@ -162,24 +163,24 @@ export function HealthProfile({
               </div>
 
               {/* Daily Calories */}
-              <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950 dark:to-red-900 p-3 rounded-md flex-1 min-w-[120px]">
+              <div className="bg-gradient-to-br from-rose-500/10 to-red-500/10 border border-rose-400/30 p-3 rounded-md flex-1 min-w-[120px]">
                 <div className="flex items-center gap-1 mb-1">
-                  <Flame className="w-3 h-3 text-red-500" />
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Денна норма</p>
+                  <Flame className="w-3 h-3 text-rose-400" />
+                  <p className="text-xs text-gray-400">Денна норма</p>
                 </div>
-                <p className="text-xl font-bold text-red-600 dark:text-red-400">
+                <p className="text-xl font-bold text-rose-300">
                   {dailyCalories} ккал
                 </p>
               </div>
 
               {/* Fitness Goal */}
               {formData.fitnessGoal && (
-                <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 p-3 rounded-md flex-1 min-w-[120px]">
+                <div className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-400/30 p-3 rounded-md flex-1 min-w-[120px]">
                   <div className="flex items-center gap-1 mb-1">
-                    <Target className="w-3 h-3 text-green-500" />
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Фітнес-ціль</p>
+                    <Target className="w-3 h-3 text-emerald-400" />
+                    <p className="text-xs text-gray-400">Фітнес-ціль</p>
                   </div>
-                  <p className="text-xs font-bold text-green-600 dark:text-green-400">
+                  <p className="text-xs font-bold text-emerald-300">
                     {formData.fitnessGoal === "weight_loss" && "Схуднення"}
                     {formData.fitnessGoal === "muscle_gain" && "Набір м'язів"}
                     {formData.fitnessGoal === "maintenance" && "Підтримка"}
@@ -193,14 +194,14 @@ export function HealthProfile({
             {formData.allergies.length > 0 && (
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <AlertCircle className="w-4 h-4 text-red-500" />
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Алергії</h3>
+                  <AlertCircle className="w-4 h-4 text-rose-400" />
+                  <h3 className="text-sm font-semibold text-white">Алергії</h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {formData.allergies.map((allergy, idx) => (
                     <div
                       key={idx}
-                      className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-0.5 rounded-full text-xs font-medium"
+                      className="bg-rose-500/10 border border-rose-400/30 text-rose-300 px-2 py-0.5 rounded-full text-xs font-medium"
                     >
                       ⚠️ {allergy}
                     </div>
@@ -213,14 +214,14 @@ export function HealthProfile({
             {formData.dietaryRestrictions.length > 0 && (
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <Leaf className="w-4 h-4 text-green-500" />
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Дієтичні обмеження</h3>
+                  <Leaf className="w-4 h-4 text-emerald-400" />
+                  <h3 className="text-sm font-semibold text-white">Дієтичні обмеження</h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {formData.dietaryRestrictions.map((restriction, idx) => (
                     <div
                       key={idx}
-                      className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-0.5 rounded-full text-xs font-medium"
+                      className="bg-emerald-500/10 border border-emerald-400/30 text-emerald-300 px-2 py-0.5 rounded-full text-xs font-medium"
                     >
                       🌱 {restriction}
                     </div>
@@ -234,14 +235,14 @@ export function HealthProfile({
           <div className="space-y-6">
             {/* Age Input */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
                 Вік
               </label>
               <input
                 type="number"
                 value={formData.age}
                 onChange={e => setFormData(prev => ({ ...prev, age: parseInt(e.target.value) || 0 }))}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`${composite.input}`}
                 min="0"
                 max="120"
               />
@@ -249,14 +250,14 @@ export function HealthProfile({
 
             {/* Weight Input */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
                 Вага (кг)
               </label>
               <input
                 type="number"
                 value={formData.weight}
                 onChange={e => setFormData(prev => ({ ...prev, weight: parseFloat(e.target.value) || 0 }))}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`${composite.input}`}
                 min="0"
                 step="0.1"
               />
@@ -264,14 +265,14 @@ export function HealthProfile({
 
             {/* Height Input */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
                 Ріст (см)
               </label>
               <input
                 type="number"
                 value={formData.height}
                 onChange={e => setFormData(prev => ({ ...prev, height: parseFloat(e.target.value) || 0 }))}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`${composite.input}`}
                 min="0"
                 step="0.1"
               />
@@ -279,14 +280,14 @@ export function HealthProfile({
 
             {/* Daily Calories Input */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
                 Денна норма калорій (ккал)
               </label>
               <input
                 type="number"
                 value={formData.dailyCalories}
                 onChange={e => setFormData(prev => ({ ...prev, dailyCalories: parseInt(e.target.value) || 2000 }))}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`${composite.input}`}
                 min="500"
                 step="100"
               />
@@ -294,13 +295,13 @@ export function HealthProfile({
 
             {/* Fitness Goal */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
                 Фітнес-ціль
               </label>
               <select
                 value={formData.fitnessGoal}
                 onChange={e => setFormData(prev => ({ ...prev, fitnessGoal: e.target.value }))}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`${composite.input}`}
               >
                 <option value="maintenance">Підтримка ваги</option>
                 <option value="weight_loss">Схуднення</option>
@@ -311,7 +312,7 @@ export function HealthProfile({
 
             {/* Allergies */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
                 Алергії
               </label>
               <div className="flex gap-2 mb-3">
@@ -321,11 +322,11 @@ export function HealthProfile({
                   onChange={e => setNewAllergy(e.target.value)}
                   onKeyPress={e => e.key === "Enter" && addAllergy()}
                   placeholder="Введіть алергію..."
-                  className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`${composite.input} flex-1`}
                 />
                 <button
                   onClick={addAllergy}
-                  className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors"
+                  className={`px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white ${borderRadius.md} font-semibold transition-colors`}
                 >
                   Додати
                 </button>
@@ -336,7 +337,7 @@ export function HealthProfile({
                     <button
                       key={idx}
                       onClick={() => removeAllergy(idx)}
-                      className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-3 py-1 rounded-full text-sm font-medium hover:bg-red-200 dark:hover:bg-red-800 transition-colors"
+                      className="bg-rose-500/20 border border-rose-400/30 text-rose-300 px-3 py-1 rounded-full text-sm font-medium hover:bg-rose-500/30 transition-colors"
                     >
                       ✕ {allergy}
                     </button>
@@ -347,7 +348,7 @@ export function HealthProfile({
 
             {/* Dietary Restrictions */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
                 Дієтичні обмеження
               </label>
               <div className="flex gap-2 mb-3">
@@ -357,11 +358,11 @@ export function HealthProfile({
                   onChange={e => setNewRestriction(e.target.value)}
                   onKeyPress={e => e.key === "Enter" && addRestriction()}
                   placeholder="Введіть обмеження (веган, без глютену тощо)..."
-                  className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`${composite.input} flex-1`}
                 />
                 <button
                   onClick={addRestriction}
-                  className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-colors"
+                  className={`px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white ${borderRadius.md} font-semibold transition-colors`}
                 >
                   Додати
                 </button>
@@ -372,7 +373,7 @@ export function HealthProfile({
                     <button
                       key={idx}
                       onClick={() => removeRestriction(idx)}
-                      className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-sm font-medium hover:bg-green-200 dark:hover:bg-green-800 transition-colors"
+                      className="bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 px-3 py-1 rounded-full text-sm font-medium hover:bg-emerald-500/30 transition-colors"
                     >
                       ✕ {restriction}
                     </button>
@@ -384,7 +385,7 @@ export function HealthProfile({
             {/* Save Button */}
             <button
               onClick={handleSave}
-              className="w-full px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold transition-colors"
+              className={`w-full px-6 py-3 ${colors.primary.light.gradient} text-white ${borderRadius.lg} font-bold transition-all hover:shadow-lg`}
             >
               Зберегти зміни
             </button>

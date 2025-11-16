@@ -3,31 +3,48 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
-import { ProfileHeader } from "@/components/profile/ProfileHeader";
-import { TabsNavigation } from "@/components/profile/TabsNavigation";
-import { PostsGrid } from "@/components/profile/PostsGrid";
-import { CoursesGrid } from "@/components/profile/CoursesGrid";
-import { TokenBalanceCard } from "@/components/profile/TokenBalanceCard";
-import { TransactionHistory } from "@/components/profile/TransactionHistory";
-import type { TabType, UserProfile, Post, Transaction } from "@/lib/profile-types";
+import { ProfileView } from "@/components/profile/ProfileView";
+import type { UserProfile, Post, Transaction, FormData } from "@/lib/profile-types";
 import { useProfileTranslations } from "@/hooks/useProfileTranslations";
+import { userApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, ArrowLeft, UserPlus, UserMinus } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function PublicProfilePage() {
   const router = useRouter();
   const params = useParams();
   const userId = params.id as string;
   const { user, isLoading: authLoading } = useUser();
-  const [activeTab, setActiveTab] = useState<TabType>("posts");
+  const { translations } = useProfileTranslations();
+
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [savedPosts, setSavedPosts] = useState<Post[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [postsLoading, setPostsLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
-  const { translations } = useProfileTranslations();
+  const [retryCount, setRetryCount] = useState(0);
+  const [healthData, setHealthData] = useState({
+    age: 0,
+    weight: 0,
+    height: 0,
+    dailyCalories: 2000,
+    allergies: [] as string[],
+    dietaryRestrictions: [] as string[],
+    fitnessGoal: "maintenance",
+  });
+  const [formData, setFormData] = useState<FormData>({
+    name: "",
+    email: "",
+    bio: "",
+    location: "",
+    phone: "",
+    instagram: "",
+    telegram: "",
+    whatsapp: "",
+  });
+
   const isOwnProfile = user?.id === userId;
 
   // Load user profile
@@ -35,23 +52,40 @@ export default function PublicProfilePage() {
     const loadProfile = async () => {
       try {
         setPageLoading(true);
-        // TODO: Replace with actual API call to get specific user profile
-        const response = await fetch(`/api/users/${userId}`, {
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`,
-          },
+        // Use the userApi.getUserProfile function to fetch the profile
+        const token = localStorage.getItem("token");
+        const profileData = await userApi.getUserProfile(userId, token);
+        
+        // Convert ProfileData to UserProfile by adding id
+        const userProfile: UserProfile = {
+          id: userId,
+          name: profileData.name || "",
+          email: profileData.email || "",
+          avatar: profileData.avatarUrl,
+          bio: profileData.bio,
+          location: profileData.location,
+          phone: profileData.phone,
+          instagram: profileData.instagram,
+          telegram: profileData.telegram,
+          whatsapp: profileData.whatsapp,
+          chefTokens: profileData.chefTokens,
+        };
+        
+        setUserProfile(userProfile);
+        setFormData({
+          name: profileData.name || "",
+          email: profileData.email || "",
+          bio: profileData.bio || "",
+          location: profileData.location || "",
+          phone: profileData.phone || "",
+          instagram: profileData.instagram || "",
+          telegram: profileData.telegram || "",
+          whatsapp: profileData.whatsapp || "",
         });
-
-        if (!response.ok) {
-          throw new Error("Failed to load profile");
-        }
-
-        const profileData = await response.json();
-        setUserProfile(profileData);
-        setIsFollowing(profileData.isFollowing || false);
+        // Set following status - default to false if not provided
+        setIsFollowing(false);
       } catch (error) {
         console.error("Failed to load profile:", error);
-        // Fallback to not found state
         setUserProfile(null);
       } finally {
         setPageLoading(false);
@@ -60,26 +94,6 @@ export default function PublicProfilePage() {
 
     loadProfile();
   }, [userId]);
-
-  // Load posts
-  useEffect(() => {
-    if (!userProfile) return;
-    
-    const loadPosts = async () => {
-      try {
-        setPostsLoading(true);
-        // TODO: Replace with actual API call
-        setPosts([]);
-        setSavedPosts([]);
-      } catch (error) {
-        console.error("Failed to load posts:", error);
-      } finally {
-        setPostsLoading(false);
-      }
-    };
-
-    loadPosts();
-  }, [userProfile]);
 
   const handleFollow = async () => {
     try {
@@ -94,11 +108,25 @@ export default function PublicProfilePage() {
     router.push(`/chat/${userId}`);
   };
 
+  const handleEarn = () => {
+    router.push("/academy");
+  };
+
+  const handleBuy = () => {
+    console.log("Buy tokens");
+  };
+
+  const handleRefresh = () => {
+    setRetryCount((prev) => (prev + 1) % 3);
+  };
+
+  const translationsRecord = translations as Record<string, string>;
+
   if (pageLoading || authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600 mx-auto mb-4" />
           <p className="text-slate-600">Загрузка профиля...</p>
         </div>
       </div>
@@ -117,25 +145,16 @@ export default function PublicProfilePage() {
     );
   }
 
-  const translationsRecord = translations as Record<string, string>;
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
-      {/* Main Profile Container */}
-      <div className="max-w-4xl mx-auto px-4 py-8 sm:py-12">
-        {/* Back Button */}
-        <Button
-          onClick={() => router.back()}
-          variant="outline"
-          className="mb-6"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Назад
-        </Button>
-
-        {/* Action Buttons */}
-        {!isOwnProfile && (
-          <div className="mb-8 flex gap-3 justify-center">
+    <>
+      {/* Action Buttons - for other profiles */}
+      {!isOwnProfile && (
+        <div className="fixed top-24 right-4 z-50 flex gap-3">
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+          >
             <Button
               onClick={handleFollow}
               className={`${
@@ -156,85 +175,46 @@ export default function PublicProfilePage() {
                 </>
               )}
             </Button>
-            <Button
-              onClick={handleMessage}
-              variant="outline"
-            >
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+          >
+            <Button onClick={handleMessage} variant="outline">
               <MessageCircle className="w-4 h-4 mr-2" />
               Написать
             </Button>
-          </div>
-        )}
-
-        {/* Profile Header */}
-        <div className="mb-8">
-          <ProfileHeader 
-            name={userProfile.name}
-            email={userProfile.email}
-            avatar={userProfile.avatar}
-            bio={userProfile.bio}
-            location={userProfile.location}
-            followers={userProfile.followers}
-            following={userProfile.following}
-          />
+          </motion.div>
         </div>
+      )}
 
-        {/* Token Balance Card - only show for own profile */}
-        {isOwnProfile && (
-          <div className="mb-8">
-            <TokenBalanceCard 
-              balance={user?.chefTokens || 0}
-              loading={false}
-              retryCount={0}
-              transactionsCount={transactions.length}
-              translations={translationsRecord}
-              onEarnClick={() => router.push("/academy")}
-              onBuyClick={() => console.log("Buy tokens")}
-              onRefreshClick={() => console.log("Refresh")}
-            />
-          </div>
-        )}
-
-        {/* Tabs Navigation */}
-        <TabsNavigation 
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          translations={translationsRecord}
-        />
-
-        {/* Tab Content */}
-        <div className="bg-white dark:bg-gray-900 rounded-b-3xl shadow-lg overflow-hidden">
-          {activeTab === "posts" && (
-            <PostsGrid 
-              posts={posts}
-              loading={postsLoading}
-              emptyMessage={translationsRecord.noPostsYet || "Нет постов"}
-              translations={translationsRecord}
-            />
-          )}
-          {activeTab === "saved" && isOwnProfile && (
-            <PostsGrid 
-              posts={savedPosts}
-              loading={postsLoading}
-              emptyMessage={translationsRecord.noSavedPosts || "Нет сохраненных постов"}
-              translations={translationsRecord}
-            />
-          )}
-          {activeTab === "courses" && (
-            <CoursesGrid />
-          )}
-        </div>
-
-        {/* Transaction History - only show for own profile */}
-        {isOwnProfile && (
-          <div className="mt-8">
-            <TransactionHistory 
-              transactions={transactions}
-              translations={translationsRecord}
-            />
-          </div>
-        )}
-      </div>
-    </div>
+      <ProfileView
+        userProfile={userProfile}
+        user={user || { id: userId, name: userProfile.name, email: userProfile.email }}
+        posts={posts}
+        savedPosts={savedPosts}
+        transactions={transactions}
+        healthData={healthData}
+        formData={formData}
+        pageLoading={pageLoading}
+        retryCount={retryCount}
+        isSaving={false}
+        isOwn={isOwnProfile}
+        translations={translationsRecord}
+        onHealthDataUpdate={setHealthData}
+        onFormChange={(data) => setFormData((prev) => ({ ...prev, ...data }))}
+        onSave={async () => {
+          console.log("Save profile");
+        }}
+        onAvatarUpload={async (url) => {
+          console.log("Upload avatar:", url);
+        }}
+        onEarnClick={handleEarn}
+        onBuyClick={handleBuy}
+        onRefreshClick={handleRefresh}
+      />
+    </>
   );
 }

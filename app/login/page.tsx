@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { BrainCircuit } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
   const { login, isLoading, isAuthenticated, role } = useAuth();
+  const { t } = useLanguage();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -35,13 +37,13 @@ export default function LoginPage() {
     try {
       // Валидация формы
       if (!email || !password) {
-        setError('Пожалуйста, заполните все поля');
+        setError(t.auth.login.required);
         setIsSubmitting(false);
         return;
       }
 
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        setError('Пожалуйста, введите корректный email адрес');
+        setError(t.auth.login.invalidEmail);
         setIsSubmitting(false);
         return;
       }
@@ -51,7 +53,7 @@ export default function LoginPage() {
       // Редирект происходит в AuthContext.login()
     } catch (err: any) {
       console.error('[LoginPage] Ошибка входа:', err);
-      setError(err?.message || 'Ошибка входа. Проверьте email и пароль');
+      setError(err?.message || t.auth.login.loginFailed);
       setIsSubmitting(false);
     }
   };
@@ -85,9 +87,9 @@ export default function LoginPage() {
                 <BrainCircuit className="w-8 h-8 text-white" />
               </div>
             </motion.div>
-            <h1 className="text-3xl font-bold text-white mb-2">Добро пожаловать!</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">{t.auth.login.welcome}</h1>
             <p className="text-white/80 text-sm">
-              Войдите в свой аккаунт и начните работу
+              {t.auth.login.subtitle}
             </p>
           </div>
 
@@ -108,13 +110,13 @@ export default function LoginPage() {
               {/* Email input */}
               <div>
                 <label className="block text-sm font-medium text-white/90 mb-2">
-                  Email адрес
+                  {t.auth.login.email}
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
+                  placeholder={t.auth.login.emailPlaceholder}
                   className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-slate-700/30 border border-white/20 dark:border-slate-600/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all"
                   disabled={isSubmitting || isLoading}
                 />
@@ -123,13 +125,13 @@ export default function LoginPage() {
               {/* Password input */}
               <div>
                 <label className="block text-sm font-medium text-white/90 mb-2">
-                  Пароль
+                  {t.auth.login.password}
                 </label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder={t.auth.login.passwordPlaceholder}
                   className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-slate-700/30 border border-white/20 dark:border-slate-600/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all"
                   disabled={isSubmitting || isLoading}
                 />
@@ -150,10 +152,10 @@ export default function LoginPage() {
                       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                       className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
                     />
-                    Вход в процессе...
+                    {t.auth.login.loading}
                   </>
                 ) : (
-                  'Войти'
+                  t.auth.login.loginButton
                 )}
               </motion.button>
             </form>
@@ -165,19 +167,19 @@ export default function LoginPage() {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-white/10 dark:bg-slate-800/50 text-white/60">
-                  или
+                  {t.common.or}
                 </span>
               </div>
             </div>
 
             {/* Register link */}
             <p className="text-center text-white/70 text-sm">
-              Ещё не зарегистрированы?{' '}
+              {t.auth.login.noAccount}{' '}
               <Link
                 href="/register"
                 className="text-cyan-300 hover:text-cyan-200 font-semibold transition-colors"
               >
-                Зарегистрироваться
+                {t.auth.login.registerLink}
               </Link>
             </p>
           </div>
@@ -185,7 +187,7 @@ export default function LoginPage() {
           {/* Footer */}
           <div className="bg-white/5 dark:bg-slate-900/50 px-6 py-4 text-center text-xs text-white/50 border-t border-white/10">
             <Link href="/" className="hover:text-white/80 transition-colors">
-              ← Вернуться на главную
+              {t.common.backHome}
             </Link>
           </div>
         </div>
