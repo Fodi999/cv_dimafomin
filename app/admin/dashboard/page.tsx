@@ -259,7 +259,7 @@ export default function DashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: i * 0.05 }}
             >
-              <Card className="p-6 space-y-4">
+              <Card className="p-6 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className={`p-3 rounded-lg ${stat.color.replace("text", "bg").replace("-600", "-100")} dark:${stat.color.replace("text", "bg").replace("-600", "-900/30")}`}>
                     <Icon size={24} className={stat.color} />
@@ -291,7 +291,7 @@ export default function DashboardPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
         >
-          <Card className="p-6 space-y-4">
+          <Card className="p-6 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 space-y-4">
             <div>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
                 Дохід по дням
@@ -310,7 +310,7 @@ export default function DashboardPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.15 }}
         >
-          <Card className="p-6 space-y-4">
+          <Card className="p-6 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 space-y-4">
             <div>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
                 Замовлення по дням
@@ -329,7 +329,7 @@ export default function DashboardPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.2 }}
         >
-          <Card className="p-6 space-y-4">
+          <Card className="p-6 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 space-y-4">
             <div>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
                 Місячний дохід
@@ -348,7 +348,7 @@ export default function DashboardPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.25 }}
         >
-          <Card className="p-6 space-y-4">
+          <Card className="p-6 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 space-y-4">
             <div>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
                 Розподіл користувачів
@@ -378,7 +378,7 @@ export default function DashboardPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.3 }}
       >
-        <Card className="p-6 space-y-4">
+        <Card className="p-6 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 space-y-4">
           <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
             Останні замовлення
           </h3>

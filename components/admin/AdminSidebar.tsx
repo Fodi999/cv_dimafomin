@@ -16,21 +16,25 @@ import {
   BarChart3,
   Settings,
   LogOut,
+  BookOpen,
+  ChefHat,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 interface AdminSidebarProps {
-  currentPage?: "dashboard" | "users" | "orders";
+  currentPage?: "dashboard" | "users" | "orders" | "recipes" | "courses";
   onLogout?: () => void;
 }
 
 const menuItems = [
   { id: "dashboard", label: "Панель", icon: LayoutDashboard, href: "/admin/dashboard" },
-  { id: "users", label: "Пользователи", icon: Users, href: "/admin/users" },
-  { id: "orders", label: "Заказы", icon: ShoppingCart, href: "/admin/orders" },
-  { id: "analytics", label: "Аналитика", icon: BarChart3, href: "/admin/analytics" },
-  { id: "settings", label: "Настройки", icon: Settings, href: "/admin/settings" },
+  { id: "users", label: "Користувачі", icon: Users, href: "/admin/users" },
+  { id: "orders", label: "Замовлення", icon: ShoppingCart, href: "/admin/orders" },
+  { id: "recipes", label: "Рецепти", icon: ChefHat, href: "/admin/recipes" },
+  { id: "courses", label: "Курси", icon: BookOpen, href: "/admin/courses" },
+  { id: "analytics", label: "Аналітика", icon: BarChart3, href: "/admin/analytics" },
+  { id: "settings", label: "Налаштування", icon: Settings, href: "/admin/settings" },
 ];
 
 export function AdminSidebar({

@@ -68,7 +68,9 @@ export default function RootLayout({
             <LanguageProvider>
               <UserProvider>
                 <NavigationBurger />
-                {children}
+                <div className="min-h-screen">
+                  {children}
+                </div>
               </UserProvider>
             </LanguageProvider>
           </AuthProvider>

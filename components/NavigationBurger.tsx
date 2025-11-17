@@ -73,7 +73,7 @@ export default function NavigationBurger() {
 
     return () => {
       document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "auto";
     };
   }, [isOpen]);
 
@@ -124,8 +124,8 @@ export default function NavigationBurger() {
   return (
     <>
       {/* ========== STICKY TOP BAR - ОДИНАКОВАЯ НА ВСЕХ ЭКРАНАХ ========== */}
-      <header className="fixed top-0 left-0 w-full z-40 bg-white/60 dark:bg-gray-900/40 backdrop-blur-md shadow-sm border-b border-white/20 dark:border-gray-800/20 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-start gap-3">
+      <header className="fixed top-0 left-0 w-full h-16 z-40 bg-white/60 dark:bg-gray-900/40 backdrop-blur-md shadow-sm border-b border-white/20 dark:border-gray-800/20 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-start gap-3">
           {/* ===== BURGER BUTTON - LEFT SIDE ===== */}
           <motion.button
             whileHover={{ scale: 1.05 }}

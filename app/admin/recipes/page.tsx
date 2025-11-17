@@ -19,13 +19,12 @@ import {
   Clock,
   Users,
   DollarSign,
-  Sparkles,
+  BookOpen,
 } from "lucide-react";
-import { RecipeWizard } from "@/components/admin/RecipeWizard";
 import { RecipeEditModal } from "@/components/admin/RecipeEditModal";
 import { RecipePreviewCard } from "@/components/admin/RecipePreviewCard";
-import { RecipeAIGenerator } from "@/components/admin/RecipeAIGenerator";
 import { RecipeDetailsModal } from "@/components/admin/RecipeDetailsModal";
+import Link from "next/link";
 
 interface Recipe {
   id: string;
@@ -223,12 +222,10 @@ export default function RecipesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCuisine, setSelectedCuisine] = useState<string>("");
   const [selectedStatus, setSelectedStatus] = useState<string>("");
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showAIGenerator, setShowAIGenerator] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [selectedRecipeForDetails, setSelectedRecipeForDetails] = useState<Recipe | null>(null); // 🔧 Новое состояние для панели деталей
+  const [selectedRecipeForDetails, setSelectedRecipeForDetails] = useState<Recipe | null>(null);
 
   // 🔧 Допоміжна функція для очистки localStorage від старих даних
   const clearOldStorageData = () => {
@@ -468,8 +465,6 @@ export default function RecipesPage() {
     
     setRecipes(updatedRecipes);
     setFilteredRecipes(updatedRecipes); // 🔧 Показываем новый рецепт сразу
-    setShowCreateModal(false);
-    setShowAIGenerator(false);
     
     // Показать успешное сообщение
     alert(`✅ Рецепт "${newRecipe.name}" успішно створений!\n\nДодано:\n- Інгредієнтів: ${newRecipe.ingredients?.length || 0}\n- Кроків: ${newRecipe.instructions?.length || 0}\n- Фото: ${recipeData.images?.length || 0}\n\n💾 Збережено в localStorage`);
@@ -626,24 +621,26 @@ export default function RecipesPage() {
         </div>
 
         <div className="flex gap-3">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowAIGenerator(true)}
-            className="flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg transition-colors"
-          >
-            <Sparkles size={20} />
-            AI Генератор
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-6 py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold shadow-lg transition-colors"
-          >
-            <Plus size={20} />
-            Новий рецепт
-          </motion.button>
+          <Link href="/admin/courses/create">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg transition-colors"
+            >
+              <BookOpen size={20} />
+              Новий курс
+            </motion.button>
+          </Link>
+          <Link href="/admin/recipes/create">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 px-6 py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold shadow-lg transition-colors"
+            >
+              <Plus size={20} />
+              Новий рецепт
+            </motion.button>
+          </Link>
         </div>
       </div>
 
@@ -683,7 +680,7 @@ export default function RecipesPage() {
       </div>
 
       {/* Search and Filters */}
-      <Card className="p-6 space-y-4">
+      <Card className="p-6 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 space-y-4">
         {/* Search Bar */}
         <div className="relative">
           <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
@@ -792,7 +789,7 @@ export default function RecipesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
               >
-                <Card className="p-4 hover:shadow-md transition-shadow">
+                <Card className="p-4 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-4">
                     {/* Image/Icon */}
                     <div className="flex-shrink-0 w-16 h-16 rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-3xl">
@@ -861,18 +858,6 @@ export default function RecipesPage() {
       )}
 
       {/* Modals */}
-      <RecipeAIGenerator
-        isOpen={showAIGenerator}
-        onClose={() => setShowAIGenerator(false)}
-        onGenerate={handleCreateRecipe}
-      />
-
-      <RecipeWizard
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onSubmit={handleCreateRecipe}
-      />
-
       {editingRecipe && (
         <RecipeEditModal
           isOpen={showEditModal}

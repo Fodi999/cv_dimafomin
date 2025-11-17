@@ -79,7 +79,8 @@ export default function AcademyCoursesPreview() {
       <div className="absolute inset-0 bg-gradient-to-b from-sky-500/5 via-transparent to-cyan-500/5 dark:from-sky-500/10 dark:to-cyan-500/10 pointer-events-none" />
       <div className="absolute top-20 left-1/4 w-72 h-72 bg-sky-500/10 dark:bg-sky-500/20 rounded-full blur-3xl" />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-6xl mx-auto">
         {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -223,6 +224,7 @@ export default function AcademyCoursesPreview() {
             </Button>
           </Link>
         </motion.div>
+        </div>
       </div>
     </section>
   );

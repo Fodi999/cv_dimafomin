@@ -165,7 +165,7 @@ export default function SettingsPage() {
       >
         {/* General Settings */}
         {activeTab === "general" && (
-          <Card className="p-6 space-y-6">
+          <Card className="p-6 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
@@ -267,7 +267,7 @@ export default function SettingsPage() {
 
         {/* Email Settings */}
         {activeTab === "email" && (
-          <Card className="p-6 space-y-6">
+          <Card className="p-6 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 space-y-6">
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex gap-3">
               <Mail size={20} className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-blue-800 dark:text-blue-300">
@@ -367,7 +367,7 @@ export default function SettingsPage() {
 
         {/* Notification Settings */}
         {activeTab === "notifications" && (
-          <Card className="p-6 space-y-6">
+          <Card className="p-6 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 space-y-6">
             <div className="space-y-4">
               <div className="border-b border-slate-200 dark:border-slate-700 pb-4">
                 <h3 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
@@ -472,7 +472,7 @@ export default function SettingsPage() {
 
         {/* API Settings */}
         {activeTab === "api" && (
-          <Card className="p-6 space-y-6">
+          <Card className="p-6 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 space-y-6">
             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 flex gap-3">
               <Key size={20} className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-amber-800 dark:text-amber-300">
@@ -542,7 +542,7 @@ export default function SettingsPage() {
 
         {/* Security Settings */}
         {activeTab === "security" && (
-          <Card className="p-6 space-y-6">
+          <Card className="p-6 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 space-y-6">
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex gap-3">
               <Lock size={20} className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-red-800 dark:text-red-300">

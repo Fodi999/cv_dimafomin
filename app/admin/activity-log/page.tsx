@@ -162,7 +162,7 @@ export default function ActivityLogPage() {
       </div>
 
       {/* Filters */}
-      <Card className="p-4 space-y-4">
+      <Card className="p-4 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 space-y-4">
         <div className="flex gap-4 items-center">
           <Input
             placeholder="Пошук по назві, користувачу, описі..."
@@ -211,7 +211,7 @@ export default function ActivityLogPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
               >
-                <Card className="p-4 hover:shadow-md transition-shadow">
+                <Card className="p-4 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 hover:shadow-md transition-shadow">
                   <div className="flex gap-4">
                     {/* Icon */}
                     <div className={`${config.color} p-3 rounded-lg h-fit`}>

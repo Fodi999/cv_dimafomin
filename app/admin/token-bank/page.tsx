@@ -310,7 +310,7 @@ export default function TokenBankPage() {
           filteredTokenBanks.map((tb) => (
             <div
               key={tb.userId}
-              className="bg-card border border-border rounded-lg p-4 space-y-3"
+              className="bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 rounded-lg p-4 space-y-3"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
@@ -368,7 +368,7 @@ export default function TokenBankPage() {
             </div>
           ))
         ) : (
-          <div className="text-center py-12 bg-card border border-border rounded-lg">
+          <div className="text-center py-12 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 rounded-lg">
             <Eye className="w-12 h-12 text-slate-400 mx-auto mb-3 opacity-50" />
             <p className="text-slate-600 font-semibold">Не найдено</p>
           </div>

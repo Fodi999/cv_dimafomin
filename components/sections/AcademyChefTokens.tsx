@@ -57,7 +57,8 @@ export default function AcademyChefTokens() {
       <div className="absolute inset-0 bg-gradient-to-b from-sky-500/5 via-transparent to-cyan-500/5 dark:from-sky-500/10 dark:to-cyan-500/10 pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-sky-500/10 dark:bg-sky-500/20 rounded-full blur-3xl" />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-6xl mx-auto">
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -125,6 +126,7 @@ export default function AcademyChefTokens() {
             </Link>
           </motion.div>
         </motion.div>
+        </div>
       </div>
     </section>
   );

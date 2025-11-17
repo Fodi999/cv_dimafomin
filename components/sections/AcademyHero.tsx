@@ -10,7 +10,7 @@ export default function AcademyHero() {
   const { t } = useLanguage();
   
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-40">
+    <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden pt-[148px]">
       {/* Animated background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-sky-950 to-cyan-950 dark:from-gray-950 dark:via-sky-950 dark:to-cyan-950 z-0">
         <div className="absolute inset-0 opacity-30">
@@ -41,7 +41,9 @@ export default function AcademyHero() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-left">
+      <div className="relative z-10 w-full flex flex-col items-center px-4 sm:px-6 lg:px-8 text-left">
+        {/* Inner container with max-width */}
+        <div className="w-full max-w-6xl">
         {/* Top badge */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -156,6 +158,7 @@ export default function AcademyHero() {
             </motion.div>
           ))}
         </motion.div>
+        </div>
       </div>
 
       {/* Scroll indicator */}

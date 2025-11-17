@@ -18,7 +18,7 @@ export default function Home() {
       <StructuredData />
       <ScrollProgress />
       <ScrollToTop />
-      <main className="min-h-screen relative">
+      <main className="relative w-full min-h-screen">
         <AcademyHero />
         <AcademyAbout />
         <AcademyAIMentor />
