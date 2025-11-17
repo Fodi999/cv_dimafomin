@@ -23,6 +23,12 @@ export interface AISessionResponse {
   recipe?: any;
 }
 
+export interface GenerateRecipeRequest {
+  prompt: string;
+  cuisine?: string;
+  difficulty?: string;
+}
+
 export interface Recipe {
   title: string;
   description?: string;
@@ -40,6 +46,46 @@ export interface Recipe {
   protein?: number;
   carbs?: number;
   fat?: number;
+  name?: string;
+  image?: string;
+  prepTime?: number;
+  cookTime?: number;
+  price?: number;
+  tags?: string[];
+  instructions?: string[];
+}
+
+/**
+ * Генерує рецепт за допомогою AI на основі опису
+ */
+export async function generateRecipeWithAI(request: GenerateRecipeRequest): Promise<Recipe> {
+  try {
+    const response = await fetch(`${AI_API_BASE_URL}/generate-recipe`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`AI API error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    
+    // Нормалізуємо відповідь
+    if (data.data && typeof data.data === 'object') {
+      return data.data;
+    }
+    
+    if (data.recipe) {
+      return data.recipe;
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error generating recipe with AI:", error);
+    throw error;
+  }
 }
 
 /**

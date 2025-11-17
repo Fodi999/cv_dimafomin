@@ -276,6 +276,7 @@ export default function NavigationBurger() {
                         { label: "Панель керування", href: "/admin/dashboard", Icon: LayoutDashboard },
                         { label: "Замовлення", href: "/admin/orders", Icon: Package },
                         { label: "Користувачі", href: "/admin/users", Icon: Users },
+                        { label: "Рецепти", href: "/admin/recipes", Icon: BookOpen },
                         { label: "Активність", href: "/admin/activity-log", Icon: Activity },
                         { label: "Інтеграції", href: "/admin/integrations", Icon: Puzzle },
                         { label: "Налаштування", href: "/admin/settings", Icon: Settings },
