@@ -10,6 +10,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import ScrollProgress from "@/components/ScrollProgress";
 import DynamicMetaTags from "@/components/DynamicMetaTags";
 import StructuredData from "@/components/StructuredData";
+import DevelopmentModal from "@/components/DevelopmentModal";
 
 export default function Home() {
   return (
@@ -18,7 +19,14 @@ export default function Home() {
       <StructuredData />
       <ScrollProgress />
       <ScrollToTop />
-      <main className="relative w-full min-h-screen">
+      
+      {/* Модальное окно "Сайт в разработке" */}
+      <DevelopmentModal 
+        title="Strona w budowie"
+        message="Wkrótce otwarcie!"
+      />
+      
+      <main className="relative w-full min-h-screen overflow-y-auto">
         <AcademyHero />
         <AcademyAbout />
         <AcademyAIMentor />
