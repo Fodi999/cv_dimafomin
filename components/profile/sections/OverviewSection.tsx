@@ -43,18 +43,13 @@ export function OverviewSection({
   return (
     <div>
       {/* WALLET + STATS + PROGRESS */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '0.8fr 1.5fr',
-        gap: '32px',
-        gridAutoRows: 'auto'
-      }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[0.8fr_1.5fr] gap-6 lg:gap-8">
         {/* LEFT COLUMN - WALLET */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+          className="flex flex-col gap-6"
         >
           <WalletCard
             balance={balance}
@@ -70,10 +65,10 @@ export function OverviewSection({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+          className="flex flex-col gap-6"
         >
         {/* STATISTICS - 4 Cards in 2x2 grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
+        <div className="grid grid-cols-2 gap-4 sm:gap-5">
           <StatsCard
             icon={<Award className="w-8 h-8" />}
             label="Уровень"
@@ -110,23 +105,23 @@ export function OverviewSection({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.5 }}
-          className="rounded-2xl p-5 border border-violet-500/10 transition-all"
+          className="rounded-2xl p-4 sm:p-5 border border-violet-500/10 transition-all"
           style={{ 
             background: "rgba(139, 92, 246, 0.12)",
             backdropFilter: 'blur(18px)',
             boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)'
           }}
         >
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
             <div>
               <h3 className="font-semibold text-xs text-white/80 uppercase tracking-tight mb-1">
                 Прогресс к уровню {level + 1}
               </h3>
-              <p className="text-xl font-bold text-white">
+              <p className="text-lg sm:text-xl font-bold text-white">
                 {xp.toLocaleString()} / {maxXp.toLocaleString()}
               </p>
             </div>
-            <span className="text-2xl font-bold text-violet-300">
+            <span className="text-xl sm:text-2xl font-bold text-violet-300">
               {Math.round(xpPercent)}%
             </span>
           </div>

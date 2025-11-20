@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { BarChart3, TrendingUp, FileText } from "lucide-react";
 import { ProfileHeader } from "./ProfileHeader";
 import { OverviewSection } from "./sections/OverviewSection";
 import { StatsSection } from "./sections/StatsSection";
@@ -121,10 +122,10 @@ export function ProfileView({
           </motion.div>
 
           {/* Tab Navigation - NOT in Tabs/AnimatePresence so it doesn't flicker */}
-          <div className="flex gap-2 border-b border-gray-700/50 pb-4 mb-8">
+          <div className="flex gap-2 border-b border-gray-700/50 pb-4 mb-8 overflow-x-auto">
             <motion.button
               onClick={() => setActiveTab("overview")}
-              className={`py-2 px-4 rounded-lg text-sm sm:text-base font-semibold transition-all ${
+              className={`py-2 px-4 rounded-lg text-sm sm:text-base font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === "overview"
                   ? "bg-violet-500/30 text-violet-300"
                   : "text-gray-400 hover:text-white hover:bg-violet-500/10"
@@ -133,11 +134,11 @@ export function ProfileView({
               whileTap={{ scale: 0.95 }}
             >
               <span className="hidden sm:inline">Обзор</span>
-              <span className="sm:hidden">📊</span>
+              <BarChart3 className="sm:hidden w-5 h-5" />
             </motion.button>
             <motion.button
               onClick={() => setActiveTab("stats")}
-              className={`py-2 px-4 rounded-lg text-sm sm:text-base font-semibold transition-all ${
+              className={`py-2 px-4 rounded-lg text-sm sm:text-base font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === "stats"
                   ? "bg-violet-500/30 text-violet-300"
                   : "text-gray-400 hover:text-white hover:bg-violet-500/10"
@@ -146,11 +147,11 @@ export function ProfileView({
               whileTap={{ scale: 0.95 }}
             >
               <span className="hidden sm:inline">Статистика</span>
-              <span className="sm:hidden">📈</span>
+              <TrendingUp className="sm:hidden w-5 h-5" />
             </motion.button>
             <motion.button
               onClick={() => setActiveTab("content")}
-              className={`py-2 px-4 rounded-lg text-sm sm:text-base font-semibold transition-all ${
+              className={`py-2 px-4 rounded-lg text-sm sm:text-base font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === "content"
                   ? "bg-violet-500/30 text-violet-300"
                   : "text-gray-400 hover:text-white hover:bg-violet-500/10"
@@ -159,7 +160,7 @@ export function ProfileView({
               whileTap={{ scale: 0.95 }}
             >
               <span className="hidden sm:inline">Контент</span>
-              <span className="sm:hidden">📝</span>
+              <FileText className="sm:hidden w-5 h-5" />
             </motion.button>
           </div>
 

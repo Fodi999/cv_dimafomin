@@ -202,39 +202,39 @@ export default function CreateCoursePage() {
       className="min-h-screen bg-gradient-to-b from-white/50 to-white dark:from-gray-950/50 dark:to-gray-950"
     >
       {/* Decorative Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-sky-500/5 via-sky-500/5 to-cyan-500/5 dark:from-sky-500/10 dark:via-sky-500/10 dark:to-cyan-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-cyan-500/5 via-cyan-500/5 to-sky-500/5 dark:from-cyan-500/10 dark:via-cyan-500/10 dark:to-sky-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+      {/* Content - должен скроллиться */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-12">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <Link href="/admin/courses" className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-            <ArrowLeft size={20} />
-            <span>Повернутися до курсів</span>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+          <Link href="/admin/courses" className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm sm:text-base">
+            <ArrowLeft size={18} className="sm:w-5 sm:h-5" />
+            <span>Повернутися</span>
           </Link>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <BookOpen size={32} className="text-blue-600" />
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <BookOpen size={24} className="sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-blue-600" />
             Новий курс навчання
           </h1>
-          <div className="w-32"></div>
+          <div className="hidden sm:block w-32"></div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar with Steps */}
           <div className="lg:col-span-1">
-            <Card className="p-4 sticky top-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur border-slate-200 dark:border-slate-700">
-              <h3 className="font-bold text-slate-900 dark:text-white mb-4">Кроки створення</h3>
-              <div className="space-y-3">
+            <Card className="p-3 sm:p-4 lg:sticky lg:top-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur border-slate-200 dark:border-slate-700 max-h-fit">
+              <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white mb-3 sm:mb-4">Кроки створення</h3>
+              <div className="space-y-2 sm:space-y-3 overflow-y-auto max-h-[60vh] lg:max-h-[calc(100vh-12rem)]">
                 {steps.map((step, idx) => (
                   <motion.button
                     key={idx}
                     onClick={() => setCurrentStep(idx)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`w-full text-left p-3 rounded-lg transition-all ${
+                    className={`w-full text-left p-2 sm:p-3 rounded-lg transition-all text-xs sm:text-sm ${
                       idx <= currentStep
                         ? idx === currentStep
                           ? "bg-blue-600 text-white shadow-lg"
@@ -242,9 +242,9 @@ export default function CreateCoursePage() {
                         : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
                     }`}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <div
-                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                        className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
                           idx <= currentStep
                             ? idx === currentStep
                               ? "bg-white text-blue-600"
@@ -252,16 +252,16 @@ export default function CreateCoursePage() {
                             : "bg-slate-300 dark:bg-slate-600 text-slate-700 dark:text-slate-300"
                         }`}
                       >
-                        {idx < currentStep ? <Check size={14} /> : idx + 1}
+                        {idx < currentStep ? <Check size={12} className="sm:w-3.5 sm:h-3.5" /> : idx + 1}
                       </div>
-                      <span className="text-sm font-medium">{step}</span>
+                      <span className="font-medium truncate">{step}</span>
                     </div>
                   </motion.button>
                 ))}
               </div>
 
               {/* Progress Bar */}
-              <div className="mt-6 p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
+              <div className="mt-4 sm:mt-6 p-2 sm:p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
                     Прогрес
@@ -270,9 +270,9 @@ export default function CreateCoursePage() {
                     {Math.round(((currentStep + 1) / steps.length) * 100)}%
                   </span>
                 </div>
-                <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-2">
+                <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-1.5 sm:h-2">
                   <motion.div
-                    className="bg-gradient-to-r from-blue-600 to-cyan-600 h-2 rounded-full"
+                    className="bg-gradient-to-r from-blue-600 to-cyan-600 h-1.5 sm:h-2 rounded-full"
                     animate={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
                     transition={{ duration: 0.3 }}
                   />
@@ -283,7 +283,7 @@ export default function CreateCoursePage() {
 
           {/* Main Content */}
           <div className="lg:col-span-3">
-            <Card className="p-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur border-slate-200 dark:border-slate-700">
+            <Card className="p-4 sm:p-6 lg:p-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur border-slate-200 dark:border-slate-700">
               <AnimatePresence mode="wait">
                 {/* Step 1: Basic Info */}
                 {currentStep === 0 && (
@@ -292,16 +292,16 @@ export default function CreateCoursePage() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="space-y-6"
+                    className="space-y-4 sm:space-y-6"
                   >
                     <div>
-                      <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
+                      <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6">
                         Основна інформація про курс
                       </h2>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                         Назва курсу *
                       </label>
                       <Input
@@ -310,7 +310,7 @@ export default function CreateCoursePage() {
                           setCourseData({ ...courseData, title: e.target.value })
                         }
                         placeholder="Наприклад: Як готувати суші як професіонал"
-                        className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-lg"
+                        className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-base sm:text-lg"
                       />
                       {courseData.title && (
                         <p className="mt-2 text-sm text-green-600 dark:text-green-400">
@@ -320,7 +320,7 @@ export default function CreateCoursePage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                         Опис курсу *
                       </label>
                       <textarea
@@ -329,8 +329,8 @@ export default function CreateCoursePage() {
                           setCourseData({ ...courseData, description: e.target.value })
                         }
                         placeholder="Детальний опис того, чого навчатиметься користувач..."
-                        className="w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white text-base"
-                        rows={5}
+                        className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white text-sm sm:text-base"
+                        rows={4}
                       />
                       {courseData.description && (
                         <p className="mt-2 text-sm text-green-600 dark:text-green-400">
@@ -339,9 +339,9 @@ export default function CreateCoursePage() {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                           Складність
                         </label>
                         <select
@@ -352,7 +352,7 @@ export default function CreateCoursePage() {
                               difficulty: e.target.value as "easy" | "medium" | "hard",
                             })
                           }
-                          className="w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+                          className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm sm:text-base"
                         >
                           <option value="easy">Легко 🟢</option>
                           <option value="medium">Середньо 🟡</option>
@@ -361,23 +361,23 @@ export default function CreateCoursePage() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                           Орієнтовна тривалість (хв) *
                         </label>
                         <Input
                           type="number"
                           value={courseData.duration}
                           disabled
-                          className="bg-slate-100 dark:bg-slate-700 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"
+                          className="bg-slate-100 dark:bg-slate-700 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm sm:text-base"
                         />
                         <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                          Обчислюється автоматично на основі етапів
+                          Обчислюється автоматично
                         </p>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                         Категорія
                       </label>
                       <Input
@@ -436,7 +436,7 @@ export default function CreateCoursePage() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="space-y-6"
+                    className="space-y-4 sm:space-y-6"
                   >
                     <div>
                       <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
@@ -505,11 +505,11 @@ export default function CreateCoursePage() {
                       </div>
 
                       {courseData.images.length > 0 && (
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
                           {courseData.images.map((image, idx) => (
                             <div
                               key={idx}
-                              className="relative aspect-square rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-3xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors group"
+                              className="relative aspect-square rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-2xl sm:text-3xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors group"
                             >
                               {image}
                               <button
@@ -533,7 +533,7 @@ export default function CreateCoursePage() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="space-y-6"
+                    className="space-y-4 sm:space-y-6"
                   >
                     <div>
                       <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
@@ -689,7 +689,7 @@ export default function CreateCoursePage() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="space-y-6"
+                    className="space-y-4 sm:space-y-6"
                   >
                     <div>
                       <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
@@ -833,24 +833,24 @@ export default function CreateCoursePage() {
               </AnimatePresence>
 
               {/* Footer */}
-              <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
+              <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <Button
                   onClick={handlePrev}
                   disabled={currentStep === 0}
                   variant="outline"
-                  className="disabled:opacity-50"
+                  className="disabled:opacity-50 w-full sm:w-auto"
                 >
                   ← Назад
                 </Button>
 
-                <div className="text-sm text-slate-600 dark:text-slate-400">
+                <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                   <span className="font-semibold">Крок {currentStep + 1}</span> з {steps.length}
                 </div>
 
                 {currentStep === steps.length - 1 ? (
                   <Button
                     onClick={handleSubmit}
-                    className="bg-green-600 hover:bg-green-700 text-white"
+                    className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto"
                   >
                     <Check size={18} className="mr-2" />
                     Опублікувати курс
@@ -858,7 +858,7 @@ export default function CreateCoursePage() {
                 ) : (
                   <Button
                     onClick={handleNext}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto"
                   >
                     Далі →
                   </Button>

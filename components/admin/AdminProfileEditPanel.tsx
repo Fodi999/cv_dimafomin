@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { X, Save, Camera, Lock, Bell, Shield, Zap } from "lucide-react";
+import { X, Save, Camera, Lock, Bell, Shield, Zap, Key, Circle } from "lucide-react";
 
 interface AdminProfile {
   name: string;
@@ -83,12 +83,12 @@ export function AdminProfileEditPanel({ isOpen, onClose, onSave }: AdminProfileE
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 400, opacity: 0 }}
             transition={{ type: "spring", damping: 20 }}
-            className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white dark:bg-slate-900 shadow-2xl z-50 overflow-y-auto"
+            className="fixed right-0 top-0 bottom-0 w-full sm:max-w-md bg-white dark:bg-slate-900 shadow-2xl z-50 overflow-y-auto"
           >
             {/* Header with Profile Info */}
-            <div className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-6 space-y-4">
+            <div className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-4 sm:p-6 space-y-4">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
                   Редагувати профіль
                 </h2>
                 <button
@@ -116,35 +116,39 @@ export function AdminProfileEditPanel({ isOpen, onClose, onSave }: AdminProfileE
                   <p className="text-sm text-slate-600 dark:text-slate-400 truncate">
                     {profile.email}
                   </p>
-                  <span className="inline-block mt-2 px-2 py-0.5 bg-purple-500 text-white text-xs font-semibold rounded">
-                    🔑 {profile.role}
+                  <span className="inline-flex items-center gap-1.5 mt-2 px-2 py-0.5 bg-purple-500 text-white text-xs font-semibold rounded">
+                    <Key className="w-3 h-3" />
+                    {profile.role}
                   </span>
                 </div>
               </div>
 
               {/* Profile Details - 2x2 Grid */}
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
                 <div>
                   <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Роль</p>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">{profile.role}</p>
+                  <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate">{profile.role}</p>
                 </div>
                 <div>
                   <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Статус</p>
-                  <p className="text-sm font-semibold text-green-600 dark:text-green-400">🟢 Активний</p>
+                  <p className="text-xs sm:text-sm font-semibold text-green-600 dark:text-green-400 flex items-center gap-1">
+                    <Circle className="w-2.5 h-2.5 fill-green-600 dark:fill-green-400" />
+                    <span className="truncate">Активний</span>
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Приєднався</p>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">{profile.joinDate}</p>
+                  <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate">{profile.joinDate}</p>
                 </div>
                 <div>
                   <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Останній вхід</p>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">{profile.lastLogin}</p>
+                  <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate">{profile.lastLogin}</p>
                 </div>
               </div>
             </div>
 
             {/* Content */}
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-6">
               {/* Success Message */}
               <AnimatePresence>
                 {saveSuccess && (
@@ -232,8 +236,8 @@ export function AdminProfileEditPanel({ isOpen, onClose, onSave }: AdminProfileE
                       <p className="font-medium text-slate-900 dark:text-white">Роль</p>
                       <p className="text-sm text-slate-600 dark:text-slate-400">{profile.role}</p>
                     </div>
-                    <span className="px-3 py-1 bg-purple-500 text-white text-xs font-semibold rounded-full">
-                      🔑
+                    <span className="px-3 py-1 bg-purple-500 text-white text-xs font-semibold rounded-full flex items-center gap-1">
+                      <Key className="w-3 h-3" />
                     </span>
                   </div>
                 </Card>
@@ -242,7 +246,10 @@ export function AdminProfileEditPanel({ isOpen, onClose, onSave }: AdminProfileE
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-slate-900 dark:text-white">Статус</p>
-                      <p className="text-sm text-green-600 dark:text-green-400">🟢 {profile.status === 'active' ? 'Активний' : 'Неактивний'}</p>
+                      <p className="text-sm text-green-600 dark:text-green-400 flex items-center gap-1">
+                        <Circle className="w-3 h-3 fill-green-600 dark:fill-green-400" />
+                        {profile.status === 'active' ? 'Активний' : 'Неактивний'}
+                      </p>
                     </div>
                     <span className="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">
                       OK
@@ -304,11 +311,11 @@ export function AdminProfileEditPanel({ isOpen, onClose, onSave }: AdminProfileE
             </div>
 
             {/* Footer Actions */}
-            <div className="sticky bottom-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 p-6 flex gap-3">
+            <div className="sticky bottom-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 p-4 sm:p-6 flex flex-col sm:flex-row gap-3">
               <Button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white flex items-center justify-center gap-2"
+                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white flex items-center justify-center gap-2 w-full"
               >
                 {isSaving ? (
                   <>
@@ -325,7 +332,7 @@ export function AdminProfileEditPanel({ isOpen, onClose, onSave }: AdminProfileE
               <Button
                 onClick={onClose}
                 variant="outline"
-                className="flex-1"
+                className="flex-1 w-full"
               >
                 Скасувати
               </Button>

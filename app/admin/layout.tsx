@@ -42,19 +42,19 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="h-screen w-screen relative overflow-hidden bg-gradient-to-b from-white/50 to-white dark:from-gray-950/50 dark:to-gray-950 flex flex-col">
+    <div className="min-h-screen w-screen relative bg-gradient-to-b from-white/50 to-white dark:from-gray-950/50 dark:to-gray-950 flex flex-col overflow-hidden">
       {/* Background gradient elements */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-sky-500/5 to-cyan-500/5 dark:via-sky-500/10 dark:to-cyan-500/10 pointer-events-none" />
-      <div className="absolute top-0 right-0 w-96 h-96 bg-sky-400/10 dark:bg-sky-500/20 rounded-full blur-3xl -translate-y-1/2" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-400/10 dark:bg-cyan-500/20 rounded-full blur-3xl translate-y-1/2" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-sky-500/5 to-cyan-500/5 dark:via-sky-500/10 dark:to-cyan-500/10 pointer-events-none -z-10" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-sky-400/10 dark:bg-sky-500/20 rounded-full blur-3xl -translate-y-1/2 pointer-events-none -z-10" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-400/10 dark:bg-cyan-500/20 rounded-full blur-3xl translate-y-1/2 pointer-events-none -z-10" />
       
       {/* Global Navigation */}
       <NavigationBurger />
       
       {/* Content Area - з відступом від fixed NavigationBurger (pt-16 = 64px) */}
       {pathname.includes('/create') ? (
-        // Full screen mode for create pages
-        <div className="relative z-10 flex-1 w-full overflow-hidden pt-16">
+        // Full screen mode for create pages - теперь может скроллиться
+        <div className="relative z-10 flex-1 w-full overflow-y-auto pt-16">
           {children}
         </div>
       ) : (

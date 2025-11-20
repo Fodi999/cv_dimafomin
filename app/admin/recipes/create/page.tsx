@@ -75,9 +75,9 @@ export default function RecipeCreatePage() {
 
   return (
     <div className="fixed inset-0 overflow-y-auto bg-[#f3f3f3] dark:bg-slate-950 pt-16 sm:pt-20">
-      <div className="mx-auto w-full max-w-full px-3 sm:px-6 lg:px-8 py-3 sm:py-4 md:py-6 min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)]">
-        <div className="mb-3 flex items-center gap-2 text-xs text-slate-500">
-          <Link href="/admin/recipes" className="inline-flex items-center gap-1.5 font-medium text-slate-600 hover:text-slate-900">
+      <div className="mx-auto w-full max-w-full px-3 sm:px-4 lg:px-8 py-3 sm:py-4 md:py-6">
+        <div className="mb-2 sm:mb-3 flex items-center gap-2 text-xs text-slate-500">
+          <Link href="/admin/recipes" className="inline-flex items-center gap-1.5 font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
             <ArrowLeft size={12} />
             Назад
           </Link>
@@ -85,13 +85,13 @@ export default function RecipeCreatePage() {
           <p>Крок {currentStep + 1}/{steps.length}</p>
         </div>
 
-        <div className="rounded-xl border border-slate-200/80 bg-white/90 p-4 sm:p-6 md:p-8 shadow-lg backdrop-blur dark:border-slate-800/50 dark:bg-slate-900/80 min-h-[calc(100vh-8rem)] sm:min-h-[calc(100vh-10rem)]">
-          <div className="mb-6 space-y-1">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.3em] text-slate-600 dark:text-slate-300">Recipe Builder</p>
-            <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+        <div className="rounded-xl border border-slate-200/80 bg-white/90 p-3 sm:p-6 md:p-8 shadow-lg backdrop-blur dark:border-slate-800/50 dark:bg-slate-900/80">
+          <div className="mb-4 sm:mb-6 space-y-1">
+            <p className="text-[8px] sm:text-[9px] font-semibold uppercase tracking-[0.3em] text-slate-600 dark:text-slate-300">Recipe Builder</p>
+            <h1 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
               Створення рецепту
             </h1>
-            <p className="text-xs text-slate-600 dark:text-slate-300">
+            <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-300">
               Три кроки, плавні переходи, live preview.
             </p>
           </div>
@@ -99,7 +99,7 @@ export default function RecipeCreatePage() {
           {/* Form + preview */}
           <div className="grid gap-4 sm:gap-6 lg:grid-cols-[2fr_1fr]">
             {/* Left column: Stepper + Form */}
-            <div className="space-y-4 lg:pr-4">
+            <div className="space-y-3 sm:space-y-4 lg:pr-4">
               {/* Stepper */}
               <div>
                 <div className="flex items-center justify-between">

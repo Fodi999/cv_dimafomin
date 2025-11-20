@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FileText, Bookmark, BookOpen } from "lucide-react";
+import { FileText, Bookmark, BookOpen, Check, Loader2 } from "lucide-react";
 import type { Post } from "@/lib/profile-types";
 import { composite } from "@/lib/design-tokens";
 
@@ -48,11 +48,7 @@ export function ContentSection({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
-        gap: "24px"
-      }}
+      className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
     >
 
       {/* Publications */}
@@ -189,14 +185,16 @@ export function ContentSection({
                     <h4 className="font-semibold text-white text-sm sm:text-base">
                       {course.title}
                     </h4>
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-gray-400 mt-1 flex items-center gap-1.5">
                       {course.status === "completed" ? (
                         <>
-                          ✅ Завершено: {course.completedDate}
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          Завершено: {course.completedDate}
                         </>
                       ) : (
                         <>
-                          🔄 В процесі навчання
+                          <Loader2 className="w-3.5 h-3.5 text-violet-400 animate-spin" />
+                          В процесі навчання
                         </>
                       )}
                     </p>

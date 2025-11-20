@@ -36,31 +36,31 @@ export function ChatInput({
   onTokenClick,
 }: ChatInputProps) {
   return (
-    <div className="max-w-3xl mx-auto px-4 py-2">
+    <div className="max-w-3xl mx-auto px-0 sm:px-4 py-1 sm:py-2">
       {/* Image Preview */}
       {attachedImage && (
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-3 flex items-center gap-3 bg-sky-50 dark:bg-sky-950/30 p-3 rounded-xl border border-sky-200 dark:border-sky-800/50"
+          className="mb-2 sm:mb-3 flex items-center gap-2 sm:gap-3 bg-sky-50 dark:bg-sky-950/30 p-2 sm:p-3 rounded-xl border border-sky-200 dark:border-sky-800/50"
         >
           <img 
             src={attachedImage} 
             alt="Preview" 
-            className="w-16 h-16 object-cover rounded-lg border-2 border-sky-300 dark:border-sky-700 shadow-sm"
+            className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg border-2 border-sky-300 dark:border-sky-700 shadow-sm"
           />
-          <span className="text-sm text-gray-600 dark:text-gray-400 flex-1">Прикріплено фото</span>
+          <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex-1">Прикріплено фото</span>
           <button
             onClick={onRemoveImage}
             className="text-gray-400 dark:text-gray-500 hover:text-rose-500 dark:hover:text-rose-400 transition p-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </motion.div>
       )}
 
       {/* Input Bar */}
-      <div className="flex items-center gap-3 border-2 border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-3 shadow-md bg-white dark:bg-gray-900 focus-within:border-sky-400 dark:focus-within:border-sky-500 focus-within:shadow-lg dark:focus-within:shadow-sky-500/20 transition-all">
+      <div className="flex items-center gap-1.5 sm:gap-3 border-2 border-gray-200 dark:border-gray-700 rounded-2xl px-2 sm:px-4 py-2 sm:py-3 shadow-md bg-white dark:bg-gray-900 focus-within:border-sky-400 dark:focus-within:border-sky-500 focus-within:shadow-lg dark:focus-within:shadow-sky-500/20 transition-all">
         {/* Hidden File Input */}
         <input
           ref={fileInputRef}
@@ -75,10 +75,10 @@ export function ChatInput({
           whileTap={{ scale: 0.95 }}
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled || uploadingImage}
-          className="text-gray-400 dark:text-gray-500 hover:text-sky-500 dark:hover:text-sky-400 transition disabled:text-gray-300 dark:disabled:text-gray-600 p-2 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-950/30 active:bg-sky-100 dark:active:bg-sky-900/40"
+          className="text-gray-400 dark:text-gray-500 hover:text-sky-500 dark:hover:text-sky-400 transition disabled:text-gray-300 dark:disabled:text-gray-600 p-1 sm:p-2 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-950/30 active:bg-sky-100 dark:active:bg-sky-900/40"
           title="Прикріпити фото"
         >
-          <Paperclip className="w-5 h-5" />
+          <Paperclip className="w-4 h-4 sm:w-5 sm:h-5" />
         </motion.button>
 
         <input
@@ -91,7 +91,7 @@ export function ChatInput({
             : "Що будемо готувати сьогодні?"
           }
           disabled={disabled}
-          className="flex-1 bg-transparent outline-none text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-[15px]"
+          className="flex-1 bg-transparent outline-none text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-sm sm:text-[15px]"
         />
 
         {/* Token Button */}
@@ -99,10 +99,10 @@ export function ChatInput({
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={onTokenClick}
-            className="text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 transition p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/30 active:bg-blue-100 dark:active:bg-blue-900/40 flex items-center gap-1"
+            className="text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 transition p-1 sm:p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/30 active:bg-blue-100 dark:active:bg-blue-900/40 flex items-center gap-0.5 sm:gap-1"
             title="Показати баланс токенів"
           >
-            <Gem className="w-4 h-4" />
+            <Gem className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span className="text-xs font-semibold">{tokenCount}</span>
           </motion.button>
         )}
@@ -111,14 +111,14 @@ export function ChatInput({
           whileTap={{ scale: 0.95 }}
           onClick={onSend}
           disabled={!value.trim() || disabled}
-          className="text-sky-500 dark:text-sky-400 hover:text-sky-600 dark:hover:text-sky-300 transition disabled:text-gray-300 dark:disabled:text-gray-600 p-2 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-950/30 active:bg-sky-100 dark:active:bg-sky-900/40"
+          className="text-sky-500 dark:text-sky-400 hover:text-sky-600 dark:hover:text-sky-300 transition disabled:text-gray-300 dark:disabled:text-gray-600 p-1 sm:p-2 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-950/30 active:bg-sky-100 dark:active:bg-sky-900/40"
         >
-          <Send className="w-5 h-5" />
+          <Send className="w-4 h-4 sm:w-5 sm:h-5" />
         </motion.button>
       </div>
       
       {/* Footer Info */}
-      <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 mb-2 text-center">
+      <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 mt-1.5 sm:mt-2 mb-1 sm:mb-2 text-center px-2">
         AI може помилятися. Перевіряйте важливу інформацію.
       </p>
     </div>

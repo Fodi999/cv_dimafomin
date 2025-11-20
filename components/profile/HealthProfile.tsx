@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Heart, AlertCircle, Target, Flame, Weight, Users, Leaf } from "lucide-react";
+import { Heart, AlertCircle, Target, Flame, Weight, Users, Leaf, Edit2 } from "lucide-react";
 import { composite } from "@/lib/design-tokens";
 
 interface HealthProfileProps {
@@ -71,9 +71,10 @@ export function HealthProfile({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={onEditClick}
-          className={`px-3 py-2 ${composite.buttonPrimary} rounded-lg text-xs sm:text-sm font-semibold transition-all`}
+          className={`px-3 py-2 ${composite.buttonPrimary} rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5`}
         >
-          ✏️ Редагувати
+          <Edit2 className="w-3.5 h-3.5" />
+          Редагувати
         </motion.button>
       </div>
 
@@ -167,9 +168,10 @@ export function HealthProfile({
                 {allergies.map((allergy, idx) => (
                   <div
                     key={idx}
-                    className="bg-rose-500/15 border border-rose-400/40 text-rose-300 px-3 py-1.5 rounded-lg text-xs font-medium"
+                    className="bg-rose-500/15 border border-rose-400/40 text-rose-300 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5"
                   >
-                    ⚠️ {allergy}
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    {allergy}
                   </div>
                 ))}
               </div>
@@ -187,9 +189,10 @@ export function HealthProfile({
                 {dietaryRestrictions.map((restriction, idx) => (
                   <div
                     key={idx}
-                    className="bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 px-3 py-1.5 rounded-lg text-xs font-medium"
+                    className="bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5"
                   >
-                    🌱 {restriction}
+                    <Leaf className="w-3.5 h-3.5" />
+                    {restriction}
                   </div>
                 ))}
               </div>

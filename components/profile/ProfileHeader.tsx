@@ -113,9 +113,8 @@ export function ProfileHeader({
             onClick={() => setIsEditOpen(true)}
             className={`px-3 py-2 ${composite.buttonPrimary} rounded-lg flex items-center gap-1 whitespace-nowrap text-xs sm:text-sm flex-shrink-0`}
           >
-            <Edit2 className="w-3 h-3" />
+            <Edit2 className="w-3 h-3 sm:w-4 sm:h-4" />
             <span className="hidden sm:inline">Edytuj</span>
-            <span className="sm:hidden">✏️</span>
           </motion.button>
         </div>
 

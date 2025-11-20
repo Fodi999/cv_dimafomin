@@ -456,7 +456,7 @@ export default function CreateRecipeChatPage() {
   ];
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] bg-white dark:bg-slate-950 overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-64px)] bg-white dark:bg-slate-950 overflow-hidden pt-16">
       <input
         ref={fileInputRef}
         type="file"
@@ -465,7 +465,7 @@ export default function CreateRecipeChatPage() {
       />
 
       {/* Header */}
-      <div className="mt-16">
+      <div className="fixed top-16 left-0 right-0 z-20 bg-white dark:bg-slate-950">
         <ChatHeader
           title={tr.chefMentor}
           chatHistory={chatHistory}
@@ -601,7 +601,7 @@ export default function CreateRecipeChatPage() {
       </Sheet>
 
       {/* Main Chat Area - Scrollable */}
-      <main className="flex-1 overflow-y-auto px-4 py-3 flex flex-col space-y-2 max-w-4xl w-full mx-auto min-w-0 pb-32">
+      <main className="flex-1 overflow-y-auto px-2 sm:px-4 py-3 flex flex-col space-y-2 max-w-4xl w-full mx-auto min-w-0 pb-32 sm:pb-36 pt-14">
         <ChatMessages
           messages={chatMessages}
           isThinking={isAIThinking}
@@ -640,7 +640,7 @@ export default function CreateRecipeChatPage() {
       </main>
 
       {/* Footer - Fixed Input */}
-      <div className="bg-white dark:bg-slate-900 border-t border-sky-200 dark:border-slate-800 flex-shrink-0 px-4 py-2 flex items-center gap-1 fixed bottom-0 left-0 right-0 z-30">
+      <div className="bg-white dark:bg-slate-900 border-t border-sky-200 dark:border-slate-800 flex-shrink-0 px-2 sm:px-4 py-2 flex items-center gap-1 fixed bottom-0 left-0 right-0 z-30">
         <div className="flex-1 max-w-4xl mx-auto w-full">
           <ChatInput
             value={userInput}

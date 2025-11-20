@@ -1,8 +1,8 @@
 "use client";
 
-import { ChefHat, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChefHat, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 interface ChatHistoryItem {
   id: string;
@@ -52,31 +52,43 @@ export function ChatHeader({
     }
   };
 
+  // Check scroll on mount and when history changes
+  useEffect(() => {
+    checkScroll();
+    const timer = setTimeout(checkScroll, 100);
+    const handleResize = () => checkScroll();
+    window.addEventListener('resize', handleResize);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [chatHistory]);
+
   return (
-    <header className="bg-white dark:bg-slate-900 border-b border-sky-200 dark:border-slate-800 px-4 py-0 overflow-hidden">
-      <div className="flex items-center gap-2 h-12">
+    <header className="bg-white dark:bg-slate-900 border-b border-sky-200 dark:border-slate-800 px-2 sm:px-4 py-0 overflow-hidden">
+      <div className="flex items-center gap-1 sm:gap-1.5 h-10 sm:h-12">
         {/* Chef Icon & Title */}
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-cyan-500 flex items-center justify-center shadow-sm flex-shrink-0">
-          <ChefHat className="w-4 h-4 text-white" />
+        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-sky-400 to-cyan-500 flex items-center justify-center shadow-sm flex-shrink-0">
+          <ChefHat className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
         </div>
-        <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100 flex-shrink-0">
+        <h1 className="text-base sm:text-lg font-bold text-gray-800 dark:text-gray-100 flex-shrink-0 truncate max-w-[80px] sm:max-w-none">
           {title}
         </h1>
 
         {/* History Tabs with Scroll */}
         {chatHistory.length > 0 && (
           <>
-            <div className="w-px h-6 bg-sky-200 dark:bg-slate-700 mx-2 flex-shrink-0" />
+            <div className="w-px h-5 sm:h-6 bg-sky-200 dark:bg-slate-700 mx-1 flex-shrink-0" />
             
-            {/* Scroll Buttons */}
+            {/* Scroll Buttons - Hidden on very small screens */}
             {canScrollLeft && (
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => scroll("left")}
-                className="p-1 hover:bg-sky-100 dark:hover:bg-slate-800 rounded-lg transition flex-shrink-0"
+                className="hidden sm:block p-0.5 sm:p-1 hover:bg-sky-100 dark:hover:bg-slate-800 rounded-lg transition flex-shrink-0"
               >
-                <ChevronLeft className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+                <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-700 dark:text-gray-300" />
               </motion.button>
             )}
 
@@ -84,17 +96,20 @@ export function ChatHeader({
             <div
               ref={scrollContainerRef}
               onScroll={checkScroll}
-              onLoad={checkScroll}
-              className="flex-1 overflow-x-hidden flex items-center gap-2"
+              className="flex-1 overflow-x-auto flex items-center gap-1.5 sm:gap-2 scrollbar-hide"
+              style={{ 
+                WebkitOverflowScrolling: 'touch'
+              }}
             >
               {onNewChat && (
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={onNewChat}
-                  className="px-3 py-1.5 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white text-sm font-semibold rounded-lg transition whitespace-nowrap flex-shrink-0"
+                  className="px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white text-xs sm:text-sm font-semibold rounded-lg transition whitespace-nowrap flex-shrink-0 flex items-center gap-1"
                 >
-                  ✨ Новая
+                  <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <span className="hidden sm:inline">Новая</span>
                 </motion.button>
               )}
               {chatHistory.map((chat) => (
@@ -109,27 +124,27 @@ export function ChatHeader({
                       onDeleteChat?.(chat.id);
                     }
                   }}
-                  className={`px-2.5 py-1 text-xs font-medium whitespace-nowrap rounded-lg transition flex-shrink-0 ${
+                  className={`px-2 sm:px-2.5 py-0.5 sm:py-1 text-xs font-medium whitespace-nowrap rounded-lg transition flex-shrink-0 ${
                     sessionId === chat.id
                       ? "bg-sky-500 text-white shadow-lg"
                       : "bg-sky-100/50 dark:bg-slate-800 text-gray-700 dark:text-gray-200 hover:bg-sky-200/50 dark:hover:bg-slate-700"
                   }`}
                   title="ПКМ для удаления"
                 >
-                  {chat.preview.substring(0, 15)}...
+                  {chat.preview.substring(0, 12)}...
                 </motion.button>
               ))}
             </div>
 
-            {/* Right Scroll Button */}
+            {/* Right Scroll Button - Hidden on very small screens */}
             {canScrollRight && (
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => scroll("right")}
-                className="p-1 hover:bg-sky-100 dark:hover:bg-slate-800 rounded-lg transition flex-shrink-0"
+                className="hidden sm:block p-0.5 sm:p-1 hover:bg-sky-100 dark:hover:bg-slate-800 rounded-lg transition flex-shrink-0"
               >
-                <ChevronRight className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+                <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-700 dark:text-gray-300" />
               </motion.button>
             )}
           </>

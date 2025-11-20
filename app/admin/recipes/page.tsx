@@ -609,104 +609,104 @@ export default function RecipesPage() {
       className="space-y-8"
     >
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
-            <ChefHat size={32} className="text-purple-600" />
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+            <ChefHat size={28} className="text-purple-600 sm:w-8 sm:h-8" />
             Керування рецептами
           </h1>
-          <p className="text-slate-600 dark:text-slate-400">
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
             Vytворюйте та керуйте рецептами для маркетплейсу
           </p>
         </div>
 
-        <div className="flex gap-3">
-          <Link href="/admin/courses/create">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          <Link href="/admin/courses/create" className="w-full sm:w-auto">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-4 sm:px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg transition-colors"
             >
               <BookOpen size={20} />
-              Новий курс
+              <span className="whitespace-nowrap">Новий курс</span>
             </motion.button>
           </Link>
-          <Link href="/admin/recipes/create">
+          <Link href="/admin/recipes/create" className="w-full sm:w-auto">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 px-6 py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold shadow-lg transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-4 sm:px-6 py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold shadow-lg transition-colors"
             >
               <Plus size={20} />
-              Новий рецепт
+              <span className="whitespace-nowrap">Новий рецепт</span>
             </motion.button>
           </Link>
         </div>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="p-6 space-y-2 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <Card className="p-4 sm:p-6 space-y-2 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-800">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Всього рецептів</span>
-            <ChefHat size={20} className="text-purple-600 dark:text-purple-400" />
+            <span className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">Всього рецептів</span>
+            <ChefHat size={16} className="sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
           </div>
-          <p className="text-3xl font-bold text-slate-900 dark:text-white">{totalRecipes}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{totalRecipes}</p>
         </Card>
 
-        <Card className="p-6 space-y-2 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-800">
+        <Card className="p-4 sm:p-6 space-y-2 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-800">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Опубліковано</span>
-            <Eye size={20} className="text-green-600 dark:text-green-400" />
+            <span className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">Опубліковано</span>
+            <Eye size={16} className="sm:w-5 sm:h-5 text-green-600 dark:text-green-400" />
           </div>
-          <p className="text-3xl font-bold text-slate-900 dark:text-white">{publishedCount}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{publishedCount}</p>
         </Card>
 
-        <Card className="p-6 space-y-2 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-200 dark:border-blue-800">
+        <Card className="p-4 sm:p-6 space-y-2 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-200 dark:border-blue-800">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Усього покупок</span>
-            <Users size={20} className="text-blue-600 dark:text-blue-400" />
+            <span className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">Усього покупок</span>
+            <Users size={16} className="sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
           </div>
-          <p className="text-3xl font-bold text-slate-900 dark:text-white">{totalPurchases}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{totalPurchases}</p>
         </Card>
 
-        <Card className="p-6 space-y-2 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-800">
+        <Card className="p-4 sm:p-6 space-y-2 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-800">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Усього доходу</span>
-            <DollarSign size={20} className="text-amber-600 dark:text-amber-400" />
+            <span className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">Усього доходу</span>
+            <DollarSign size={16} className="sm:w-5 sm:h-5 text-amber-600 dark:text-amber-400" />
           </div>
-          <p className="text-3xl font-bold text-slate-900 dark:text-white">{totalRevenue}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{totalRevenue}</p>
         </Card>
       </div>
 
       {/* Search and Filters */}
-      <Card className="p-6 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 space-y-4">
+      <Card className="p-4 sm:p-6 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 space-y-4">
         {/* Search Bar */}
         <div className="relative">
-          <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+          <Search className="absolute left-3 top-3 w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
           <Input
             type="text"
-            placeholder="Пошук рецептів за назвою, описом або тегами..."
+            placeholder="Пошук рецептів..."
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
-            className="pl-10 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+            className="pl-9 sm:pl-10 text-sm sm:text-base bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
           />
         </div>
 
         {/* Cuisine Filters */}
         <div>
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-            <Filter size={16} />
+          <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+            <Filter size={14} className="sm:w-4 sm:h-4" />
             Кухня
           </h3>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 overflow-x-auto pb-2">
             {cuisines.map((cuisine) => (
               <motion.button
                 key={cuisine}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleCuisineFilter(cuisine)}
-                className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium text-xs sm:text-sm whitespace-nowrap transition-all ${
                   selectedCuisine === cuisine
                     ? "bg-purple-600 text-white shadow-lg"
                     : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
@@ -720,15 +720,15 @@ export default function RecipesPage() {
 
         {/* Status Filters */}
         <div>
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">Статус</h3>
-          <div className="flex flex-wrap gap-2">
+          <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white mb-3">Статус</h3>
+          <div className="flex flex-wrap gap-2 overflow-x-auto pb-2">
             {statuses.map((status) => (
               <motion.button
                 key={status}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleStatusFilter(status)}
-                className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium text-xs sm:text-sm whitespace-nowrap transition-all ${
                   selectedStatus === status
                     ? "bg-purple-600 text-white shadow-lg"
                     : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
@@ -742,10 +742,10 @@ export default function RecipesPage() {
 
         {/* View Mode Toggle */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-slate-600 dark:text-slate-400">Вид:</span>
+          <span className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Вид:</span>
           <button
             onClick={() => setViewMode("grid")}
-            className={`px-3 py-1 rounded text-sm font-medium transition-all ${
+            className={`px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-medium transition-all ${
               viewMode === "grid"
                 ? "bg-purple-600 text-white"
                 : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
@@ -755,7 +755,7 @@ export default function RecipesPage() {
           </button>
           <button
             onClick={() => setViewMode("list")}
-            className={`px-3 py-1 rounded text-sm font-medium transition-all ${
+            className={`px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-medium transition-all ${
               viewMode === "list"
                 ? "bg-purple-600 text-white"
                 : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
@@ -789,52 +789,52 @@ export default function RecipesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
               >
-                <Card className="p-4 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-4">
+                <Card className="p-3 sm:p-4 bg-gradient-to-r from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 sm:gap-4">
                     {/* Image/Icon */}
-                    <div className="flex-shrink-0 w-16 h-16 rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-3xl">
+                    <div className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-2xl sm:text-3xl">
                       {recipe.image}
                     </div>
 
                     {/* Info */}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-bold text-slate-900 dark:text-white">{recipe.name}</h3>
-                        <Badge className={statusConfig[recipe.status].color}>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white truncate">{recipe.name}</h3>
+                        <Badge className={`${statusConfig[recipe.status].color} text-xs whitespace-nowrap`}>
                           {statusConfig[recipe.status].label}
                         </Badge>
                       </div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{recipe.description}</p>
-                      <div className="flex items-center gap-4 text-xs text-slate-600 dark:text-slate-400">
-                        <span className="flex items-center gap-1">
-                          <Clock size={14} /> {recipe.prepTime + recipe.cookTime}хв
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-2 line-clamp-1">{recipe.description}</p>
+                      <div className="flex items-center gap-2 sm:gap-4 text-xs text-slate-600 dark:text-slate-400 flex-wrap">
+                        <span className="flex items-center gap-1 whitespace-nowrap">
+                          <Clock size={12} className="sm:w-3.5 sm:h-3.5" /> {recipe.prepTime + recipe.cookTime}хв
                         </span>
-                        <span className="flex items-center gap-1">
-                          <Star size={14} /> {recipe.rating} ({recipe.reviews})
+                        <span className="flex items-center gap-1 whitespace-nowrap">
+                          <Star size={12} className="sm:w-3.5 sm:h-3.5" /> {recipe.rating}
                         </span>
-                        <span className="flex items-center gap-1">
-                          <DollarSign size={14} /> {recipe.price} токенів
+                        <span className="flex items-center gap-1 whitespace-nowrap">
+                          <DollarSign size={12} className="sm:w-3.5 sm:h-3.5" /> {recipe.price}
                         </span>
                       </div>
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row items-center gap-2">
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => handleEditClick(recipe)}
-                        className="p-2 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 text-purple-600 dark:text-purple-400 transition-colors"
+                        className="p-1.5 sm:p-2 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 text-purple-600 dark:text-purple-400 transition-colors"
                       >
-                        <Edit size={18} />
+                        <Edit size={16} className="sm:w-4 sm:h-4" />
                       </motion.button>
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => handleDeleteRecipe(recipe.id)}
-                        className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors"
+                        className="p-1.5 sm:p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors"
                       >
-                        <Trash2 size={18} />
+                        <Trash2 size={16} className="sm:w-4 sm:h-4" />
                       </motion.button>
                     </div>
                   </div>

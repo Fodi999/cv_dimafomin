@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, Users, ShoppingCart, DollarSign, Eye, ArrowUp } from "lucide-react";
+import { TrendingUp, Users, ShoppingCart, DollarSign, Eye, ArrowUp, Key, Circle } from "lucide-react";
 import { AdminProfileEditPanel } from "@/components/admin/AdminProfileEditPanel";
 
 // Simple Chart Components (Recharts alternative using basic SVG)
@@ -158,23 +158,23 @@ export default function DashboardPage() {
       className="space-y-8"
     >
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
             Панель керування
           </h1>
-          <p className="text-slate-600 dark:text-slate-400">
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
             Ласкаво просимо назад! Ось огляд вашої системи.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
           {["24hours", "7days", "30days"].map((range) => (
             <Button
               key={range}
               onClick={() => setDateRange(range)}
               variant={dateRange === range ? "default" : "outline"}
               size="sm"
-              className={dateRange === range ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}
+              className={`whitespace-nowrap flex-shrink-0 ${dateRange === range ? "bg-purple-600 hover:bg-purple-700 text-white" : ""}`}
             >
               {range === "24hours" ? "24 години" : range === "7days" ? "7 днів" : "30 днів"}
             </Button>
@@ -188,58 +188,62 @@ export default function DashboardPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <Card className="p-6 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200 dark:border-purple-800">
-          <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+        <Card className="p-4 sm:p-6 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200 dark:border-purple-800">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-center">
             {/* Avatar */}
-            <div className="flex-shrink-0">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 flex items-center justify-center text-white shadow-lg">
-                <span className="text-4xl font-bold">ДА</span>
+            <div className="flex-shrink-0 mx-auto sm:mx-0">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 flex items-center justify-center text-white shadow-lg">
+                <span className="text-3xl sm:text-4xl font-bold">ДА</span>
               </div>
             </div>
 
             {/* Profile Info */}
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <div className="flex-1 w-full">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white text-center sm:text-left">
                   Дмитро Авраменко
                 </h2>
-                <span className="px-3 py-1 bg-purple-500 text-white text-xs font-semibold rounded-full">
-                  🔑 Адміністратор
+                <span className="px-3 py-1 bg-purple-500 text-white text-xs font-semibold rounded-full flex items-center gap-1.5 justify-center sm:justify-start">
+                  <Key className="w-3.5 h-3.5" />
+                  Адміністратор
                 </span>
               </div>
-              <p className="text-slate-600 dark:text-slate-400 mb-4">
+              <p className="text-slate-600 dark:text-slate-400 mb-4 text-center sm:text-left">
                 dmitro@sushichef.com
               </p>
               
               {/* Profile Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Роль</p>
-                  <p className="text-lg font-semibold text-slate-900 dark:text-white">Адміністратор</p>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Роль</p>
+                  <p className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white truncate">Адміністратор</p>
                 </div>
-                <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Статус</p>
-                  <p className="text-lg font-semibold text-green-600 dark:text-green-400">🟢 Активний</p>
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Статус</p>
+                  <p className="text-base sm:text-lg font-semibold text-green-600 dark:text-green-400 flex items-center gap-1.5 justify-center sm:justify-start">
+                    <Circle className="w-3 h-3 fill-green-600 dark:fill-green-400" />
+                    <span className="truncate">Активний</span>
+                  </p>
                 </div>
-                <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Приєднався</p>
-                  <p className="text-lg font-semibold text-slate-900 dark:text-white">15 січня 2024</p>
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Приєднався</p>
+                  <p className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white truncate">15 січня 2024</p>
                 </div>
-                <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Останній вхід</p>
-                  <p className="text-lg font-semibold text-slate-900 dark:text-white">Сьогодні, 14:32</p>
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Останній вхід</p>
+                  <p className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white truncate">Сьогодні, 14:32</p>
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3 mt-4">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4">
                 <Button 
                   onClick={() => setIsProfileEditOpen(true)}
-                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                  className="bg-purple-600 hover:bg-purple-700 text-white w-full sm:w-auto"
                 >
                   Редагувати профіль
                 </Button>
-                <Button variant="outline">
+                <Button variant="outline" className="w-full sm:w-auto">
                   Налаштування безпеки
                 </Button>
               </div>
