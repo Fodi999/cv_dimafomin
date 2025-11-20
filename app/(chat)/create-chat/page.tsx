@@ -7,6 +7,7 @@ import { ChatHeader } from "@/components/chat/ChatHeader";
 import { ChatMessages } from "@/components/chat/ChatMessages";
 import { ChatInput } from "@/components/chat/ChatInput";
 import { RecipeCard } from "@/components/chat/RecipeCard";
+import { ChatHistorySidebar } from "@/components/chat/ChatHistorySidebar";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
 import { uploadApi } from "@/lib/api";
@@ -99,6 +100,7 @@ export default function CreateRecipeChatPage() {
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
   const [selectedType, setSelectedType] = useState('recipe');
   const [showTokenPanel, setShowTokenPanel] = useState(false);
+  const [showHistoryPanel, setShowHistoryPanel] = useState(false);
 
   const translations = {
     uk: {
@@ -468,13 +470,21 @@ export default function CreateRecipeChatPage() {
       <div className="fixed top-16 left-0 right-0 z-20 bg-white dark:bg-slate-950">
         <ChatHeader
           title={tr.chefMentor}
-          chatHistory={chatHistory}
-          sessionId={sessionId}
-          onLoadChat={loadChat}
-          onDeleteChat={deleteChat}
-          onNewChat={startNewChat}
+          onOpenHistory={() => setShowHistoryPanel(true)}
+          historyCount={chatHistory.length}
         />
       </div>
+
+      {/* Chat History Sidebar */}
+      <ChatHistorySidebar
+        open={showHistoryPanel}
+        onOpenChange={setShowHistoryPanel}
+        chatHistory={chatHistory}
+        sessionId={sessionId}
+        onLoadChat={loadChat}
+        onDeleteChat={deleteChat}
+        onNewChat={startNewChat}
+      />
 
       {/* Token Settings Sheet Panel */}
       <Sheet open={showTokenPanel} onOpenChange={setShowTokenPanel}>
