@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ShoppingBag, Search, Coins, Star, Users } from "lucide-react";
+import { ShoppingBag, Search, Coins, Star, Users, Check } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCart } from "@/contexts/CartContext";
 
 const mockRecipes = [
   {
@@ -84,7 +85,9 @@ const mockRecipes = [
 
 export default function MarketPage() {
   const { t } = useLanguage();
+  const { addToCart, isInCart } = useCart();
   const [search, setSearch] = useState("");
+  const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     // Set body background to dark gradient
@@ -93,6 +96,30 @@ export default function MarketPage() {
       document.body.style.backgroundColor = "";
     };
   }, []);
+
+  const handleAddToCart = (recipe: typeof mockRecipes[0]) => {
+    addToCart({
+      id: recipe.id,
+      title: recipe.title,
+      description: recipe.description,
+      price: recipe.price,
+      image: recipe.image,
+      difficulty: recipe.difficulty,
+      rating: recipe.rating,
+      studentsCount: recipe.studentsCount,
+      quantity: 1,
+    });
+    
+    // Show "added" state temporarily
+    setAddedItems((prev) => new Set(prev).add(recipe.id));
+    setTimeout(() => {
+      setAddedItems((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(recipe.id);
+        return newSet;
+      });
+    }, 2000);
+  };
 
   const filteredRecipes = mockRecipes.filter((recipe) =>
     recipe.title.toLowerCase().includes(search.toLowerCase())
@@ -204,13 +231,25 @@ export default function MarketPage() {
                       <Coins className="w-5 h-5 text-sky-400" />
                       <span className="font-bold text-lg text-white">{recipe.tokens}</span>
                     </div>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="px-4 py-2 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white font-semibold rounded-lg transition-all"
-                    >
-                      {t.common.buy}
-                    </motion.button>
+                    {isInCart(recipe.id) || addedItems.has(recipe.id) ? (
+                      <motion.div
+                        initial={{ scale: 0.8 }}
+                        animate={{ scale: 1 }}
+                        className="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg flex items-center gap-2"
+                      >
+                        <Check className="w-4 h-4" />
+                        Dodano
+                      </motion.div>
+                    ) : (
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleAddToCart(recipe)}
+                        className="px-4 py-2 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white font-semibold rounded-lg transition-all"
+                      >
+                        {t.common.buy}
+                      </motion.button>
+                    )}
                   </div>
                 </div>
               </div>

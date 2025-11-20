@@ -27,6 +27,7 @@ import {
 import { useUser } from "@/contexts/UserContext";
 import AuthModal from "@/components/auth/AuthModal";
 import { NotificationBell } from "@/components/NotificationBell";
+import { CartIcon } from "@/components/CartIcon";
 
 interface NavLink {
   label: string;
@@ -180,7 +181,8 @@ export default function NavigationBurger() {
           </Link>
 
           {/* ===== NOTIFICATIONS + PROFILE - RIGHT SIDE ===== */}
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-1 sm:gap-2">
+            <CartIcon />
             <NotificationBell />
           </div>
         </div>

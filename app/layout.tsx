@@ -4,6 +4,7 @@ import "./globals.css";
 import { getMetadata } from "@/lib/seo";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserProvider } from "@/contexts/UserContext";
+import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/src/contexts/AuthContext";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import PWARegister from "@/components/PWARegister";
@@ -67,10 +68,12 @@ export default function RootLayout({
           <AuthProvider>
             <LanguageProvider>
               <UserProvider>
-                <NavigationBurger />
-                <div className="min-h-screen">
-                  {children}
-                </div>
+                <CartProvider>
+                  <NavigationBurger />
+                  <div className="min-h-screen">
+                    {children}
+                  </div>
+                </CartProvider>
               </UserProvider>
             </LanguageProvider>
           </AuthProvider>
