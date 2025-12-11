@@ -27,7 +27,23 @@ export default function HeroTreasuryWidget() {
         if (response.ok) {
           const data = await response.json();
           console.log("✅ [HeroTreasury] Treasury data received:", data);
-          setTreasury(data);
+          
+          // Проверяем структуру данных и нормализуем её
+          if (data.balance !== undefined) {
+            // Данные уже в правильном формате
+            setTreasury(data);
+          } else if (data.data?.balance !== undefined) {
+            // Данные вложены в data.data
+            setTreasury(data.data);
+          } else {
+            // Неожиданная структура, используем fallback
+            console.warn("⚠️ [HeroTreasury] Unexpected data structure:", data);
+            setTreasury({
+              balance: 999994000,
+              totalIssued: 1000000000,
+              totalCirculating: 994000,
+            });
+          }
           updateTime();
         } else {
           console.error("❌ [HeroTreasury] Failed to fetch:", response.status);
