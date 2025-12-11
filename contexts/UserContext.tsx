@@ -23,6 +23,7 @@ interface User {
 
 interface UserContextType {
   user: User | null;
+  token: string | null; // 🔑 Добавляем токен в контекст
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -39,6 +40,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null); // 🔑 State для токена
   const [isLoading, setIsLoading] = useState(true);
   const initRef = useRef(false);
 
@@ -63,6 +65,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const roleJson = localStorage.getItem("role");
       
       console.log("🔍 UserContext.checkAuth: token exists?", !!token, "role exists?", !!roleJson);
+      
+      // Сохраняем токен в state
+      setToken(token);
       
       // Если есть токен - ВСЕГДА делаем запрос к БД для свежих данных
       if (token && roleJson) {
@@ -213,6 +218,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("role", userRole);
       localStorage.setItem("user", JSON.stringify(userObj));
       
+      // 🔑 Сохраняем токен в state
+      setToken(response.token);
+      
       console.log("💾 Stored auth data with new keys (token, role, user)");
       console.log("📋 User role from response:", userRole);
       
@@ -361,6 +369,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("role");
     localStorage.removeItem("user");
     setUser(null);
+    setToken(null); // 🔑 Очищаем токен из state
     console.log("🚪 User logged out, cleared token/role/user");
   };
 
@@ -621,6 +630,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     <UserContext.Provider
       value={{
         user,
+        token, // 🔑 Добавляем токен в контекст
         login,
         register,
         logout,

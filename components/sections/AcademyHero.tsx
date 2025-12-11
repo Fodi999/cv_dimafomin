@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Sparkles, Waves } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import HeroTreasuryWidget from "./HeroTreasuryWidget";
 
 export default function AcademyHero() {
   const { t } = useLanguage();
@@ -81,6 +82,16 @@ export default function AcademyHero() {
               </span>
             </h1>
           </div>
+        </motion.div>
+
+        {/* Treasury Widget - рядом с заголовком */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.35 }}
+          className="mb-6 sm:mb-8"
+        >
+          <HeroTreasuryWidget />
         </motion.div>
 
         {/* Subtitle - Project description */}

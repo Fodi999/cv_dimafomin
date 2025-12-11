@@ -2,12 +2,22 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Coins, TrendingUp, Gift, Gem, Award, Users, Zap } from "lucide-react";
+import { Coins, TrendingUp, Gift, Gem, Award, Users, Zap, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUser } from "@/contexts/UserContext"; // 🔑 Добавляем useUser
 
 export default function AcademyChefTokens() {
   const { t } = useLanguage();
+  const { user, isAuthenticated } = useUser(); // 🔑 Получаем данные пользователя
+  
+  // 🐛 Debug: проверяем данные пользователя
+  console.log('[AcademyChefTokens] User data:', { 
+    isAuthenticated, 
+    user, 
+    chefTokens: user?.chefTokens,
+    hasUser: !!user 
+  });
   
   const benefits = [
     {
@@ -67,9 +77,27 @@ export default function AcademyChefTokens() {
           className="space-y-8"
         >
           <motion.div variants={itemVariants} className="text-center">
-            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
-              {t.tokens.title}
-            </h2>
+            <div className="flex items-center justify-center gap-3 flex-wrap mb-4">
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white leading-tight">
+                {t.tokens.title}
+              </h2>
+              
+              {/* 💰 User Balance Badge - Visible only for authenticated users */}
+              {isAuthenticated && (
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-sky-500 via-cyan-500 to-blue-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 cursor-default"
+                  whileHover={{ scale: 1.05 }}
+                  title={`Twoje ChefTokens: ${user?.chefTokens ?? 0}`}
+                >
+                  <Wallet className="w-5 h-5" />
+                  <span className="font-bold text-lg">{user?.chefTokens ?? 0}</span>
+                  <span className="text-xs sm:text-sm opacity-90">ChefTokens</span>
+                </motion.div>
+              )}
+            </div>
             <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
               {t.tokens.description}
             </p>

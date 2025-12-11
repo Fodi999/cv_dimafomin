@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Users, ShoppingCart, DollarSign, Eye, ArrowUp, Key, Circle } from "lucide-react";
 import { AdminProfileEditPanel } from "@/components/admin/AdminProfileEditPanel";
+import RealTimeTreasuryBalance from "@/components/admin/RealTimeTreasuryBalance";
 
 // Simple Chart Components (Recharts alternative using basic SVG)
 const SimpleLineChart = ({ data }: { data: number[] }) => {
@@ -181,6 +182,9 @@ export default function DashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* Real-Time Treasury Balance */}
+      <RealTimeTreasuryBalance />
 
       {/* Admin Profile Card */}
       <motion.div

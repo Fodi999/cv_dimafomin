@@ -1,7 +1,7 @@
 // ChatInput.tsx - Component for chat input with image upload
 
-import { motion } from "framer-motion";
-import { Send, Paperclip, X, Gem } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Send, Paperclip, X, Gem, AlertCircle, Coins } from "lucide-react";
 import { animations } from "@/lib/design-tokens";
 
 interface ChatInputProps {
@@ -18,6 +18,8 @@ interface ChatInputProps {
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   tokenCount?: number;
   onTokenClick?: () => void;
+  requestCost?: number; // NEW: Cost of current AI request
+  requestType?: string; // NEW: Type of request (basic/advanced/expert)
 }
 
 export function ChatInput({
@@ -34,9 +36,84 @@ export function ChatInput({
   fileInputRef,
   tokenCount = 0,
   onTokenClick,
+  requestCost = 10,
+  requestType = 'basic',
 }: ChatInputProps) {
+  const hasInsufficientTokens = tokenCount < requestCost;
+  
+  const getRequestTypeColor = () => {
+    switch (requestType) {
+      case 'expert':
+        return 'text-purple-500 bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800';
+      case 'advanced':
+        return 'text-blue-500 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800';
+      default:
+        return 'text-green-500 bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800';
+    }
+  };
+
   return (
-    <div className="max-w-3xl mx-auto px-0 sm:px-4 py-1 sm:py-2">
+    <div className="max-w-3xl mx-auto px-0 sm:px-4 py-1 sm:py-2 space-y-2"
+>
+      {/* Cost & Warning Banner */}
+      <AnimatePresence>
+        {value.trim() && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className={`flex items-center justify-between p-2 sm:p-3 rounded-xl border ${
+              hasInsufficientTokens 
+                ? 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800' 
+                : getRequestTypeColor()
+            }`}>
+              <div className="flex items-center gap-2 flex-1">
+                {hasInsufficientTokens ? (
+                  <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                ) : (
+                  <Coins className="w-4 h-4 flex-shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className={`text-xs sm:text-sm font-semibold ${
+                    hasInsufficientTokens ? 'text-red-600 dark:text-red-400' : ''
+                  }`}>
+                    {hasInsufficientTokens ? (
+                      'Недостатньо токенів!'
+                    ) : (
+                      `Вартість запиту: ${requestCost} CT`
+                    )}
+                  </p>
+                  {hasInsufficientTokens && (
+                    <p className="text-[10px] sm:text-xs text-red-500 dark:text-red-400 mt-0.5">
+                      Потрібно: {requestCost} CT, є: {tokenCount} CT
+                    </p>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-semibold uppercase ${
+                  hasInsufficientTokens 
+                    ? 'bg-red-200 dark:bg-red-900/50 text-red-700 dark:text-red-300'
+                    : 'bg-white/50 dark:bg-black/20'
+                }`}>
+                  {requestType}
+                </span>
+                {hasInsufficientTokens && onTokenClick && (
+                  <button
+                    onClick={onTokenClick}
+                    className="text-[10px] sm:text-xs px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md font-semibold transition-colors"
+                  >
+                    Купити
+                  </button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Image Preview */}
       {attachedImage && (
         <motion.div 

@@ -19,7 +19,8 @@ import type {
   UploadResponse,
 } from "./types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app/api";
+// API_BASE_URL теперь указывает на локальный Next.js сервер, который проксирует к Go бэкенду
+const API_BASE_URL = "/api";
 
 interface ApiOptions extends RequestInit {
   token?: string;
@@ -415,22 +416,22 @@ export const uploadApi = {
 // ==================== WALLET API ====================
 
 export const walletApi = {
-  // Get wallet balance
+  // Get wallet balance (updated endpoint)
   getBalance: async (userId: string, token: string) => {
-    return apiFetch(`/wallet/balance`, { token });
+    return apiFetch(`/token-bank/me`, { token });
   },
 
-  // Get transaction history
+  // Get transaction history (updated endpoint)
   getTransactions: async (userId: string, token: string, filters?: {
     limit?: number;
     offset?: number;
-    type?: 'earned' | 'spent';
+    type?: 'earned' | 'spent' | 'bonus' | 'purchase';
   }) => {
     const params = new URLSearchParams();
     if (filters?.limit) params.append("limit", filters.limit.toString());
     if (filters?.offset) params.append("offset", filters.offset.toString());
     if (filters?.type) params.append("type", filters.type);
-    return apiFetch(`/wallet/transactions?${params}`, { token });
+    return apiFetch(`/token-bank/me/transactions?${params}`, { token });
   },
 
   // Purchase tokens
@@ -449,6 +450,48 @@ export const walletApi = {
       token,
       body: JSON.stringify({ userId, amount, reason }),
     });
+  },
+};
+
+// ==================== AI CHAT API ====================
+
+export const aiChatApi = {
+  // Send message to AI
+  sendMessage: async (message: string, context?: any, token?: string) => {
+    return apiFetch("/ai/chat", {
+      method: "POST",
+      token,
+      body: JSON.stringify({ message, context }),
+    });
+  },
+};
+
+// ==================== TASKS API ====================
+
+export const tasksApi = {
+  // Get all tasks for current user
+  getTasks: async (token: string, filters?: {
+    status?: 'available' | 'pending' | 'completed';
+    category?: 'daily' | 'weekly' | 'special' | 'learning' | 'social' | 'achievements';
+  }) => {
+    const params = new URLSearchParams();
+    if (filters?.status) params.append("status", filters.status);
+    if (filters?.category) params.append("category", filters.category);
+    return apiFetch(`/tasks?${params}`, { token });
+  },
+
+  // Submit task completion
+  submitTask: async (taskId: string, proof?: any, token?: string) => {
+    return apiFetch(`/tasks/${taskId}/submit`, {
+      method: "POST",
+      token,
+      body: JSON.stringify({ proof }),
+    });
+  },
+
+  // Get user's task history
+  getUserTasks: async (userId: string, token: string) => {
+    return apiFetch(`/tasks/user/${userId}`, { token });
   },
 };
 
@@ -878,6 +921,91 @@ export const adminApi = {
   getStats: async (token: string) => {
     return apiFetch("/admin/stats", { token });
   },
+
+  // ===== TOKEN BANK ENDPOINTS =====
+  
+  /**
+   * GET /api/admin/token-bank
+   * Получить все token banks пользователей
+   */
+  getTokenBanks: async (token?: string) => {
+    return apiFetch("/admin/token-bank", { token });
+  },
+
+  /**
+   * POST /api/admin/token-bank/allocate
+   * Выделить токены пользователю
+   */
+  allocateTokens: async (userId: string, amount: number, reason: string, token?: string) => {
+    return apiFetch("/admin/token-bank/allocate", {
+      method: "POST",
+      token,
+      body: JSON.stringify({ userId, amount, reason }),
+    });
+  },
+
+  /**
+   * GET /api/admin/token-bank/treasury
+   * Получить баланс казначейства
+   */
+  getTreasuryBalance: async (token: string) => {
+    return apiFetch("/admin/token-bank/treasury", { token });
+  },
+
+  // ===== TASKS MANAGEMENT ENDPOINTS =====
+
+  /**
+   * POST /api/admin/tasks
+   * Создать новое задание
+   */
+  createTask: async (taskData: {
+    title: string;
+    description: string;
+    reward: number;
+    category: string;
+    duration?: string;
+    requirements?: string[];
+  }, token: string) => {
+    return apiFetch("/admin/tasks", {
+      method: "POST",
+      token,
+      body: JSON.stringify(taskData),
+    });
+  },
+
+  /**
+   * POST /api/admin/tasks/{taskId}/approve
+   * Подтвердить выполнение задания
+   */
+  approveTask: async (taskId: string, userId: string, token: string) => {
+    return apiFetch(`/admin/tasks/${taskId}/approve`, {
+      method: "POST",
+      token,
+      body: JSON.stringify({ userId }),
+    });
+  },
+
+  /**
+   * GET /api/admin/tasks
+   * Получить все задания
+   */
+  getAdminTasks: async (token: string, filters?: {
+    status?: string;
+    category?: string;
+  }) => {
+    const params = new URLSearchParams();
+    if (filters?.status) params.append("status", filters.status);
+    if (filters?.category) params.append("category", filters.category);
+    return apiFetch(`/admin/tasks?${params}`, { token });
+  },
+
+  /**
+   * GET /api/admin/tasks/pending
+   * Получить задания ожидающие одобрения
+   */
+  getPendingApprovals: async (token: string) => {
+    return apiFetch("/admin/tasks/pending", { token });
+  },
 };
 
 // Export default API object
@@ -887,8 +1015,10 @@ export default {
   marketplace: marketplaceApi,
   market: marketplaceApi, // Backward compatibility alias
   ai: aiApi,
+  aiChat: aiChatApi,
   upload: uploadApi,
   wallet: walletApi,
+  tasks: tasksApi,
   fridge: fridgeApi,
   contact: contactApi,
   health: healthApi,

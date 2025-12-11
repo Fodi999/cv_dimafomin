@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowDownLeft, ArrowUpRight, Clock, Wallet, Send, ShoppingCart, Star, Shield, RefreshCcw, Sparkles } from "lucide-react";
+import { TransactionHistory } from "@/components/wallet/TransactionHistory";
+import { useUser } from "@/contexts/UserContext";
 
 interface WalletDetailSheetProps {
   isOpen: boolean;
@@ -29,6 +31,7 @@ export function WalletDetailSheet({
   const [sendAmount, setSendAmount] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
   const [selectedPackage, setSelectedPackage] = useState("1000");
+  const { user } = useUser();
 
   const packages = [
     { id: "500", tokens: 500, price: "4.99", popular: false },
@@ -164,85 +167,65 @@ export function WalletDetailSheet({
                       </motion.button>
                     </div>
 
-                    {/* Transaction History */}
-                    <div>
-                      <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-tight">
-                        Історія транзакцій
-                      </h3>
-                      <div className="space-y-3">
-                        {/* Earned */}
-                        <motion.div
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.1 }}
-                          className="rounded-xl p-4 border border-gray-700/30 hover:border-emerald-500/50 transition-all"
-                          style={{ background: "rgba(34, 197, 94, 0.08)" }}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="p-2 rounded-lg bg-emerald-500/20 border border-emerald-400/40">
-                                <ArrowDownLeft className="w-5 h-5 text-emerald-400" />
-                              </div>
-                              <div>
-                                <p className="text-sm font-semibold text-white">Заробили</p>
-                                <p className="text-xs text-gray-400">Всього отримано</p>
-                              </div>
-                            </div>
-                            <p className="text-xl font-bold text-emerald-300">
-                              +{earned.toLocaleString()}
-                            </p>
-                          </div>
-                        </motion.div>
+                    {/* Stats Summary */}
+                    <div className="grid grid-cols-3 gap-3">
+                      {/* Earned */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="rounded-xl p-3 border border-emerald-500/20 bg-emerald-500/5"
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <ArrowDownLeft className="w-4 h-4 text-emerald-400" />
+                          <p className="text-xs text-emerald-300 font-semibold">Заробили</p>
+                        </div>
+                        <p className="text-lg font-bold text-emerald-300">
+                          +{earned.toLocaleString()}
+                        </p>
+                      </motion.div>
 
-                        {/* Spent */}
-                        <motion.div
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.2 }}
-                          className="rounded-xl p-4 border border-gray-700/30 hover:border-rose-500/50 transition-all"
-                          style={{ background: "rgba(244, 63, 94, 0.08)" }}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="p-2 rounded-lg bg-rose-500/20 border border-rose-400/40">
-                                <ArrowUpRight className="w-5 h-5 text-rose-400" />
-                              </div>
-                              <div>
-                                <p className="text-sm font-semibold text-white">Витратили</p>
-                                <p className="text-xs text-gray-400">Всього відправлено</p>
-                              </div>
-                            </div>
-                            <p className="text-xl font-bold text-rose-300">
-                              -{spent.toLocaleString()}
-                            </p>
-                          </div>
-                        </motion.div>
+                      {/* Spent */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="rounded-xl p-3 border border-rose-500/20 bg-rose-500/5"
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <ArrowUpRight className="w-4 h-4 text-rose-400" />
+                          <p className="text-xs text-rose-300 font-semibold">Витратили</p>
+                        </div>
+                        <p className="text-lg font-bold text-rose-300">
+                          -{spent.toLocaleString()}
+                        </p>
+                      </motion.div>
 
-                        {/* Pending */}
-                        <motion.div
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.3 }}
-                          className="rounded-xl p-4 border border-gray-700/30 hover:border-amber-500/50 transition-all"
-                          style={{ background: "rgba(251, 146, 60, 0.08)" }}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="p-2 rounded-lg bg-amber-500/20 border border-amber-400/40">
-                                <Clock className="w-5 h-5 text-amber-400" />
-                              </div>
-                              <div>
-                                <p className="text-sm font-semibold text-white">Очікуючи</p>
-                                <p className="text-xs text-gray-400">Очікування прийняття</p>
-                              </div>
-                            </div>
-                            <p className="text-xl font-bold text-amber-300">
-                              {pending.toLocaleString()}
-                            </p>
-                          </div>
-                        </motion.div>
-                      </div>
+                      {/* Pending */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="rounded-xl p-3 border border-amber-500/20 bg-amber-500/5"
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <Clock className="w-4 h-4 text-amber-400" />
+                          <p className="text-xs text-amber-300 font-semibold">Очікуючи</p>
+                        </div>
+                        <p className="text-lg font-bold text-amber-300">
+                          {pending.toLocaleString()}
+                        </p>
+                      </motion.div>
                     </div>
+
+                    {/* Transaction History Component */}
+                    {user?.id && (
+                      <TransactionHistory 
+                        userId={user.id} 
+                        limit={10}
+                        showFilters={true}
+                      />
+                    )}
 
                     {/* Info */}
                     <div className="rounded-xl p-4 border border-gray-700/30 bg-gray-900/50">
