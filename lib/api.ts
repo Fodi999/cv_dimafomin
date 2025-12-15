@@ -59,6 +59,7 @@ async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): Promise<
   const response = await fetch(url, {
     ...fetchOptions,
     headers,
+    credentials: 'include', // 🍪 Send cookies with request for cookie-based auth
     // Add cache: 'no-store' to avoid caching 404 responses
     cache: 'no-store',
   });
@@ -513,64 +514,193 @@ export const contactApi = {
 // ==================== FRIDGE API ====================
 
 export const fridgeApi = {
-  // Get all items in user's fridge
+  /**
+   * GET /api/catalog/ingredients/search?query=ml
+   * Поиск ингредиентов для autocomplete
+   */
+  searchIngredients: async (query: string, token: string) => {
+    if (!query || query.trim().length < 1) {
+      return { count: 0, items: [] };
+    }
+    try {
+      const params = new URLSearchParams({ query: query.trim() });
+      // ✅ apiFetch УЖЕ ПОЛНОСТЬЮ разворачивает все уровни data!
+      // Прокси возвращает: { data: { data: { items, count } } }
+      // apiFetch возвращает СРАЗУ: { items, count }
+      const response = await apiFetch<{ count: number; items: any[] }>(`/catalog/ingredients/search?${params}`, { token });
+      console.log('[fridgeApi.searchIngredients] 📥 Response from apiFetch:', response);
+      
+      // ✅ Mapping Backend категорий (EN) → Frontend категорий (PL)
+      const mapBackendCategoryToFrontend = (backendCategory?: string): string => {
+        if (!backendCategory) return 'Inne';
+        
+        const mapping: Record<string, string> = {
+          'protein': 'Mięso',       // Kurczak, Wołowina, etc.
+          'dairy': 'Nabiał',        // Mleko, Ser, Jogurt
+          'vegetable': 'Warzywa',   // ← Singular form
+          'vegetables': 'Warzywa',  // Pomidory, Ogórki
+          'fruit': 'Owoce',         // ← Singular form
+          'fruits': 'Owoce',        // Jabłka, Banany
+          'grain': 'Pieczywo',      // ← Singular form
+          'grains': 'Pieczywo',     // Chleb, Bułki
+          'beverage': 'Napoje',     // ← Singular form
+          'beverages': 'Napoje',    // Woda, Sok
+          'seafood': 'Ryby',        // Łosoś, Tuńczyk
+          'other': 'Inne',          // Pozostałe
+        };
+        
+        return mapping[backendCategory.toLowerCase()] || 'Inne';
+      };
+      
+      // ✅ Нормализация категорий в результатах поиска
+      if (response?.items && Array.isArray(response.items)) {
+        const normalizedItems = response.items.map((item: any) => ({
+          ...item,
+          category: mapBackendCategoryToFrontend(item.category),
+        }));
+        
+        console.log('[fridgeApi.searchIngredients] 🔄 Normalized categories:', normalizedItems.map(i => ({ name: i.name, category: i.category })));
+        
+        return { count: response.count || normalizedItems.length, items: normalizedItems };
+      }
+      
+      return response;
+    } catch (err: any) {
+      console.warn("Ingredients search error:", err);
+      return { count: 0, items: [] };
+    }
+  },
+
+  /**
+   * GET /api/fridge/items
+   * Получить содержимое холодильника пользователя
+   */
   getItems: async (token: string) => {
     try {
-      return await apiFetch("/fridge", { token });
+      console.log('[fridgeApi.getItems] 📡 Calling apiFetch...');
+      const response = await apiFetch<any>("/fridge/items", { token });
+      console.log('[fridgeApi.getItems] 📥 Response from apiFetch:', response);
+      
+      // ✅ Нормализация: Backend возвращает плоскую структуру, UI ожидает вложенную
+      if (response?.items && Array.isArray(response.items)) {
+        console.log('[fridgeApi.getItems] 📋 Raw item sample:', response.items[0]);
+        
+        // ✅ Mapping Backend категорий (EN) → Frontend категорий (PL)
+        const mapBackendCategoryToFrontend = (backendCategory?: string): string => {
+          if (!backendCategory) return 'Inne';
+          
+          const mapping: Record<string, string> = {
+            'protein': 'Mięso',       // Kurczak, Wołowina, etc.
+            'dairy': 'Nabiał',        // Mleko, Ser, Jogurt
+            'vegetable': 'Warzywa',   // ← Singular form
+            'vegetables': 'Warzywa',  // Pomidory, Ogórki
+            'fruit': 'Owoce',         // ← Singular form
+            'fruits': 'Owoce',        // Jabłka, Banany
+            'grain': 'Pieczywo',      // ← Singular form
+            'grains': 'Pieczywo',     // Chleb, Bułki
+            'beverage': 'Napoje',     // ← Singular form
+            'beverages': 'Napoje',    // Woda, Sok
+            'seafood': 'Ryby',        // Łosoś, Tuńczyk
+            'other': 'Inne',          // Pozostałe
+          };
+          
+          return mapping[backendCategory.toLowerCase()] || 'Inne';
+        };
+        
+        // ✅ Fallback: Określenie kategorii po nazwie (jeśli backend nie zwrócił)
+        const getCategoryFromName = (name: string): string => {
+          const lowerName = name.toLowerCase();
+          if (lowerName.includes('mleko') || lowerName.includes('milk') || lowerName.includes('jogurt') || lowerName.includes('ser')) {
+            return 'Nabiał';
+          }
+          if (lowerName.includes('mięso') || lowerName.includes('kurczak') || lowerName.includes('wołowina')) {
+            return 'Mięso';
+          }
+          if (lowerName.includes('chleb') || lowerName.includes('bułka') || lowerName.includes('bagietka')) {
+            return 'Pieczywo';
+          }
+          if (lowerName.includes('jabłko') || lowerName.includes('banan') || lowerName.includes('pomarańcz')) {
+            return 'Owoce';
+          }
+          if (lowerName.includes('pomidor') || lowerName.includes('ogórek') || lowerName.includes('sałata')) {
+            return 'Warzywa';
+          }
+          return 'Inne';
+        };
+        
+        const normalizedItems = response.items.map((item: any) => {
+          console.log('[fridgeApi.getItems] 🔍 Processing item:', {
+            id: item.id,
+            name: item.name,
+            backendCategory: item.category,
+            ingredientId: item.ingredientId || item.ingredient_id,
+          });
+          
+          // Приоритет: 1) Backend category (mapped), 2) Ingredient category (mapped), 3) Name-based detection
+          const backendCat = item.category || item.ingredient?.category;
+          const normalizedCategory = backendCat 
+            ? mapBackendCategoryToFrontend(backendCat)
+            : getCategoryFromName(item.name || '');
+          
+          console.log('[fridgeApi.getItems] 📂 Category mapping:', {
+            backend: backendCat,
+            frontend: normalizedCategory,
+          });
+          
+          return {
+            id: item.id,
+            ingredient: {
+              name: item.name || item.ingredient?.name || 'Unknown',
+              category: normalizedCategory,
+            },
+            quantity: item.quantity,
+            unit: item.unit,
+            expiresAt: item.expiresAt || item.expires_at,
+            daysLeft: item.daysLeft || item.days_left || 0,
+            status: item.status || 'ok',
+          };
+        });
+        
+        console.log('[fridgeApi.getItems] 🔄 Normalized items:', normalizedItems);
+        console.log('[fridgeApi.getItems] 🎯 Returning:', { items: normalizedItems });
+        
+        return { items: normalizedItems };
+      }
+      
+      console.log('[fridgeApi.getItems] 🎯 Returning:', response);
+      return response;
     } catch (err: any) {
-      // If endpoint doesn't exist, return empty array
       if (err.status === 404) {
         console.warn("Fridge endpoint not available (404)");
-        return [];
+        return { items: [] };
       }
       throw err;
     }
   },
 
-  // Add new item to fridge
+  /**
+   * POST /api/fridge/items
+   * Добавить продукт в холодильник
+   * Body: { ingredientId: string, quantity: number, unit: string }
+   */
   addItem: async (data: {
-    name: string;
-    category: 'protein' | 'vegetable' | 'condiment' | 'other';
-    quantity: string;
-    expiryDate: string;
+    ingredientId: string;
+    quantity: number;
+    unit: string;
   }, token: string) => {
-    return apiFetch("/fridge", {
+    return apiFetch("/fridge/items", {
       method: "POST",
       token,
       body: JSON.stringify(data),
     });
   },
 
-  // Get available items (suggestions)
-  getAvailable: async (token: string) => {
-    try {
-      return await apiFetch("/fridge/available", { token });
-    } catch (err: any) {
-      if (err.status === 404) {
-        console.warn("Fridge available endpoint not available (404)");
-        return [];
-      }
-      throw err;
-    }
-  },
-
-  // Update fridge item
-  updateItem: async (id: string, data: {
-    name?: string;
-    category?: 'protein' | 'vegetable' | 'condiment' | 'other';
-    quantity?: string;
-    expiryDate?: string;
-  }, token: string) => {
-    return apiFetch(`/fridge/${id}`, {
-      method: "PUT",
-      token,
-      body: JSON.stringify(data),
-    });
-  },
-
-  // Remove item from fridge
+  /**
+   * DELETE /api/fridge/items/{id}
+   * Удалить продукт из холодильника
+   */
   deleteItem: async (id: string, token: string) => {
-    return apiFetch(`/fridge/${id}`, {
+    return apiFetch(`/fridge/items/${id}`, {
       method: "DELETE",
       token,
     });
@@ -950,6 +1080,14 @@ export const adminApi = {
    */
   getTreasuryBalance: async (token: string) => {
     return apiFetch("/admin/token-bank/treasury", { token });
+  },
+
+  /**
+   * GET /api/admin/treasury/stats
+   * Получить детальную статистику казначейства
+   */
+  getTreasuryStats: async (token: string) => {
+    return apiFetch("/admin/treasury/stats", { token });
   },
 
   // ===== TASKS MANAGEMENT ENDPOINTS =====

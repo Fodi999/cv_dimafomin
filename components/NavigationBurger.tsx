@@ -33,6 +33,9 @@ interface NavLink {
   label: string;
   href: string;
   icon: React.ReactNode;
+  description?: string; // 🆕 Добавляем описание
+  badge?: string; // 🆕 Добавляем badge (например "Core")
+  highlight?: boolean; // 🆕 Для выделения killer-feature
 }
 
 export default function NavigationBurger() {
@@ -78,36 +81,45 @@ export default function NavigationBurger() {
     };
   }, [isOpen]);
 
+  // 🆕 УЛУЧШЕННАЯ НАВИГАЦИЯ с описаниями и правильным порядком
   const navLinks: NavLink[] = [
     {
       label: "Strona główna",
       href: "/",
       icon: <Home className="w-5 h-5" />,
-    },
-    {
-      label: "Akademia",
-      href: "/academy",
-      icon: <BookOpen className="w-5 h-5" />,
-    },
-    {
-      label: "Kursy",
-      href: "/academy/courses",
-      icon: <Sparkles className="w-5 h-5" />,
-    },
-    {
-      label: "Asystent AI",
-      href: "/chat/create-chat",
-      icon: <BrainCircuit className="w-5 h-5" />,
-    },
-    {
-      label: "Rynek",
-      href: "/market",
-      icon: <ShoppingBag className="w-5 h-5" />,
+      description: "Twój start w świadomej kuchni",
     },
     {
       label: "Lodówka",
       href: "/fridge",
       icon: <Refrigerator className="w-5 h-5" />,
+      description: "Planowanie posiłków i zakupów",
+      badge: "Core",
+      highlight: true, // 🔥 Killer-feature
+    },
+    {
+      label: "Asystent AI",
+      href: "/chat/create-chat",
+      icon: <BrainCircuit className="w-5 h-5" />,
+      description: "Pomoc w kuchni i decyzjach",
+    },
+    {
+      label: "Akademia",
+      href: "/academy",
+      icon: <BookOpen className="w-5 h-5" />,
+      description: "Ucz się planować i gotować mądrze",
+    },
+    {
+      label: "Kursy",
+      href: "/academy/courses",
+      icon: <Sparkles className="w-5 h-5" />,
+      description: "Praktyczne umiejętności krok po kroku",
+    },
+    {
+      label: "Rynek",
+      href: "/market",
+      icon: <ShoppingBag className="w-5 h-5" />,
+      description: "Receptury i wymiana ChefTokens",
     },
   ];
 
@@ -213,17 +225,17 @@ export default function NavigationBurger() {
             className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-80 bg-white dark:bg-gray-950 z-40 shadow-xl border-r border-gray-200 dark:border-gray-800 overflow-y-auto"
           >
             {/* ===== MENU CONTENT ===== */}
-            <div className="p-6 flex flex-col h-full">
+            <div className="p-4 flex flex-col h-full">
               {/* Header */}
-              <div className="mb-8">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+              <div className="mb-4">
+                <h2 className="text-base font-bold text-gray-900 dark:text-white mb-1">
                   Menu
                 </h2>
-                <div className="h-1 w-12 bg-gradient-to-r from-sky-500 to-cyan-500 rounded-full" />
+                <div className="h-0.5 w-10 bg-gradient-to-r from-sky-500 to-cyan-500 rounded-full" />
               </div>
 
               {/* ===== NAVIGATION LINKS ===== */}
-              <nav className="space-y-2 flex-1">
+              <nav className="space-y-1 flex-1">
                 {navLinks.map((link, idx) => (
                   <motion.div
                     key={link.href}
@@ -235,28 +247,67 @@ export default function NavigationBurger() {
                       whileHover={{ x: 8 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleLinkClick(link.href)}
-                      className={`flex items-center gap-3 px-4 py-3.5 rounded-lg transition-all cursor-pointer ${
+                      className={`relative flex flex-col px-3 py-2 rounded-lg transition-all cursor-pointer group ${
                         isActive(link.href)
                           ? "bg-gradient-to-r from-sky-500/20 to-cyan-500/20 text-sky-600 dark:text-sky-400 border-l-4 border-sky-500"
+                          : link.highlight
+                          ? "bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-gray-700 dark:text-gray-200 hover:from-amber-500/20 hover:to-orange-500/20 border-l-4 border-amber-500/50"
                           : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900/50 border-l-4 border-transparent"
                       }`}
                     >
-                      <span
-                        className={`${
-                          isActive(link.href)
-                            ? "text-sky-600 dark:text-sky-400"
-                            : "text-gray-500 dark:text-gray-400"
-                        }`}
-                      >
-                        {link.icon}
-                      </span>
-                      <span className="font-medium text-sm">{link.label}</span>
-                      {isActive(link.href) && (
-                        <motion.div
-                          layoutId="active-indicator"
-                          className="ml-auto w-2 h-2 rounded-full bg-sky-500"
-                          transition={{ type: "spring", damping: 20 }}
-                        />
+                      {/* Main row: icon + label + badge */}
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`${
+                            isActive(link.href)
+                              ? "text-sky-600 dark:text-sky-400"
+                              : link.highlight
+                              ? "text-amber-600 dark:text-amber-400"
+                              : "text-gray-500 dark:text-gray-400"
+                          }`}
+                        >
+                          {link.icon}
+                        </span>
+                        <span className="font-medium text-[13px] flex-1">{link.label}</span>
+                        
+                        {/* Badge (Core) */}
+                        {link.badge && (
+                          <motion.span
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: idx * 0.05 + 0.2, type: "spring" }}
+                            className="px-1.5 py-0.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[9px] font-bold uppercase rounded-full shadow-sm"
+                          >
+                            {link.badge}
+                          </motion.span>
+                        )}
+                        
+                        {/* Active indicator */}
+                        {isActive(link.href) && (
+                          <motion.div
+                            layoutId="active-indicator"
+                            className="w-1.5 h-1.5 rounded-full bg-sky-500"
+                            transition={{ type: "spring", damping: 20 }}
+                          />
+                        )}
+                      </div>
+                      
+                      {/* Description - sublabel */}
+                      {link.description && (
+                        <motion.p
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          transition={{ delay: idx * 0.05 + 0.1 }}
+                          className={`text-[10px] mt-0.5 ml-7 leading-tight ${
+                            isActive(link.href)
+                              ? "text-sky-500/80 dark:text-sky-400/80"
+                              : link.highlight
+                              ? "text-amber-600/70 dark:text-amber-400/70"
+                              : "text-gray-500 dark:text-gray-500"
+                          }`}
+                        >
+                          {link.description}
+                        </motion.p>
                       )}
                     </motion.div>
                   </motion.div>
@@ -266,14 +317,14 @@ export default function NavigationBurger() {
               {/* ===== ADMIN SECTION ===== */}
               {user && user.role === "admin" && (
                 <>
-                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent my-6" />
+                  <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent my-3" />
                   
-                  <div className="mb-4">
-                    <div className="flex items-center gap-2 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 px-4">
-                      <Shield size={16} />
+                  <div className="mb-3">
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 px-3">
+                      <Shield size={14} />
                       Адміністрація
                     </div>
-                    <nav className="space-y-2">
+                    <nav className="space-y-0.5">
                       {[
                         { label: "Панель керування", href: "/admin/dashboard", Icon: LayoutDashboard },
                         { label: "Замовлення", href: "/admin/orders", Icon: Package },
@@ -293,18 +344,18 @@ export default function NavigationBurger() {
                             whileHover={{ x: 8 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => handleLinkClick(link.href)}
-                            className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all cursor-pointer text-sm ${
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all cursor-pointer text-[13px] ${
                               pathname === link.href
                                 ? "bg-purple-500/20 text-purple-600 dark:text-purple-400 border-l-4 border-purple-500"
                                 : "text-gray-700 dark:text-gray-300 hover:bg-purple-500/10 dark:hover:bg-purple-900/20 border-l-4 border-transparent"
                             }`}
                           >
-                            <link.Icon size={18} />
-                            <span className="font-medium text-sm">{link.label}</span>
+                            <link.Icon size={16} />
+                            <span className="font-medium">{link.label}</span>
                             {pathname === link.href && (
                               <motion.div
                                 layoutId="admin-active"
-                                className="ml-auto w-2 h-2 rounded-full bg-purple-500"
+                                className="ml-auto w-1.5 h-1.5 rounded-full bg-purple-500"
                                 transition={{ type: "spring", damping: 20 }}
                               />
                             )}
@@ -317,14 +368,14 @@ export default function NavigationBurger() {
               )}
 
               {/* ===== DIVIDER ===== */}
-              <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent my-6" />
+              <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent my-3" />
 
               {/* ===== SMART PROFILE BUTTON ===== */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="space-y-3"
+                className="space-y-2"
               >
                 {user ? (
                   // Logged in user - Profile card + Logout
@@ -332,39 +383,39 @@ export default function NavigationBurger() {
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       onClick={() => handleLinkClick(user.role === "admin" ? "/admin/dashboard" : "/profile")}
-                      className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500/10 to-cyan-500/10 border-2 border-sky-500/50 hover:border-sky-500 cursor-pointer transition-all"
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-sky-500/10 to-cyan-500/10 border-2 border-sky-500/50 hover:border-sky-500 cursor-pointer transition-all"
                     >
                       {user.avatar ? (
                         <img
                           src={user.avatar}
                           alt={user.name}
-                          className="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-sky-500/50"
+                          className="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-sky-500/50"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-sky-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
-                          <span className="text-white text-sm font-bold">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-sky-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-xs font-bold">
                             {user.name.charAt(0).toUpperCase()}
                           </span>
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                        <p className="text-[13px] font-semibold text-gray-900 dark:text-white truncate">
                           {user.name}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
                           Mój profil
                         </p>
                       </div>
-                      <User className="w-4 h-4 text-sky-600 dark:text-sky-400 flex-shrink-0" />
+                      <User className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 flex-shrink-0" />
                     </motion.div>
 
                     <motion.button
                       whileHover={{ x: 4 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 transition-all font-medium text-sm"
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 transition-all font-medium text-[13px]"
                     >
-                      <LogOut className="w-4 h-4" />
+                      <LogOut className="w-3.5 h-3.5" />
                       Wyloguj
                     </motion.button>
                   </>
@@ -375,18 +426,18 @@ export default function NavigationBurger() {
                       whileHover={{ x: 4 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setIsAuthModalOpen(true)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-medium transition-all"
+                      className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-medium transition-all text-[13px]"
                     >
-                      <LogIn className="w-4 h-4" />
+                      <LogIn className="w-3.5 h-3.5" />
                       Zaloguj się
                     </motion.button>
                     <motion.button
                       whileHover={{ x: 4 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setIsAuthModalOpen(true)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 border-sky-500 text-sky-600 dark:text-sky-400 hover:bg-sky-500/10 font-medium transition-all"
+                      className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 border-sky-500 text-sky-600 dark:text-sky-400 hover:bg-sky-500/10 font-medium transition-all text-[13px]"
                     >
-                      <User className="w-4 h-4" />
+                      <User className="w-3.5 h-3.5" />
                       Zarejestruj się
                     </motion.button>
                   </>
@@ -394,18 +445,18 @@ export default function NavigationBurger() {
               </motion.div>
 
               {/* ===== DIVIDER ===== */}
-              <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent my-6" />
+              <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent my-3" />
 
               {/* ===== FOOTER ===== */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="pt-4 border-t border-gray-200 dark:border-gray-800"
+                className="pt-2 border-t border-gray-200 dark:border-gray-800"
               >
-                <div className="text-center mb-4">
-                  <p className="text-xs text-gray-500 dark:text-gray-500 leading-relaxed">
-                    <span className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                <div className="text-center mb-2">
+                  <p className="text-[10px] text-gray-500 dark:text-gray-500 leading-tight">
+                    <span className="block font-semibold text-gray-700 dark:text-gray-300 mb-0.5">
                       Wersja AI
                     </span>
                     Dima Fomin v2.0
@@ -413,10 +464,10 @@ export default function NavigationBurger() {
                 </div>
 
                 {/* AI Signature */}
-                <div className="flex items-center justify-center gap-2 text-xs text-gray-400 dark:text-gray-500">
-                  <Sparkles className="w-3 h-3" />
+                <div className="flex items-center justify-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500">
+                  <Sparkles className="w-2.5 h-2.5" />
                   <span>Powered by AI Academy</span>
-                  <Sparkles className="w-3 h-3" />
+                  <Sparkles className="w-2.5 h-2.5" />
                 </div>
               </motion.div>
             </div>

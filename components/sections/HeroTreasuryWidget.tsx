@@ -137,22 +137,21 @@ export default function HeroTreasuryWidget() {
           </div>
           <div>
             <h3 className="text-sm sm:text-base font-bold text-white">Token Treasury</h3>
-            <p className="text-xs text-gray-400">Kazna tokenów</p>
+            <p className="text-xs text-gray-400">Bank ChefTokens</p>
           </div>
         </div>
         
         {/* Last Updated */}
         {lastUpdated && (
           <div className="text-right">
-            <p className="text-xs text-gray-500">Оновлено:</p>
+            <p className="text-xs text-gray-500">Zaktualizowano:</p>
             <p className="text-xs font-mono text-sky-400">{lastUpdated}</p>
           </div>
         )}
       </div>
 
-      {/* Balance - Только общий баланс */}
-      <div className="bg-gradient-to-r from-sky-500/20 to-cyan-500/20 rounded-xl p-4">
-        <p className="text-xs sm:text-sm text-gray-300 mb-1">Bank tokenów</p>
+      {/* Balance */}
+      <div className="bg-gradient-to-r from-sky-500/20 to-cyan-500/20 rounded-xl p-4 mb-3">
         <div className="flex items-baseline gap-2">
           <motion.span
             key={treasury.balance}
@@ -165,6 +164,11 @@ export default function HeroTreasuryWidget() {
           </motion.span>
           <span className="text-base sm:text-lg text-sky-400 font-semibold">ChefTokens</span>
         </div>
+      </div>
+      
+      {/* Description */}
+      <div className="text-xs sm:text-sm text-gray-400 leading-relaxed">
+        <p>ChefTokens to wewnętrzna waluta platformy, która pomaga podejmować świadome decyzje: planujesz zapytania do AI, otwierasz receptury i uczysz się korzystać z wiedzy bez nadmiaru i chaosu.</p>
       </div>
     </motion.div>
   );

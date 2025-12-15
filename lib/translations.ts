@@ -18,26 +18,27 @@ export const translations = {
 
     // ==================== HERO SECTION ====================
     hero: {
-      title: 'Nowoczesna Kuchnia i Doskonałe Smaków Zestawienia',
-      subtitle: 'Od Dima Fomin',
-      tagline: 'Zdobądź kompletne umiejętności kulinarne od mistrza',
-      description: 'Akademia dla tych, którzy chcą nauczyć się nowoczesnej kuchni i Food Pairing od profesjonalisty z 20+ latami doświadczenia.',
+      title: 'Nowoczesna kuchnia i mądre zarządzanie domową kuchnią',
+      subtitle: 'od Dima Fomin',
+      tagline: 'Ucz się planować. Gotuj świadomie. Rozwijaj smak. Oszczędzaj czas i pieniądze. Zarabiaj ChefTokens.',
+      description: 'Platforma, która uczy jak kupować, planować i gotować mądrze — bez marnowania produktów, bez chaosu i bez przekraczania budżetu, z pomocą AI.',
       ctaPrimary: 'Rozpocznij Bezpłatnie',
       ctaSecondary: 'Przejrzyj Akademię',
-      badge: 'Nowoczesna kuchnia i idealne zestawienia smaków od Dima Fomin',
+      badge: 'Nowoczesna kuchnia i mądre zarządzanie domową kuchnią od Dima Fomin',
       earnTokens: 'Zarabiaj ChefTokens',
       // Main heading lines
-      headingLine1: 'Ucz się.',
-      headingLine2: 'Gotuj.',
+      headingLine1: 'Ucz się planować.',
+      headingLine2: 'Gotuj świadomie.',
       headingLine3: 'Rozwijaj smak.',
-      headingLine4: 'Zarabiaj ',
+      headingLine4: 'Oszczędzaj czas i pieniądze. Zarabiaj ',
       headingLine4Continuation: 'ChefTokens.',
-      // Platform description
-      platformDescription: 'Platforma nowoczesnej kuchni, autorskich receptur i smaków.',
-      aiMentorDescription: 'Twój personalny asystent AI pomoże tworzyć potrawy restauracyjne, dobierać idealne pary \"przystawka + napój\" i odkrywać receptury za ChefTokens.',
+      // Platform description (SUBHEADLINE)
+      platformDescription: 'Platforma, która uczy jak kupować, planować i gotować mądrze — bez marnowania produktów, bez chaosu i bez przekraczania budżetu, z pomocą AI.',
+      // AI Mentor description
+      aiMentorDescription: 'Twój personalny asystent AI w kuchni pomaga: zaplanować posiłki na dni i tygodnie, wykorzystać produkty które już masz w lodówce, dobrać Smart Food Pairing bez dodatkowych zakupów, gotować smacznie, szybciej i w ramach budżetu.',
       // CTA buttons
       startLearning: 'Rozpocznij naukę',
-      startDialog: 'Rozpocznij dialog',
+      startDialog: 'Rozpocznij dialog z AI',
       // Stats
       stats: {
         recipes: '50+',
@@ -69,46 +70,56 @@ export const translations = {
     sections: {
       about: {
         projectTitle: 'O projekcie',
-        projectDescription: 'Modern Food Academy — platforma nowoczesnej kuchni, receptur i Food Pairing od szefa Dima Fomin. Tutaj uczysz się nowoczesnych receptur, kombinacji „zakąska + napój", rozwijasz smak i otwierasz receptury za ChefTokens za pomocą osobistego asystenta AI.',
+        projectDescription: 'Modern Food Academy to nie tylko przepisy. To system nauki świadomego gotowania, planowania zakupów i minimalizowania marnowania żywności. Projekt łączy doświadczenie szefa kuchni z AI, aby pomóc w codziennych decyzjach — w domu i w kuchni profesjonalnej.',
         
-        aiMentorTitle: 'KTO JEST AI DIMA FOMIN',
-        aiMentorSubtitle: 'Cyfrowy mentor z doświadczeniem szefa',
-        aiMentorDesc: 'AI Dima Fomin — cyfrowy asystent kulinarny oparty na doświadczeniu i podejściu szefa. Uczy przez żywy dialog, pomaga tworzyć nowoczesne receptury, analizuje zdjęcia twoich prac, dobiera kombinacje smaków i wyjaśnia techniki gotowania jak prawdziwy profesjonalista.',
+        aiMentorTitle: 'AI Dima Fomin — cyfrowy mentor kulinarny',
+        aiMentorSubtitle: 'AI oparty na doświadczeniu szefa kuchni',
+        aiMentorDesc: 'Uczy przez dialog, analizę i praktykę — dokładnie tak, jak w prawdziwej kuchni. Pomaga nie tylko gotować, ale myśleć jak kucharz, który kontroluje smak, czas i koszty.',
         
         mentorTraits: [
-          { title: 'Doświadczenie', desc: 'Wiedza opiera się na wieloletnim doświadczeniu szefa w nowoczesnej kuchni, serwowaniu i kombinacjach smaków.' },
-          { title: 'Filozofia', desc: 'Każda odpowiedź przekazuje autorski styl, smak i podejście szefa do nowoczesnej sztuki kulinarnej.' },
-          { title: 'Metoda nauczania', desc: 'Obучenie opiera się na dialogu, praktyce i analizie prawdziwych dań — bez suchej teorii.' },
+          { title: 'Doświadczenie', desc: 'Wiedza oparta na wieloletniej pracy szefa w nowoczesnej kuchni i food pairingu.' },
+          { title: 'Filozofia', desc: 'Dobry smak to nie drogie produkty, lecz mądre decyzje.' },
+          { title: 'Metoda nauczania', desc: 'Dialog, praktyka i analiza prawdziwych dań — bez suchej teorii.' },
         ],
 
         learningTitle: 'Jak przebiega nauka',
-        learningSubtitle: 'Wybierz wygodny format — od żywego dialogu do analizy twoich dań i kombinacji smaków.',
+        learningSubtitle: 'Wybierasz format dopasowany do Twojego życia',
         
         learningMethods: [
-          { title: 'Czat-dialogi', desc: 'Zadawaj dowolne pytania o nowoczesną kuchnię, receptury i kombinacje — AI odpowiada natychmiast.' },
-          { title: 'Analiza zdjęć', desc: 'Wyślij zdjęcie dania — AI oceni podanie, teksturę, technikę i zaproponuje ulepszenia.' },
-          { title: 'Dobór video', desc: 'AI dobiera materiały edukacyjne i filmy pasujące do twojego celu, dania lub techniki.' },
-          { title: 'Osobiste wskazówki', desc: 'System dostosowuje się do twojego poziomu, stylu gotowania i preferencji smakowych.' },
-          { title: 'Pomoc podczas gotowania', desc: 'Otrzymuj rady w czasie rzeczywistym bezpośrednio w kuchni — krok po kroku.' },
-          { title: 'Płatność tokenami', desc: 'Każde zapytanie do AI i dodatkowe funkcje opłacane są ChefTokens.' },
+          { title: 'Szybkie pytania', desc: 'Zadawaj pytania o techniki, składniki i receptury — AI odpowiada natychmiast.' },
+          { title: 'Analiza Twoich dań', desc: 'Wyślij zdjęcie dania — AI oceni podanie, smak i zaproponuje ulepszenia.' },
+          { title: 'Pomoc w czasie gotowania', desc: 'Otrzymuj wskazówki krok po kroku bezpośrednio w kuchni.' },
+          { title: 'Planowanie posiłków i zakupów', desc: 'AI pomaga planować menu tygodnia i optymalizować listę zakupów.' },
+          { title: 'Błyskawiczne odpowiedzi', desc: 'Otrzymuj natychmiastowe wskazówki i rozwiązania problemów kulinarnych.' },
+          { title: 'Zarabiaj ChefTokens', desc: 'Zdobywaj tokeny za aktywność i wymieniaj je na funkcje premium.' },
         ],
 
         capabilitiesTitle: 'Możliwości mentora AI',
-        capabilitiesSubtitle: 'Wszystko, co robi AI Dima Fomin, aby ulepszyć twoje umiejętności nowoczesnej kuchni i kombinacji smaków.',
+        capabilitiesSubtitle: 'Wszystko, co AI potrafi, aby usprawnić Twoją codzienną kuchnię',
         
         capabilities: [
-          { title: 'Generowanie receptur', desc: 'AI tworzy nowoczesne receptury i pairing-kombinacje na podstawie twoich produktów i preferencji.' },
-          { title: 'Krok po kroku', desc: 'Wyjaśnia proces dania prostymi działaniami: od przygotowania do serwowania.' },
-          { title: 'Analiza po zdjęciu', desc: 'Ocenia podanie, teksturę, prażenie, kolor i daje rekomendacje, jak ulepszyć technikę.' },
-          { title: 'Dobór osobisty', desc: 'Dobiera dania i receptury do twojego poziomu, stylu gotowania i celów nauki.' },
-          { title: 'Pomoc w czasie rzeczywistym', desc: 'Towarzyszy podczas gotowania: odpowiada na pytania, podpowiada, co robić dalej.' },
-          { title: 'Dostępność 24/7 i adaptacja', desc: 'Zawsze dostępny, poznaje twój styl i dostosowuje się do twoich preferencji smakowych.' },
+          { title: 'Generowanie receptur', desc: 'Generowanie receptur na podstawie produktów, które masz' },
+          { title: 'Smart Food Pairing', desc: 'Smart Food Pairing — lepszy smak bez nowych zakupów' },
+          { title: 'Analiza zdjęć dań', desc: 'Analiza zdjęć dań i wskazówki poprawy' },
+          { title: 'Pomoc krok po kroku', desc: 'Pomoc krok po kroku podczas gotowania' },
+          { title: 'Personalizacja', desc: 'Personalizacja pod Twój styl, czas i budżet' },
+          { title: 'Dostępność 24/7', desc: 'Zawsze dostępny, kiedy tylko potrzebujesz pomocy' },
+        ],
+        
+        smartFoodPairingTitle: 'Smart Food Pairing',
+        smartFoodPairingSubtitle: 'Praktyczna umiejętność: jak wydobyć maksymalny smak z produktów, które już masz',
+        smartFoodPairingDesc: 'Food Pairing w Modern Food Academy to praktyczna umiejętność: jak wydobyć maksymalny smak z produktów, które już masz.',
+        
+        smartPairingBenefits: [
+          { title: 'Łączenie składników', desc: 'Jak łączyć składniki bez drogich dodatków' },
+          { title: 'Zmiana charakteru dania', desc: 'Jak zmieniać charakter dania bez zwiększania kosztów' },
+          { title: 'Urozmaicenie menu', desc: 'Jak urozmaicić menu tygodnia bez nowych zakupów' },
         ],
 
-        ctaTitle: 'Nowoczesna kuchnia od zera',
-        ctaSubtitle: 'Nauka od podstawowych technik do poziomu restauracyjnego',
-        ctaDescription: 'Mentor AI poprowadzi cię od wyboru produktów do tworzenia nowoczesnych dań i doskonałych kombinacji smaków — przez dialog, analizę i osobiste wskazówki.',
-        ctaButton: 'Rozpocznij naukę z AI',
+        ctaTitle: 'Modern Food Academy to Twój system',
+        ctaSubtitle: 'lepszy smak, mniej marnowania, więcej kontroli — każdego dnia',
+        ctaDescription: 'Każde zapytanie do AI opłacane jest ChefTokens — uczysz się korzystać z technologii świadomie.',
+        ctaButton: 'Rozpocznij dialog z AI',
       },
     },
 
@@ -288,13 +299,13 @@ export const translations = {
 
     // ==================== FRIDGE ====================
     fridge: {
-      title: 'Moja Lodówka',
-      subtitle: 'Zarządzaj swoimi produktami, kontroluj świeżość i planuj gotowanie.',
-      search: 'Szukaj Produktów…',
+      title: 'Moja Lodówka (Core)',
+      subtitle: 'Centrum planowania posiłków, zakupów i kontroli budżetu',
+      search: 'Szukaj produktów w lodówce…',
       
       empty: {
-        title: 'Lodówka Pusta',
-        description: 'Dodaj pierwszy produkt, aby rozpocząć.'
+        title: 'Twoja lodówka jest pusta',
+        description: 'Dodaj produkty, które masz w domu, aby:\n• planować posiłki na dni i tygodnie\n• wykorzystać produkty przed końcem terminu\n• nie kupować tego, czego już masz'
       },
 
       categories: {
@@ -305,8 +316,8 @@ export const translations = {
       },
 
       tip: {
-        title: 'Porada:',
-        description: 'Śledzić daty przydatności twoich produktów. Produkty, których termin zbliża się do końca, będą oznaczone ostrzeżeniem.'
+        title: 'Wskazówka:',
+        description: 'Produkty z krótkim terminem ważności będą oznaczone ostrzeżeniem — AI zaproponuje, co ugotować w pierwszej kolejności.'
       }
     },
 
@@ -597,27 +608,27 @@ export const translations = {
 
     // ==================== CHEF TOKENS ====================
     tokens: {
-      title: 'ChefTokens — Twoja Wewnętrzna Kuchenna Waluta',
-      description: 'ChefTokens — to Waluta Nauki i Zakupów w Modern Food Academy. Używaj jej, aby otwierać Nowoczesne Przepisy, Tutoriale Wideo, Pairing-Kombinacje i Uzyskiwać Pomoc AI-Mentora.',
+      title: 'ChefTokens — Twoja kuchenna waluta',
+      description: 'ChefTokens to wewnętrzna waluta platformy, która pomaga podejmować świadome decyzje: planujesz zapytania do AI, otwierasz receptury i uczysz się korzystać z wiedzy bez nadmiaru i chaosu.',
       
       earn: {
-        title: 'Zarabiaj',
-        description: 'Przechodzą lekcje, Zaangażuj się w Naukę — Zdobądź ChefTokens za Aktywność.',
+        title: 'Zdobywasz przez naukę i aktywność',
+        description: 'Zdobywaj tokeny za lekcje i używaj je do dostępu do receptur i premium-treści.',
       },
       
       spend: {
-        title: 'Wydawaj Mądrze',
-        description: 'Kup Przepisy Autorskie, Nowoczesne Przepisy, Kursy i Analizy Połączeń Smaków.',
+        title: 'Wydajesz na receptury, AI i analizy',
+        description: 'Kup przepisy autorskie, nowoczesne receptury, kursy i analizy połączeń smaków.',
       },
       
       aiPayment: {
-        title: 'Płatność za Zapytania AI',
-        description: 'Rozszerzone Funkcje AI-Mentora Pobierają Małą Liczbę Tokenów.',
+        title: 'Korzystasz z wiedzy świadomie, bez nadmiaru',
+        description: 'Każde zapytanie do AI opłacane jest ChefTokens — uczysz się korzystać z technologii świadomie.',
       },
       
       exchange: {
-        title: 'Wymieniaj',
-        description: 'Dostęp do Ekskluzywnych Przepisów, Masterclass\'ów i Osobistych Rekomendacji.',
+        title: 'To nie gra — to model realnej ekonomii kuchni',
+        description: 'ChefTokens uczą podejmowania decyzji w prawdziwej kuchni: planowania, kontroli produktów i świadomego gotowania.',
       },
       
       stats: {

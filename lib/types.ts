@@ -196,3 +196,42 @@ export interface CreateRecipePostData {
   cost?: number;               // загальна вартість
   tokensReward?: number;       // нагорода в токенах
 }
+
+// ==================== FRIDGE TYPES ====================
+
+export interface CatalogIngredient {
+  id: string;
+  name: string;
+  unit: string;
+  category: string;
+  defaultShelfLifeDays: number;
+}
+
+export interface IngredientSearchResponse {
+  count: number;
+  items: CatalogIngredient[];
+}
+
+export interface FridgeItem {
+  id: string;
+  ingredient: {
+    name: string;
+    category: string;
+  };
+  quantity: number;
+  unit: string;
+  expiresAt: string;
+  daysLeft: number;
+  status: 'ok' | 'warning' | 'critical' | 'expired';
+}
+
+export interface FridgeItemsResponse {
+  items: FridgeItem[];
+}
+
+export interface AddFridgeItemData {
+  ingredientId: string;
+  quantity: number;
+  unit: string;
+  expiresAt?: string; // ISO 8601 date string (optional - calculated from defaultShelfLifeDays)
+}

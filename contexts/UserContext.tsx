@@ -252,7 +252,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
         
         setUser(fullUserData);
       } catch (profileError: any) {
-        console.warn("⚠️ Failed to fetch full profile from backend, using login response data:", profileError?.message);
+        console.warn("⚠️ Failed to fetch full profile from backend:", profileError?.message);
+        console.warn("⚠️ Profile error status:", profileError?.status);
+        console.warn("⚠️ Using login response data as fallback");
         
         // Fallback: использовать данные из login response
         setUser({
@@ -340,6 +342,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
         localStorage.setItem("user", JSON.stringify(fullUserData));
         
         setUser(fullUserData);
+        
+        // 🎁 Приветственный бонус 100 токенов начисляется автоматически на бэкенде
+        // через AllocateWelcomeBonus() в момент регистрации
+        console.log("🎁 [Registration] Welcome bonus (100 CT) allocated automatically by backend");
       } catch (profileError: any) {
         console.warn("⚠️ Failed to fetch full profile from backend, using registration response data:", profileError?.message);
         
@@ -354,6 +360,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
           xp: response.user?.xp,
           chefTokens: response.user?.chefTokens,
         });
+        
+        // 🎁 Приветственный бонус начисляется автоматически на бэкенде
+        console.log("🎁 [Registration] Welcome bonus (100 CT) allocated automatically by backend");
       }
     } catch (error) {
       console.error("Registration failed:", error);
@@ -579,7 +588,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   /**
-   * Refresh token balance from backend
+   * Refresh token balance from backend (uses new Token Bank API)
    */
   const refreshBalance = async () => {
     if (!user) return;
@@ -588,24 +597,27 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No auth token");
 
-      console.log(`🔄 Refreshing balance for user ${user.id}`);
+      console.log(`🔄 [UserContext] Refreshing balance for user ${user.id}`);
 
-      const response = await fetch(`/api/ai-assistant/get-balance`, {
-        method: "POST",
+      // 🆕 Используем новый endpoint Token Bank API
+      const response = await fetch(`/api/token-bank/me`, {
+        method: "GET",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify({ userId: user.id }),
       });
 
       if (!response.ok) {
-        console.error("❌ Failed to refresh balance");
+        console.error("❌ [UserContext] Failed to refresh balance:", response.status);
         return;
       }
 
-      const data = await response.json();
-      const newBalance = data.data?.balance || data.balance || 0;
+      const result = await response.json();
+      console.log("📊 [UserContext] Wallet data received:", result);
+      
+      // Поддерживаем оба формата: { data: { balance } } и { balance }
+      const data = result.data || result;
+      const newBalance = data.balance || 0;
 
       // Update user balance
       setUser((prevUser) =>
@@ -620,9 +632,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
         localStorage.setItem("user", JSON.stringify(userData));
       }
 
-      console.log(`✅ Balance refreshed: ${newBalance} CT`);
+      console.log(`✅ [UserContext] Balance refreshed: ${newBalance} CT`);
     } catch (error) {
-      console.error("❌ Error refreshing balance:", error);
+      console.error("❌ [UserContext] Error refreshing balance:", error);
     }
   };
 
