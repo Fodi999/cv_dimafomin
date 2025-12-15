@@ -48,24 +48,33 @@ export async function POST(
     }
 
     // Проксируем запрос на бэкенд (POST для создания price-event)
+    const requestBody = {
+      pricePerUnit: body.pricePerUnit,
+      currency: body.currency,
+      source: body.source,
+    };
+
+    console.log("[Price API] POST to backend:", `${API_BASE}/api/fridge/items/${id}/price`);
+    console.log("[Price API] Request body:", requestBody);
+    console.log("[Price API] Token:", token.substring(0, 20) + "...");
+
     const response = await fetch(`${API_BASE}/api/fridge/items/${id}/price`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: token,
       },
-      body: JSON.stringify({
-        pricePerUnit: body.pricePerUnit,
-        currency: body.currency,
-        source: body.source,
-      }),
+      body: JSON.stringify(requestBody),
     });
+
+    console.log("[Price API] Response status:", response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Backend POST /fridge/items/:id/price error:", errorText);
+      console.error("[Price API] Backend error:", errorText);
+      console.error("[Price API] Response headers:", Object.fromEntries(response.headers.entries()));
       return NextResponse.json(
-        { error: "Failed to add item price" },
+        { error: "Failed to add item price", details: errorText },
         { status: response.status }
       );
     }
