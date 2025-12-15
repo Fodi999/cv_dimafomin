@@ -657,6 +657,16 @@ export const fridgeApi = {
           const pricePerUnit = item.pricePerUnit || item.price_per_unit;
           const currency = item.currency || 'PLN';
           
+          // Вычисляем expiresAt из arrivedAt + daysLeft (если бэкенд не отправил)
+          let expiresAt = item.expiresAt || item.expires_at;
+          if (!expiresAt && (item.arrivedAt || item.arrived_at) && (item.daysLeft !== undefined || item.days_left !== undefined)) {
+            const arrivedDate = new Date(item.arrivedAt || item.arrived_at);
+            const daysLeft = item.daysLeft ?? item.days_left ?? 0;
+            const expiresDate = new Date(arrivedDate);
+            expiresDate.setDate(expiresDate.getDate() + daysLeft);
+            expiresAt = expiresDate.toISOString();
+          }
+          
           return {
             id: item.id,
             ingredient: {
@@ -666,7 +676,7 @@ export const fridgeApi = {
             quantity: item.quantity,
             unit: item.unit,
             arrivedAt: item.arrivedAt || item.arrived_at,
-            expiresAt: item.expiresAt || item.expires_at,
+            expiresAt: expiresAt,
             daysLeft: item.daysLeft || item.days_left || 0,
             status: item.status || 'ok',
             totalPrice: totalPrice,
