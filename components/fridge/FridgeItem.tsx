@@ -100,123 +100,124 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
       transition={{ delay: index * 0.05 }}
-      whileHover={{ scale: 1.02 }}
-      className={`p-4 rounded-lg border ${statusConfig.borderColor} ${statusConfig.bgColor} dark:bg-slate-800/50 transition-all`}
+      whileHover={{ scale: 1.01 }}
+      className={`relative p-5 rounded-xl border-2 ${statusConfig.borderColor} ${statusConfig.bgColor} dark:bg-slate-800/50 transition-all shadow-sm hover:shadow-md`}
     >
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1">
-          <h4 className="font-semibold text-gray-900 dark:text-white text-lg">
-            {item.ingredient.name}
-          </h4>
-          <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">
-            {item.ingredient.category}
-          </p>
+      {/* Header с названием и кнопкой удаления */}
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start gap-3 flex-1">
+          <div className="text-3xl mt-0.5">{statusConfig.emoji}</div>
+          <div className="flex-1">
+            <h4 className="font-bold text-gray-900 dark:text-white text-lg leading-tight">
+              {item.ingredient.name}
+            </h4>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              {item.ingredient.category}
+            </p>
+          </div>
         </div>
 
         <motion.button
-          whileHover={{ scale: 1.2, rotate: 90 }}
+          whileHover={{ scale: 1.1, rotate: 90 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => onDelete(item.id)}
-          className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg transition-colors text-red-600 dark:text-red-400"
+          className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg transition-colors text-red-500 dark:text-red-400 ml-2"
           title="Usuń produkt"
         >
-          <Trash2 className="w-5 h-5" />
+          <Trash2 className="w-4 h-4" />
         </motion.button>
       </div>
 
-      <div className="space-y-2">
-        {/* Количество и цена */}
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-600 dark:text-gray-400">Ilość:</span>
-          <div className="flex items-center gap-2">
-            <span className="font-medium text-gray-900 dark:text-white">
+      {/* Grid с информацией */}
+      <div className="grid grid-cols-2 gap-3 mb-3">
+        {/* Количество */}
+        <div className="flex items-center justify-between p-2 bg-white/50 dark:bg-slate-900/30 rounded-lg">
+          <span className="text-xs text-gray-500 dark:text-gray-400">Ilość</span>
+          <div className="flex items-center gap-1.5">
+            <span className="font-semibold text-sm text-gray-900 dark:text-white">
               {item.quantity} {item.unit}
             </span>
-            {/* Кнопка редактирования количества */}
             <button
               onClick={() => onQuantityClick?.(item)}
-              className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+              className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-400 hover:text-blue-600"
               title="Zmień ilość"
             >
-              <Edit2 className="w-3.5 h-3.5" />
+              <Edit2 className="w-3 h-3" />
             </button>
           </div>
         </div>
 
         {/* Цена или кнопка добавления */}
         {item.totalPrice !== undefined && item.totalPrice !== null && item.pricePerUnit !== undefined ? (
-          <div className="space-y-2">
-            {/* Цена за единицу */}
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600 dark:text-gray-400">Cena za {item.unit === 'g' ? 'kg' : item.unit === 'ml' ? 'l' : 'szt'}:</span>
-              <div className="flex items-center gap-2">
-                <span className="text-gray-700 dark:text-gray-300 font-medium">
-                  {(item.pricePerUnit * (item.unit === 'g' || item.unit === 'ml' ? 1000 : 1)).toFixed(2)} {item.currency || 'PLN'}
-                </span>
-                {/* Кнопка редактирования цены */}
-                <button
-                  onClick={() => onPriceClick?.(item)}
-                  className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
-                  title="Zmień cenę"
-                >
-                  <Edit2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-            {/* Общая стоимость */}
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600 dark:text-gray-400">Koszt całości:</span>
-              <span className="text-green-600 dark:text-green-400 font-bold text-base">
-                💰 {item.totalPrice.toFixed(2)} {item.currency || 'PLN'}
+          <div className="flex items-center justify-between p-2 bg-white/50 dark:bg-slate-900/30 rounded-lg">
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              Cena/{item.unit === 'g' ? 'kg' : item.unit === 'ml' ? 'l' : 'szt'}
+            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-semibold text-sm text-gray-900 dark:text-white">
+                {(item.pricePerUnit * (item.unit === 'g' || item.unit === 'ml' ? 1000 : 1)).toFixed(2)} {item.currency || 'PLN'}
               </span>
+              <button
+                onClick={() => onPriceClick?.(item)}
+                className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-400 hover:text-blue-600"
+                title="Zmień cenę"
+              >
+                <Edit2 className="w-3 h-3" />
+              </button>
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600 dark:text-gray-400">Cena:</span>
+          <div className="col-span-1">
             <button
               onClick={() => onPriceClick?.(item)}
-              className="px-3 py-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-medium rounded-lg transition-all shadow-sm hover:shadow-md"
+              className="w-full px-3 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-semibold rounded-lg transition-all shadow-sm hover:shadow-md"
             >
               Dodaj cenę
             </button>
           </div>
         )}
+      </div>
 
-        {/* Дата истечения */}
-        <div className="text-sm">
-          <span className="text-gray-600 dark:text-gray-400">Data ważności:</span>
-          <div className="font-medium text-gray-900 dark:text-white mt-1">
-            {formatExpirationDate(item.expiresAt)}
+      {/* Общая стоимость - если есть цена */}
+      {item.totalPrice !== undefined && item.totalPrice !== null && (
+        <div className="mb-3 p-2.5 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800/30">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-green-700 dark:text-green-400">Koszt całości</span>
+            <span className="text-base font-bold text-green-600 dark:text-green-400">
+              💰 {item.totalPrice.toFixed(2)} {item.currency || 'PLN'}
+            </span>
           </div>
         </div>
+      )}
 
-        {/* Дата добавления */}
+      {/* Даты */}
+      <div className="grid grid-cols-2 gap-3 mb-3">
+        <div className="text-xs">
+          <span className="text-gray-500 dark:text-gray-400 block mb-0.5">Data ważności</span>
+          <span className="font-semibold text-gray-900 dark:text-white">
+            {formatExpirationDate(item.expiresAt)}
+          </span>
+        </div>
         {item.arrivedAt && (
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600 dark:text-gray-400">Dodano:</span>
-            <span className="text-gray-700 dark:text-gray-300 text-xs">
+          <div className="text-xs text-right">
+            <span className="text-gray-500 dark:text-gray-400 block mb-0.5">Dodano</span>
+            <span className="font-semibold text-gray-900 dark:text-white">
               {formatExpirationDate(item.arrivedAt)}
             </span>
           </div>
         )}
+      </div>
 
-        {/* Статус с улучшенной визуализацией */}
-        <div className={`flex items-center gap-2 mt-3 p-3 rounded-lg ${statusConfig.bgColor} border ${statusConfig.borderColor}`}>
-          <div className="text-2xl">
-            {statusConfig.emoji}
-          </div>
-          <div className="flex-1">
-            <p className={`font-semibold text-sm ${statusConfig.color}`}>
-              {statusConfig.label}
-            </p>
-            {statusConfig.description && (
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                {statusConfig.description}
-              </p>
-            )}
-          </div>
-        </div>
+      {/* Статус */}
+      <div className={`flex items-center justify-between p-2.5 rounded-lg ${statusConfig.bgColor} border ${statusConfig.borderColor}`}>
+        <p className={`font-semibold text-sm ${statusConfig.color}`}>
+          {statusConfig.label}
+        </p>
+        {statusConfig.description && (
+          <p className="text-xs text-gray-600 dark:text-gray-400">
+            {statusConfig.description}
+          </p>
+        )}
       </div>
     </motion.div>
   );
