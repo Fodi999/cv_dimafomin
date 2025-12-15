@@ -184,11 +184,11 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
         )}
 
         {/* Дата истечения */}
-        <div className="flex items-center justify-between text-sm">
+        <div className="text-sm">
           <span className="text-gray-600 dark:text-gray-400">Data ważności:</span>
-          <span className="font-medium text-gray-900 dark:text-white">
+          <div className="font-medium text-gray-900 dark:text-white mt-1">
             {formatExpirationDate(item.expiresAt)}
-          </span>
+          </div>
         </div>
 
         {/* Дата добавления */}
