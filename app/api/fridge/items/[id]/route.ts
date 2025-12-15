@@ -4,7 +4,8 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE || 'https://yeasty-madelain
 
 /**
  * PATCH /api/fridge/items/[id]
- * Обновить продукт (quantity, price и др.)
+ * Обновить количество продукта
+ * Body: { quantity: number }
  */
 export async function PATCH(
   req: NextRequest,
@@ -31,11 +32,19 @@ export async function PATCH(
     }
 
     const body = await req.json();
+
+    // Валидация: только quantity
+    if (typeof body.quantity !== 'number' || body.quantity <= 0) {
+      return NextResponse.json(
+        { error: 'Invalid quantity: must be a positive number' },
+        { status: 400 }
+      );
+    }
     
     const backendUrl = `${BACKEND_URL}/api/fridge/items/${id}`;
     console.log('[API Proxy] PATCH /api/fridge/items/' + id);
     console.log('[API Proxy] Forwarding to:', backendUrl);
-    console.log('[API Proxy] Body:', JSON.stringify(body));
+    console.log('[API Proxy] Body (quantity only):', JSON.stringify({ quantity: body.quantity }));
 
     const response = await fetch(backendUrl, {
       method: 'PATCH',
@@ -43,7 +52,7 @@ export async function PATCH(
         'Authorization': token,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ quantity: body.quantity }),
     });
 
     console.log('[API Proxy] Backend response status:', response.status);
@@ -52,7 +61,7 @@ export async function PATCH(
       const errorText = await response.text();
       console.error('[API Proxy] Backend error:', errorText);
       return NextResponse.json(
-        { error: 'Failed to update item', details: errorText },
+        { error: 'Failed to update item quantity', details: errorText },
         { status: response.status }
       );
     }
