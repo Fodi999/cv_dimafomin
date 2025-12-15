@@ -4,7 +4,7 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE || 'https://yeasty-madelain
 
 /**
  * PATCH /api/fridge/items/[id]
- * Обновить продукт (например, количество)
+ * Обновить продукт (quantity, price и др.)
  */
 export async function PATCH(
   req: NextRequest,
@@ -35,6 +35,7 @@ export async function PATCH(
     const backendUrl = `${BACKEND_URL}/api/fridge/items/${id}`;
     console.log('[API Proxy] PATCH /api/fridge/items/' + id);
     console.log('[API Proxy] Forwarding to:', backendUrl);
+    console.log('[API Proxy] Body:', JSON.stringify(body));
 
     const response = await fetch(backendUrl, {
       method: 'PATCH',
@@ -51,7 +52,7 @@ export async function PATCH(
       const errorText = await response.text();
       console.error('[API Proxy] Backend error:', errorText);
       return NextResponse.json(
-        { error: 'Failed to update item' },
+        { error: 'Failed to update item', details: errorText },
         { status: response.status }
       );
     }

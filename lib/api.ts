@@ -717,13 +717,13 @@ export const fridgeApi = {
   },
 
   /**
-   * POST /api/fridge/items/{id}/price
-   * Добавить price-event для продукта (event sourcing)
+   * PATCH /api/fridge/items/{id}
+   * Добавить/обновить цену для продукта
    * Body: { pricePerUnit: number, currency: string, source: 'manual' | 'receipt' | 'estimate' | 'market' | 'ai' }
    */
   addPrice: async (id: string, data: { pricePerUnit: number; currency: string; source: string }, token: string) => {
-    return apiFetch(`/fridge/items/${id}/price`, {
-      method: "POST",
+    return apiFetch(`/fridge/items/${id}`, {
+      method: "PATCH",
       token,
       body: JSON.stringify(data),
     });
