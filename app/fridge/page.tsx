@@ -8,6 +8,9 @@ import { fridgeApi } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import FridgeForm from "@/components/fridge/FridgeForm";
 import FridgeList from "@/components/fridge/FridgeList";
+import FridgeStats from "@/components/fridge/FridgeStats";
+import PriceSheet from "@/components/fridge/PriceSheet";
+import QuantitySheet from "@/components/fridge/QuantitySheet";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import type { FridgeItem, AddFridgeItemData, FridgeItemsResponse } from "@/lib/types";
 
@@ -19,6 +22,10 @@ export default function FridgePage() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false); // Sheet state
+  const [isPriceSheetOpen, setIsPriceSheetOpen] = useState(false); // Price sheet state
+  const [priceSheetItem, setPriceSheetItem] = useState<FridgeItem | null>(null); // Selected item for price
+  const [isQuantitySheetOpen, setIsQuantitySheetOpen] = useState(false); // Quantity sheet state
+  const [quantitySheetItem, setQuantitySheetItem] = useState<FridgeItem | null>(null); // Selected item for quantity
 
   useEffect(() => {
     if (isLoading) return;
@@ -92,6 +99,67 @@ export default function FridgePage() {
     }
   };
 
+  const handleUpdatePrice = async (itemId: string, pricePerUnit: number, currency: string) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+    try {
+      // Event sourcing: добавляем price-event вместо обновления
+      await fridgeApi.addPrice(itemId, { 
+        pricePerUnit, 
+        currency,
+        source: 'manual' // 📌 Обязательное поле для event sourcing
+      }, token);
+      
+      // Refetch to get updated totalPrice from backend
+      await loadFridgeItems();
+      
+      setIsPriceSheetOpen(false);
+      setPriceSheetItem(null);
+      setSuccessMessage("✅ Cena zaktualizowana!");
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err: any) {
+      console.error("Failed to update price:", err);
+      setError(err.message || "Błąd podczas aktualizacji ceny");
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  const handlePriceClick = (item: FridgeItem) => {
+    setPriceSheetItem(item);
+    setIsPriceSheetOpen(true);
+  };
+
+  const handleQuantityClick = (item: FridgeItem) => {
+    setQuantitySheetItem(item);
+    setIsQuantitySheetOpen(true);
+  };
+
+  const handleUpdateQuantity = async (itemId: string, quantity: number) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+    try {
+      await fridgeApi.updateItemQuantity(itemId, { quantity }, token);
+      
+      // Refetch to get updated data from backend
+      await loadFridgeItems();
+      
+      setIsQuantitySheetOpen(false);
+      setQuantitySheetItem(null);
+      setSuccessMessage("✅ Ilość zaktualizowana!");
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err: any) {
+      console.error("Failed to update quantity:", err);
+      setError(err.message || "Błąd podczas aktualizacji ilości");
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-sky-50 dark:from-gray-950 dark:to-slate-900 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto pt-[80px]">
@@ -146,7 +214,10 @@ export default function FridgePage() {
               </div>
             ) : (
               <>
-                {/* 🔘 Dodaj produkt button */}
+                {/* � Statistics */}
+                {items.length > 0 && <FridgeStats items={items} />}
+
+                {/* �🔘 Dodaj produkt button */}
                 <div className="mb-6">
                   <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                     <SheetTrigger asChild>
@@ -174,7 +245,73 @@ export default function FridgePage() {
                 </div>
 
                 {/* 📋 Lista produktów lub empty state */}
-                <FridgeList items={items} onDelete={handleRemoveItem} />
+                <FridgeList 
+                  items={items} 
+                  onDelete={handleRemoveItem} 
+                  onPriceClick={handlePriceClick}
+                  onQuantityClick={handleQuantityClick}
+                />
+                
+                {/* 💰 Price Sheet */}
+                <Sheet open={isPriceSheetOpen} onOpenChange={setIsPriceSheetOpen}>
+                  <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto p-0">
+                    <SheetHeader className="px-6 pt-6 pb-4">
+                      <SheetTitle>Dodaj cenę produktu</SheetTitle>
+                      <SheetDescription>
+                        Podaj cenę za wybraną jednostkę. System automatycznie obliczy całkowitą wartość.
+                      </SheetDescription>
+                    </SheetHeader>
+                    <div className="px-6 pb-6">
+                      {priceSheetItem && (
+                        <PriceSheet item={priceSheetItem} onSave={handleUpdatePrice} />
+                      )}
+                    </div>
+                  </SheetContent>
+                </Sheet>
+
+                {/* ⚖️ Quantity Sheet */}
+                <Sheet open={isQuantitySheetOpen} onOpenChange={setIsQuantitySheetOpen}>
+                  <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto p-0">
+                    <SheetHeader className="px-6 pt-6 pb-4">
+                      <SheetTitle>Zmień ilość produktu</SheetTitle>
+                      <SheetDescription>
+                        Zaktualizuj ilość produktu. Cena całkowita zostanie przeliczona automatycznie.
+                      </SheetDescription>
+                    </SheetHeader>
+                    <div className="px-6 pb-6">
+                      {quantitySheetItem && (
+                        <QuantitySheet item={quantitySheetItem} onSave={handleUpdateQuantity} />
+                      )}
+                    </div>
+                  </SheetContent>
+                </Sheet>
+                
+                {/* 💡 Economic hint for critical/expired items */}
+                {items.length > 0 && items.some(item => item.status === 'critical' || item.status === 'expired') && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="mt-6 p-4 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30 border border-orange-200 dark:border-orange-800/30 rounded-lg flex gap-3"
+                  >
+                    <AlertCircle className="w-5 h-5 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold text-orange-900 dark:text-orange-100 mb-1">
+                        ⚠️ Produkty wymagające szybkiego użycia
+                      </p>
+                      <p className="text-sm text-orange-800 dark:text-orange-200">
+                        {(() => {
+                          const criticalItems = items.filter(item => item.status === 'critical' || item.status === 'expired');
+                          const criticalValue = criticalItems.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+                          if (criticalValue > 0) {
+                            return `Produkty za ${criticalValue.toFixed(2)} PLN wkrótce się zepsują. AI może zaproponować, co z nich ugotować.`;
+                          }
+                          return `Masz ${criticalItems.length} ${criticalItems.length === 1 ? 'produkt' : 'produktów'} do szybkiego użycia.`;
+                        })()}
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
                 
                 {items.length > 0 && (
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-8 p-4 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/30 rounded-lg flex gap-3">

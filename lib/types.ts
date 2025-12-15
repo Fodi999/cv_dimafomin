@@ -220,9 +220,13 @@ export interface FridgeItem {
   };
   quantity: number;
   unit: string;
+  arrivedAt?: string; // Дата добавления продукта (ISO 8601)
   expiresAt: string;
   daysLeft: number;
   status: 'ok' | 'warning' | 'critical' | 'expired';
+  totalPrice?: number; // Total price for this item (backend calculated)
+  currency?: string; // Currency code (e.g., "PLN")
+  pricePerUnit?: number; // Price per unit (user input or backend default)
 }
 
 export interface FridgeItemsResponse {
@@ -234,4 +238,6 @@ export interface AddFridgeItemData {
   quantity: number;
   unit: string;
   expiresAt?: string; // ISO 8601 date string (optional - calculated from defaultShelfLifeDays)
+  pricePerUnit?: number; // Optional: price per unit (kg/l/szt)
+  priceUnit?: string; // Optional: unit for pricing (kg, l, szt)
 }

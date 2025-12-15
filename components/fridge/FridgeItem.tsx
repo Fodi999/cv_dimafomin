@@ -1,16 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Trash2, AlertCircle, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
+import { Trash2, AlertCircle, CheckCircle2, AlertTriangle, Clock, Edit2 } from "lucide-react";
 import type { FridgeItem as FridgeItemType } from "@/lib/types";
 
 interface FridgeItemProps {
   item: FridgeItemType;
   onDelete: (id: string) => void;
+  onPriceClick?: (item: FridgeItemType) => void;
+  onQuantityClick?: (item: FridgeItemType) => void;
   index: number;
 }
 
-export default function FridgeItem({ item, onDelete, index }: FridgeItemProps) {
+export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityClick, index }: FridgeItemProps) {
   // ✅ Защита от undefined
   if (!item || !item.ingredient) {
     console.error('[FridgeItem] Invalid item:', item);
@@ -40,6 +42,7 @@ export default function FridgeItem({ item, onDelete, index }: FridgeItemProps) {
       case "ok":
         return {
           icon: <CheckCircle2 className="w-5 h-5" />,
+          emoji: "🟢",
           color: "text-green-600 dark:text-green-400",
           bgColor: "bg-green-50 dark:bg-green-900/20",
           borderColor: "border-green-200 dark:border-green-800/30",
@@ -49,6 +52,7 @@ export default function FridgeItem({ item, onDelete, index }: FridgeItemProps) {
       case "warning":
         return {
           icon: <Clock className="w-5 h-5" />,
+          emoji: "🟡",
           color: "text-orange-600 dark:text-orange-400",
           bgColor: "bg-orange-50 dark:bg-orange-900/20",
           borderColor: "border-orange-200 dark:border-orange-800/30",
@@ -58,6 +62,7 @@ export default function FridgeItem({ item, onDelete, index }: FridgeItemProps) {
       case "critical":
         return {
           icon: <AlertTriangle className="w-5 h-5" />,
+          emoji: "🟠",
           color: "text-red-600 dark:text-red-400",
           bgColor: "bg-red-50 dark:bg-red-900/20",
           borderColor: "border-red-200 dark:border-red-800/30",
@@ -67,6 +72,7 @@ export default function FridgeItem({ item, onDelete, index }: FridgeItemProps) {
       case "expired":
         return {
           icon: <AlertCircle className="w-5 h-5" />,
+          emoji: "🔴",
           color: "text-gray-600 dark:text-gray-400",
           bgColor: "bg-gray-50 dark:bg-gray-900/20",
           borderColor: "border-gray-200 dark:border-gray-800/30",
@@ -76,6 +82,7 @@ export default function FridgeItem({ item, onDelete, index }: FridgeItemProps) {
       default:
         return {
           icon: <CheckCircle2 className="w-5 h-5" />,
+          emoji: "⚪",
           color: "text-gray-600 dark:text-gray-400",
           bgColor: "bg-gray-50 dark:bg-gray-900/20",
           borderColor: "border-gray-200 dark:border-gray-800/30",
@@ -118,13 +125,63 @@ export default function FridgeItem({ item, onDelete, index }: FridgeItemProps) {
       </div>
 
       <div className="space-y-2">
-        {/* Количество */}
+        {/* Количество и цена */}
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-600 dark:text-gray-400">Ilość:</span>
-          <span className="font-medium text-gray-900 dark:text-white">
-            {item.quantity} {item.unit}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-gray-900 dark:text-white">
+              {item.quantity} {item.unit}
+            </span>
+            {/* Кнопка редактирования количества */}
+            <button
+              onClick={() => onQuantityClick?.(item)}
+              className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+              title="Zmień ilość"
+            >
+              <Edit2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
+
+        {/* Цена или кнопка добавления */}
+        {item.totalPrice !== undefined && item.totalPrice !== null && item.pricePerUnit !== undefined ? (
+          <div className="space-y-2">
+            {/* Цена за единицу */}
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-600 dark:text-gray-400">Cena za {item.unit === 'g' ? 'kg' : item.unit === 'ml' ? 'l' : 'szt'}:</span>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-700 dark:text-gray-300 font-medium">
+                  {(item.pricePerUnit * (item.unit === 'g' || item.unit === 'ml' ? 1000 : 1)).toFixed(2)} {item.currency || 'PLN'}
+                </span>
+                {/* Кнопка редактирования цены */}
+                <button
+                  onClick={() => onPriceClick?.(item)}
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+                  title="Zmień cenę"
+                >
+                  <Edit2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+            {/* Общая стоимость */}
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-600 dark:text-gray-400">Koszt całości:</span>
+              <span className="text-green-600 dark:text-green-400 font-bold text-base">
+                💰 {item.totalPrice.toFixed(2)} {item.currency || 'PLN'}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600 dark:text-gray-400">Cena:</span>
+            <button
+              onClick={() => onPriceClick?.(item)}
+              className="px-3 py-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-medium rounded-lg transition-all shadow-sm hover:shadow-md"
+            >
+              Dodaj cenę
+            </button>
+          </div>
+        )}
 
         {/* Дата истечения */}
         <div className="flex items-center justify-between text-sm">
@@ -134,10 +191,20 @@ export default function FridgeItem({ item, onDelete, index }: FridgeItemProps) {
           </span>
         </div>
 
+        {/* Дата добавления */}
+        {item.arrivedAt && (
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600 dark:text-gray-400">Dodano:</span>
+            <span className="text-gray-700 dark:text-gray-300 text-xs">
+              {formatExpirationDate(item.arrivedAt)}
+            </span>
+          </div>
+        )}
+
         {/* Статус с улучшенной визуализацией */}
         <div className={`flex items-center gap-2 mt-3 p-3 rounded-lg ${statusConfig.bgColor} border ${statusConfig.borderColor}`}>
-          <div className={statusConfig.color}>
-            {statusConfig.icon}
+          <div className="text-2xl">
+            {statusConfig.emoji}
           </div>
           <div className="flex-1">
             <p className={`font-semibold text-sm ${statusConfig.color}`}>

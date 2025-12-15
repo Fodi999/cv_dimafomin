@@ -17,6 +17,7 @@ import type {
   LeaderboardData,
   AuthResponse,
   UploadResponse,
+  AddFridgeItemData,
 } from "./types";
 
 // API_BASE_URL теперь указывает на локальный Next.js сервер, который проксирует к Go бэкенду
@@ -584,6 +585,7 @@ export const fridgeApi = {
       // ✅ Нормализация: Backend возвращает плоскую структуру, UI ожидает вложенную
       if (response?.items && Array.isArray(response.items)) {
         console.log('[fridgeApi.getItems] 📋 Raw item sample:', response.items[0]);
+        console.log('[fridgeApi.getItems] 📋 FULL RAW RESPONSE:', JSON.stringify(response, null, 2));
         
         // ✅ Mapping Backend категорий (EN) → Frontend категорий (PL)
         const mapBackendCategoryToFrontend = (backendCategory?: string): string => {
@@ -634,6 +636,8 @@ export const fridgeApi = {
             name: item.name,
             backendCategory: item.category,
             ingredientId: item.ingredientId || item.ingredient_id,
+            totalPrice: item.totalPrice || item.total_price,
+            pricePerUnit: item.pricePerUnit || item.price_per_unit,
           });
           
           // Приоритет: 1) Backend category (mapped), 2) Ingredient category (mapped), 3) Name-based detection
@@ -647,6 +651,12 @@ export const fridgeApi = {
             frontend: normalizedCategory,
           });
           
+          // Backend should return totalPrice, currency, pricePerUnit
+          // If not - UI will show "Dodaj cenę" button
+          const totalPrice = item.totalPrice || item.total_price;
+          const pricePerUnit = item.pricePerUnit || item.price_per_unit;
+          const currency = item.currency || 'PLN';
+          
           return {
             id: item.id,
             ingredient: {
@@ -655,9 +665,13 @@ export const fridgeApi = {
             },
             quantity: item.quantity,
             unit: item.unit,
+            arrivedAt: item.arrivedAt || item.arrived_at,
             expiresAt: item.expiresAt || item.expires_at,
             daysLeft: item.daysLeft || item.days_left || 0,
             status: item.status || 'ok',
+            totalPrice: totalPrice,
+            currency: currency,
+            pricePerUnit: pricePerUnit,
           };
         });
         
@@ -681,13 +695,9 @@ export const fridgeApi = {
   /**
    * POST /api/fridge/items
    * Добавить продукт в холодильник
-   * Body: { ingredientId: string, quantity: number, unit: string }
+   * Body: { ingredientId, quantity, unit, expiresAt? }
    */
-  addItem: async (data: {
-    ingredientId: string;
-    quantity: number;
-    unit: string;
-  }, token: string) => {
+  addItem: async (data: AddFridgeItemData, token: string) => {
     return apiFetch("/fridge/items", {
       method: "POST",
       token,
@@ -703,6 +713,32 @@ export const fridgeApi = {
     return apiFetch(`/fridge/items/${id}`, {
       method: "DELETE",
       token,
+    });
+  },
+
+  /**
+   * POST /api/fridge/items/{id}/price
+   * Добавить price-event для продукта (event sourcing)
+   * Body: { pricePerUnit: number, currency: string, source: 'manual' | 'receipt' | 'estimate' | 'market' | 'ai' }
+   */
+  addPrice: async (id: string, data: { pricePerUnit: number; currency: string; source: string }, token: string) => {
+    return apiFetch(`/fridge/items/${id}/price`, {
+      method: "POST",
+      token,
+      body: JSON.stringify(data),
+    });
+  },
+
+  /**
+   * PATCH /api/fridge/items/{id}
+   * Обновить количество продукта
+   * Body: { quantity: number }
+   */
+  updateItemQuantity: async (id: string, data: { quantity: number }, token: string) => {
+    return apiFetch(`/fridge/items/${id}`, {
+      method: "PATCH",
+      token,
+      body: JSON.stringify(data),
     });
   },
 };

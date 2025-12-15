@@ -21,6 +21,8 @@ import type { FridgeItem as FridgeItemType } from "@/lib/types";
 interface FridgeListProps {
   items: FridgeItemType[];
   onDelete: (id: string) => void;
+  onPriceClick?: (item: FridgeItemType) => void;
+  onQuantityClick?: (item: FridgeItemType) => void;
 }
 
 // ✅ Профессиональные категории с иконками lucide-react
@@ -36,7 +38,7 @@ const CATEGORIES = [
   { value: "Inne", label: "Inne", Icon: Package },
 ];
 
-export default function FridgeList({ items, onDelete }: FridgeListProps) {
+export default function FridgeList({ items, onDelete, onPriceClick, onQuantityClick }: FridgeListProps) {
   const [activeCategory, setActiveCategory] = useState("all");
   
   console.log('[FridgeList] Received items:', items);
@@ -176,6 +178,8 @@ export default function FridgeList({ items, onDelete }: FridgeListProps) {
                 key={item.id}
                 item={item}
                 onDelete={onDelete}
+                onPriceClick={onPriceClick}
+                onQuantityClick={onQuantityClick}
                 index={index}
               />
             ))}

@@ -26,38 +26,32 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
+    
     if (!selectedIngredient) {
       setError("Wybierz produkt z listy");
       return;
     }
-
+    
     const quantityNum = parseFloat(quantity);
     if (!quantity || isNaN(quantityNum) || quantityNum <= 0) {
       setError("Podaj prawidłową ilość (większą niż 0)");
       return;
     }
-
+    
     setIsAdding(true);
-
+    
     try {
       const expiresAt = new Date();
       const shelfLifeDays = selectedIngredient.defaultShelfLifeDays || 7;
       expiresAt.setDate(expiresAt.getDate() + shelfLifeDays);
       
-      console.log('[FridgeForm] 📅 Calculated expiresAt:', {
-        ingredient: selectedIngredient.name,
-        defaultShelfLifeDays: shelfLifeDays,
-        expiresAt: expiresAt.toISOString(),
-      });
-
       await onAdd({
         ingredientId: selectedIngredient.id,
         quantity: quantityNum,
         unit: selectedIngredient.unit,
         expiresAt: expiresAt.toISOString(),
       });
-
+      
       setSearchValue("");
       setSelectedIngredient(null);
       setQuantity("");
@@ -71,7 +65,6 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Поиск продукта */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Produkt
@@ -132,6 +125,9 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
           disabled={!selectedIngredient}
           className="w-full px-4 py-3 rounded-lg border border-sky-200 dark:border-sky-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed"
         />
+        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          💡 Cenę możesz dodać później
+        </p>
       </div>
 
       {error && (
