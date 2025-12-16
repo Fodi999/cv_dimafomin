@@ -24,6 +24,9 @@ export default function PriceTrend({ itemId, currentPrice, unit, token }: PriceT
 
   useEffect(() => {
     const fetchHistory = async () => {
+      setLoading(true);
+      console.log('[PriceTrend] Fetching history for item:', itemId, 'Current price:', currentPrice);
+      
       try {
         const response = await fetch(`/api/fridge/items/${itemId}/price/history`, {
           headers: {
@@ -32,15 +35,17 @@ export default function PriceTrend({ itemId, currentPrice, unit, token }: PriceT
         });
 
         if (!response.ok) {
-          console.error('Failed to fetch price history');
+          console.error('[PriceTrend] Failed to fetch price history:', response.status);
           setLoading(false);
           return;
         }
 
         const data = await response.json();
+        console.log('[PriceTrend] History data:', data);
         const history: PriceHistoryEntry[] = data.history || [];
 
         if (history.length < 2) {
+          console.log('[PriceTrend] Not enough history entries:', history.length);
           setTrend('stable');
           setLoading(false);
           return;
@@ -50,8 +55,12 @@ export default function PriceTrend({ itemId, currentPrice, unit, token }: PriceT
         const latest = history[0].pricePerUnit;
         const previous = history[1].pricePerUnit;
 
+        console.log('[PriceTrend] Comparing prices:', { latest, previous });
+
         const change = ((latest - previous) / previous) * 100;
         setPercentChange(Math.abs(change));
+
+        console.log('[PriceTrend] Price change:', change.toFixed(2) + '%');
 
         if (change > 0.5) {
           setTrend('up');
@@ -63,13 +72,15 @@ export default function PriceTrend({ itemId, currentPrice, unit, token }: PriceT
 
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching price history:', error);
+        console.error('[PriceTrend] Error fetching price history:', error);
         setLoading(false);
       }
     };
 
-    fetchHistory();
-  }, [itemId, token]);
+    if (token && itemId) {
+      fetchHistory();
+    }
+  }, [itemId, token, currentPrice]); // ✅ Добавлена зависимость от currentPrice
 
   if (loading || !trend) {
     return null;
