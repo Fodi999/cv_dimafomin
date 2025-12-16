@@ -740,6 +740,20 @@ export const fridgeApi = {
   },
 
   /**
+   * GET /api/fridge/items/{id}/price/history
+   * Получить историю изменения цен продукта
+   */
+  getPriceHistory: async (id: string, token: string) => {
+    return apiFetch<{ history: Array<{ pricePerUnit: number; currency: string; source: string; createdAt: string }> }>(
+      `/fridge/items/${id}/price/history`,
+      {
+        method: "GET",
+        token,
+      }
+    );
+  },
+
+  /**
    * PATCH /api/fridge/items/{id}
    * Обновить количество продукта
    * Body: { quantity: number }

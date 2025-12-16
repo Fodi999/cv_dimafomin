@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { Trash2, AlertCircle, CheckCircle2, AlertTriangle, Clock, Edit2 } from "lucide-react";
 import type { FridgeItem as FridgeItemType } from "@/lib/types";
+import PriceTrend from "./PriceTrend";
+import { useState, useEffect } from "react";
 
 interface FridgeItemProps {
   item: FridgeItemType;
@@ -13,6 +15,15 @@ interface FridgeItemProps {
 }
 
 export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityClick, index }: FridgeItemProps) {
+  const [token, setToken] = useState<string>("");
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
+
   // ✅ Защита от undefined
   if (!item || !item.ingredient) {
     console.error('[FridgeItem] Invalid item:', item);
@@ -149,22 +160,35 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
 
         {/* Цена или кнопка добавления */}
         {item.totalPrice !== undefined && item.totalPrice !== null && item.pricePerUnit !== undefined ? (
-          <div className="flex items-center justify-between p-2 bg-white/50 dark:bg-slate-900/30 rounded-lg">
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              Cena/{item.unit === 'g' ? 'kg' : item.unit === 'ml' ? 'l' : 'szt'}
-            </span>
-            <div className="flex items-center gap-1.5">
-              <span className="font-semibold text-sm text-gray-900 dark:text-white">
-                {(item.pricePerUnit * (item.unit === 'g' || item.unit === 'ml' ? 1000 : 1)).toFixed(2)} {item.currency || 'PLN'}
+          <div className="p-2 bg-white/50 dark:bg-slate-900/30 rounded-lg">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                Cena/{item.unit === 'g' ? 'kg' : item.unit === 'ml' ? 'l' : 'szt'}
               </span>
-              <button
-                onClick={() => onPriceClick?.(item)}
-                className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-400 hover:text-blue-600"
-                title="Zmień cenę"
-              >
-                <Edit2 className="w-3 h-3" />
-              </button>
+              <div className="flex items-center gap-1.5">
+                <span className="font-semibold text-sm text-gray-900 dark:text-white">
+                  {(item.pricePerUnit * (item.unit === 'g' || item.unit === 'ml' ? 1000 : 1)).toFixed(2)} {item.currency || 'PLN'}
+                </span>
+                <button
+                  onClick={() => onPriceClick?.(item)}
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-400 hover:text-blue-600"
+                  title="Zmień cenę"
+                >
+                  <Edit2 className="w-3 h-3" />
+                </button>
+              </div>
             </div>
+            {/* Индикатор тренда цены */}
+            {token && (
+              <div className="flex justify-end">
+                <PriceTrend 
+                  itemId={item.id} 
+                  currentPrice={item.pricePerUnit} 
+                  unit={item.unit}
+                  token={token}
+                />
+              </div>
+            )}
           </div>
         ) : (
           <div className="col-span-1">
