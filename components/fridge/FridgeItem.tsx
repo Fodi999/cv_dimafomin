@@ -161,11 +161,11 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
         {/* Цена или кнопка добавления */}
         {item.totalPrice !== undefined && item.totalPrice !== null && item.pricePerUnit !== undefined ? (
           <div className="flex items-center justify-between p-2 bg-white/50 dark:bg-slate-900/30 rounded-lg">
-            <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 Cena/{item.unit === 'g' ? 'kg' : item.unit === 'ml' ? 'l' : 'szt'}
               </span>
-              {/* Индикатор тренда под лейблом */}
+              {/* Индикатор тренда рядом с лейблом */}
               {token && (
                 <PriceTrend 
                   itemId={item.id} 
