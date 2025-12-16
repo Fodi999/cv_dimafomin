@@ -177,7 +177,8 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
             </div>
             <div className="flex items-center gap-1.5">
               <span className="font-semibold text-sm text-gray-900 dark:text-white">
-                {(item.pricePerUnit * (item.unit === 'g' || item.unit === 'ml' ? 1000 : 1)).toFixed(2)} {item.currency || 'PLN'}
+                {(item.pricePerUnit * (item.unit === 'g' || item.unit === 'ml' ? 1000 : 1)).toFixed(2)}{' '}
+                <span className="text-xs font-normal">{item.currency === 'PLN' ? 'pln' : item.currency}</span>
               </span>
               <button
                 onClick={() => onPriceClick?.(item)}
@@ -206,7 +207,8 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-green-700 dark:text-green-400">Koszt całości</span>
             <span className="text-base font-bold text-green-600 dark:text-green-400">
-              💰 {item.totalPrice.toFixed(2)} {item.currency || 'PLN'}
+              💰 {item.totalPrice.toFixed(2)}{' '}
+              <span className="text-xs font-normal">{item.currency === 'PLN' ? 'pln' : item.currency}</span>
             </span>
           </div>
         </div>
