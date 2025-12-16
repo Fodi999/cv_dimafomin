@@ -42,7 +42,11 @@ export default function PriceTrend({ itemId, currentPrice, unit, token }: PriceT
 
         const data = await response.json();
         console.log('[PriceTrend] History data:', data);
-        const history: PriceHistoryEntry[] = data.history || [];
+        console.log('[PriceTrend] Full response structure:', JSON.stringify(data, null, 2));
+        
+        // Проверяем разные структуры ответа
+        const history: PriceHistoryEntry[] = data.history || data.data?.history || [];
+        console.log('[PriceTrend] Extracted history array:', history);
 
         if (history.length < 2) {
           console.log('[PriceTrend] Not enough history entries:', history.length);

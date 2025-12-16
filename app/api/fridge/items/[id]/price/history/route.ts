@@ -45,6 +45,7 @@ export async function GET(
     }
 
     const data = await response.json();
+    console.log("[Price History API] Backend response data:", JSON.stringify(data, null, 2));
     return NextResponse.json(data);
   } catch (error) {
     console.error("[Price History API] Error:", error);
