@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ChefHat, Calendar, AlertCircle, TrendingDown, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
-type AIGoal = "recipe_today" | "plan_3days" | "use_expiring" | "spending_analysis";
+type AIGoal = "today_meals" | "3_days_plan" | "reduce_waste" | "budget_review";
 
 interface FridgeAIActionsProps {
   onAnalyze: (goal: AIGoal) => void;
@@ -14,7 +14,7 @@ interface FridgeAIActionsProps {
 export default function FridgeAIActions({ onAnalyze, loading }: FridgeAIActionsProps) {
   const actions = [
     {
-      goal: "recipe_today" as AIGoal,
+      goal: "today_meals" as AIGoal,
       icon: <ChefHat className="w-4 h-4" />,
       label: "Przepis na dziś",
       description: "AI zaproponuje przepis na podstawie produktów w lodówce",
@@ -22,7 +22,7 @@ export default function FridgeAIActions({ onAnalyze, loading }: FridgeAIActionsP
       hoverColor: "hover:from-orange-600 hover:to-red-600",
     },
     {
-      goal: "plan_3days" as AIGoal,
+      goal: "3_days_plan" as AIGoal,
       icon: <Calendar className="w-4 h-4" />,
       label: "Plan na 3 dni",
       description: "Stwórz plan posiłków na najbliższe 3 dni",
@@ -30,7 +30,7 @@ export default function FridgeAIActions({ onAnalyze, loading }: FridgeAIActionsP
       hoverColor: "hover:from-blue-600 hover:to-indigo-600",
     },
     {
-      goal: "use_expiring" as AIGoal,
+      goal: "reduce_waste" as AIGoal,
       icon: <AlertCircle className="w-4 h-4" />,
       label: "Kończące się",
       description: "Co zrobić z produktami o krótkim terminie ważności",
@@ -38,7 +38,7 @@ export default function FridgeAIActions({ onAnalyze, loading }: FridgeAIActionsP
       hoverColor: "hover:from-yellow-600 hover:to-orange-600",
     },
     {
-      goal: "spending_analysis" as AIGoal,
+      goal: "budget_review" as AIGoal,
       icon: <TrendingDown className="w-4 h-4" />,
       label: "Analiza wydatków",
       description: "Przeanalizuj wydatki i otrzymaj porady oszczędnościowe",
@@ -48,16 +48,8 @@ export default function FridgeAIActions({ onAnalyze, loading }: FridgeAIActionsP
   ];
 
   return (
-    <div className="mb-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Sparkles className="w-5 h-5 text-purple-500" />
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-          AI Asystent Kuchenny
-        </h3>
-      </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {actions.map((action, index) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      {actions.map((action, index) => (
           <motion.button
             key={action.goal}
             initial={{ opacity: 0, y: 20 }}
@@ -94,6 +86,5 @@ export default function FridgeAIActions({ onAnalyze, loading }: FridgeAIActionsP
           </motion.button>
         ))}
       </div>
-    </div>
   );
 }

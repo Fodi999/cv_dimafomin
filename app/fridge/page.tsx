@@ -169,10 +169,10 @@ export default function FridgePage() {
 
   const handleAIAnalyze = async (goal: string) => {
     const titles: Record<string, string> = {
-      'recipe_today': '🍳 Przepis na dziś',
-      'plan_3days': '📅 Plan na 3 dni',
-      'use_expiring': '♻️ Wykorzystaj kończące się',
-      'spending_analysis': '💸 Analiza wydatków'
+      'today_meals': '🍳 Przepis na dziś',
+      '3_days_plan': '📅 Plan na 3 dni',
+      'reduce_waste': '♻️ Wykorzystaj kończące się',
+      'budget_review': '💸 Analiza wydatków'
     };
     
     setAiTitle(titles[goal] || 'Analiza AI');
@@ -202,7 +202,22 @@ export default function FridgePage() {
       }
 
       const data = await response.json();
-      setAiResult(data.analysis || data.message || 'Brak odpowiedzi od AI');
+      
+      // Backend может вернуть разные структуры
+      const aiText = 
+        data?.data?.result ||
+        data?.data?.text ||
+        data?.data?.content ||
+        data?.result ||
+        data?.text ||
+        data?.analysis ||
+        data?.message;
+      
+      if (!aiText) {
+        setAiResult("Brak odpowiedzi od AI");
+      } else {
+        setAiResult(aiText);
+      }
     } catch (err: any) {
       console.error("AI Analysis error:", err);
       setAiResult(`❌ Błąd: ${err.message}`);
