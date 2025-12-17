@@ -142,51 +142,55 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
       {/* Grid с информацией */}
       <div className="grid grid-cols-2 gap-3 mb-3">
         {/* Количество */}
-        <div className="flex items-center justify-between p-2 bg-white/50 dark:bg-slate-900/30 rounded-lg">
-          <span className="text-xs text-gray-500 dark:text-gray-400">Ilość</span>
-          <div className="flex items-center gap-1.5">
-            <span className="font-semibold text-sm text-gray-900 dark:text-white">
-              {item.quantity} {item.unit}
-            </span>
-            <button
-              onClick={() => onQuantityClick?.(item)}
-              className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-400 hover:text-blue-600"
-              title="Zmień ilość"
-            >
-              <Edit2 className="w-3 h-3" />
-            </button>
+        <div className="flex items-start justify-between p-2 bg-white/50 dark:bg-slate-900/30 rounded-lg overflow-hidden">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Ilość</span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-semibold text-sm text-gray-900 dark:text-white whitespace-nowrap">
+                {item.quantity} {item.unit}
+              </span>
+              <button
+                onClick={() => onQuantityClick?.(item)}
+                className="p-0.5 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-400 hover:text-blue-600"
+                title="Zmień ilość"
+              >
+                <Edit2 className="w-3 h-3" />
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Цена или кнопка добавления */}
         {item.totalPrice !== undefined && item.totalPrice !== null && item.pricePerUnit !== undefined ? (
-          <div className="flex items-center justify-between p-2 bg-white/50 dark:bg-slate-900/30 rounded-lg">
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex items-start justify-between p-2 bg-white/50 dark:bg-slate-900/30 rounded-lg overflow-hidden">
+            <div className="flex flex-col gap-1 min-w-0 flex-1">
+              <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
                 Cena/{item.unit === 'g' ? 'kg' : item.unit === 'ml' ? 'l' : 'szt'}
               </span>
-              {/* Индикатор тренда рядом с лейблом */}
+              <div className="flex items-center gap-1.5">
+                <span className="font-semibold text-sm text-gray-900 dark:text-white whitespace-nowrap">
+                  {(item.pricePerUnit * (item.unit === 'g' || item.unit === 'ml' ? 1000 : 1)).toFixed(2)}{' '}
+                  <span className="text-xs font-normal">{item.currency === 'PLN' ? 'pln' : item.currency}</span>
+                </span>
+                <button
+                  onClick={() => onPriceClick?.(item)}
+                  className="p-0.5 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-400 hover:text-blue-600"
+                  title="Zmień cenę"
+                >
+                  <Edit2 className="w-3 h-3" />
+                </button>
+              </div>
+              {/* Индикатор тренда под ценой */}
               {token && (
-                <PriceTrend 
-                  itemId={item.id} 
-                  currentPrice={item.pricePerUnit} 
-                  unit={item.unit}
-                  token={token}
-                />
+                <div className="flex-shrink-0">
+                  <PriceTrend 
+                    itemId={item.id} 
+                    currentPrice={item.pricePerUnit} 
+                    unit={item.unit}
+                    token={token}
+                  />
+                </div>
               )}
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-semibold text-sm text-gray-900 dark:text-white">
-                {(item.pricePerUnit * (item.unit === 'g' || item.unit === 'ml' ? 1000 : 1)).toFixed(2)}{' '}
-                <span className="text-xs font-normal">{item.currency === 'PLN' ? 'pln' : item.currency}</span>
-              </span>
-              <button
-                onClick={() => onPriceClick?.(item)}
-                className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-400 hover:text-blue-600"
-                title="Zmień cenę"
-              >
-                <Edit2 className="w-3 h-3" />
-              </button>
             </div>
           </div>
         ) : (
@@ -203,10 +207,10 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
 
       {/* Общая стоимость - если есть цена */}
       {item.totalPrice !== undefined && item.totalPrice !== null && (
-        <div className="mb-3 p-2.5 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800/30">
+        <div className="mb-3 p-2.5 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800/30 overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-green-700 dark:text-green-400">Koszt całości</span>
-            <span className="text-base font-bold text-green-600 dark:text-green-400">
+            <span className="text-xs font-medium text-green-700 dark:text-green-400 whitespace-nowrap">Koszt całości</span>
+            <span className="text-base font-bold text-green-600 dark:text-green-400 whitespace-nowrap">
               💰 {item.totalPrice.toFixed(2)}{' '}
               <span className="text-xs font-normal">{item.currency === 'PLN' ? 'pln' : item.currency}</span>
             </span>
@@ -216,16 +220,16 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
 
       {/* Даты */}
       <div className="grid grid-cols-2 gap-3 mb-3">
-        <div className="text-xs">
+        <div className="text-xs overflow-hidden">
           <span className="text-gray-500 dark:text-gray-400 block mb-0.5">Data ważności</span>
-          <span className="font-semibold text-gray-900 dark:text-white">
+          <span className="font-semibold text-gray-900 dark:text-white block truncate">
             {formatExpirationDate(item.expiresAt)}
           </span>
         </div>
         {item.arrivedAt && (
-          <div className="text-xs text-right">
+          <div className="text-xs text-right overflow-hidden">
             <span className="text-gray-500 dark:text-gray-400 block mb-0.5">Dodano</span>
-            <span className="font-semibold text-gray-900 dark:text-white">
+            <span className="font-semibold text-gray-900 dark:text-white block truncate">
               {formatExpirationDate(item.arrivedAt)}
             </span>
           </div>
@@ -233,12 +237,12 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
       </div>
 
       {/* Статус */}
-      <div className={`flex items-center justify-between p-2.5 rounded-lg ${statusConfig.bgColor} border ${statusConfig.borderColor}`}>
-        <p className={`font-semibold text-sm ${statusConfig.color}`}>
+      <div className={`flex items-center justify-between p-2.5 rounded-lg ${statusConfig.bgColor} border ${statusConfig.borderColor} overflow-hidden`}>
+        <p className={`font-semibold text-sm ${statusConfig.color} truncate`}>
           {statusConfig.label}
         </p>
         {statusConfig.description && (
-          <p className="text-xs text-gray-600 dark:text-gray-400">
+          <p className="text-xs text-gray-600 dark:text-gray-400 truncate ml-2">
             {statusConfig.description}
           </p>
         )}
