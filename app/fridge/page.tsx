@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Refrigerator, Loader2, AlertCircle, CheckCircle2, Plus } from "lucide-react";
+import { Refrigerator, Loader2, AlertCircle, CheckCircle2, Plus, Sparkles } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { fridgeApi } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import FridgeForm from "@/components/fridge/FridgeForm";
 import FridgeList from "@/components/fridge/FridgeList";
 import FridgeStats from "@/components/fridge/FridgeStats";
+import FridgeAIActions from "@/components/fridge/FridgeAIActions";
+import AIResultModal from "@/components/fridge/AIResultModal";
 import PriceSheet from "@/components/fridge/PriceSheet";
 import QuantitySheet from "@/components/fridge/QuantitySheet";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -26,6 +28,11 @@ export default function FridgePage() {
   const [priceSheetItem, setPriceSheetItem] = useState<FridgeItem | null>(null); // Selected item for price
   const [isQuantitySheetOpen, setIsQuantitySheetOpen] = useState(false); // Quantity sheet state
   const [quantitySheetItem, setQuantitySheetItem] = useState<FridgeItem | null>(null); // Selected item for quantity
+  // AI states
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState('');
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [aiTitle, setAiTitle] = useState('');
 
   useEffect(() => {
     if (isLoading) return;
@@ -160,6 +167,49 @@ export default function FridgePage() {
     }
   };
 
+  const handleAIAnalyze = async (goal: string) => {
+    const titles: Record<string, string> = {
+      'recipe_today': '🍳 Przepis na dziś',
+      'plan_3days': '📅 Plan na 3 dni',
+      'use_expiring': '♻️ Wykorzystaj kończące się',
+      'spending_analysis': '💸 Analiza wydatków'
+    };
+    
+    setAiTitle(titles[goal] || 'Analiza AI');
+    setAiLoading(true);
+    setAiModalOpen(true);
+    setAiResult('');
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Brak tokenu autoryzacji");
+      }
+
+      const response = await fetch("/api/ai/fridge/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ goal })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Błąd podczas analizy");
+      }
+
+      const data = await response.json();
+      setAiResult(data.analysis || data.message || 'Brak odpowiedzi od AI');
+    } catch (err: any) {
+      console.error("AI Analysis error:", err);
+      setAiResult(`❌ Błąd: ${err.message}`);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-sky-50 dark:from-gray-950 dark:to-slate-900 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto pt-[80px]">
@@ -216,6 +266,22 @@ export default function FridgePage() {
               <>
                 {/* � Statistics */}
                 {items.length > 0 && <FridgeStats items={items} />}
+
+                {/* ✨ AI Actions */}
+                {items.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="mb-6"
+                  >
+                    <div className="flex items-center gap-2 mb-4">
+                      <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      <h2 className="text-xl font-bold text-gray-900 dark:text-white">AI Asystent</h2>
+                    </div>
+                    <FridgeAIActions onAnalyze={handleAIAnalyze} loading={aiLoading} />
+                  </motion.div>
+                )}
 
                 {/* �🔘 Dodaj produkt button */}
                 <div className="mb-6">
@@ -326,6 +392,15 @@ export default function FridgePage() {
           </>
         )}
       </div>
+
+      {/* AI Result Modal */}
+      <AIResultModal
+        isOpen={aiModalOpen}
+        onClose={() => setAiModalOpen(false)}
+        title={aiTitle}
+        content={aiResult}
+        loading={aiLoading}
+      />
     </div>
   );
 }
