@@ -192,7 +192,8 @@ export default function FridgePage() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ goal })
+        body: JSON.stringify({ goal }),
+        cache: 'no-store'
       });
 
       if (!response.ok) {
