@@ -14,8 +14,6 @@ export default function CreateRecipeChatPage() {
   const router = useRouter();
   const { loading, result, error, runAI } = useAI();
 
-  const [loadingAction, setLoadingAction] = useState<string>("");
-
   useEffect(() => {
     if (!user) {
       router.push("/login");
@@ -34,9 +32,7 @@ export default function CreateRecipeChatPage() {
   }
 
   const handleAIAnalyze = async (goal: AIGoal, preferences?: { time?: string; budget?: string }) => {
-    setLoadingAction(goal);
     await runAI(goal, preferences);
-    setLoadingAction("");
   };
 
   const handleAddToPlan = async (recipe: Recipe) => {
@@ -89,7 +85,6 @@ export default function CreateRecipeChatPage() {
         <AIActions
           onAnalyze={handleAIAnalyze}
           loading={loading}
-          loadingAction={loadingAction}
         />
 
         {/* Results */}
