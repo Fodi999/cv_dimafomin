@@ -18,6 +18,14 @@ export default function PublicProfilePage() {
   const { user, isLoading: authLoading } = useUser();
   const { translations } = useProfileTranslations();
 
+  // Redirect special routes (dashboard, settings, etc) to their proper locations
+  useEffect(() => {
+    const specialRoutes = ['dashboard', 'settings', 'edit', 'wallet'];
+    if (specialRoutes.includes(userId.toLowerCase())) {
+      router.replace('/profile');
+    }
+  }, [userId, router]);
+
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [savedPosts, setSavedPosts] = useState<Post[]>([]);
@@ -49,6 +57,12 @@ export default function PublicProfilePage() {
 
   // Load user profile
   useEffect(() => {
+    // Don't load profile if userId is a special route
+    const specialRoutes = ['dashboard', 'settings', 'edit', 'wallet'];
+    if (specialRoutes.includes(userId.toLowerCase())) {
+      return;
+    }
+
     const loadProfile = async () => {
       try {
         setPageLoading(true);
@@ -122,7 +136,13 @@ export default function PublicProfilePage() {
 
   const translationsRecord = translations as Record<string, string>;
 
-  if (pageLoading || authLoading) {
+  // Сначала проверяем authLoading - пока идёт проверка авторизации, не показываем ничего
+  if (authLoading) {
+    return null; // Или можно вернуть лоадер, но null предотвратит "мигание" неавторизованного UI
+  }
+
+  // Затем проверяем загрузку профиля
+  if (pageLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">

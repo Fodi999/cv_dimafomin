@@ -89,15 +89,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
           );
 
           if (!response.ok) {
-            // 401 - неавторизован, 403 - доступ запрещён
+            // 401/403 - не очищаем сразу, используем fallback
+            // Возможно endpoint временно недоступен, но токен валиден
             if (response.status === 401 || response.status === 403) {
-              console.error("🔐 Auth error detected (401/403), clearing authentication");
-              localStorage.removeItem("token");
-              localStorage.removeItem("role");
-              localStorage.removeItem("user");
-              setUser(null);
-              setIsLoading(false);
-              return;
+              console.warn("⚠️ Profile endpoint returned 401/403, using localStorage fallback");
+              throw new Error(`Auth error: ${response.status}`);
             }
             throw new Error(`API error: ${response.status}`);
           }
@@ -131,29 +127,25 @@ export function UserProvider({ children }: { children: ReactNode }) {
         } catch (error: any) {
           console.error("❌ Failed to fetch fresh profile from DB:", error);
           
-          // На 401/403 очистить данные
-          if (error?.message?.includes("401") || error?.message?.includes("403")) {
-            console.error("🔐 Auth error detected, clearing authentication");
-            localStorage.removeItem("token");
-            localStorage.removeItem("role");
-            localStorage.removeItem("user");
-            setUser(null);
-          } else {
-            // Fallback: если ошибка сети, используем localStorage как backup
-            console.log("📌 Using localStorage as fallback due to network error");
-            const userJson = localStorage.getItem("user");
-            if (userJson) {
-              try {
-                const userData = JSON.parse(userJson);
-                setUser({
-                  ...userData,
-                  role: (roleJson as "student" | "instructor" | "admin") || userData.role,
-                });
-              } catch (parseError) {
-                console.error("❌ Failed to parse cached user data");
-                setUser(null);
-              }
+          // Используем localStorage как fallback при любой ошибке API
+          // Не очищаем токен - пользователь может быть авторизован, но endpoint временно недоступен
+          console.log("📌 Using localStorage as fallback due to API error");
+          const userJson = localStorage.getItem("user");
+          if (userJson) {
+            try {
+              const userData = JSON.parse(userJson);
+              setUser({
+                ...userData,
+                role: (roleJson as "student" | "instructor" | "admin") || userData.role,
+              });
+              console.log("✅ User restored from localStorage cache");
+            } catch (parseError) {
+              console.error("❌ Failed to parse cached user data");
+              setUser(null);
             }
+          } else {
+            console.warn("⚠️ No cached user data available");
+            setUser(null);
           }
         }
       } else if (token || localStorage.getItem("user")) {
@@ -167,17 +159,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
         // No auth data - completely normal
         console.log("ℹ️ No auth data found - user is not logged in");
       }
-      
-      // ⏱️ ВАЖНО: setTimeout(150) гарантирует завершение hydration
-      // перед снятием флага isLoading
-      // Это выполнится в ЛЮБОМ случае (даже при return в try блоке)
+    };
+
+    // ⏱️ ВАЖНО: checkAuth() с finally для гарантированного setIsLoading(false)
+    checkAuth().finally(() => {
       setTimeout(() => {
         setIsLoading(false);
         console.log("✅ UserContext.checkAuth complete - isLoading set to false");
       }, 150);
-    };
-
-    checkAuth();
+    });
   }, []);
 
   const login = async (email: string, password: string) => {
