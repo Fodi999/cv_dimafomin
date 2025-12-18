@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ChefHat, Calendar } from "lucide-react";
+import { ChefHat, Calendar, AlertCircle, TrendingDown } from "lucide-react";
 import type { AIGoal } from "@/hooks/useAI";
 
 interface AIActionsProps {
@@ -27,10 +27,26 @@ export function AIActions({ onAnalyze, loading }: AIActionsProps) {
       color: "from-blue-500 to-indigo-500",
       hoverColor: "hover:from-blue-600 hover:to-indigo-600",
     },
+    {
+      goal: "reduce_waste" as AIGoal,
+      icon: <AlertCircle className="w-5 h-5" />,
+      label: "Wykorzystaj kończące się",
+      description: "Co zrobić z produktami o krótkim terminie ważności",
+      color: "from-yellow-500 to-orange-500",
+      hoverColor: "hover:from-yellow-600 hover:to-orange-600",
+    },
+    {
+      goal: "budget_review" as AIGoal,
+      icon: <TrendingDown className="w-5 h-5" />,
+      label: "Analiza wydatków",
+      description: "Przeanalizuj wydatki i otrzymaj porady oszczędnościowe",
+      color: "from-green-500 to-emerald-500",
+      hoverColor: "hover:from-green-600 hover:to-emerald-600",
+    },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {actions.map((action, index) => (
         <motion.button
           key={action.goal}

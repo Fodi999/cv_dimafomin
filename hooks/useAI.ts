@@ -14,9 +14,38 @@ export interface Recipe {
   imageUrl?: string;
 }
 
+export interface DayPlan {
+  day: string;
+  date?: string;
+  meals: Recipe[];
+}
+
+export interface UrgentItem {
+  name: string;
+  daysLeft: number;
+  quantity?: number;
+  unit?: string;
+  suggestion: string;
+}
+
+export interface CostInsight {
+  totalSpent: number;
+  avgPerDay?: number;
+  avgPerWeek?: number;
+  topExpenses?: Array<{ name: string; amount: number; percentage: number }>;
+  savings?: Array<{ tip: string; potential: number }>;
+  comparison?: {
+    vs_last_week?: number;
+    vs_last_month?: number;
+  };
+}
+
 export interface AIResult {
   recipes?: Recipe[];
-  plans?: any[];
+  plan?: DayPlan[];
+  urgent?: UrgentItem[];
+  budget?: CostInsight;
+  plans?: any[]; // legacy support
   analysis?: string;
   message?: string;
 }

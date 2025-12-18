@@ -3,6 +3,9 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, AlertCircle } from "lucide-react";
 import { RecipeCard } from "./RecipeCard";
+import { DayTimeline } from "./DayTimeline";
+import { UrgentActions } from "./UrgentActions";
+import { CostInsights } from "./CostInsights";
 import type { AIResult, Recipe } from "@/hooks/useAI";
 
 interface AIResultsProps {
@@ -10,7 +13,7 @@ interface AIResultsProps {
   loading: boolean;
   error: string | null;
   onAddToPlan?: (recipe: Recipe) => void;
-  onMarkDone?: (recipe: Recipe) => void;
+  onMarkDone?: (recipe: Recipe | any) => void;
 }
 
 export function AIResults({ result, loading, error, onAddToPlan, onMarkDone }: AIResultsProps) {
@@ -66,7 +69,30 @@ export function AIResults({ result, loading, error, onAddToPlan, onMarkDone }: A
         exit={{ opacity: 0, y: -20 }}
         className="space-y-6"
       >
-        {/* Recipes */}
+        {/* 3 Days Plan - DayTimeline */}
+        {result.plan && result.plan.length > 0 && (
+          <DayTimeline 
+            plan={result.plan} 
+            onMarkDone={onMarkDone!} 
+            loading={loading}
+          />
+        )}
+
+        {/* Urgent/Expiring Items - UrgentActions */}
+        {result.urgent && result.urgent.length > 0 && (
+          <UrgentActions 
+            items={result.urgent} 
+            onMarkDone={onMarkDone!} 
+            loading={loading}
+          />
+        )}
+
+        {/* Budget Analysis - CostInsights */}
+        {result.budget && (
+          <CostInsights data={result.budget} />
+        )}
+
+        {/* Single Recipes (today_meals) */}
         {result.recipes && result.recipes.length > 0 && (
           <div className="space-y-4">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -85,8 +111,8 @@ export function AIResults({ result, loading, error, onAddToPlan, onMarkDone }: A
           </div>
         )}
 
-        {/* Text Analysis */}
-        {result.analysis && (
+        {/* Fallback: Text Analysis */}
+        {result.analysis && !result.recipes && !result.plan && !result.urgent && !result.budget && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

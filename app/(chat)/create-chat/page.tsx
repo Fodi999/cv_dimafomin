@@ -8,11 +8,14 @@ import { AIResults } from "@/components/assistant/AIResults";
 import { useAI, type AIGoal, type Recipe } from "@/hooks/useAI";
 import { useUser } from "@/contexts/UserContext";
 import { useRouter } from "next/navigation";
+import { fridgeApi } from "@/lib/api";
 
 export default function CreateRecipeChatPage() {
   const { user } = useUser();
   const router = useRouter();
   const { loading, result, error, runAI } = useAI();
+
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -43,10 +46,40 @@ export default function CreateRecipeChatPage() {
   };
 
   const handleMarkDone = async (recipe: Recipe) => {
-    console.log("Marking as done:", recipe);
-    // TODO: Implement API call to deduct ingredients from fridge
-    // POST /api/fridge/deduct { ingredients: [...] }
-    alert(`Przepis "${recipe.title}" oznaczony jako gotowy! (TODO: deduct ingredients from fridge)`);
+    if (!recipe.ingredients || recipe.ingredients.length === 0) {
+      alert("Ten przepis nie ma składników do odjęcia");
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Wymagana autoryzacja");
+        return;
+      }
+
+      // Convert ingredients to proper format
+      const ingredientsToDeduct = recipe.ingredients.map(ing => ({
+        name: ing.name,
+        quantity: ing.quantity ? parseFloat(ing.quantity) || 1 : 1,
+        unit: ing.unit || "szt"
+      }));
+
+      // Call API to deduct ingredients
+      const response = await fridgeApi.deductIngredients(ingredientsToDeduct, token);
+
+      if (response.success) {
+        alert(`✅ ${response.message}\n\nOdjęto ${response.deducted?.length || 0} składników z lodówki`);
+      } else {
+        alert(`❌ Nie udało się odjąć składników`);
+      }
+    } catch (err: any) {
+      console.error("Error marking as done:", err);
+      alert(`❌ Błąd: ${err.message || "Nie udało się odjąć składników"}`);
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   return (

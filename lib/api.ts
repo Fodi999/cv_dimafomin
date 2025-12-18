@@ -765,6 +765,25 @@ export const fridgeApi = {
       body: JSON.stringify(data),
     });
   },
+
+  /**
+   * POST /api/fridge/deduct
+   * Списать ингредиенты из холодильника (кнопка "Zrobione")
+   * Body: { ingredients: Array<{ name: string; quantity: number; unit: string }> }
+   */
+  deductIngredients: async (ingredients: Array<{ name: string; quantity?: number; unit?: string }>, token: string) => {
+    return apiFetch<{
+      success: boolean;
+      message: string;
+      deducted: any[];
+      remaining: any[];
+      totalValue?: number;
+    }>("/fridge/deduct", {
+      method: "POST",
+      token,
+      body: JSON.stringify({ ingredients }),
+    });
+  },
 };
 
 // ==================== HEALTH CHECK ====================
