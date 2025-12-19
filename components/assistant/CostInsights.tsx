@@ -42,10 +42,10 @@ export function CostInsights({ data }: CostInsightsProps) {
         </div>
         <div>
           <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Analiza wydatków
+            Przeanalizuj koszty kuchni
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Twoja ekonomika kuchni
+            Kontrola wydatków i realne oszczędności
           </p>
         </div>
       </div>

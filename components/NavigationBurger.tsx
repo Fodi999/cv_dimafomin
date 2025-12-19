@@ -99,7 +99,7 @@ export default function NavigationBurger() {
     },
     {
       label: "Asystent AI",
-      href: "/chat/create-chat",
+      href: "/assistant",
       icon: <BrainCircuit className="w-5 h-5" />,
       description: "Pomoc w kuchni i decyzjach",
     },
@@ -126,7 +126,7 @@ export default function NavigationBurger() {
   const isActive = (href: string): boolean => {
     if (href === "/" && pathname === "/") return true;
     if (href === "/academy" && pathname.startsWith("/academy")) return true;
-    if (href === "/chat/create-chat" && pathname.startsWith("/chat")) return true;
+    if (href === "/assistant" && pathname.startsWith("/assistant")) return true;
     if (href === "/market" && pathname === "/market") return true;
     if (href === "/fridge" && pathname === "/fridge") return true;
     return false;

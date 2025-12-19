@@ -107,5 +107,5 @@ export function useAI() {
     setError(null);
   }
 
-  return { runAI, result, loading, error, clearResult };
+  return { runAI, result, loading, error, clearResult, setLoading };
 }

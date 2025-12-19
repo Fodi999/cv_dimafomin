@@ -36,7 +36,7 @@ const nextConfig: NextConfig = {
   redirects: async () => [
     {
       source: "/chat/create-chat",
-      destination: "/create-chat",
+      destination: "/assistant",
       permanent: true,
     },
   ],

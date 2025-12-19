@@ -104,7 +104,7 @@ export default function AcademyPage() {
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
                 </Button>
               </Link>
-              <Link href="/chat/create-chat" className="group">
+              <Link href="/assistant" className="group">
                 <Button className="bg-black text-white hover:bg-gray-900 border-2 border-white font-medium px-8 py-3 rounded-lg transition-all w-full sm:w-auto">
                   {t.academy.hero.aiButton}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
@@ -255,7 +255,7 @@ export default function AcademyPage() {
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
                   </Button>
                 </Link>
-                <Link href="/chat/create-chat" className="group">
+                <Link href="/assistant" className="group">
                   <Button className="bg-black text-white hover:bg-gray-900 border-2 border-white font-medium px-8 py-3 rounded-lg transition-all w-full sm:w-auto">
                     {t.academy.hero.aiButton}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />

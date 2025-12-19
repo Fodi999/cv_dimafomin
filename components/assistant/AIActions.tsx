@@ -5,41 +5,44 @@ import { ChefHat, Calendar, AlertCircle, TrendingDown } from "lucide-react";
 import type { AIGoal } from "@/hooks/useAI";
 
 interface AIActionsProps {
-  onAnalyze: (goal: AIGoal) => void;
+  onAnalyze: (goal: AIGoal) => void | Promise<void>;
   loading?: boolean;
 }
 
 export function AIActions({ onAnalyze, loading }: AIActionsProps) {
+  console.log("🟦 AIActions rendered, onAnalyze type:", typeof onAnalyze);
+  console.log("🟦 AIActions loading state:", loading);
+  
   const actions = [
     {
       goal: "today_meals" as AIGoal,
       icon: <ChefHat className="w-5 h-5" />,
-      label: "Przepis na dziś",
-      description: "AI zaproponuje przepis na podstawie produktów w lodówce",
+      label: "Stwórz przepis",
+      description: "Na podstawie dostępnych składników i stylu kuchni",
       color: "from-orange-500 to-red-500",
       hoverColor: "hover:from-orange-600 hover:to-red-600",
     },
     {
       goal: "3_days_plan" as AIGoal,
       icon: <Calendar className="w-5 h-5" />,
-      label: "Plan na 3 dni",
-      description: "Stwórz plan posiłków na najbliższe 3 dni",
+      label: "Zaplanuj menu na 3 dni",
+      description: "Spójny plan dań dopasowany do Twojej kuchni",
       color: "from-blue-500 to-indigo-500",
       hoverColor: "hover:from-blue-600 hover:to-indigo-600",
     },
     {
       goal: "reduce_waste" as AIGoal,
       icon: <AlertCircle className="w-5 h-5" />,
-      label: "Wykorzystaj kończące się",
-      description: "Co zrobić z produktami o krótkim terminie ważności",
+      label: "Zoptymalizuj produkty",
+      description: "Przepisy z produktów o krótkim terminie ważności",
       color: "from-yellow-500 to-orange-500",
       hoverColor: "hover:from-yellow-600 hover:to-orange-600",
     },
     {
       goal: "budget_review" as AIGoal,
       icon: <TrendingDown className="w-5 h-5" />,
-      label: "Analiza wydatków",
-      description: "Przeanalizuj wydatki i otrzymaj porady oszczędnościowe",
+      label: "Przeanalizuj koszty kuchni",
+      description: "Kontrola wydatków i realne oszczędności",
       color: "from-green-500 to-emerald-500",
       hoverColor: "hover:from-green-600 hover:to-emerald-600",
     },
@@ -53,7 +56,17 @@ export function AIActions({ onAnalyze, loading }: AIActionsProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
-          onClick={() => onAnalyze(action.goal)}
+          onClick={async () => {
+            console.log("🔴 Button clicked:", action.label, "goal:", action.goal);
+            console.log("🔴 Loading state:", loading);
+            console.log("🔴 About to call onAnalyze with goal:", action.goal);
+            try {
+              await onAnalyze(action.goal);
+              console.log("🟢 onAnalyze completed successfully");
+            } catch (error) {
+              console.error("💥 Error calling onAnalyze:", error);
+            }
+          }}
           disabled={loading}
           className={`
             relative p-4 rounded-xl text-white
