@@ -89,11 +89,34 @@ export function UserProvider({ children }: { children: ReactNode }) {
           );
 
           if (!response.ok) {
-            // 401/403 - не очищаем сразу, используем fallback
-            // Возможно endpoint временно недоступен, но токен валиден
+            // 401/403 - токен истёк или невалиден, используем localStorage fallback
+            // Это нормальная ситуация, не показываем ошибку в консоли
             if (response.status === 401 || response.status === 403) {
-              console.warn("⚠️ Profile endpoint returned 401/403, using localStorage fallback");
-              throw new Error(`Auth error: ${response.status}`);
+              console.log("ℹ️ Token expired or invalid, using localStorage fallback");
+              // Не throw - просто выходим из блока, catch подхватит localStorage
+              const cachedUser = localStorage.getItem("user");
+              if (cachedUser) {
+                try {
+                  const userData = JSON.parse(cachedUser);
+                  setUser({
+                    id: userData.id,
+                    email: userData.email,
+                    name: userData.name || null,
+                    avatar: userData.avatar || null,
+                    role: userData.role,
+                  });
+                  console.log("✅ User restored from localStorage (token expired)");
+                } catch (parseError) {
+                  console.error("❌ Failed to parse cached user data");
+                  setUser(null);
+                }
+              } else {
+                console.warn("⚠️ No cached user data available, clearing auth");
+                localStorage.removeItem("token");
+                localStorage.removeItem("role");
+                setUser(null);
+              }
+              return; // Exit early - не идём в catch
             }
             throw new Error(`API error: ${response.status}`);
           }

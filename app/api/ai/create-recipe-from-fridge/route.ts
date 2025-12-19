@@ -67,12 +67,69 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Extract recipe from response - Backend returns JSON string in data.result
-    const resultString = data.data?.result;
-    console.log("🔍 Raw result string:", resultString);
+    // Backend can return recipe in two formats:
+    // 1. New format: data.recipe (object) - preferred
+    // 2. Old format: data.result (JSON string) - fallback
+    let recipe;
     
-    if (!resultString) {
-      console.error("❌ No result in response");
+    if (data.data?.recipe) {
+      // New format - recipe is already an object
+      recipe = data.data.recipe;
+      console.log("✅ Using new format (data.recipe):", recipe.name);
+    } else if (data.data?.result) {
+      // Old format - need to parse JSON string
+      const resultString = data.data.result;
+      console.log("🔍 Using old format (data.result), parsing...");
+      
+      try {
+        recipe = JSON.parse(resultString);
+        console.log("✅ Parsed recipe:", recipe.title || recipe.name);
+      } catch (e) {
+        console.error("❌ Failed to parse recipe JSON:", e);
+        
+        // Try to fix truncated JSON by removing incomplete parts and closing structures
+        try {
+          let fixedString = resultString.trim();
+          
+          // Remove incomplete property at the end (e.g., "expires_priority without value)
+          // This regex removes trailing incomplete key-value pairs
+          fixedString = fixedString.replace(/,\s*"[^"]*$/, ''); // Remove incomplete key
+          fixedString = fixedString.replace(/,\s*$/, ''); // Remove trailing comma
+          
+          // Count quotes to see if string is unclosed
+          const quoteCount = (fixedString.match(/"/g) || []).length;
+          if (quoteCount % 2 !== 0) {
+            fixedString += '"'; // Close unclosed string
+          }
+          
+          // Close arrays if needed
+          const openBrackets = (fixedString.match(/\[/g) || []).length;
+          const closeBrackets = (fixedString.match(/\]/g) || []).length;
+          for (let i = 0; i < openBrackets - closeBrackets; i++) {
+            fixedString += ']';
+          }
+          
+          // Close object
+          const openBraces = (fixedString.match(/\{/g) || []).length;
+          const closeBraces = (fixedString.match(/\}/g) || []).length;
+          for (let i = 0; i < openBraces - closeBraces; i++) {
+            fixedString += '}';
+          }
+          
+          recipe = JSON.parse(fixedString);
+          console.log("✅ Fixed and parsed truncated JSON:", recipe.title || recipe.name);
+        } catch (fixError) {
+          console.error("❌ Could not fix truncated JSON:", fixError);
+          return NextResponse.json({
+            success: false,
+            data: {
+              message: "Błąd podczas przetwarzania przepisu.",
+            },
+          });
+        }
+      }
+    } else {
+      console.error("❌ No recipe data in response");
       return NextResponse.json({
         success: false,
         data: {
@@ -81,68 +138,29 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Parse the JSON string to get recipe object
-    let recipe;
-    try {
-      recipe = JSON.parse(resultString);
-      console.log("✅ Parsed recipe:", recipe.title);
-    } catch (e) {
-      console.error("❌ Failed to parse recipe JSON:", e);
-      
-      // Try to fix truncated JSON by closing unclosed strings/arrays
-      try {
-        let fixedString = resultString;
-        
-        // Count quotes to see if string is unclosed
-        const quoteCount = (resultString.match(/"/g) || []).length;
-        if (quoteCount % 2 !== 0) {
-          fixedString += '"'; // Close unclosed string
-        }
-        
-        // Close arrays if needed
-        const openBrackets = (resultString.match(/\[/g) || []).length;
-        const closeBrackets = (resultString.match(/\]/g) || []).length;
-        for (let i = 0; i < openBrackets - closeBrackets; i++) {
-          fixedString += ']';
-        }
-        
-        // Close object
-        const openBraces = (resultString.match(/\{/g) || []).length;
-        const closeBraces = (resultString.match(/\}/g) || []).length;
-        for (let i = 0; i < openBraces - closeBraces; i++) {
-          fixedString += '}';
-        }
-        
-        recipe = JSON.parse(fixedString);
-        console.log("✅ Fixed and parsed truncated JSON:", recipe.title);
-      } catch (fixError) {
-        console.error("❌ Could not fix truncated JSON:", fixError);
-        return NextResponse.json({
-          success: false,
-          data: {
-            message: "Błąd podczas przetwarzania przepisu.",
-          },
-        });
-      }
-    }
-
     console.log("✅ Returning recipe successfully");
     return NextResponse.json({
       success: true,
       data: {
         recipe: {
-          title: recipe.title || "Przepis z AI",
+          title: recipe.title || recipe.name || "Przepis z AI",
           description: recipe.description || "",
-          ingredients: recipe.ingredients_used || [],
+          ingredients: recipe.ingredientsUsed || recipe.ingredients_used || [],
+          ingredientsMissing: recipe.ingredientsMissing || [],
           steps: recipe.steps || [],
           servings: recipe.portions || 2,
-          timeMinutes: recipe.cooking_time || 30,
+          timeMinutes: recipe.cookingTime || recipe.cooking_time || 30,
           difficulty: recipe.difficulty || "średni",
           imageUrl: recipe.imageUrl || null,
           chefTips: recipe.chefTips || [],
-          expiryPriority: recipe.expires_priority || null,
+          expiryPriority: recipe.expiryPriority || recipe.expires_priority || null,
+          economy: recipe.economy || null,
         },
-        usedProducts: recipe.ingredients_used || [],
+        usedProducts: (recipe.ingredientsUsed || recipe.ingredients_used || []).map((ing: any) => ({
+          name: ing.name,
+          usedAmount: ing.quantity,
+          unit: ing.unit,
+        })),
       },
     });
   } catch (error: any) {

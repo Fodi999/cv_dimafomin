@@ -26,7 +26,7 @@ export interface AISession {
 
 export interface RecipeIngredient {
   name: string;
-  quantity?: string;
+  quantity?: number;
   unit?: string;
   optional?: boolean;
 }

@@ -13,20 +13,28 @@ import { fridgeApi } from "@/lib/api";
 // Types for recipe response
 interface RecipeIngredient {
   name: string;
-  amount: number;
+  quantity: number;
   unit: string;
+}
+
+interface RecipeEconomy {
+  usedFromFridge: boolean;
+  estimatedExtraCost: number;
+  currency: string;
 }
 
 interface RecipeData {
   title: string;
   description: string;
   ingredients: RecipeIngredient[];
+  ingredientsMissing?: RecipeIngredient[];
   steps: string[];
   servings?: number;
   timeMinutes?: number;
   difficulty?: string;
   chefTips?: string[];
-  expiryPriority?: string;
+  expiryPriority?: "critical" | "warning" | "ok" | null;
+  economy?: RecipeEconomy;
 }
 
 interface UsedProduct {
@@ -38,6 +46,17 @@ interface UsedProduct {
 export default function AssistantPage() {
   const router = useRouter();
   const { user, isLoading } = useUser();
+
+  // Helper function to format quantity and unit
+  const formatQuantity = (quantity: number, unit: string) => {
+    if (unit === "g" && quantity >= 1000) {
+      return `${(quantity / 1000).toFixed(quantity % 1000 === 0 ? 0 : 1)} kg`;
+    }
+    if (unit === "ml" && quantity >= 1000) {
+      return `${(quantity / 1000).toFixed(quantity % 1000 === 0 ? 0 : 1)} l`;
+    }
+    return `${quantity} ${unit}`;
+  };
   const { runAI, result, loading, error, clearResult, setLoading } = useAI();
   const [actionLoading, setActionLoading] = useState(false);
   const [singleRecipe, setSingleRecipe] = useState<RecipeData | null>(null);
@@ -135,21 +154,34 @@ export default function AssistantPage() {
 
       console.log("🍽️ Recipe received:", recipe);
 
+      // 🔧 NORMALIZATION: Handle different API response formats
+      const normalizedRecipe = {
+        title: recipe.title ?? recipe.name ?? "Przepis z AI",
+        description: recipe.description ?? "",
+        ingredients: recipe.ingredients ?? recipe.ingredientsUsed ?? [],
+        ingredientsMissing: recipe.ingredientsMissing ?? [],
+        steps: recipe.steps ?? [],
+        servings: recipe.servings ?? recipe.portions ?? null,
+        timeMinutes: recipe.timeMinutes ?? recipe.cookingTime ?? null,
+        difficulty: recipe.difficulty ?? "średni",
+        chefTips: recipe.chefTips ?? [],
+        expiryPriority: recipe.expiryPriority ?? recipe.expires_priority ?? null,
+        economy: recipe.economy ?? {
+          usedFromFridge: true,
+          estimatedExtraCost: 0,
+          currency: "PLN",
+        },
+      };
+
+      console.log("🔧 Normalized recipe:", normalizedRecipe);
+
       // ✅ SUCCESS - display recipe
-      setSingleRecipe({
-        title: recipe.title || "Przepis z AI",
-        description: recipe.description || "",
-        ingredients: recipe.ingredients || [],
-        steps: recipe.steps || [],
-        servings: recipe.servings,
-        timeMinutes: recipe.timeMinutes,
-        difficulty: recipe.difficulty,
-        chefTips: recipe.chefTips || [],
-        expiryPriority: recipe.expiryPriority,
-      });
+      setSingleRecipe(normalizedRecipe);
       setUsedProducts(data.data?.usedProducts ?? []);
       console.log("✅ Recipe set in state");
       console.log("📦 Used products count:", data.data?.usedProducts?.length ?? 0);
+      console.log("🛒 Missing ingredients count:", normalizedRecipe.ingredientsMissing?.length ?? 0);
+      console.log("💰 Economy data:", normalizedRecipe.economy);
 
     } catch (err: any) {
       console.error("❌ Fetch error:", err);
@@ -189,7 +221,7 @@ export default function AssistantPage() {
 
       const ingredientsToDeduct = recipe.ingredients.map(ing => ({
         name: ing.name,
-        quantity: ing.quantity ? parseFloat(ing.quantity) || 1 : 1,
+        quantity: Number(ing.quantity) || 1,
         unit: ing.unit || "szt"
       }));
 
@@ -326,49 +358,133 @@ export default function AssistantPage() {
             animate={{ opacity: 1, y: 0 }}
             className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm p-6 space-y-6"
           >
-            {/* Header with Priority Badge */}
-            <div className="flex items-start justify-between">
-              <div>
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-                  {singleRecipe.title}
-                </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  {singleRecipe.description}
-                </p>
+            {/* 1️⃣ Header with Priority Badge */}
+            <div className="space-y-3">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+                    {singleRecipe.title}
+                  </h2>
+                  {singleRecipe.description && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      {singleRecipe.description}
+                    </p>
+                  )}
+                </div>
+
+                {/* Expiry Priority Badge */}
+                {singleRecipe.expiryPriority === "critical" && (
+                  <span className="text-xs px-3 py-1 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 font-medium whitespace-nowrap">
+                    🔥 Użyć pilnie
+                  </span>
+                )}
+                {singleRecipe.expiryPriority === "warning" && (
+                  <span className="text-xs px-3 py-1 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 font-medium whitespace-nowrap">
+                    🟡 Wkrótce straci ważność
+                  </span>
+                )}
+                {singleRecipe.expiryPriority === "ok" && (
+                  <span className="text-xs px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-medium whitespace-nowrap">
+                    🟢 Spokojnie
+                  </span>
+                )}
               </div>
 
-              {singleRecipe.expiryPriority === "critical" && (
-                <span className="text-xs px-3 py-1 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 font-medium whitespace-nowrap">
-                  🔥 Użyć pilnie
-                </span>
-              )}
+              {/* Time & Servings */}
+              <div className="flex gap-6 text-sm text-gray-600 dark:text-gray-400">
+                {singleRecipe.timeMinutes && (
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    <span><strong>{singleRecipe.timeMinutes} min</strong></span>
+                  </div>
+                )}
+                {singleRecipe.servings && (
+                  <div>
+                    👥 <strong>{singleRecipe.servings} porcji</strong>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Ingredients */}
-            <div>
-              <h3 className="font-medium text-gray-900 dark:text-white mb-3">
-                Składniki
+            {/* 2️⃣ Składniki z lodówki (ingredientsUsed) */}
+            <div className="bg-green-50 dark:bg-green-900/10 rounded-xl p-4">
+              <h3 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                <span className="text-green-600 dark:text-green-400">✅</span>
+                Z lodówki
               </h3>
               <ul className="space-y-2">
                 {singleRecipe.ingredients.map((ing, i) => (
                   <li key={i} className="flex justify-between text-sm">
-                    <span className="text-gray-700 dark:text-gray-300">{ing.name}</span>
-                    <span className="text-gray-500 dark:text-gray-400 font-medium">
-                      {ing.amount} {ing.unit}
+                    <span className="text-gray-700 dark:text-gray-300">• {ing.name}</span>
+                    <span className="text-gray-600 dark:text-gray-400 font-medium">
+                      {formatQuantity(ing.quantity, ing.unit)}
                     </span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Preparation Steps */}
+            {/* 3️⃣ Do dokupienia (ingredientsMissing) */}
+            {singleRecipe.ingredientsMissing && singleRecipe.ingredientsMissing.length > 0 && (
+              <div className="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-4 border border-blue-200 dark:border-blue-800/30">
+                <h3 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                  <span className="text-blue-600 dark:text-blue-400">🛒</span>
+                  Do dokupienia
+                </h3>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                  To normalne — niektóre składniki (sól, olej, przyprawy) często dokupujemy osobno
+                </p>
+                <ul className="space-y-2 mb-3">
+                  {singleRecipe.ingredientsMissing.map((ing, i) => (
+                    <li key={i} className="flex justify-between text-sm">
+                      <span className="text-gray-700 dark:text-gray-300">• {ing.name}</span>
+                      <span className="text-gray-600 dark:text-gray-400 font-medium">
+                        {formatQuantity(ing.quantity, ing.unit)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => alert("Lista zakupów (coming soon)")}
+                  className="w-full text-sm px-3 py-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium transition-colors"
+                >
+                  Dodaj do listy zakupów
+                </button>
+              </div>
+            )}
+
+            {/* 4️⃣ Ekonomia */}
+            {singleRecipe.economy && (
+              <div className="bg-purple-50 dark:bg-purple-900/10 rounded-xl p-4 border border-purple-200 dark:border-purple-800/30">
+                <h3 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                  <span className="text-purple-600 dark:text-purple-400">💰</span>
+                  Ekonomia
+                </h3>
+                {singleRecipe.economy.usedFromFridge && (
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">
+                    Używasz produktów z lodówki.
+                  </p>
+                )}
+                {singleRecipe.economy.estimatedExtraCost !== null && singleRecipe.economy.estimatedExtraCost !== undefined && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Szacowany koszt brakujących składników:{" "}
+                    <strong className="text-purple-700 dark:text-purple-400">
+                      ~{singleRecipe.economy.estimatedExtraCost} {singleRecipe.economy.currency}
+                    </strong>
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* 5️⃣ Przygotowanie (steps) */}
             <div>
-              <h3 className="font-medium text-gray-900 dark:text-white mb-3">
+              <h3 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                <span>👨‍🍳</span>
                 Przygotowanie
               </h3>
-              <ol className="space-y-3 text-sm">
+              <ol className="space-y-3">
                 {singleRecipe.steps.map((step, i) => (
-                  <li key={i} className="flex gap-3">
+                  <li key={i} className="flex gap-3 text-sm">
                     <span className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 flex items-center justify-center text-xs font-medium">
                       {i + 1}
                     </span>
@@ -378,26 +494,12 @@ export default function AssistantPage() {
               </ol>
             </div>
 
-            {/* Time & Info */}
-            <div className="flex gap-6 text-sm">
-              {singleRecipe.timeMinutes && (
-                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                  <Clock className="w-4 h-4" />
-                  <strong>{singleRecipe.timeMinutes} min</strong>
-                </div>
-              )}
-              {singleRecipe.servings && (
-                <div className="text-gray-600 dark:text-gray-400">
-                  👥 <strong>{singleRecipe.servings} porcji</strong>
-                </div>
-              )}
-            </div>
-
             {/* Chef Tips */}
             {singleRecipe.chefTips && singleRecipe.chefTips.length > 0 && (
               <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
-                <h4 className="font-medium text-gray-900 dark:text-white mb-2">
-                  💡 Wskazówki szefa
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                  <span>💡</span>
+                  Wskazówki szefa
                 </h4>
                 <ul className="space-y-2 text-sm">
                   {singleRecipe.chefTips.map((tip, i) => (
@@ -410,47 +512,32 @@ export default function AssistantPage() {
               </div>
             )}
 
-            {/* Used Products */}
-            {usedProducts.length > 0 && (
-              <div className="border-t border-gray-200 dark:border-gray-800 pt-4">
-                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
-                  ✅ Zużyto z lodówki
-                </h4>
-                <ul className="space-y-2 text-sm">
-                  {usedProducts.map((p, i) => (
-                    <li key={i} className="flex justify-between">
-                      <span className="text-gray-700 dark:text-gray-300">{p.name}</span>
-                      <span className="text-gray-500 dark:text-gray-400 font-medium">
-                        {p.usedAmount} {p.unit}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Action Buttons */}
-            <div className="flex gap-3 pt-2">
+            {/* 6️⃣ Footer - CTA Buttons */}
+            <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
               <button
                 onClick={() => handleCreateSingleRecipe()}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-purple-100 dark:bg-purple-900/30 hover:bg-purple-200 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-400 text-sm font-medium transition-colors"
               >
                 <RefreshCw className="w-4 h-4" />
                 Inny przepis
               </button>
               <button
-                onClick={() => handleAddToPlan(singleRecipe as any)}
-                disabled={actionLoading}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors disabled:opacity-50"
+                onClick={() => alert("Zapisz (coming soon)")}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 text-sm font-medium transition-colors"
               >
-                <Save className="w-4 h-4" />
-                Zapisz
+                💾 Zapisz
               </button>
               <button
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors"
+                onClick={() => alert("Export PDF (coming soon)")}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors"
               >
-                <FileText className="w-4 h-4" />
-                PDF
+                📄 PDF
+              </button>
+              <button
+                onClick={() => alert("Lista zakupów (coming soon)")}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-sm font-medium transition-colors"
+              >
+                🛒 Lista zakupów
               </button>
             </div>
           </motion.div>
