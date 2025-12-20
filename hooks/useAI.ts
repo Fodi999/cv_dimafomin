@@ -12,6 +12,8 @@ export interface RecipeEconomy {
   usedFromFridge: boolean;
   estimatedExtraCost: number;
   currency: string;
+  usedValue?: number; // Wartość użytych produktów z lodówki
+  savedMoney?: number; // Ile zaoszczędziłeś
 }
 
 export interface Recipe {
