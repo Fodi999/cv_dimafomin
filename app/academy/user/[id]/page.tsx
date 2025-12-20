@@ -7,12 +7,14 @@ import { MapPin, Calendar, Award, Users, Heart, MessageCircle, Share2, Camera, C
 import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { academyApi } from "@/lib/api";
 import type { RecipePost, ProfileData } from "@/lib/types";
 
 export default function UserProfilePage() {
   const { t } = useLanguage();
-  const { user: currentUser, isAuthenticated } = useUser();
+  const { user: currentUser } = useUser();
+  const { isAuthenticated } = useAuth();
   const router = useRouter();
   const params = useParams();
   const userId = params.id as string;

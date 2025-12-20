@@ -212,7 +212,7 @@ export default function CommunityPage() {
           </div>
 
           <Button
-            onClick={() => router.push("/create-chat")}
+            onClick={() => router.push("/assistant")}
             size="lg"
             className="bg-gradient-to-r from-[#3BC864] to-[#C5E98A] hover:opacity-90"
           >
@@ -307,7 +307,7 @@ export default function CommunityPage() {
               {community?.noPosts || "Постів ще немає. Будьте першим!"}
             </p>
             <Button
-              onClick={() => router.push("/create-chat")}
+              onClick={() => router.push("/assistant")}
               className="mt-6 bg-gradient-to-r from-[#3BC864] to-[#C5E98A]"
             >
               <Plus className="w-5 h-5 mr-2" />

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Coins, TrendingUp, Lock, Wallet, RefreshCw } from "lucide-react";
-import { useUser } from "@/contexts/UserContext"; // 🔑 Импортируем useUser
+import { useAuth } from "@/contexts/AuthContext";
 
 interface TreasuryData {
   balance: number;
@@ -14,7 +14,7 @@ interface TreasuryData {
 }
 
 export default function RealTimeTreasuryBalance() {
-  const { token } = useUser(); // 🔑 Получаем токен из контекста
+  const { token } = useAuth();
   const [treasuryData, setTreasuryData] = useState<TreasuryData>({
     balance: 0,
     totalIssued: 0,

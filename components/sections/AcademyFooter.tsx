@@ -54,7 +54,7 @@ export default function AcademyFooter() {
               {[
                 { label: t.footer.navigation.home, href: "/" },
                 { label: t.footer.navigation.academy, href: "/academy" },
-                { label: t.footer.navigation.chat, href: "/create-chat" },
+                { label: t.footer.navigation.chat, href: "/assistant" },
                 { label: t.footer.navigation.profile, href: "/profile" },
               ].map((link) => (
                 <li key={link.href}>

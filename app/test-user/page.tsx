@@ -1,11 +1,13 @@
 "use client";
 
 import { useUser } from "@/contexts/UserContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export default function TestUserPage() {
-  const { user, isAuthenticated, token, refreshBalance } = useUser();
+  const { user, refreshBalance } = useUser();
+  const { isAuthenticated, token } = useAuth();
 
   return (
     <div className="container mx-auto p-8">

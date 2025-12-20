@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Settings, LogOut, ChevronDown, Menu, X, Home, BookOpen, ShoppingBag, BrainCircuit, Sparkles, Refrigerator } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
@@ -15,7 +16,8 @@ interface AdminHeaderProps {
 }
 
 export function AdminHeader({ activeTab = "dashboard", onTabChange, tabs }: AdminHeaderProps) {
-  const { user, logout } = useUser();
+  const { user } = useUser();
+  const { logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [showMenu, setShowMenu] = useState(false);

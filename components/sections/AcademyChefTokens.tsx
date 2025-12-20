@@ -5,11 +5,13 @@ import Link from "next/link";
 import { Coins, TrendingUp, Gift, Gem, Award, Users, Zap, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useUser } from "@/contexts/UserContext"; // 🔑 Добавляем useUser
+import { useUser } from "@/contexts/UserContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function AcademyChefTokens() {
   const { t } = useLanguage();
-  const { user, isAuthenticated } = useUser(); // 🔑 Получаем данные пользователя
+  const { user } = useUser();
+  const { isAuthenticated } = useAuth();
   
   // 🐛 Debug: проверяем данные пользователя
   console.log('[AcademyChefTokens] User data:', { 

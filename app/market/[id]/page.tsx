@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import PurchaseButton from "@/components/market/PurchaseButton";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { useUser } from "@/contexts/UserContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Mock data (в реальному проекті - з API)
 const mockRecipeData: Record<string, any> = {
@@ -42,7 +42,7 @@ interface RecipeDetailPageProps {
 export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
   const { id } = use(params);
   const router = useRouter();
-  const { isAuthenticated } = useUser();
+  const { isAuthenticated } = useAuth();
   const recipe = mockRecipeData[id];
 
   if (!recipe) {
@@ -74,7 +74,7 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
         
         {isAuthenticated && (
           <Link
-            href="/create-chat"
+            href="/assistant"
             className="inline-flex items-center gap-2 px-4 py-2 text-sm text-[#1E1A41] hover:text-[#3BC864] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />

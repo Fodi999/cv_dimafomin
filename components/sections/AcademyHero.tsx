@@ -137,7 +137,7 @@ export default function AcademyHero() {
             </Button>
           </Link>
 
-          <Link href="/create-chat" className="group w-full sm:w-auto">
+          <Link href="/assistant" className="group w-full sm:w-auto">
             <Button className="bg-black text-white hover:bg-gray-900 border-2 border-white font-medium px-6 py-2.5 sm:px-8 sm:py-3 text-sm sm:text-base rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 w-full">
               {t.hero.startDialog}
               <Waves className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform ml-2" />

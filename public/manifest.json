@@ -52,7 +52,7 @@
       "name": "Profile",
       "short_name": "Profile",
       "description": "Open Academy Profile",
-      "url": "/create-chat",
+      "url": "/assistant",
       "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {

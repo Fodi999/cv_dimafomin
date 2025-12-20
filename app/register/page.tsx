@@ -4,13 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useUser } from "@/contexts/UserContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { BrainCircuit, Check } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, isLoading } = useUser();
+  const { register } = useAuth();
   const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
@@ -159,7 +159,7 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   placeholder={t.auth.register.namePlaceholder}
                   className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-slate-700/30 border border-white/20 dark:border-slate-600/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all"
-                  disabled={isSubmitting || isLoading}
+                  disabled={isSubmitting}
                 />
               </div>
 
@@ -175,7 +175,7 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   placeholder={t.auth.register.emailPlaceholder}
                   className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-slate-700/30 border border-white/20 dark:border-slate-600/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all"
-                  disabled={isSubmitting || isLoading}
+                  disabled={isSubmitting}
                 />
               </div>
 
@@ -191,7 +191,7 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   placeholder={t.auth.register.passwordPlaceholder}
                   className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-slate-700/30 border border-white/20 dark:border-slate-600/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all"
-                  disabled={isSubmitting || isLoading}
+                  disabled={isSubmitting}
                 />
                 {formData.password && (
                   <motion.div
@@ -226,7 +226,7 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   placeholder={t.auth.register.confirmPasswordPlaceholder}
                   className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-slate-700/30 border border-white/20 dark:border-slate-600/30 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all"
-                  disabled={isSubmitting || isLoading}
+                  disabled={isSubmitting}
                 />
                 {formData.confirmPassword && (
                   <motion.div
@@ -290,7 +290,6 @@ export default function RegisterPage() {
                 type="submit"
                 disabled={
                   isSubmitting ||
-                  isLoading ||
                   !formData.name ||
                   !formData.email ||
                   formData.password.length < 8 ||
@@ -298,7 +297,7 @@ export default function RegisterPage() {
                 }
                 className="w-full py-3 mt-6 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 disabled:from-gray-500 disabled:to-gray-600 text-white font-semibold rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
               >
-                {isSubmitting || isLoading ? (
+                {isSubmitting ? (
                   <>
                     <motion.div
                       animate={{ rotate: 360 }}

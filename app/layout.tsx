@@ -3,12 +3,13 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { getMetadata } from "@/lib/seo";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { UserProvider } from "@/contexts/UserContext";
 import { CartProvider } from "@/contexts/CartContext";
-import { AuthProvider } from "@/src/contexts/AuthContext";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import PWARegister from "@/components/PWARegister";
 import NavigationBurger from "@/components/NavigationBurger";
+import AuthGate from "@/components/auth/AuthGate";
 
 const inter = Inter({ 
   subsets: ["latin", "cyrillic"],
@@ -69,10 +70,12 @@ export default function RootLayout({
             <LanguageProvider>
               <UserProvider>
                 <CartProvider>
-                  <NavigationBurger />
-                  <div className="min-h-screen">
-                    {children}
-                  </div>
+                  <AuthGate>
+                    <NavigationBurger />
+                    <div className="min-h-screen">
+                      {children}
+                    </div>
+                  </AuthGate>
                 </CartProvider>
               </UserProvider>
             </LanguageProvider>

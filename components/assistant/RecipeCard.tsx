@@ -54,7 +54,7 @@ export function RecipeCard({ recipe, onAddToPlan, onMarkDone, loading }: RecipeC
       <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Składniki:</h4>
         <ul className="space-y-2">
-          {recipe.ingredients.map((ing, idx) => (
+          {(recipe.ingredients || recipe.ingredientsUsed || []).map((ing, idx) => (
             <li key={idx} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
               <span className="text-orange-500 mt-1">•</span>
               <span>
@@ -81,6 +81,97 @@ export function RecipeCard({ recipe, onAddToPlan, onMarkDone, loading }: RecipeC
           ))}
         </ol>
       </div>
+
+      {/* Missing Ingredients - 2 scenariusze */}
+      {recipe.ingredientsMissing && recipe.ingredientsMissing.length > 0 && (
+        <>
+          {/* Сценарий A: Pantry items (koszt = 0) */}
+          {recipe.economy?.estimatedExtraCost === 0 && (
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-green-50 dark:bg-green-900/10">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                <span>🧂</span>
+                Zakładamy, że te produkty są w kuchni
+              </h4>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                Podstawowe składniki (sól, olej, przyprawy) są zwykle w każdym domu
+              </p>
+              <ul className="space-y-2">
+                {recipe.ingredientsMissing.map((ing, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                    <span className="text-green-600 mt-1">•</span>
+                    <span>
+                      {ing.name}
+                      {ing.quantity && ` - ${ing.quantity}`}
+                      {ing.unit && ` ${ing.unit}`}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Сценарий B: Нужно докупить (koszt > 0) */}
+          {recipe.economy && recipe.economy.estimatedExtraCost > 0 && (
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-900/10">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                <span>�</span>
+                Do kupienia
+              </h4>
+              <ul className="space-y-2 mb-3">
+                {recipe.ingredientsMissing.map((ing, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                    <span className="text-blue-500 mt-1">•</span>
+                    <span>
+                      {ing.name}
+                      {ing.quantity && ` - ${ing.quantity}`}
+                      {ing.unit && ` ${ing.unit}`}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <div className="pt-2 border-t border-blue-200 dark:border-blue-800/30">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Szacowany koszt:{" "}
+                  <strong className="text-blue-700 dark:text-blue-400">
+                    ~{recipe.economy.estimatedExtraCost} {recipe.economy.currency || 'PLN'}
+                  </strong>
+                </p>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Economy Info - tylko jeśli używasz z lodówki */}
+      {recipe.economy?.usedFromFridge && (
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-purple-50 dark:bg-purple-900/10">
+          <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+            <span>💰</span>
+            Ekonomia
+          </h4>
+          <p className="text-sm text-gray-700 dark:text-gray-300">
+            ✅ Używasz produktów z lodówki — oszczędzasz!
+          </p>
+        </div>
+      )}
+
+      {/* Chef Tips */}
+      {recipe.chefTips && recipe.chefTips.length > 0 && (
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            <span>💡</span>
+            Wskazówki szefa:
+          </h4>
+          <ul className="space-y-2">
+            {recipe.chefTips.map((tip, idx) => (
+              <li key={idx} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <span className="text-orange-500 mt-1">•</span>
+                <span>{tip}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 flex gap-3">

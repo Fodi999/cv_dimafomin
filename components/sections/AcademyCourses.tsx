@@ -171,7 +171,7 @@ export default function AcademyAIMentor() {
             transition={{ duration: 0.6, delay: 0.5 }}
             className="text-center mt-12"
           >
-            <Link href="/create-chat">
+            <Link href="/assistant">
               <Button className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-medium px-8 py-3 text-base rounded-lg shadow-md hover:shadow-lg dark:shadow-sky-500/20 dark:hover:shadow-sky-500/30 transition-all duration-200 active:scale-95 group">
                 {t.sections.about.ctaButton}
               </Button>

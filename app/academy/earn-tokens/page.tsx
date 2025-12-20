@@ -200,7 +200,7 @@ export default function EarnTokensPage() {
             </Button>
           </Link>
           
-          <Link href="/create-chat">
+          <Link href="/assistant">
             <Button
               size="lg"
               variant="outline"

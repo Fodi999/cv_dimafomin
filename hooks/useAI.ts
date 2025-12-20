@@ -2,15 +2,36 @@ import { useState } from "react";
 
 export type AIGoal = "today_meals" | "3_days_plan" | "reduce_waste" | "budget_review";
 
+export interface RecipeIngredient {
+  name: string;
+  quantity: number;
+  unit: string;
+}
+
+export interface RecipeEconomy {
+  usedFromFridge: boolean;
+  estimatedExtraCost: number;
+  currency: string;
+}
+
 export interface Recipe {
   id?: string;
   title: string;
+  name?: string; // Alternate field name from backend
   description?: string;
-  ingredients: Array<{ name: string; quantity?: string; unit?: string }>;
+  ingredients?: RecipeIngredient[]; // Legacy field
+  ingredientsUsed?: RecipeIngredient[]; // Backend returns this
+  ingredientsMissing?: RecipeIngredient[]; // Missing ingredients to buy
   steps: string[];
   servings?: number;
+  portions?: number; // Alternate field name
   timeMinutes?: number;
+  cookingTime?: number; // Alternate field name
   difficulty?: string;
+  chefTips?: string[]; // Chef's tips and advice
+  expiryPriority?: "critical" | "warning" | "ok" | null;
+  expires_priority?: string; // Alternate field name
+  economy?: RecipeEconomy; // Cost and fridge usage info
   imageUrl?: string;
 }
 

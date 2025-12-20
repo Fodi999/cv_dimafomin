@@ -33,13 +33,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  redirects: async () => [
-    {
-      source: "/chat/create-chat",
-      destination: "/assistant",
-      permanent: true,
-    },
-  ],
 };
 
 export default withPWA({

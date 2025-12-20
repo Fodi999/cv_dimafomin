@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Search, Plus, TrendingUp, Users, Heart, MessageCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
+import { useAuth } from "@/contexts/AuthContext";
 import type { RecipePost } from "@/lib/types";
 
 // Mock global feed data
@@ -78,7 +79,8 @@ const mockFeedPosts: RecipePost[] = [
 
 export default function FeedPage() {
   const { t } = useLanguage();
-  const { user, isAuthenticated } = useUser();
+  const { user } = useUser();
+  const { isAuthenticated } = useAuth();
   const router = useRouter();
   const [posts, setPosts] = useState<RecipePost[]>(mockFeedPosts);
   const [searchQuery, setSearchQuery] = useState("");
@@ -120,7 +122,7 @@ export default function FeedPage() {
           {/* Create Button */}
           {isAuthenticated && (
             <button
-              onClick={() => router.push("/create-chat")}
+              onClick={() => router.push("/assistant")}
               className="flex items-center justify-center gap-2 px-6 py-3 bg-[#3BC864] hover:bg-[#2da552] text-white rounded-full font-semibold shadow-lg transition-all"
             >
               <Plus className="w-5 h-5" />

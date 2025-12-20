@@ -25,6 +25,7 @@ import {
   Refrigerator,
 } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
+import { useAuth } from "@/contexts/AuthContext";
 import AuthModal from "@/components/auth/AuthModal";
 import { NotificationBell } from "@/components/NotificationBell";
 import { CartIcon } from "@/components/CartIcon";
@@ -41,7 +42,8 @@ interface NavLink {
 export default function NavigationBurger() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useUser();
+  const { user } = useUser();
+  const { logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);

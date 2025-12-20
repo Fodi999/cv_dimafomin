@@ -7,7 +7,7 @@ import { X, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useUser } from "@/contexts/UserContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { animations, gradients } from "@/lib/design-tokens";
 
 interface AuthModalProps {
@@ -17,7 +17,7 @@ interface AuthModalProps {
 
 export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const { t } = useLanguage();
-  const { login, register } = useUser();
+  const { login, register } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
   const [showPassword, setShowPassword] = useState(false);
@@ -41,8 +41,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     try {
       await login(loginForm.email, loginForm.password);
       onClose();
-      // Redirect to chat/profile after successful login
-      router.push("/create-chat");
+      // Redirect to assistant after successful login
+      router.push("/assistant");
     } catch (error: any) {
       console.error("Login error:", error);
       
@@ -87,8 +87,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       // Call register API with name, email, password
       await register(registerForm.name, registerForm.email, registerForm.password);
       onClose();
-      // Redirect to chat/profile after successful registration
-      router.push("/create-chat");
+      // Redirect to assistant after successful registration
+      router.push("/assistant");
     } catch (error: any) {
       console.error("Register error:", error);
       

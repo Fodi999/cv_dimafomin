@@ -208,7 +208,7 @@ export default function AcademyAbout() {
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
               {t.sections.about.ctaDescription}
             </p>
-            <Link href="/create-chat">
+            <Link href="/assistant">
               <Button className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-medium px-8 py-3 text-base rounded-lg shadow-md hover:shadow-lg dark:shadow-sky-500/20 dark:hover:shadow-sky-500/30 transition-all duration-200 active:scale-95 group">
                 {t.sections.about.ctaButton}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
