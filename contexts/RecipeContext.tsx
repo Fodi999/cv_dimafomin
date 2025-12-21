@@ -134,7 +134,11 @@ export function RecipeProvider({ children }: { children: ReactNode }) {
       });
 
       if (!res.ok) {
-        console.error("❌ Failed to refresh recipe");
+        const status = res.status;
+        const errorText = await res.text();
+        console.warn(`⚠️ Failed to refresh recipe (${status}): ${errorText}`);
+        console.warn("   This is not critical - backend endpoint may not be implemented yet");
+        console.warn("   User can still use the recipe with original economy data");
         return;
       }
 
@@ -152,9 +156,12 @@ export function RecipeProvider({ children }: { children: ReactNode }) {
         }));
 
         console.log("✅ RecipeContext: Economy refreshed", data.data.economy);
+      } else {
+        console.warn("⚠️ Backend returned success but no economy data");
       }
     } catch (err) {
-      console.error("❌ RecipeContext: Refresh error", err);
+      console.warn("⚠️ RecipeContext: Refresh error (non-critical):", err);
+      console.warn("   User can continue with original economy data");
     } finally {
       setIsLoading(false);
     }

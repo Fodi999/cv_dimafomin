@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, AlertCircle, Clock, RefreshCw, Save, FileText } from "lucide-react";
 import { AIActions } from "@/components/assistant/AIActions";
@@ -64,10 +64,142 @@ export default function AssistantPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [recipeError, setRecipeError] = useState<string | null>(null);
   const [missingIngredientsAdded, setMissingIngredientsAdded] = useState(false);
+  const [fridgeItems, setFridgeItems] = useState<any[]>([]);
 
   // Use recipe from global context (persists across navigation & page reload)
   const singleRecipe = recipeState.recipe;
   const usedProducts = recipeState.usedProducts;
+
+  // 🔑 Helper: Normalize ingredient names for comparison
+  const normalizeIngredientName = (name: string): string => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-ząćęłńóśźż0-9]/g, ""); // Remove special chars, keep Polish letters
+  };
+
+  // 🔑 ПРАВИЛЬНАЯ ЛОГИКА: Пересчитать missing ingredients против РЕАЛЬНОГО холодильника
+  const recomputeMissingIngredients = () => {
+    if (!singleRecipe?.ingredientsMissing) {
+      return {
+        missing: [],
+        inFridge: [],
+      };
+    }
+
+    // ⚠️ ЗАЩИТА: Не пересчитываем если холодильник не загружен
+    if (!fridgeItems || fridgeItems.length === 0) {
+      console.warn("⚠️ Cannot recompute - fridge is empty or not loaded yet");
+      console.warn("   Returning all AI suggestions as 'missing' by default");
+      return {
+        missing: singleRecipe.ingredientsMissing,
+        inFridge: [],
+      };
+    }
+
+    const missing: any[] = [];
+    const inFridge: any[] = [];
+
+    singleRecipe.ingredientsMissing.forEach((ing: any) => {
+      const normalizedIngName = normalizeIngredientName(ing.name);
+      
+      // Check if ingredient exists in fridge with sufficient quantity
+      const fridgeItem = fridgeItems.find((item: any) => {
+        const normalizedItemName = normalizeIngredientName(item.ingredient_name || item.name);
+        return normalizedItemName === normalizedIngName;
+      });
+
+      if (fridgeItem && (fridgeItem.quantity || 0) >= (ing.quantity || 0)) {
+        // ✅ Есть в холодильнике с достаточным количеством
+        inFridge.push({
+          ...ing,
+          availableQuantity: fridgeItem.quantity,
+        });
+      } else if (fridgeItem) {
+        // ⚠️ Есть в холодильнике, но недостаточно
+        missing.push({
+          ...ing,
+          partiallyAvailable: true,
+          availableQuantity: fridgeItem.quantity,
+          needsMore: (ing.quantity || 0) - (fridgeItem.quantity || 0),
+        });
+      } else {
+        // 🛒 Полностью отсутствует
+        missing.push(ing);
+      }
+    });
+
+    console.log("🔍 Recomputed ingredients:", {
+      aiSuggested: singleRecipe.ingredientsMissing.length,
+      inFridge: inFridge.length,
+      missing: missing.length,
+      fridgeItemsCount: fridgeItems.length,
+    });
+
+    return { missing, inFridge };
+  };
+
+  // Load fridge items on mount
+  const loadFridgeItems = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.warn("⚠️ No token - cannot load fridge");
+        return;
+      }
+
+      console.log("🔄 Loading fridge items from API...");
+      const res = await fetch("/api/fridge/items", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      console.log("📡 Fridge API response status:", res.status);
+
+      if (!res.ok) {
+        console.error("❌ Fridge API error:", res.status, res.statusText);
+        return;
+      }
+
+      const data = await res.json();
+      console.log("📦 Raw fridge data:", data);
+
+      // Backend может вернуть items в data.items или data.data.items
+      const items = data.items || data.data?.items || data.data || [];
+      
+      setFridgeItems(items);
+      console.log("🧊 Fridge items loaded:", items.length, "items:", items.map((i: any) => i.ingredient_name || i.name));
+      
+      if (items.length === 0) {
+        console.warn("⚠️ WARNING: Fridge is empty! This may cause incorrect missing ingredients calculation.");
+      }
+    } catch (err) {
+      console.error("❌ Failed to load fridge items:", err);
+    }
+  };
+
+  // Load fridge on mount and when recipe changes
+  useEffect(() => {
+    if (user) {
+      console.log("👤 User loaded, loading fridge items...");
+      loadFridgeItems();
+    }
+  }, [user]);
+
+  // 🔄 Auto-reload fridge when recipe changes or when returning to page
+  useEffect(() => {
+    if (user && singleRecipe) {
+      console.log("� Recipe detected, ensuring fridge is loaded...");
+      // Force reload to ensure data is fresh
+      loadFridgeItems();
+    }
+  }, [singleRecipe?.title]); // Reload when recipe title changes (new recipe)
+
+  // 🔄 Re-trigger recomputation when fridgeItems actually loads
+  useEffect(() => {
+    if (fridgeItems.length > 0 && singleRecipe) {
+      console.log("✅ Fridge loaded, recipe exists - data is synced");
+    }
+  }, [fridgeItems.length, singleRecipe]);
 
   const handleAnalyze = async (goal: AIGoal) => {
     console.log("🔵 handleAnalyze called with goal:", goal);
@@ -194,9 +326,12 @@ export default function AssistantPage() {
     }
   };
 
-  // 🔑 Funkcja dodawania brakujących składników do lodówki
+  // 🔑 Функция добавления бракующих складників до lodówки
   const handleAddMissingIngredients = async () => {
-    if (!singleRecipe || !singleRecipe.ingredientsMissing || singleRecipe.ingredientsMissing.length === 0) {
+    const { missing: realMissing } = recomputeMissingIngredients();
+    
+    if (!singleRecipe || !realMissing || realMissing.length === 0) {
+      console.warn("⚠️ No real missing ingredients to add");
       return;
     }
 
@@ -209,12 +344,14 @@ export default function AssistantPage() {
         return;
       }
 
-      const ingredientsToAdd = singleRecipe.ingredientsMissing.map(ing => ({
+      const ingredientsToAdd = realMissing.map((ing: any) => ({
         name: ing.name,
         quantity: Number(ing.quantity) || 1,
         unit: ing.unit || "szt",
         category: "other", // default category
       }));
+
+      console.log("➕ Adding real missing ingredients:", ingredientsToAdd);
 
       const response = await fridgeApi.addIngredientsBatch(ingredientsToAdd, token);
 
@@ -225,10 +362,18 @@ export default function AssistantPage() {
           : `✅ Dodano ${response.added} składników do lodówki!`;
         alert(message);
         
-        // 🔄 Refresh recipe economy after adding ingredients
-        console.log("🔄 Refreshing recipe economy after adding ingredients...");
-        await refreshRecipe();
-        console.log("✅ Recipe economy refreshed!");
+        // 🔄 Reload fridge items after adding
+        await loadFridgeItems();
+        
+        // 🔄 Try to refresh recipe economy (non-critical)
+        console.log("🔄 Attempting to refresh recipe economy...");
+        try {
+          await refreshRecipe();
+          console.log("✅ Recipe economy refresh completed");
+        } catch (err) {
+          console.warn("⚠️ Recipe economy refresh failed (non-critical):", err);
+          // This is fine - user can continue with original economy
+        }
       } else {
         alert(`❌ Nie udało się dodać składników (${response.failed} failed)`);
       }
@@ -459,52 +604,94 @@ export default function AssistantPage() {
               </ul>
             </div>
 
-            {/* 3️⃣ Brakuje do idealnego smaku (НОВАЯ ЛОГИКА) */}
-            {singleRecipe.ingredientsMissing && singleRecipe.ingredientsMissing.length > 0 && (
-              <div className="bg-amber-50 dark:bg-amber-900/10 rounded-xl p-4 border border-amber-200 dark:border-amber-800/30">
-                <h3 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                  <span className="text-amber-600 dark:text-amber-400">🧂</span>
-                  Brakuje do idealnego smaku
-                </h3>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
-                  ℹ️ Asystent AI sugeruje składniki, które poprawiają smak potrawy
-                </p>
-                <ul className="space-y-2 mb-4">
-                  {singleRecipe.ingredientsMissing.map((ing, i) => (
-                    <li key={i} className="flex justify-between text-sm">
-                      <span className="text-gray-700 dark:text-gray-300">• {ing.name}</span>
-                      <span className="text-gray-600 dark:text-gray-400 font-medium">
-                        {formatQuantity(ing.quantity, ing.unit)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                
-                {/* 🔑 Кнопка: Dodaj do lodówki */}
-                {!missingIngredientsAdded ? (
-                  <button
-                    onClick={handleAddMissingIngredients}
-                    disabled={actionLoading}
-                    className="w-full text-sm px-4 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-700 disabled:bg-gray-400 text-white font-medium transition-colors flex items-center justify-center gap-2"
-                  >
-                    {actionLoading ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        Dodawanie...
-                      </>
-                    ) : (
-                      <>
-                        ➕ Dodaj do lodówki
-                      </>
-                    )}
-                  </button>
-                ) : (
-                  <div className="w-full text-sm px-4 py-2.5 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-medium text-center">
-                    ✅ Składniki dodane do lodówki
-                  </div>
-                )}
-              </div>
-            )}
+            {/* 3️⃣ AI Suggestions - ПРАВИЛЬНАЯ ЛОГИКА (разделяем "в холодильнике" и "нужно докупить") */}
+            {singleRecipe.ingredientsMissing && singleRecipe.ingredientsMissing.length > 0 && (() => {
+              const { missing, inFridge } = recomputeMissingIngredients();
+              
+              return (
+                <>
+                  {/* ✅ Уже есть в холодильнике (AI предлагал, но они уже есть) */}
+                  {inFridge.length > 0 && (
+                    <div className="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-4 border border-blue-200 dark:border-blue-800/30">
+                      <h3 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                        <span className="text-blue-600 dark:text-blue-400">✅</span>
+                        AI sugerował, ale już masz w lodówce
+                      </h3>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                        ℹ️ Te składniki już dodane do przepisu
+                      </p>
+                      <ul className="space-y-2">
+                        {inFridge.map((ing: any, i: number) => (
+                          <li key={i} className="flex justify-between text-sm">
+                            <span className="text-gray-700 dark:text-gray-300">• {ing.name}</span>
+                            <span className="text-gray-600 dark:text-gray-400 font-medium">
+                              {formatQuantity(ing.quantity, ing.unit)}
+                              <span className="text-green-600 dark:text-green-400 ml-2">
+                                (masz {formatQuantity(ing.availableQuantity, ing.unit)})
+                              </span>
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* 🛒 Нужно докупить */}
+                  {missing.length > 0 && (
+                    <div className="bg-amber-50 dark:bg-amber-900/10 rounded-xl p-4 border border-amber-200 dark:border-amber-800/30">
+                      <h3 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                        <span className="text-amber-600 dark:text-amber-400">🛒</span>
+                        Do dokupienia
+                      </h3>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                        ℹ️ Te składniki brakuje w lodówce
+                      </p>
+                      <ul className="space-y-2 mb-4">
+                        {missing.map((ing: any, i: number) => (
+                          <li key={i} className="flex justify-between text-sm">
+                            <span className="text-gray-700 dark:text-gray-300">
+                              • {ing.name}
+                              {ing.partiallyAvailable && (
+                                <span className="text-xs text-orange-600 dark:text-orange-400 ml-1">
+                                  (masz {formatQuantity(ing.availableQuantity, ing.unit)}, potrzebujesz +{formatQuantity(ing.needsMore, ing.unit)})
+                                </span>
+                              )}
+                            </span>
+                            <span className="text-gray-600 dark:text-gray-400 font-medium">
+                              {formatQuantity(ing.quantity, ing.unit)}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                      
+                      {/* 🔑 Кнопка: Dodaj do lodówki */}
+                      {!missingIngredientsAdded ? (
+                        <button
+                          onClick={handleAddMissingIngredients}
+                          disabled={actionLoading}
+                          className="w-full text-sm px-4 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-700 disabled:bg-gray-400 text-white font-medium transition-colors flex items-center justify-center gap-2"
+                        >
+                          {actionLoading ? (
+                            <>
+                              <RefreshCw className="w-4 h-4 animate-spin" />
+                              Dodawanie...
+                            </>
+                          ) : (
+                            <>
+                              ➕ Dodaj do lodówki
+                            </>
+                          )}
+                        </button>
+                      ) : (
+                        <div className="w-full text-sm px-4 py-2.5 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-medium text-center">
+                          ✅ Składniki dodane do lodówki
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
 
             {/* 4️⃣ Ekonomia (ПОНЯТНО, НЕ СУХО) */}
             <div className="bg-purple-50 dark:bg-purple-900/10 rounded-xl p-4 border border-purple-200 dark:border-purple-800/30">
