@@ -1265,6 +1265,115 @@ export const adminApi = {
   },
 };
 
+// ==================== RECIPE MATCHING API ====================
+
+export interface RecipeMatchParams {
+  limit?: number;
+  minCoverage?: number;
+  maxMissingCost?: number;
+  maxTimeMinutes?: number;
+  countries?: string[];
+  sort?: 'score' | 'coverage' | 'time';
+  order?: 'asc' | 'desc';
+}
+
+export interface RecipeMatchIngredient {
+  name: string;
+  quantity: number;
+  unit: string;
+  pricePerUnit?: number;
+  totalPrice?: number;
+}
+
+export interface RecipeMatchEconomy {
+  usedValue: number;
+  costToComplete: number;
+  totalRecipeCost: number;
+  wasteRiskSaved: number;
+  currency: string;
+}
+
+export interface RecipeMatch {
+  recipeId: string;
+  title: string;
+  description?: string;
+  imageUrl?: string;
+  country?: string;
+  difficulty?: string;
+  cookingTime: number;
+  servings: number;
+  score: number;
+  coverage: number;
+  usedIngredients: RecipeMatchIngredient[];
+  missingIngredients: RecipeMatchIngredient[];
+  economy: RecipeMatchEconomy;
+  canCookNow: boolean;
+  missingCount: number;
+  usedCount: number;
+}
+
+export interface CookRecipeParams {
+  servingsMultiplier?: number;
+  idempotencyKey: string;
+}
+
+export interface CookRecipeResult {
+  success: boolean;
+  message: string;
+  ingredientsUsed: Array<{
+    name: string;
+    quantityUsed: number;
+    unit: string;
+    remainingInFridge: number;
+  }>;
+  economySnapshot: {
+    usedValue: number;
+    wasteRiskSaved: number;
+    currency: string;
+  };
+}
+
+export const recipeMatchingApi = {
+  /**
+   * GET /api/recipes/match
+   * Find recipes that match user's fridge contents
+   */
+  getRecipeMatches: async (params: RecipeMatchParams = {}, token: string): Promise<RecipeMatch[]> => {
+    const queryParams = new URLSearchParams();
+    
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.minCoverage) queryParams.append('minCoverage', params.minCoverage.toString());
+    if (params.maxMissingCost) queryParams.append('maxMissingCost', params.maxMissingCost.toString());
+    if (params.maxTimeMinutes) queryParams.append('maxTimeMinutes', params.maxTimeMinutes.toString());
+    if (params.countries?.length) queryParams.append('countries', params.countries.join(','));
+    if (params.sort) queryParams.append('sort', params.sort);
+    if (params.order) queryParams.append('order', params.order);
+
+    const url = `/recipes/match${queryParams.toString() ? `?${queryParams}` : ''}`;
+    console.log('🔍 Fetching recipe matches:', url);
+    
+    return apiFetch<RecipeMatch[]>(url, { token });
+  },
+
+  /**
+   * POST /api/recipes/{id}/cook
+   * Mark recipe as cooked and deduct ingredients from fridge
+   */
+  cookRecipe: async (
+    recipeId: string,
+    params: CookRecipeParams,
+    token: string
+  ): Promise<CookRecipeResult> => {
+    console.log('👨‍🍳 Cooking recipe:', recipeId, 'with params:', params);
+    
+    return apiFetch<CookRecipeResult>(`/recipes/${recipeId}/cook`, {
+      method: 'POST',
+      token,
+      body: JSON.stringify(params),
+    });
+  },
+};
+
 // Export default API object
 export default {
   auth: authApi,
@@ -1281,4 +1390,5 @@ export default {
   health: healthApi,
   user: userApi,
   admin: adminApi,
+  recipeMatching: recipeMatchingApi,
 };

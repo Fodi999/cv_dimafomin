@@ -1,15 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, AlertCircle, Clock, RefreshCw, Save, FileText } from "lucide-react";
+import { Sparkles, AlertCircle, Clock, RefreshCw, Save, FileText, Search, Filter } from "lucide-react";
 import { AIActions } from "@/components/assistant/AIActions";
 import { AIResults } from "@/components/assistant/AIResults";
 import { useAI, type AIGoal, type Recipe } from "@/hooks/useAI";
 import { useUser } from "@/contexts/UserContext";
 import { useRecipe } from "@/contexts/RecipeContext";
 import { useRouter } from "next/navigation";
-import { fridgeApi } from "@/lib/api";
+import { fridgeApi, recipeMatchingApi, type RecipeMatch } from "@/lib/api";
+import RecipeMatchCard from "@/components/recipes/RecipeMatchCard";
+import { generateUUID } from "@/lib/uuid";
 
 // Types for recipe response
 interface RecipeIngredient {
@@ -65,6 +67,12 @@ export default function AssistantPage() {
   const [recipeError, setRecipeError] = useState<string | null>(null);
   const [missingIngredientsAdded, setMissingIngredientsAdded] = useState(false);
   const [fridgeItems, setFridgeItems] = useState<any[]>([]);
+
+  // 🆕 Recipe Matching State
+  const [recipeMatches, setRecipeMatches] = useState<RecipeMatch[]>([]);
+  const [matchesLoading, setMatchesLoading] = useState(false);
+  const [matchesError, setMatchesError] = useState<string | null>(null);
+  const [showMatches, setShowMatches] = useState(false);
 
   // Use recipe from global context (persists across navigation & page reload)
   const singleRecipe = recipeState.recipe;
@@ -200,6 +208,101 @@ export default function AssistantPage() {
       console.log("✅ Fridge loaded, recipe exists - data is synced");
     }
   }, [fridgeItems.length, singleRecipe]);
+
+  // 🆕 Recipe Matching Functions
+  const loadRecipeMatches = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (!token || !user) {
+      console.warn("⚠️ No token or user - cannot load recipe matches");
+      return;
+    }
+
+    setMatchesLoading(true);
+    setMatchesError(null);
+
+    try {
+      console.log("🔍 Loading recipe matches...");
+      const matches = await recipeMatchingApi.getRecipeMatches(
+        {
+          limit: 10,
+          sort: 'score',
+          order: 'desc',
+        },
+        token
+      );
+
+      setRecipeMatches(matches);
+      console.log(`✅ Loaded ${matches.length} recipe matches`);
+    } catch (err: any) {
+      console.error("❌ Failed to load recipe matches:", err);
+      setMatchesError(err.message || "Nie udało się załadować przepisów");
+    } finally {
+      setMatchesLoading(false);
+    }
+  }, [user]);
+
+  const handleCookRecipe = useCallback(async (recipeId: string, idempotencyKey: string) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Wymagana autoryzacja");
+      return;
+    }
+
+    try {
+      console.log("👨‍🍳 Cooking recipe:", recipeId, "with key:", idempotencyKey);
+      
+      const result = await recipeMatchingApi.cookRecipe(
+        recipeId,
+        { idempotencyKey, servingsMultiplier: 1 },
+        token
+      );
+
+      if (result.success) {
+        // 🎉 Success toast
+        const usedValue = result.economySnapshot.usedValue.toFixed(2);
+        const savedValue = result.economySnapshot.wasteRiskSaved.toFixed(2);
+        const currency = result.economySnapshot.currency;
+
+        alert(
+          `✅ Gotowe!\n\n` +
+          `💵 Wykorzystano: ${usedValue} ${currency}\n` +
+          `💰 Uratowano przed marnowaniem: ${savedValue} ${currency}`
+        );
+
+        // 🔄 Optimistic update: update fridge items locally
+        const updatedFridgeItems = fridgeItems.map(item => {
+          const usedIng = result.ingredientsUsed.find(
+            ing => normalizeIngredientName(ing.name) === normalizeIngredientName(item.ingredient_name || item.name)
+          );
+
+          if (usedIng) {
+            return {
+              ...item,
+              quantity: usedIng.remainingInFridge,
+            };
+          }
+          return item;
+        }).filter(item => item.quantity > 0); // Remove items with 0 quantity
+
+        setFridgeItems(updatedFridgeItems);
+        console.log("🧊 Fridge updated locally:", updatedFridgeItems.length, "items remaining");
+
+        // 🔄 Background refresh: reload fridge and recipe matches
+        setTimeout(() => {
+          loadFridgeItems();
+          loadRecipeMatches();
+        }, 500);
+      }
+    } catch (err: any) {
+      console.error("❌ Failed to cook recipe:", err);
+      alert(`❌ Błąd: ${err.message || "Nie udało się ugotować przepisu"}`);
+    }
+  }, [fridgeItems, loadRecipeMatches]);
+
+  const handleAddToShoppingList = useCallback((recipeId: string) => {
+    // TODO: Implement shopping list feature
+    alert("🛒 Funkcja listy zakupów - wkrótce!");
+  }, []);
 
   const handleAnalyze = async (goal: AIGoal) => {
     console.log("🔵 handleAnalyze called with goal:", goal);
@@ -487,6 +590,122 @@ export default function AssistantPage() {
           transition={{ delay: 0.1 }}
         >
           <AIActions onAnalyze={handleAnalyze} loading={loading || isLoading} />
+        </motion.div>
+
+        {/* 🆕 Recipe Matching Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="space-y-4"
+        >
+          {/* Toggle Button */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <Search className="w-6 h-6 text-purple-500" />
+                Dopasowane przepisy
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Przepisy idealnie dopasowane do zawartości twojej lodówki
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setShowMatches(!showMatches);
+                if (!showMatches && recipeMatches.length === 0) {
+                  loadRecipeMatches();
+                }
+              }}
+              disabled={matchesLoading}
+              className="px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium transition-all flex items-center gap-2 shadow-sm"
+            >
+              {matchesLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Ładowanie...
+                </>
+              ) : showMatches ? (
+                <>
+                  Ukryj przepisy
+                </>
+              ) : (
+                <>
+                  <Search className="w-5 h-5" />
+                  Pokaż przepisy
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Matches Display */}
+          {showMatches && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="space-y-4"
+            >
+              {/* Error State */}
+              {matchesError && (
+                <div className="rounded-xl border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-red-900 dark:text-red-200 mb-1">
+                        Błąd ładowania przepisów
+                      </p>
+                      <p className="text-sm text-red-800 dark:text-red-300">
+                        {matchesError}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Empty State */}
+              {!matchesLoading && recipeMatches.length === 0 && !matchesError && (
+                <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-8 text-center">
+                  <Search className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Nie znaleziono dopasowanych przepisów
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
+                    Spróbuj dodać więcej produktów do lodówki
+                  </p>
+                </div>
+              )}
+
+              {/* Recipe Matches Grid */}
+              {recipeMatches.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {recipeMatches.map((recipe) => (
+                    <RecipeMatchCard
+                      key={recipe.recipeId}
+                      recipe={recipe}
+                      onCook={handleCookRecipe}
+                      onAddToShoppingList={handleAddToShoppingList}
+                      isLoading={matchesLoading}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Reload Button */}
+              {recipeMatches.length > 0 && (
+                <div className="flex justify-center pt-4">
+                  <button
+                    onClick={loadRecipeMatches}
+                    disabled={matchesLoading}
+                    className="px-6 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-colors flex items-center gap-2"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${matchesLoading ? 'animate-spin' : ''}`} />
+                    Odśwież przepisy
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Loading State for Single Recipe */}
