@@ -12,6 +12,9 @@ interface RecipeCardProps {
 }
 
 export function RecipeCard({ recipe, onAddToPlan, onMarkDone, loading }: RecipeCardProps) {
+  // 🔍 DEBUG: Log economy data
+  console.log("💰 RecipeCard economy data:", recipe.economy);
+  
   // Определяем badge для expiryPriority
   const getExpiryBadge = () => {
     if (!recipe.expiryPriority) return null;
@@ -89,22 +92,7 @@ export function RecipeCard({ recipe, onAddToPlan, onMarkDone, loading }: RecipeC
         </ul>
       </div>
 
-      {/* Steps */}
-      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-        <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Kroki przygotowania:</h4>
-        <ol className="space-y-3">
-          {recipe.steps.map((step, idx) => (
-            <li key={idx} className="flex gap-3 text-sm text-gray-700 dark:text-gray-300">
-              <span className="flex-shrink-0 w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                {idx + 1}
-              </span>
-              <span className="pt-0.5">{step}</span>
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      {/* Missing Ingredients - 2 scenariusze */}
+      {/* 4️⃣ Missing Ingredients - 2 scenariusze */}
       {recipe.ingredientsMissing && recipe.ingredientsMissing.length > 0 && (
         <>
           {/* Сценарий A: Pantry items (koszt = 0) */}
@@ -164,20 +152,86 @@ export function RecipeCard({ recipe, onAddToPlan, onMarkDone, loading }: RecipeC
         </>
       )}
 
-      {/* Economy Info - tylko jeśli używasz z lodówki */}
-      {recipe.economy?.usedFromFridge && (
+      {/* 5️⃣ Economy (САМАЯ ВАЖНАЯ СЕКЦИЯ - killer feature) */}
+      {recipe.economy && (
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-purple-50 dark:bg-purple-900/10">
-          <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+          <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
             <span>💰</span>
             Ekonomia
           </h4>
-          <p className="text-sm text-gray-700 dark:text-gray-300">
-            ✅ Używasz produktów z lodówki — oszczędzasz!
-          </p>
+          <div className="space-y-2 text-sm">
+            {/* Użyto produktów z lodówki */}
+            {recipe.economy.usedValue !== undefined && (
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 dark:text-gray-300">
+                  Użyto produktów z lodówki:
+                </span>
+                <span className="font-bold text-purple-700 dark:text-purple-400">
+                  {recipe.economy.usedValue.toFixed(2)} {recipe.economy.currency || 'PLN'}
+                </span>
+              </div>
+            )}
+            
+            {/* Do kupienia / Nie musisz nic kupować */}
+            {recipe.economy.estimatedExtraCost !== undefined && (
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 dark:text-gray-300">
+                  {recipe.economy.estimatedExtraCost > 0 ? 'Do kupienia:' : 'Nie musisz nic kupować'}
+                </span>
+                <span className="font-bold text-blue-700 dark:text-blue-400">
+                  {recipe.economy.estimatedExtraCost > 0 
+                    ? `~${recipe.economy.estimatedExtraCost.toFixed(2)} ${recipe.economy.currency || 'PLN'}`
+                    : '✅'
+                  }
+                </span>
+              </div>
+            )}
+            
+            {/* Oszczędzasz (główny selling point) */}
+            {recipe.economy.savedMoney !== undefined && (
+              <div className="pt-2 mt-2 border-t border-purple-200 dark:border-purple-800/30">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-900 dark:text-white font-semibold">
+                    Oszczędzasz:
+                  </span>
+                  <span className="font-bold text-green-600 dark:text-green-400 text-lg">
+                    {recipe.economy.savedMoney.toFixed(2)} {recipe.economy.currency || 'PLN'}
+                  </span>
+                </div>
+              </div>
+            )}
+            
+            {/* Fallback dla starych danych (jeśli backend nie wysyła usedValue/savedMoney) */}
+            {recipe.economy.usedFromFridge && 
+             recipe.economy.usedValue === undefined && 
+             recipe.economy.savedMoney === undefined && (
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                ✅ Używasz produktów z lodówki — oszczędzasz!
+              </p>
+            )}
+          </div>
         </div>
       )}
 
-      {/* Chef Tips */}
+      {/* 6️⃣ Preparation Steps (👨‍🍳 Przygotowanie) */}
+      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+          <span>👨‍🍳</span>
+          Przygotowanie
+        </h4>
+        <ol className="space-y-3">
+          {recipe.steps.map((step, idx) => (
+            <li key={idx} className="flex gap-3 text-sm text-gray-700 dark:text-gray-300">
+              <span className="flex-shrink-0 w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                {idx + 1}
+              </span>
+              <span className="pt-0.5">{step}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      {/* 7️⃣ Chef Tips (opcjonalne - PRO feature w przyszłości) */}
       {recipe.chefTips && recipe.chefTips.length > 0 && (
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">

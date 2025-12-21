@@ -9,6 +9,7 @@ import { useAI, type AIGoal, type Recipe } from "@/hooks/useAI";
 import { useUser } from "@/contexts/UserContext";
 import { useRouter } from "next/navigation";
 import { fridgeApi } from "@/lib/api";
+import { normalizeRecipe, type NormalizedRecipe } from "@/lib/recipe-normalizer";
 
 // Types for recipe response
 interface RecipeIngredient {
@@ -59,9 +60,10 @@ export default function AssistantPage() {
   };
   const { runAI, result, loading, error, clearResult, setLoading } = useAI();
   const [actionLoading, setActionLoading] = useState(false);
-  const [singleRecipe, setSingleRecipe] = useState<RecipeData | null>(null);
+  const [singleRecipe, setSingleRecipe] = useState<NormalizedRecipe | null>(null);
   const [usedProducts, setUsedProducts] = useState<UsedProduct[]>([]);
   const [recipeError, setRecipeError] = useState<string | null>(null);
+  const [missingIngredientsAdded, setMissingIngredientsAdded] = useState(false);
 
   const handleAnalyze = async (goal: AIGoal) => {
     console.log("🔵 handleAnalyze called with goal:", goal);
@@ -154,30 +156,15 @@ export default function AssistantPage() {
 
       console.log("🍽️ Recipe received:", recipe);
 
-      // 🔧 NORMALIZATION: Handle different API response formats
-      const normalizedRecipe = {
-        title: recipe.title ?? recipe.name ?? "Przepis z AI",
-        description: recipe.description ?? "",
-        ingredients: recipe.ingredients ?? recipe.ingredientsUsed ?? [],
-        ingredientsMissing: recipe.ingredientsMissing ?? [],
-        steps: recipe.steps ?? [],
-        servings: recipe.servings ?? recipe.portions ?? null,
-        timeMinutes: recipe.timeMinutes ?? recipe.cookingTime ?? null,
-        difficulty: recipe.difficulty ?? "średni",
-        chefTips: recipe.chefTips ?? [],
-        expiryPriority: recipe.expiryPriority ?? recipe.expires_priority ?? null,
-        economy: recipe.economy ?? {
-          usedFromFridge: true,
-          estimatedExtraCost: 0,
-          currency: "PLN",
-        },
-      };
-
+      // 🔧 NORMALIZATION: Используем единый нормализатор
+      const normalizedRecipe = normalizeRecipe(recipe);
       console.log("🔧 Normalized recipe:", normalizedRecipe);
+      console.log("� Economy:", normalizedRecipe.economy);
 
       // ✅ SUCCESS - display recipe
       setSingleRecipe(normalizedRecipe);
       setUsedProducts(data.data?.usedProducts ?? []);
+      setMissingIngredientsAdded(false); // Reset flag on new recipe
       console.log("✅ Recipe set in state");
       console.log("📦 Used products count:", data.data?.usedProducts?.length ?? 0);
       console.log("🛒 Missing ingredients count:", normalizedRecipe.ingredientsMissing?.length ?? 0);
@@ -200,6 +187,47 @@ export default function AssistantPage() {
     } catch (err) {
       console.error("Error adding to plan:", err);
       alert("Błąd podczas dodawania do planu");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // 🔑 Funkcja dodawania brakujących składników do lodówki
+  const handleAddMissingIngredients = async () => {
+    if (!singleRecipe || !singleRecipe.ingredientsMissing || singleRecipe.ingredientsMissing.length === 0) {
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Wymagana autoryzacja");
+        setActionLoading(false);
+        return;
+      }
+
+      const ingredientsToAdd = singleRecipe.ingredientsMissing.map(ing => ({
+        name: ing.name,
+        quantity: Number(ing.quantity) || 1,
+        unit: ing.unit || "szt",
+        category: "other", // default category
+      }));
+
+      const response = await fridgeApi.addIngredientsBatch(ingredientsToAdd, token);
+
+      if (response.success && response.added > 0) {
+        setMissingIngredientsAdded(true);
+        const message = response.failed > 0 
+          ? `✅ Dodano ${response.added} składników. ${response.failed} nie znaleziono w bazie.`
+          : `✅ Dodano ${response.added} składników do lodówki!`;
+        alert(message);
+      } else {
+        alert(`❌ Nie udało się dodać składników (${response.failed} failed)`);
+      }
+    } catch (err: any) {
+      console.error("Error adding missing ingredients:", err);
+      alert(`❌ Błąd: ${err.message || "Nie udało się dodać składników"}`);
     } finally {
       setActionLoading(false);
     }
@@ -392,10 +420,10 @@ export default function AssistantPage() {
 
               {/* Time & Servings */}
               <div className="flex gap-6 text-sm text-gray-600 dark:text-gray-400">
-                {singleRecipe.timeMinutes && (
+                {singleRecipe.cookingTime > 0 && (
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4" />
-                    <span><strong>{singleRecipe.timeMinutes} min</strong></span>
+                    <span><strong>{singleRecipe.cookingTime} min</strong></span>
                   </div>
                 )}
                 {singleRecipe.servings && (
@@ -413,7 +441,7 @@ export default function AssistantPage() {
                 Z lodówki
               </h3>
               <ul className="space-y-2">
-                {singleRecipe.ingredients.map((ing, i) => (
+                {singleRecipe.ingredientsUsed.map((ing, i) => (
                   <li key={i} className="flex justify-between text-sm">
                     <span className="text-gray-700 dark:text-gray-300">• {ing.name}</span>
                     <span className="text-gray-600 dark:text-gray-400 font-medium">
@@ -424,80 +452,86 @@ export default function AssistantPage() {
               </ul>
             </div>
 
-            {/* 3️⃣ Brakujące składniki - 2 scenariusze */}
+            {/* 3️⃣ Brakuje do idealnego smaku (НОВАЯ ЛОГИКА) */}
             {singleRecipe.ingredientsMissing && singleRecipe.ingredientsMissing.length > 0 && (
-              <>
-                {/* Сценарий A: Wszystko jest (pantry items) - estimatedExtraCost = 0 */}
-                {singleRecipe.economy?.estimatedExtraCost === 0 && (
-                  <div className="bg-green-50 dark:bg-green-900/10 rounded-xl p-4 border border-green-200 dark:border-green-800/30">
-                    <h3 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                      <span className="text-green-600 dark:text-green-400">🧂</span>
-                      Zakładamy, że te produkty są w kuchni
-                    </h3>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
-                      Podstawowe składniki (sól, olej, przyprawy) są zwykle w każdym domu
-                    </p>
-                    <ul className="space-y-2">
-                      {singleRecipe.ingredientsMissing.map((ing, i) => (
-                        <li key={i} className="flex justify-between text-sm">
-                          <span className="text-gray-700 dark:text-gray-300">• {ing.name}</span>
-                          <span className="text-gray-600 dark:text-gray-400 font-medium">
-                            {formatQuantity(ing.quantity, ing.unit)}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Сценарий B: Нужно докупить - estimatedExtraCost > 0 */}
-                {singleRecipe.economy && singleRecipe.economy.estimatedExtraCost > 0 && (
-                  <div className="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-4 border border-blue-200 dark:border-blue-800/30">
-                    <h3 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                      <span className="text-blue-600 dark:text-blue-400">🛒</span>
-                      Do kupienia
-                    </h3>
-                    <ul className="space-y-2 mb-3">
-                      {singleRecipe.ingredientsMissing.map((ing, i) => (
-                        <li key={i} className="flex justify-between text-sm">
-                          <span className="text-gray-700 dark:text-gray-300">• {ing.name}</span>
-                          <span className="text-gray-600 dark:text-gray-400 font-medium">
-                            {formatQuantity(ing.quantity, ing.unit)}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="pt-2 border-t border-blue-200 dark:border-blue-800/30">
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        Szacowany koszt:{" "}
-                        <strong className="text-blue-700 dark:text-blue-400">
-                          ~{singleRecipe.economy.estimatedExtraCost} {singleRecipe.economy.currency}
-                        </strong>
-                      </p>
-                      <button
-                        onClick={() => alert("Lista zakupów (coming soon)")}
-                        className="w-full text-sm px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
-                      >
-                        Dodaj do listy zakupów
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* 4️⃣ Ekonomia - только если używasz produktów z lodówki */}
-            {singleRecipe.economy?.usedFromFridge && (
-              <div className="bg-purple-50 dark:bg-purple-900/10 rounded-xl p-4 border border-purple-200 dark:border-purple-800/30">
+              <div className="bg-amber-50 dark:bg-amber-900/10 rounded-xl p-4 border border-amber-200 dark:border-amber-800/30">
                 <h3 className="font-medium text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                  <span className="text-purple-600 dark:text-purple-400">💰</span>
-                  Ekonomia
+                  <span className="text-amber-600 dark:text-amber-400">🧂</span>
+                  Brakuje do idealnego smaku
                 </h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300">
-                  ✅ Używasz produktów z lodówki — oszczędzasz, bo wykorzystujesz to, co masz!
+                <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                  ℹ️ Asystent AI sugeruje składniki, które poprawiają smak potrawy
                 </p>
+                <ul className="space-y-2 mb-4">
+                  {singleRecipe.ingredientsMissing.map((ing, i) => (
+                    <li key={i} className="flex justify-between text-sm">
+                      <span className="text-gray-700 dark:text-gray-300">• {ing.name}</span>
+                      <span className="text-gray-600 dark:text-gray-400 font-medium">
+                        {formatQuantity(ing.quantity, ing.unit)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                
+                {/* 🔑 Кнопка: Dodaj do lodówki */}
+                {!missingIngredientsAdded ? (
+                  <button
+                    onClick={handleAddMissingIngredients}
+                    disabled={actionLoading}
+                    className="w-full text-sm px-4 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-700 disabled:bg-gray-400 text-white font-medium transition-colors flex items-center justify-center gap-2"
+                  >
+                    {actionLoading ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        Dodawanie...
+                      </>
+                    ) : (
+                      <>
+                        ➕ Dodaj do lodówki
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <div className="w-full text-sm px-4 py-2.5 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-medium text-center">
+                    ✅ Składniki dodane do lodówki
+                  </div>
+                )}
               </div>
             )}
+
+            {/* 4️⃣ Ekonomia (ПОНЯТНО, НЕ СУХО) */}
+            <div className="bg-purple-50 dark:bg-purple-900/10 rounded-xl p-4 border border-purple-200 dark:border-purple-800/30">
+              <h3 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                <span className="text-purple-600 dark:text-purple-400">💰</span>
+                Ekonomia
+              </h3>
+              
+              {singleRecipe.economy.estimatedExtraCost === 0 ? (
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  ✅ <strong>Używasz produktów z lodówki</strong> — oszczędzasz pieniądze i redukujesz marnotrawstwo!
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    🛒 Do dokupienia:{" "}
+                    <strong className="text-blue-600 dark:text-blue-400">
+                      ~{singleRecipe.economy.estimatedExtraCost} {singleRecipe.economy.currency}
+                    </strong>
+                  </p>
+                  {singleRecipe.economy.usedValue && singleRecipe.economy.usedValue > 0 && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      💵 Użyto z lodówki:{" "}
+                      <strong>{singleRecipe.economy.usedValue.toFixed(2)} {singleRecipe.economy.currency}</strong>
+                    </p>
+                  )}
+                  {singleRecipe.economy.savedMoney && singleRecipe.economy.savedMoney > 0 && (
+                    <p className="text-sm text-green-600 dark:text-green-400 font-semibold">
+                      💰 Oszczędzasz: {singleRecipe.economy.savedMoney.toFixed(2)} {singleRecipe.economy.currency}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* 5️⃣ Przygotowanie (steps) */}
             <div>

@@ -784,6 +784,46 @@ export const fridgeApi = {
       body: JSON.stringify({ ingredients }),
     });
   },
+
+  /**
+   * Batch добавление ингредиентов (для "Dodaj brakujące do lodówki")
+   * Использует /api/fridge/search + /api/fridge/items для каждого ингредиента
+   */
+  addIngredientsBatch: async (
+    ingredients: Array<{ name: string; quantity: number; unit: string; category?: string }>,
+    token: string
+  ): Promise<{ success: boolean; added: number; failed: number }> => {
+    let added = 0;
+    let failed = 0;
+
+    for (const ing of ingredients) {
+      try {
+        // 1. Найти ingredient_id по имени
+        const searchResult = await fridgeApi.searchIngredients(ing.name, token);
+        
+        if (searchResult.count > 0) {
+          const ingredientId = searchResult.items[0].id;
+          
+          // 2. Добавить в fridge
+          await fridgeApi.addItem({
+            ingredientId,
+            quantity: ing.quantity,
+            unit: ing.unit,
+          }, token);
+          
+          added++;
+        } else {
+          console.warn(`Ingredient not found: ${ing.name}`);
+          failed++;
+        }
+      } catch (error) {
+        console.error(`Failed to add ${ing.name}:`, error);
+        failed++;
+      }
+    }
+
+    return { success: added > 0, added, failed };
+  },
 };
 
 // ==================== HEALTH CHECK ====================
