@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react";
 import { normalizeRecipe, type NormalizedRecipe } from "@/lib/recipe-normalizer";
 
 // Types
@@ -27,17 +27,51 @@ interface RecipeContextType {
   isLoading: boolean;
 }
 
+// LocalStorage key
+const STORAGE_KEY = "sushi_chef_recipe";
+
 // Create context
 const RecipeContext = createContext<RecipeContextType | null>(null);
 
 // Provider component
 export function RecipeProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<RecipeState>({
-    recipe: null,
-    usedProducts: [],
-    lastUpdatedAt: null,
+  const [state, setState] = useState<RecipeState>(() => {
+    // 🔄 Initialize from localStorage on mount
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          console.log("🔄 RecipeContext: Restored from localStorage", parsed.recipe?.title);
+          return parsed;
+        }
+      } catch (err) {
+        console.error("❌ RecipeContext: Failed to restore from localStorage", err);
+      }
+    }
+    return {
+      recipe: null,
+      usedProducts: [],
+      lastUpdatedAt: null,
+    };
   });
   const [isLoading, setIsLoading] = useState(false);
+
+  // 💾 Save to localStorage whenever state changes
+  useEffect(() => {
+    if (state.recipe) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        console.log("💾 RecipeContext: Saved to localStorage");
+      } catch (err) {
+        console.error("❌ RecipeContext: Failed to save to localStorage", err);
+      }
+    } else {
+      // Clear storage when recipe is null
+      localStorage.removeItem(STORAGE_KEY);
+      console.log("🗑️ RecipeContext: Cleared localStorage");
+    }
+  }, [state]);
 
   // Set recipe (with normalization)
   const setRecipe = useCallback((data: { recipe: any; usedProducts?: UsedProduct[] }) => {

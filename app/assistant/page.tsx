@@ -7,9 +7,9 @@ import { AIActions } from "@/components/assistant/AIActions";
 import { AIResults } from "@/components/assistant/AIResults";
 import { useAI, type AIGoal, type Recipe } from "@/hooks/useAI";
 import { useUser } from "@/contexts/UserContext";
+import { useRecipe } from "@/contexts/RecipeContext";
 import { useRouter } from "next/navigation";
 import { fridgeApi } from "@/lib/api";
-import { normalizeRecipe, type NormalizedRecipe } from "@/lib/recipe-normalizer";
 
 // Types for recipe response
 interface RecipeIngredient {
@@ -47,6 +47,7 @@ interface UsedProduct {
 export default function AssistantPage() {
   const router = useRouter();
   const { user, isLoading } = useUser();
+  const { state: recipeState, setRecipe, clearRecipe, refreshRecipe, isLoading: recipeLoading } = useRecipe();
 
   // Helper function to format quantity and unit
   const formatQuantity = (quantity: number, unit: string) => {
@@ -58,29 +59,33 @@ export default function AssistantPage() {
     }
     return `${quantity} ${unit}`;
   };
+  
   const { runAI, result, loading, error, clearResult, setLoading } = useAI();
   const [actionLoading, setActionLoading] = useState(false);
-  const [singleRecipe, setSingleRecipe] = useState<NormalizedRecipe | null>(null);
-  const [usedProducts, setUsedProducts] = useState<UsedProduct[]>([]);
   const [recipeError, setRecipeError] = useState<string | null>(null);
   const [missingIngredientsAdded, setMissingIngredientsAdded] = useState(false);
+
+  // Use recipe from global context (persists across navigation & page reload)
+  const singleRecipe = recipeState.recipe;
+  const usedProducts = recipeState.usedProducts;
 
   const handleAnalyze = async (goal: AIGoal) => {
     console.log("🔵 handleAnalyze called with goal:", goal);
     
-    // Clear single recipe when running other goals
-    setSingleRecipe(null);
-    setUsedProducts([]);
+    // Clear recipe when running other goals
+    clearRecipe();
     setRecipeError(null);
     
     // Special handling for "today_meals" - create single recipe
     if (goal === "today_meals") {
       console.log("🟢 Detected today_meals goal - creating single recipe");
+      console.log("📍 Endpoint: /api/ai/create-recipe-from-fridge");
       await handleCreateSingleRecipe();
       return;
     }
     
     console.log("🟡 Running standard AI analysis for goal:", goal);
+    console.log("📍 Endpoint: /api/ai/fridge/analyze (generic analysis)");
     await runAI(goal);
   };
 
@@ -100,8 +105,7 @@ export default function AssistantPage() {
     }
     
     setRecipeError(null);
-    setSingleRecipe(null);
-    setUsedProducts([]);
+    clearRecipe();
     clearResult();
     setLoading(true);
 
@@ -156,19 +160,17 @@ export default function AssistantPage() {
 
       console.log("🍽️ Recipe received:", recipe);
 
-      // 🔧 NORMALIZATION: Используем единый нормализатор
-      const normalizedRecipe = normalizeRecipe(recipe);
-      console.log("🔧 Normalized recipe:", normalizedRecipe);
-      console.log("� Economy:", normalizedRecipe.economy);
-
-      // ✅ SUCCESS - display recipe
-      setSingleRecipe(normalizedRecipe);
-      setUsedProducts(data.data?.usedProducts ?? []);
+      // ✅ SUCCESS - save to RecipeContext (persists across navigation & page reload)
+      setRecipe({
+        recipe: recipe,
+        usedProducts: data.data?.usedProducts ?? [],
+      });
+      
       setMissingIngredientsAdded(false); // Reset flag on new recipe
-      console.log("✅ Recipe set in state");
+      console.log("✅ Recipe saved to RecipeContext (persists across navigation & reload)");
       console.log("📦 Used products count:", data.data?.usedProducts?.length ?? 0);
-      console.log("🛒 Missing ingredients count:", normalizedRecipe.ingredientsMissing?.length ?? 0);
-      console.log("💰 Economy data:", normalizedRecipe.economy);
+      console.log("🛒 Missing ingredients count:", recipe.ingredientsMissing?.length ?? 0);
+      console.log("💰 Economy data:", recipe.economy);
 
     } catch (err: any) {
       console.error("❌ Fetch error:", err);
@@ -222,6 +224,11 @@ export default function AssistantPage() {
           ? `✅ Dodano ${response.added} składników. ${response.failed} nie znaleziono w bazie.`
           : `✅ Dodano ${response.added} składników do lodówki!`;
         alert(message);
+        
+        // 🔄 Refresh recipe economy after adding ingredients
+        console.log("🔄 Refreshing recipe economy after adding ingredients...");
+        await refreshRecipe();
+        console.log("✅ Recipe economy refreshed!");
       } else {
         alert(`❌ Nie udało się dodać składników (${response.failed} failed)`);
       }
