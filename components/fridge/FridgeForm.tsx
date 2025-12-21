@@ -15,6 +15,8 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
   const [searchValue, setSearchValue] = useState("");
   const [selectedIngredient, setSelectedIngredient] = useState<CatalogIngredient | null>(null);
   const [quantity, setQuantity] = useState("");
+  const [priceValue, setPriceValue] = useState("");
+  const [pricePer, setPricePer] = useState<"kg" | "szt" | "l">("kg");
   const [isAdding, setIsAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,16 +47,28 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
       const shelfLifeDays = selectedIngredient.defaultShelfLifeDays || 7;
       expiresAt.setDate(expiresAt.getDate() + shelfLifeDays);
       
-      await onAdd({
+      const addData: AddFridgeItemData = {
         ingredientId: selectedIngredient.id,
         quantity: quantityNum,
         unit: selectedIngredient.unit,
         expiresAt: expiresAt.toISOString(),
-      });
+      };
+
+      // 💰 Add price if provided
+      if (priceValue && !isNaN(parseFloat(priceValue)) && parseFloat(priceValue) > 0) {
+        addData.priceInput = {
+          value: parseFloat(priceValue),
+          per: pricePer,
+        };
+      }
+      
+      await onAdd(addData);
       
       setSearchValue("");
       setSelectedIngredient(null);
       setQuantity("");
+      setPriceValue("");
+      setPricePer("kg");
     } catch (err: any) {
       console.error("Failed to add item:", err);
       setError(err.message || "Błąd podczas dodawania produktu");
@@ -125,8 +139,39 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
           disabled={!selectedIngredient}
           className="w-full px-4 py-3 rounded-lg border border-sky-200 dark:border-sky-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed"
         />
-        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-          💡 Cenę możesz dodać później
+      </div>
+
+      {/* 💰 Price Input (Recommended) */}
+      <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          💰 Cena <span className="text-xs font-normal text-amber-600 dark:text-amber-400">(polecane - do obliczeń oszczędności)</span>
+        </label>
+        <div className="flex gap-2">
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            value={priceValue}
+            onChange={(e) => setPriceValue(e.target.value)}
+            placeholder="np. 50"
+            disabled={!selectedIngredient}
+            className="flex-1 px-4 py-3 rounded-lg border border-sky-200 dark:border-sky-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+          <span className="flex items-center px-3 text-sm text-gray-600 dark:text-gray-400">PLN za</span>
+          <select
+            value={pricePer}
+            onChange={(e) => setPricePer(e.target.value as "kg" | "l" | "szt")}
+            disabled={!selectedIngredient}
+            className="px-4 py-3 rounded-lg border border-sky-200 dark:border-sky-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <option value="kg">kg</option>
+            <option value="l">litr</option>
+            <option value="szt">szt</option>
+          </select>
+        </div>
+        <p className="mt-2 text-xs text-amber-600 dark:text-amber-400 flex items-start gap-1">
+          <span className="text-base">⚠️</span>
+          <span><strong>Bez ceny nie pokażemy ile oszczędzasz</strong> w przepisach. Dodaj cenę, aby zobaczyć realne oszczędności!</span>
         </p>
       </div>
 

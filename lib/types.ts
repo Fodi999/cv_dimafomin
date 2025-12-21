@@ -238,6 +238,10 @@ export interface AddFridgeItemData {
   quantity: number;
   unit: string;
   expiresAt?: string; // ISO 8601 date string (optional - calculated from defaultShelfLifeDays)
-  pricePerUnit?: number; // Optional: price per unit (kg/l/szt)
-  priceUnit?: string; // Optional: unit for pricing (kg, l, szt)
+  pricePerUnit?: number; // Optional: price per unit (kg/l/szt) - LEGACY
+  priceUnit?: string; // Optional: unit for pricing (kg, l, szt) - LEGACY
+  priceInput?: {
+    value: number; // e.g., 50 PLN
+    per: "kg" | "l" | "szt"; // per kilogram/liter/piece
+  };
 }

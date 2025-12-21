@@ -18,7 +18,7 @@ export function AIActions({ onAnalyze, loading }: AIActionsProps) {
       goal: "today_meals" as AIGoal,
       icon: <ChefHat className="w-5 h-5" />,
       label: "Stwórz przepis",
-      description: "Na podstawie dostępnych składników i stylu kuchni",
+      description: "💰 Z kalkulacją oszczędności! (economy)",
       color: "from-orange-500 to-red-500",
       hoverColor: "hover:from-orange-600 hover:to-red-600",
     },

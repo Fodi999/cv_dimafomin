@@ -6,6 +6,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { UserProvider } from "@/contexts/UserContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { RecipeProvider } from "@/contexts/RecipeContext";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import PWARegister from "@/components/PWARegister";
 import NavigationBurger from "@/components/NavigationBurger";
@@ -70,12 +71,14 @@ export default function RootLayout({
             <LanguageProvider>
               <UserProvider>
                 <CartProvider>
-                  <AuthGate>
-                    <NavigationBurger />
-                    <div className="min-h-screen">
-                      {children}
-                    </div>
-                  </AuthGate>
+                  <RecipeProvider>
+                    <AuthGate>
+                      <NavigationBurger />
+                      <div className="min-h-screen">
+                        {children}
+                      </div>
+                    </AuthGate>
+                  </RecipeProvider>
                 </CartProvider>
               </UserProvider>
             </LanguageProvider>

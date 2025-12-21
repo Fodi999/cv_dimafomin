@@ -22,9 +22,10 @@ export async function POST(request: NextRequest) {
     
     const { language = "pl" } = body;
 
-    // Call backend to create recipe from fridge
-    const backendUrl = `${BACKEND_URL}/api/ai/fridge/analyze`;
+    // Call backend to create recipe from fridge WITH ECONOMY
+    const backendUrl = `${BACKEND_URL}/api/ai/create-recipe-from-fridge`;
     console.log("🌐 Calling backend:", backendUrl);
+    console.log("💰 This backend endpoint returns FULL economy data");
     
     const response = await fetch(backendUrl, {
       method: "POST",
@@ -33,8 +34,6 @@ export async function POST(request: NextRequest) {
         Authorization: authHeader,
       },
       body: JSON.stringify({
-        goal: "today_meals",
-        preferences: { time: "normal", budget: "normal" },
         language,
       }),
     });
