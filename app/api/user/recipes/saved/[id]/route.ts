@@ -9,7 +9,7 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Extract token from Authorization header
@@ -22,7 +22,7 @@ export async function DELETE(
     }
 
     const token = authHeader.replace('Bearer ', '');
-    const recipeId = params.id;
+    const { id: recipeId } = await params;
 
     console.log(`🗑️ DELETE /api/user/recipes/saved/${recipeId}`);
 
