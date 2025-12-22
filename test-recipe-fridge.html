@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Recipe Fridge Check</title>
+</head>
+<body>
+    <h1>🧪 Test Recipe Fridge Integration</h1>
+    <button onclick="testRecipe()">Test Recipe with Token</button>
+    <pre id="result"></pre>
+
+    <script>
+        async function testRecipe() {
+            const token = localStorage.getItem('token');
+            const resultEl = document.getElementById('result');
+            
+            if (!token) {
+                resultEl.textContent = '❌ No token found in localStorage!\n\nPlease:\n1. Open https://dima-fomin.pl\n2. Login\n3. Return to this page and click button again';
+                return;
+            }
+
+            resultEl.textContent = '🔄 Loading recipe...\nToken: ' + token.substring(0, 30) + '...';
+
+            try {
+                const response = await fetch('https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app/api/recipes/92691aae-c3af-427d-aaed-1408319f0a3c', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                
+                const ingredients = data.data.ingredients.map(ing => ({
+                    name: ing.ingredient.name,
+                    needed: `${ing.quantity} ${ing.unit}`,
+                    inFridge: ing.inFridge,
+                    fridgeQuantity: ing.fridgeQuantity ? `${ing.fridgeQuantity} ${ing.unit}` : 'none',
+                }));
+
+                const stats = {
+                    total: ingredients.length,
+                    available: ingredients.filter(i => i.inFridge).length,
+                    missing: ingredients.filter(i => !i.inFridge).length,
+                };
+
+                resultEl.textContent = JSON.stringify({
+                    recipeName: data.data.localName,
+                    stats,
+                    ingredients,
+                }, null, 2);
+
+            } catch (error) {
+                resultEl.textContent = '❌ Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

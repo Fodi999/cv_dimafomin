@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, AlertCircle, Clock, RefreshCw, Save, FileText, Search, Filter, Plus, Minus, Users, Star, RotateCw } from "lucide-react";
+import { Sparkles, AlertCircle, Clock, RefreshCw, Save, FileText, Search, Filter, Plus, Minus, Users } from "lucide-react";
+import { toast } from "sonner";
 import { AIActions } from "@/components/assistant/AIActions";
 import { AIResults } from "@/components/assistant/AIResults";
 import { useAI, type AIGoal, type Recipe } from "@/hooks/useAI";
@@ -10,11 +11,11 @@ import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRecipe } from "@/contexts/RecipeContext";
 import { useRouter } from "next/navigation";
-import { fridgeApi, recipeMatchingApi, type RecipeMatch, type RecipeMatchIngredient } from "@/lib/api";
-import RecipeMatchCard from "@/components/recipes/RecipeMatchCard";
+import { fridgeApi, recipeMatchingApi, type RecipeMatch, type RecipeMatchIngredient, type AIRecommendationResult } from "@/lib/api";
+import AIRecommendationCard from "@/components/assistant/AIRecommendationCard";
 import { generateUUID } from "@/lib/uuid";
-import { useToast } from "@/hooks/useToast";
-import { ToastContainer } from "@/components/common/Toast";
+import { AIMessageCard } from "@/components/ai/AIMessageCard";
+import { useRecipeStats } from "@/hooks/useRecipeStats";
 
 // Types for recipe response
 interface RecipeIngredient {
@@ -55,8 +56,11 @@ export default function AssistantPage() {
   const { openAuthModal } = useAuth();
   const { state: recipeState, setRecipe, clearRecipe, refreshRecipe, isLoading: recipeLoading } = useRecipe();
   
-  // 🆕 Toast notifications
-  const toast = useToast();
+  // 🔢 Recipe stats (global context for AI messages)
+  const { stats, loading: statsLoading } = useRecipeStats();
+  
+  // ✨ AI response state (for AIMessageCard)
+  const [aiResponse, setAiResponse] = useState<{ code?: string; context?: any; success?: boolean } | null>(null);
 
   // Helper function to format quantity and unit
   const formatQuantity = (quantity: number, unit: string) => {
@@ -83,7 +87,6 @@ export default function AssistantPage() {
   });
   
   const [matchesLoading, setMatchesLoading] = useState(false);
-  const [matchesError, setMatchesError] = useState<string | null>(null);
   
   const [showMatches, setShowMatches] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -145,6 +148,28 @@ export default function AssistantPage() {
       setAiRecipeServings(singleRecipe.servings);
     }
   }, [singleRecipe]);
+
+  // 📊 Log recipe stats for debugging
+  useEffect(() => {
+    if (stats) {
+      console.log('📊 Recipe stats loaded:', {
+        totalRecipes: stats.totalRecipes,
+        byCategory: Object.keys(stats.byCategory).length > 0 ? stats.byCategory : 'empty'
+      });
+    }
+  }, [stats]);
+
+  // 🔍 Log aiResponse context enrichment for debugging
+  useEffect(() => {
+    if (aiResponse && aiResponse.context) {
+      console.log('🔍 AI Response context:', {
+        code: aiResponse.code,
+        context: aiResponse.context,
+        hasTotalRecipes: 'totalRecipes' in aiResponse.context,
+        totalRecipes: aiResponse.context.totalRecipes
+      });
+    }
+  }, [aiResponse]);
 
   // 🆕 AI Recipe scale coefficient
   const aiRecipeScale = singleRecipe && aiRecipeServings 
@@ -307,30 +332,63 @@ export default function AssistantPage() {
     const token = localStorage.getItem("token");
     if (!token || !user) {
       console.warn("⚠️ No token or user - cannot load recipe matches");
+      setAiResponse({ 
+        code: 'AUTH_REQUIRED', 
+        context: { totalRecipes: stats?.totalRecipes ?? 0 },
+        success: false 
+      });
       return;
     }
 
     setMatchesLoading(true);
-    setMatchesError(null);
+    setAiResponse(null); // Clear previous messages
 
     try {
       console.log("🎯 Loading AI recommendation...");
       console.log(`   Excluding ${viewedRecipeIds.length} recipe(s):`, viewedRecipeIds);
       
-      // 🆕 Используем /recommendations с excludeRecipeIds для избегания дубликатов
-      const recommendation = await recipeMatchingApi.getRecommendation(
+      // 🆕 Get recommendation using union type (handles success: false gracefully)
+      const result = await recipeMatchingApi.getRecommendation(
         'fridge', 
         20, 
         token,
-        viewedRecipeIds // ← Передаём список просмотренных рецептов
+        viewedRecipeIds
       );
       
-      if (!recommendation) {
-        // Если закончились рецепты, сбрасываем список и пробуем заново
-        toast.info("Показано все доступные рецепты! Начинаю сначала...");
-        setViewedRecipeIds([]);
-        return; // User can click "Odśwież" again
+      // 🛡️ Handle empty state (no-results is a VALID scenario, not an error)
+      if (result.status === 'no-results') {
+        console.info("ℹ️ AI: No matching recipes (expected scenario)");
+        setRecipeMatches([]);
+        
+        // ✨ Show AIMessageCard for empty results
+        if (result.requiresUserAction) {
+          console.log("🔔 Showing AIMessageCard (requiresUserAction = true)");
+          setAiResponse({
+            code: viewedRecipeIds.length > 0 ? 'ALL_RECIPES_VIEWED' : 'NO_RECIPES_FOR_FRIDGE',
+            context: { 
+              fridgeItems: fridgeItems.length,
+              viewedCount: viewedRecipeIds.length,
+              totalRecipes: stats?.totalRecipes ?? 0, // 🔢 Frontend enrichment
+            },
+            success: false,
+          });
+        } else {
+          console.log("📨 Showing generic failure message");
+          setAiResponse({
+            code: 'FETCH_FAILED',
+            context: { 
+              message: result.message,
+              totalRecipes: stats?.totalRecipes ?? 0, // 🔢 Frontend enrichment
+            },
+            success: false,
+          });
+        }
+        
+        return;
       }
+      
+      // ✅ Success case - we have a recipe
+      const recommendation = result.recipe;
       
       console.log("✅ AI Recommendation received:");
       console.log(`   Recipe: "${recommendation.title}" (ID: ${recommendation.recipeId})`);
@@ -346,19 +404,24 @@ export default function AssistantPage() {
       // Обёртываем в массив для совместимости с ONE CARD AT A TIME UX
       setRecipeMatches([recommendation]);
       setCurrentRecipeIndex(0);
+      setAiResponse(null); // Clear any error messages
       
     } catch (err: any) {
       console.error("❌ Failed to load AI recommendation:", err);
-      setMatchesError(err.message || "Nie udało się załadować rekomendacji");
       
-      // Show toast error
-      toast.error(
-        err.message || "Nie udało się załadować przepisu"
-      );
+      // Show AIMessageCard for network errors
+      setAiResponse({
+        code: 'FETCH_FAILED',
+        context: { 
+          message: err.message || "Nie udało się załadować przepisu",
+          totalRecipes: stats?.totalRecipes ?? 0, // 🔢 Frontend enrichment
+        },
+        success: false,
+      });
     } finally {
       setMatchesLoading(false);
     }
-  }, [user, toast, viewedRecipeIds]);
+  }, [user, viewedRecipeIds, router, fridgeItems.length, stats]);
 
   const handleCookRecipe = useCallback(async (
     recipeId: string, 
@@ -367,7 +430,7 @@ export default function AssistantPage() {
   ) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("Wymagana autoryzacja", "Zaloguj się, aby ugotować przepis");
+      toast.error("Zaloguj się, aby ugotować przepis");
       return;
     }
 
@@ -383,16 +446,15 @@ export default function AssistantPage() {
       );
 
       if (result.success) {
-        // 🎉 Success toast
+        // Success toast
         const usedValue = result.economySnapshot.usedValue.toFixed(2);
         const savedValue = result.economySnapshot.wasteRiskSaved.toFixed(2);
         const currency = result.economySnapshot.currency;
         const ingredientsCount = result.ingredientsUsed.length;
 
         toast.success(
-          "Smacznego! 🍽️",
-          `Wykorzystano ${ingredientsCount} ${ingredientsCount === 1 ? 'składnik' : 'składników'} z lodówki (${usedValue} ${currency}). Uratowano ${savedValue} ${currency} przed marnowaniem!`,
-          7000
+          `Smacznego! Wykorzystano ${ingredientsCount} ${ingredientsCount === 1 ? 'składnik' : 'składników'} z lodówki (${usedValue} ${currency}). Uratowano ${savedValue} ${currency} przed marnowaniem!`,
+          { duration: 7000 }
         );
 
         // 🔄 Optimistic update: update fridge items locally
@@ -424,13 +486,13 @@ export default function AssistantPage() {
       
       // Handle specific error cases
       if (err.status === 409) {
-        toast.warning("Już ugotowane", "Ten przepis został już oznaczony jako ugotowany");
+        toast.warning("Ten przepis został już oznaczony jako ugotowany");
       } else if (err.status === 404) {
-        toast.error("Przepis nie znaleziony", "Nie można znaleźć tego przepisu w katalogu");
+        toast.error("Nie można znaleźć tego przepisu w katalogu");
       } else if (err.status === 400) {
-        toast.error("Błąd w danych", err.message || "Sprawdź czy wszystkie dane są poprawne");
+        toast.error(err.message || "Sprawdź czy wszystkie dane są poprawne");
       } else {
-        toast.error("Nie udało się ugotować", err.message || "Spróbuj ponownie za chwilę");
+        toast.error(err.message || "Nie udało się ugotować. Spróbuj ponownie za chwilę");
       }
     }
   }, [fridgeItems, loadRecipeMatches]);
@@ -439,7 +501,7 @@ export default function AssistantPage() {
     console.log('🛒 Adding to shopping list:', { recipeId, missingIngredients });
     
     if (!missingIngredients || missingIngredients.length === 0) {
-      toast.warning('Brak składników', 'Nie ma składników do dodania');
+      toast.warning('Nie ma składników do dodania');
       return;
     }
 
@@ -455,11 +517,10 @@ export default function AssistantPage() {
     );
 
     toast.success(
-      `Dodano ${missingIngredients.length} ${missingIngredients.length === 1 ? 'składnik' : 'składników'}`,
-      `${ingredientsList}\n\nSzacunkowy koszt: ~${totalCost.toFixed(2)} PLN`,
-      8000
+      `Dodano ${missingIngredients.length} ${missingIngredients.length === 1 ? 'składnik' : 'składników'}. Szacunkowy koszt: ~${totalCost.toFixed(2)} PLN`,
+      { duration: 8000 }
     );
-  }, [toast]);
+  }, []);
 
   // 🆕 Navigate to next recipe (ONE CARD AT A TIME)
   const handleNextRecipe = useCallback(() => {
@@ -472,17 +533,64 @@ export default function AssistantPage() {
     });
   }, [recipeMatches.length]);
 
-  // 🆕 Reload recipes from API
   const handleReloadRecipes = useCallback(async () => {
     setCurrentRecipeIndex(0);
-    await loadRecipeMatches();
-  }, [loadRecipeMatches]);
+    setViewedRecipeIds([]); // Reset viewed recipes
+    setAiResponse(null); // Clear any AI messages
+    setShowMatches(false); // Hide matches section
+  }, []);
 
-  // 🆕 Save recipe to favorites
+  // 🎯 Unified AI Action Handler
+  const handleAIAction = useCallback((actionId: string) => {
+    console.log("🎯 AI Action:", actionId);
+    
+    switch (actionId) {
+      case 'ADD_PRODUCTS':
+        router.push('/fridge');
+        break;
+        
+      case 'VIEW_SAVED':
+        router.push('/recipes/saved');
+        break;
+        
+      case 'VIEW_CATALOG':
+        router.push('/recipes');
+        break;
+        
+      case 'RESET_VIEWED':
+        handleReloadRecipes();
+        break;
+        
+      case 'RETRY':
+        loadRecipeMatches();
+        break;
+        
+      case 'LOGIN':
+        openAuthModal('login');
+        break;
+        
+      case 'GENERATE_RECIPE':
+        handleCreateSingleRecipe();
+        break;
+        
+      case 'FIND_URGENT_RECIPES':
+        loadRecipeMatches();
+        break;
+        
+      case 'VIEW_FRIDGE':
+        router.push('/fridge');
+        break;
+        
+      default:
+        console.warn("⚠️ Unknown AI action:", actionId);
+    }
+  }, [router, handleReloadRecipes, loadRecipeMatches, openAuthModal]);
+
+  // Save recipe to favorites
   const handleSaveRecipe = useCallback(async (recipeId: string) => {
     const token = localStorage.getItem('token');
     if (!token) {
-      toast.error('Wymagana autoryzacja', 'Zaloguj się, aby zapisać przepis');
+      toast.error('Zaloguj się, aby zapisać przepis');
       return;
     }
 
@@ -501,15 +609,15 @@ export default function AssistantPage() {
       const data = await response.json();
 
       if (data.success) {
-        toast.success('Przepis zapisany!', 'Znajdziesz go w sekcji "Zapisane przepisy"', 5000);
+        toast.success('Przepis zapisany! Znajdziesz go w sekcji "Zapisane przepisy"', { duration: 5000 });
       } else {
         throw new Error(data.message || 'Nie udało się zapisać przepisu');
       }
     } catch (err: any) {
       console.error('❌ Failed to save recipe:', err);
-      toast.error('Nie udało się zapisać', err.message || 'Spróbuj ponownie');
+      toast.error(err.message || 'Nie udało się zapisać. Spróbuj ponownie');
     }
-  }, [toast]);
+  }, []);
 
   const handleAnalyze = async (goal: AIGoal) => {
     console.log("🔵 handleAnalyze called with goal:", goal);
@@ -831,7 +939,9 @@ export default function AssistantPage() {
                   className="px-4 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-medium transition-all flex items-center gap-2 shadow-sm"
                   title="Wyczyść zapisane przepisy"
                 >
-                  🗑️
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
                 </button>
               )}
               
@@ -872,32 +982,22 @@ export default function AssistantPage() {
               exit={{ opacity: 0, height: 0 }}
               className="space-y-4"
             >
-              {/* Error State */}
-              {matchesError && (
-                <div className="rounded-xl border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-4">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-500 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-red-900 dark:text-red-200 mb-1">
-                        Błąd ładowania przepisów
-                      </p>
-                      <p className="text-sm text-red-800 dark:text-red-300">
-                        {matchesError}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+              {/* ✨ Show AIMessageCard if present (unified AI-UX) */}
+              {aiResponse && !aiResponse.success && (
+                <AIMessageCard
+                  code={aiResponse.code!}
+                  context={aiResponse.context}
+                  onAction={handleAIAction}
+                  onDismiss={() => setAiResponse(null)}
+                />
               )}
 
-              {/* Empty State */}
-              {!matchesLoading && recipeMatches.length === 0 && !matchesError && (
+              {/* Empty State - Only show if no AI message and no matches */}
+              {!matchesLoading && recipeMatches.length === 0 && !aiResponse && (
                 <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-8 text-center">
                   <Search className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
                   <p className="text-gray-600 dark:text-gray-400">
-                    Nie znaleziono dopasowanych przepisów
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
-                    Spróbuj dodać więcej produktów do lodówki
+                    Kliknij "Pokaż przepisy" aby rozpocząć
                   </p>
                 </div>
               )}
@@ -908,78 +1008,17 @@ export default function AssistantPage() {
                 
                 return (
                   <div className="space-y-6">
-                    {/* Recipe Progress Indicator */}
-                    <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-                      <span>
-                        Przepis {currentRecipeIndex + 1} z {recipeMatches.length}
-                      </span>
-                      <span className="text-xs">
-                        Score: <strong className="text-purple-600 dark:text-purple-400">{currentRecipe.score} pts</strong>
-                      </span>
-                    </div>
-
                     {/* Main Recipe Card */}
-                    <RecipeMatchCard
-                      key={currentRecipe.recipeId}
+                    <AIRecommendationCard
                       recipe={currentRecipe}
-                      onCook={handleCookRecipe}
-                      onAddToShoppingList={handleAddToShoppingList}
-                      isLoading={matchesLoading}
+                      onCook={(servingsMultiplier) => handleCookRecipe(currentRecipe.recipeId, generateUUID(), servingsMultiplier)}
+                      onSave={() => handleSaveRecipe(currentRecipe.recipeId)}
+                      onAddToCart={() => handleAddToShoppingList(currentRecipe.recipeId, currentRecipe.missingIngredients)}
+                      onRefresh={handleReloadRecipes}
+                      isCooking={matchesLoading}
+                      isSaving={false}
+                      weeklyBudget={undefined} // TODO: Get from useWallet() when integrated
                     />
-
-                    {/* Action Buttons Below Card */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      {/* Reload - Get New AI Recommendation */}
-                      <button
-                        onClick={handleReloadRecipes}
-                        disabled={matchesLoading}
-                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium transition-all flex items-center justify-center gap-2 shadow-sm"
-                      >
-                        <RotateCw className={`w-5 h-5 ${matchesLoading ? 'animate-spin' : ''}`} />
-                        � Odśwież propozycję
-                      </button>
-
-                      {/* Save Recipe */}
-                      <button
-                        onClick={() => handleSaveRecipe(currentRecipe.recipeId)}
-                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-medium transition-all flex items-center justify-center gap-2 shadow-sm"
-                      >
-                        <Star className="w-5 h-5" />
-                        ⭐ Zapisz przepis
-                      </button>
-
-                      {/* Reset Viewed Recipes - Show All Again */}
-                      {viewedRecipeIds.length > 1 && (
-                        <button
-                          onClick={() => {
-                            setViewedRecipeIds([]);
-                            toast.info("Lista resetowana - pokażę wszystkie przepisy ponownie");
-                          }}
-                          className="px-6 py-3 rounded-xl bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-medium transition-all flex items-center justify-center gap-2 shadow-sm"
-                        >
-                          <RotateCw className="w-5 h-5" />
-                          🔄 Resetuj ({viewedRecipeIds.length} przepisów)
-                        </button>
-                      )}
-                    </div>
-
-                    {/* AI Hint - Why This Recipe? */}
-                    {currentRecipe.score >= 80 && (
-                      <div className="bg-purple-50 dark:bg-purple-900/10 rounded-xl p-4 border border-purple-200 dark:border-purple-800/30">
-                        <div className="flex items-start gap-3">
-                          <div className="text-2xl">💡</div>
-                          <div>
-                            <h4 className="font-semibold text-purple-900 dark:text-purple-100 mb-1">
-                              Dlaczego ten przepis?
-                            </h4>
-                            <p className="text-sm text-purple-800 dark:text-purple-200">
-                              Ten przepis został wybrany, ponieważ wykorzystuje <strong>{currentRecipe.usedCount} składników</strong> z Twojej lodówki 
-                              ({currentRecipe.coverage.toFixed(0)}% pokrycia) i możesz go ugotować {currentRecipe.canCookNow ? 'od razu' : `dokupując tylko ${currentRecipe.missingCount} składników`}.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 );
               })()}
@@ -1046,9 +1085,6 @@ export default function AssistantPage() {
           </motion.div>
         )}
       </div>
-      
-      {/* 🆕 Toast Notifications Container */}
-      <ToastContainer toasts={toast.toasts} onClose={toast.removeToast} />
     </div>
   );
 }

@@ -52,7 +52,10 @@ export function OrdersTable({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>🛒 Заказы</CardTitle>
+        <div className="flex items-center gap-2">
+          <ShoppingCart className="w-5 h-5" />
+          <CardTitle>Заказы</CardTitle>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="rounded-md border">

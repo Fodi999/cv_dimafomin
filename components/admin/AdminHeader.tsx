@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { Settings, LogOut, ChevronDown, Menu, X, Home, BookOpen, ShoppingBag, BrainCircuit, Sparkles, Refrigerator } from "lucide-react";
+import { Settings, LogOut, ChevronDown, Menu, X, Home, BookOpen, ShoppingBag, BrainCircuit, Sparkles, Refrigerator, LayoutDashboard, Users, ShoppingCart, Coins } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 
@@ -51,11 +51,11 @@ export function AdminHeader({ activeTab = "dashboard", onTabChange, tabs }: Admi
   }, [showMobileMenu]);
 
   const defaultTabs = [
-    { id: "dashboard", label: "📊 Dashboard" },
-    { id: "users", label: "👥 Користувачі" },
-    { id: "orders", label: "🛒 Замовлення" },
-    { id: "tokens", label: "🪙 Токіни" },
-    { id: "settings", label: "⚙️ Налаштування" },
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "users", label: "Користувачі", icon: Users },
+    { id: "orders", label: "Замовлення", icon: ShoppingCart },
+    { id: "tokens", label: "Токіни", icon: Coins },
+    { id: "settings", label: "Налаштування", icon: Settings },
   ];
 
   const tabsToShow = tabs || defaultTabs;
@@ -66,11 +66,11 @@ export function AdminHeader({ activeTab = "dashboard", onTabChange, tabs }: Admi
   if (!isMounted) return null;
 
   const adminNavLinks = [
-    { id: "dashboard", label: "📊 Dashboard", href: "/admin/dashboard" },
-    { id: "users", label: "👥 Користувачі", href: "/admin/users" },
-    { id: "orders", label: "🛒 Замовлення", href: "/admin/orders" },
-    { id: "tokens", label: "🪙 Токіни", href: "/admin/token-bank" },
-    { id: "settings", label: "⚙️ Налаштування", href: "/admin/settings" },
+    { id: "dashboard", label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+    { id: "users", label: "Користувачі", href: "/admin/users", icon: Users },
+    { id: "orders", label: "Замовлення", href: "/admin/orders", icon: ShoppingCart },
+    { id: "tokens", label: "Токіни", href: "/admin/token-bank", icon: Coins },
+    { id: "settings", label: "Налаштування", href: "/admin/settings", icon: Settings },
   ];
 
   return (
@@ -152,8 +152,8 @@ export function AdminHeader({ activeTab = "dashboard", onTabChange, tabs }: Admi
                           : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border-l-4 border-transparent"
                       }`}
                     >
-                      <span className="text-lg">{link.label.split(" ")[0]}</span>
-                      <span className="font-medium text-sm">{link.label.slice(2)}</span>
+                      {link.icon && <link.icon className="w-5 h-5" />}
+                      <span className="font-medium text-sm">{link.label}</span>
                     </motion.div>
                   ))}
                 </nav>
@@ -248,8 +248,8 @@ export function AdminHeader({ activeTab = "dashboard", onTabChange, tabs }: Admi
               onClick={() => setShowMenu(!showMenu)}
               className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium text-slate-700 dark:text-slate-300"
             >
-              <span className="hidden sm:inline text-sm">🛡️ Адмін</span>
-              <span className="sm:hidden">🛡️</span>
+              <Settings className="w-4 h-4" />
+              <span className="hidden sm:inline text-sm">Адмін</span>
               <ChevronDown className={`w-4 h-4 transition ${showMenu ? "rotate-180" : ""}`} />
             </button>
 
@@ -297,12 +297,13 @@ export function AdminHeader({ activeTab = "dashboard", onTabChange, tabs }: Admi
               <button
                 key={tab.id}
                 onClick={() => onTabChange?.(tab.id)}
-                className={`px-3 sm:px-4 py-3 text-xs sm:text-sm font-semibold whitespace-nowrap rounded-t-lg transition ${
+                className={`flex items-center gap-2 px-3 sm:px-4 py-3 text-xs sm:text-sm font-semibold whitespace-nowrap rounded-t-lg transition ${
                   activeTab === tab.id
                     ? "bg-white dark:bg-slate-900 text-purple-600 dark:text-purple-400 shadow-sm border-b-2 border-purple-600"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-800/50"
                 }`}
               >
+                {tab.icon && <tab.icon className="w-4 h-4" />}
                 {tab.label}
               </button>
             ))}

@@ -23,6 +23,10 @@ import {
   Shield,
   LogIn,
   Refrigerator,
+  Star,
+  GraduationCap,
+  Library,
+  Store,
 } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -99,7 +103,7 @@ export default function NavigationBurger() {
     
     // ===== 2. GOTOWANIE =====
     {
-      label: "🧊 Lodówka",
+      label: "Lodówka",
       href: "/fridge",
       icon: <Refrigerator className="w-5 h-5" />,
       description: "Zarządzaj składnikami i datami",
@@ -107,16 +111,16 @@ export default function NavigationBurger() {
       category: "Gotowanie",
     },
     {
-      label: "⭐ Moje przepisy",
+      label: "Moje przepisy",
       href: "/recipes/saved",
-      icon: <BookOpen className="w-5 h-5" />,
+      icon: <Star className="w-5 h-5" />,
       description: "Twoja kolekcja ulubionych przepisów",
       category: "Gotowanie",
     },
     
     // ===== 3. AI POMOC =====
     {
-      label: "🍳 AI Asystent",
+      label: "AI Asystent",
       href: "/assistant",
       icon: <BrainCircuit className="w-5 h-5" />,
       description: "Inteligentna pomoc w kuchni",
@@ -127,25 +131,25 @@ export default function NavigationBurger() {
     
     // ===== 4. NAUKA =====
     {
-      label: "🎓 Akademia",
+      label: "Akademia",
       href: "/academy",
-      icon: <Sparkles className="w-5 h-5" />,
+      icon: <GraduationCap className="w-5 h-5" />,
       description: "Ucz się planować i gotować mądrze",
       category: "Nauka",
     },
     {
-      label: "📚 Kursy",
+      label: "Kursy",
       href: "/academy/courses",
-      icon: <BookOpen className="w-5 h-5" />,
+      icon: <Library className="w-5 h-5" />,
       description: "Praktyczne umiejętności krok po kroku",
       category: "Nauka",
     },
     
     // ===== 5. RYNEK =====
     {
-      label: "🛒 Rynek",
+      label: "Rynek",
       href: "/market",
-      icon: <ShoppingBag className="w-5 h-5" />,
+      icon: <Store className="w-5 h-5" />,
       description: "Receptury & wymiana ChefTokens",
       category: "Rynek",
     },

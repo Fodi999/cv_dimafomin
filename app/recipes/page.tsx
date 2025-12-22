@@ -1,80 +1,69 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { RecipeCard } from "@/components/recipes/RecipeCard";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Loader2 } from "lucide-react";
 
-const MOCK_RECIPES = [
-  {
-    id: "1",
-    title: "Signature Sushi Roll",
-    imageUrl: "https://i.postimg.cc/B63F53xY/DSCF4622.jpg",
-    author: { name: "Dima Fomin", avatar: "https://i.postimg.cc/k4SPVGzv/avatar.jpg" },
-    difficulty: "intermediate" as const,
-    likes: 1250,
-    comments: 45,
-    cookingTime: 25,
-    category: "Sushi",
-  },
-  {
-    id: "2",
-    title: "Fresh Nigiri Assortment",
-    imageUrl: "https://i.postimg.cc/ZKbct8yq/DSCF4592_Original.jpg",
-    author: { name: "Dima Fomin", avatar: "https://i.postimg.cc/k4SPVGzv/avatar.jpg" },
-    difficulty: "beginner" as const,
-    likes: 2100,
-    comments: 78,
-    cookingTime: 20,
-    category: "Sushi",
-  },
-  {
-    id: "3",
-    title: "Artistic Presentation",
-    imageUrl: "https://i.postimg.cc/bvJWyXDb/DSCF4649.jpg",
-    author: { name: "Dima Fomin", avatar: "https://i.postimg.cc/k4SPVGzv/avatar.jpg" },
-    difficulty: "advanced" as const,
-    likes: 890,
-    comments: 34,
-    cookingTime: 45,
-    category: "Plating",
-  },
-  {
-    id: "4",
-    title: "Chef's Special",
-    imageUrl: "https://i.postimg.cc/fW695wWv/IMG-3193.jpg",
-    author: { name: "Dima Fomin", avatar: "https://i.postimg.cc/k4SPVGzv/avatar.jpg" },
-    difficulty: "intermediate" as const,
-    likes: 1540,
-    comments: 56,
-    cookingTime: 30,
-    category: "Sushi",
-  },
-  {
-    id: "5",
-    title: "Gourmet Creation",
-    imageUrl: "https://i.postimg.cc/pLB52zfr/IMG-3272.jpg",
-    author: { name: "Dima Fomin", avatar: "https://i.postimg.cc/k4SPVGzv/avatar.jpg" },
-    difficulty: "advanced" as const,
-    likes: 1920,
-    comments: 62,
-    cookingTime: 40,
-    category: "Modern",
-  },
-  {
-    id: "6",
-    title: "Deluxe Platter",
-    imageUrl: "https://i.postimg.cc/xdxkmQFz/IMG-3532.jpg",
-    author: { name: "Dima Fomin", avatar: "https://i.postimg.cc/k4SPVGzv/avatar.jpg" },
-    difficulty: "beginner" as const,
-    likes: 2340,
-    comments: 89,
-    cookingTime: 35,
-    category: "Sets",
-  },
-];
+// Type for catalog recipe (matches backend response)
+type CatalogRecipe = {
+  id: string;
+  canonicalName?: string; // Backend field
+  localName?: string;     // Backend field
+  name?: string;          // Fallback
+  category: string;
+  country?: string;
+  difficulty?: string;
+  timeMinutes?: number;
+  servings?: number;
+  imageUrl?: string;
+};
 
 export default function RecipesPage() {
   const { t } = useLanguage();
+  const [recipes, setRecipes] = useState<CatalogRecipe[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load recipes from API (Single Source of Truth)
+  useEffect(() => {
+    loadCatalog();
+  }, []);
+
+  async function loadCatalog() {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      console.log("📚 Loading recipe catalog from API...");
+      
+      const response = await fetch("/api/recipes", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        console.log("✅ Catalog loaded:", data.data.length, "recipes");
+        setRecipes(data.data);
+      } else {
+        throw new Error(data.message || "Failed to load recipes");
+      }
+    } catch (err: any) {
+      console.error("❌ Failed to load catalog:", err);
+      setError(err.message || "Nie udało się załadować przepisów");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const container = {
     hidden: { opacity: 0 },
@@ -105,42 +94,100 @@ export default function RecipesPage() {
             🍱 Przepisy
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl">
-            Odkryj kolekcję autorskich przepisów od Dimy Fomin. Kliknij na przepis, aby zobaczyć pełne detale, składniki i kroki przygotowania.
+            {loading 
+              ? "Ładowanie przepisów z katalogu..."
+              : recipes.length > 0
+                ? `Odkryj kolekcję ${recipes.length} ${recipes.length === 1 ? 'przepisu' : recipes.length <= 4 ? 'przepisów' : 'przepisów'} z naszego katalogu. Wszystkie dane pochodzą z tego samego źródła co AI Asystent.`
+                : "Odkryj kolekcję autorskich przepisów. Kliknij na przepis, aby zobaczyć pełne detale."
+            }
           </p>
         </motion.div>
+
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="w-12 h-12 text-sky-500 animate-spin" />
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-8 text-center">
+            <p className="text-red-600 dark:text-red-400 mb-4">
+              ❌ {error}
+            </p>
+            <button
+              onClick={loadCatalog}
+              className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+            >
+              Spróbuj ponownie
+            </button>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && !error && recipes.length === 0 && (
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-8 text-center">
+            <p className="text-gray-600 dark:text-gray-400">
+              📭 Brak przepisów w katalogu
+            </p>
+          </div>
+        )}
 
         {/* Recipes Grid */}
-        <motion.div
-          variants={container}
-          initial="hidden"
-          animate="show"
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {MOCK_RECIPES.map((recipe) => (
-            <motion.div key={recipe.id} variants={item}>
-              <RecipeCard {...recipe} />
-            </motion.div>
-          ))}
-        </motion.div>
+        {!loading && !error && recipes.length > 0 && (
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {recipes.map((recipe) => {
+              // Get recipe name (prioritize localName, then canonicalName, then fallback)
+              const recipeName = recipe.localName || recipe.canonicalName || recipe.name || "Unnamed Recipe";
+              
+              return (
+                <motion.div key={recipe.id} variants={item}>
+                  <RecipeCard
+                    id={recipe.id}
+                    title={recipeName}
+                    category={recipe.category}
+                    difficulty={(recipe.difficulty as "beginner" | "intermediate" | "advanced") || "intermediate"}
+                    cookingTime={recipe.timeMinutes || 30}
+                    imageUrl={recipe.imageUrl || "https://i.postimg.cc/B63F53xY/DSCF4622.jpg"}
+                    author={{ 
+                      name: "Dima Fomin", 
+                      avatar: "https://i.postimg.cc/k4SPVGzv/avatar.jpg" 
+                    }}
+                    likes={0}
+                    comments={0}
+                  />
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        )}
 
         {/* Footer CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-16 text-center"
-        >
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Chcesz nauczyć się więcej? Dołącz do Modern Food Academy
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-8 py-4 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-bold rounded-lg transition-all"
+        {!loading && recipes.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="mt-16 text-center"
           >
-            Przejdź do Akademii
-          </motion.button>
-        </motion.div>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Chcesz nauczyć się więcej? Dołącz do Modern Food Academy
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-8 py-4 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-bold rounded-lg transition-all"
+            >
+              Przejdź do Akademii
+            </motion.button>
+          </motion.div>
+        )}
       </div>
     </main>
   );

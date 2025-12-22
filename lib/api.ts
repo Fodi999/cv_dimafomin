@@ -1342,6 +1342,11 @@ export interface RecipeMatchResponse {
   recipes: RecipeMatch[];
 }
 
+// 🆕 AI Recommendation response (union type for success/failure)
+export type AIRecommendationResult =
+  | { status: 'ok'; recipe: RecipeMatch }
+  | { status: 'no-results'; message: string; error?: string; requiresUserAction?: boolean };
+
 export const recipeMatchingApi = {
   /**
    * GET /api/recipes/match
@@ -1374,50 +1379,61 @@ export const recipeMatchingApi = {
     limit: number = 10, 
     token: string,
     excludeRecipeIds?: string[] // 🆕 Exclude already seen recipes
-  ): Promise<RecipeMatch> => {
+  ): Promise<AIRecommendationResult> => {
     console.log('🎯 Fetching AI recommendation (mode:', mode, 'limit:', limit, ')');
     if (excludeRecipeIds && excludeRecipeIds.length > 0) {
       console.log('   Excluding recipes:', excludeRecipeIds);
     }
     
-    // apiFetch automatically extracts result.data, so response is already the data object
-    const data = await apiFetch<{
-      recipe: {
-        id: string;
-        canonicalName: string;
-        localName: string;
-        country: string;
-        category: string;
-        difficulty: string;
-        timeMinutes: number;
-        servings: number;
-        steps: string[];
-        allergens?: string[];
-        dietTags?: string[];
-      };
-      match: {
-        canCookNow: boolean;
-        missingRequired: Array<{
-          ingredientId: string;
-          name: string;
-          quantity: number;
-          unit: string;
-          estimatedCost: number;
-        }>;
-        usedIngredients: Array<{
-          ingredientId: string;
-          name: string;
-          quantity: number;
-          unit: string;
-          available: number;
-          isExpiringSoon: boolean;
-        }>;
-      };
-      economy: {
-        usedFromFridge: number;
-        saved: number;
-      };
-    }>('/recipes/recommendations', {
+    try {
+      // apiFetch automatically extracts result.data, so response is already the data object
+      const data = await apiFetch<
+      // Union type: success or failure
+      | {
+        success: true;
+        recipe: {
+          id: string;
+          canonicalName: string;
+          localName: string;
+          country: string;
+          category: string;
+          difficulty: string;
+          timeMinutes: number;
+          servings: number;
+          steps: string[];
+          allergens?: string[];
+          dietTags?: string[];
+        };
+        match: {
+          canCookNow: boolean;
+          missingRequired: Array<{
+            ingredientId: string;
+            name: string;
+            quantity: number;
+            unit: string;
+            estimatedCost: number;
+          }>;
+          usedIngredients: Array<{
+            ingredientId: string;
+            name: string;
+            quantity: number;
+            unit: string;
+            available: number;
+            isExpiringSoon: boolean;
+          }>;
+        };
+        economy: {
+          usedFromFridge: number;
+          saved: number;
+        };
+      }
+      | {
+        success: false;
+        message: string;
+        error?: string;
+        requiresUserAction?: boolean;
+      }
+    >('/recipes/recommendations', {
       method: 'POST',
       token,
       body: JSON.stringify({ 
@@ -1429,10 +1445,33 @@ export const recipeMatchingApi = {
 
     console.log('✅ AI Recommendation data:', data);
 
+    // 🛡️ Handle empty state (success: false is a VALID scenario, not an error)
+    if (!data.success) {
+      console.info('ℹ️ AI: No matching recipes found (expected scenario)');
+      return {
+        status: 'no-results',
+        message: data.message || 'Nie znaleźliśmy pasującego przepisu',
+        error: data.error || 'No recipes available',
+        requiresUserAction: data.requiresUserAction ?? false // 🆕 Flag for modal vs toast
+      };
+    }
+
+    // ✅ Now safe to check if recipe exists
+    if (!data || !data.recipe || !data.recipe.id) {
+      console.warn('⚠️ No recipe in response (success: true but no data - unexpected)');
+      return {
+        status: 'no-results',
+        message: 'Nie znaleźliśmy pasującego przepisu',
+        error: 'No recipe data'
+      };
+    }
+
     // Transform backend response to RecipeMatch format
     const { recipe, match, economy } = data;
     
     return {
+      status: 'ok',
+      recipe: {
       recipeId: recipe.id,
       title: recipe.localName,
       description: '', // Not provided by recommendations endpoint
@@ -1466,7 +1505,16 @@ export const recipeMatchingApi = {
         wasteRiskSaved: economy.saved,
         currency: 'PLN',
       },
+      }
     };
+    } catch (error: any) {
+      console.error('❌ Failed to fetch AI recommendation:', error);
+      return {
+        status: 'no-results',
+        message: error.message || 'Nie udało się załadować rekomendacji',
+        error: error.toString()
+      };
+    }
   },
 
   /**

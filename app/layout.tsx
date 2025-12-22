@@ -7,11 +7,13 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { UserProvider } from "@/contexts/UserContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { RecipeProvider } from "@/contexts/RecipeContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import PWARegister from "@/components/PWARegister";
 import NavigationBurger from "@/components/NavigationBurger";
 import AuthGate from "@/components/auth/AuthGate";
 import TokenValidator from "@/components/auth/TokenValidator";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ 
   subsets: ["latin", "cyrillic"],
@@ -73,13 +75,17 @@ export default function RootLayout({
               <UserProvider>
                 <CartProvider>
                   <RecipeProvider>
-                    <TokenValidator />
-                    <AuthGate>
-                      <NavigationBurger />
-                      <div className="min-h-screen">
-                        {children}
-                      </div>
-                    </AuthGate>
+                    <NotificationProvider>
+                      <TokenValidator />
+                      <AuthGate>
+                        <NavigationBurger />
+                        <div className="min-h-screen">
+                          {children}
+                        </div>
+                      </AuthGate>
+                      {/* Global Toaster for toast notifications */}
+                      <Toaster richColors position="top-center" />
+                    </NotificationProvider>
                   </RecipeProvider>
                 </CartProvider>
               </UserProvider>

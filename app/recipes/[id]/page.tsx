@@ -38,6 +38,8 @@ interface RecipeDetails {
   instructions: string[];
   tags: string[];
   isSaved?: boolean;
+  // ❌ ВИДАЛЕНО: Backend не повертає ці поля!
+  // Frontend сам рахує stats з ingredients
 }
 
 const difficultyConfig = {
@@ -55,11 +57,67 @@ export default function RecipeDetailsPage() {
   const [recipe, setRecipe] = useState<RecipeDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [addingToCart, setAddingToCart] = useState(false);
 
   useEffect(() => {
     if (!recipeId) return;
     loadRecipeDetails();
   }, [recipeId]);
+
+  // ✅ Add missing ingredients to fridge (правильна архітектура)
+  const addMissingToFridge = async () => {
+    if (!recipe) return;
+    
+    setAddingToCart(true);
+    
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        alert('Musisz być zalogowany, aby dodać produkty');
+        setAddingToCart(false);
+        return;
+      }
+      
+      console.log('🛒 Adding missing ingredients to fridge for recipe:', recipeId);
+      
+      // ✅ Правильний запит
+      const response = await fetch('/api/fridge/add-missing', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ recipeId }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Backend error: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log('✅ Backend response:', result);
+      
+      const { added, skipped, items } = result.data || {};
+      
+      // 🔄 Refetch recipe to update ingredient status
+      console.log('🔄 Refreshing recipe data...');
+      await loadRecipeDetails();
+      
+      // ✅ Success notification with details
+      const message = items && items.length > 0
+        ? `✅ Dodano ${added} ${added === 1 ? 'składnik' : 'składników'} do lodówki!\n\n${items.map((item: any) => `• ${item.name}: ${item.addedQuantity} ${item.unit}`).join('\n')}\n\nMożesz teraz ugotować ten przepis! 🍳`
+        : `✅ Dodano ${added} ${added === 1 ? 'składnik' : 'składników'} do lodówki!\n\nMożesz teraz ugotować ten przepis! 🍳`;
+      
+      alert(message);
+      
+    } catch (error: any) {
+      console.error('❌ Failed to add to fridge:', error);
+      alert('Nie udało się dodać produktów do lodówki: ' + error.message);
+    } finally {
+      setAddingToCart(false);
+    }
+  };
 
   const loadRecipeDetails = async () => {
     setLoading(true);
@@ -96,11 +154,17 @@ export default function RecipeDetailsPage() {
 
       const data = await response.json();
       console.log('📥 Recipe data received:', data);
+      console.log('🧊 Ingredients with fridge status:', data.data?.ingredients?.map((ing: any) => ({
+        name: ing.ingredient?.name || ing.name,
+        inFridge: ing.inFridge,
+        fridgeQuantity: ing.fridgeQuantity,
+      })));
 
       if (data.success && data.data) {
         const backendRecipe = data.data;
         
-        // Transform backend response to frontend format
+        // ✅ Backend відправляє inFridge для кожного інгредієнта
+        // Frontend сам рахує stats!
         const transformedRecipe: RecipeDetails = {
           id: backendRecipe.id,
           localName: backendRecipe.localName || backendRecipe.canonicalName,
@@ -110,24 +174,35 @@ export default function RecipeDetailsPage() {
           timeMinutes: backendRecipe.timeMinutes || 0,
           servings: backendRecipe.servings || 0,
           category: backendRecipe.category || 'main',
+          // ✅ Backend вже відправляє inFridge для кожного інгредієнта!
           ingredients: (backendRecipe.ingredients || []).map((ing: any) => ({
             id: ing.id,
             name: ing.ingredient?.name || ing.name || 'Unknown',
             quantity: ing.quantity || 0,
             unit: ing.unit || '',
-            inFridge: ing.inFridge || false,
-            fridgeQuantity: ing.fridgeQuantity || 0,
+            inFridge: ing.inFridge || false, // ✅ З бекенду!
+            fridgeQuantity: ing.fridgeQuantity || 0, // ✅ З бекенду!
           })),
-          instructions: backendRecipe.instructions || [
+          instructions: backendRecipe.instructions || backendRecipe.steps || [
             'Instrukcje będą dostępne wkrótce.',
           ],
           tags: backendRecipe.tags || [],
           isSaved: backendRecipe.isSaved || false,
         };
 
+        // ✅ Рахуємо stats на фронтенді з ingredients
+        const total = transformedRecipe.ingredients.length;
+        const available = transformedRecipe.ingredients.filter(i => i.inFridge).length;
+        const missing = total - available;
+
+        console.log('✅ Recipe stats calculated on frontend:', {
+          totalIngredients: total,
+          availableInFridge: available,
+          missingCount: missing,
+        });
+        
         setRecipe(transformedRecipe);
         console.log('✅ Recipe loaded:', transformedRecipe.localName);
-        console.log('📦 Full recipe object:', transformedRecipe);
       } else {
         throw new Error('Nieprawidłowa odpowiedź z serwera');
       }
@@ -221,19 +296,29 @@ export default function RecipeDetailsPage() {
     );
   }
 
+  // ✅ ПРАВИЛЬНО: Рахуємо stats ПІСЛЯ early returns (не useMemo, бо recipe може бути null)
   const difficulty = difficultyConfig[recipe.difficulty];
-  const ingredientsInFridge = recipe.ingredients.filter(i => i.inFridge).length;
-  const missingIngredients = recipe.ingredients.filter(i => !i.inFridge).length;
+  
+  const ingredients = recipe.ingredients ?? [];
+  const totalIngredients = ingredients.length;
+  const ingredientsInFridge = ingredients.filter(i => i.inFridge).length;
+  const missingIngredients = totalIngredients - ingredientsInFridge;
+
+  console.log('📊 Recipe stats (calculated on frontend):', {
+    totalIngredients,
+    ingredientsInFridge,
+    missingIngredients,
+  });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-purple-50 dark:from-gray-950 dark:to-purple-900/20 py-8 px-4">
-      <div className="max-w-4xl mx-auto pt-[80px] space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-white to-purple-50 dark:from-gray-950 dark:to-purple-900/20 py-4 px-4">
+      <div className="max-w-3xl mx-auto pt-[70px] space-y-3">
         {/* Back button */}
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors text-sm"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-4 h-4" />
           <span>Wróć</span>
         </button>
 
@@ -241,38 +326,38 @@ export default function RecipeDetailsPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6"
+          className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm p-4"
         >
-          <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="flex items-start justify-between gap-3 mb-3">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
                 {recipe.localName}
               </h1>
-              <p className="text-gray-600 dark:text-gray-400">{recipe.canonicalName}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{recipe.canonicalName}</p>
             </div>
             {recipe.isSaved && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 text-sm font-medium">
-                <Star className="w-4 h-4" />
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 text-xs font-medium">
+                <Star className="w-3 h-3" />
                 Zapisany
               </span>
             )}
           </div>
 
           {/* Meta info */}
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs">
               🌍 {recipe.country}
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300">
-              <Clock className="w-4 h-4" />
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 text-xs">
+              <Clock className="w-3 h-3" />
               {recipe.timeMinutes} min
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300">
-              <Users className="w-4 h-4" />
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 text-xs">
+              <Users className="w-3 h-3" />
               {recipe.servings} porcje
             </span>
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${difficulty.bgColor} ${difficulty.color}`}>
-              <ChefHat className="w-4 h-4" />
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${difficulty.bgColor} ${difficulty.color} text-xs`}>
+              <ChefHat className="w-3 h-3" />
               {difficulty.label}
             </span>
           </div>
@@ -283,67 +368,93 @@ export default function RecipeDetailsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6"
+          className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm p-4"
         >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
               Składniki
             </h2>
-            <div className="flex items-center gap-4 text-sm">
-              <span className="flex items-center gap-1 text-green-600">
-                <CheckCircle2 className="w-4 h-4" />
-                {ingredientsInFridge} w lodówce
-              </span>
-              {missingIngredients > 0 && (
-                <span className="flex items-center gap-1 text-orange-600">
-                  <XCircle className="w-4 h-4" />
-                  {missingIngredients} brakuje
+            {recipe.ingredients.length > 0 && (
+              <div className="flex items-center gap-3 text-xs">
+                <span className="flex items-center gap-1 text-green-600">
+                  <CheckCircle2 className="w-3 h-3" />
+                  {ingredientsInFridge} w lodówce
                 </span>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            {recipe.ingredients.map((ingredient) => (
-              <div
-                key={ingredient.id}
-                className={`flex items-center justify-between p-3 rounded-lg ${
-                  ingredient.inFridge
-                    ? 'bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800'
-                    : 'bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  {ingredient.inFridge ? (
-                    <CheckCircle2 className="w-5 h-5 text-green-600" />
-                  ) : (
-                    <XCircle className="w-5 h-5 text-orange-600" />
-                  )}
-                  <span className="font-medium text-gray-900 dark:text-white">
-                    {ingredient.name}
+                {missingIngredients > 0 && (
+                  <span className="flex items-center gap-1 text-orange-600">
+                    <XCircle className="w-3 h-3" />
+                    {missingIngredients} brakuje
                   </span>
-                </div>
-                <div className="text-right">
-                  <span className="text-gray-700 dark:text-gray-300">
-                    {ingredient.quantity} {ingredient.unit}
-                  </span>
-                  {ingredient.inFridge && ingredient.fridgeQuantity && (
-                    <span className="block text-xs text-gray-500">
-                      (masz: {ingredient.fridgeQuantity} {ingredient.unit})
-                    </span>
-                  )}
-                </div>
+                )}
               </div>
-            ))}
+            )}
           </div>
 
-          {missingIngredients > 0 && (
-            <button
-              className="mt-4 w-full px-4 py-2 rounded-lg bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium transition-all flex items-center justify-center gap-2"
-            >
-              <ShoppingCart className="w-5 h-5" />
-              Dodaj brakujące do zakupów
-            </button>
+          {recipe.ingredients.length === 0 ? (
+            <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+              <AlertCircle className="w-10 h-10 mx-auto mb-2 opacity-50" />
+              <p className="font-medium text-sm">Lista składników będzie dostępna wkrótce</p>
+              <p className="text-xs mt-1">Pracujemy nad uzupełnieniem szczegółowych informacji o przepisie</p>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-1.5">
+                {recipe.ingredients.map((ingredient) => (
+                  <div
+                    key={ingredient.id}
+                    className={`flex items-center justify-between p-2 rounded-lg ${
+                      ingredient.inFridge
+                        ? 'bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800'
+                        : 'bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {ingredient.inFridge ? (
+                        <CheckCircle2 className="w-4 h-4 text-green-600" />
+                      ) : (
+                        <XCircle className="w-4 h-4 text-orange-600" />
+                      )}
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        {ingredient.name}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                        {ingredient.quantity} {ingredient.unit}
+                      </span>
+                      {ingredient.fridgeQuantity !== undefined && ingredient.fridgeQuantity !== null && (
+                        <span className={`block text-xs ${
+                          ingredient.inFridge 
+                            ? 'text-green-600 dark:text-green-400' 
+                            : 'text-orange-600 dark:text-orange-400'
+                        }`}>
+                          (masz: {ingredient.fridgeQuantity} {ingredient.unit})
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {missingIngredients > 0 ? (
+                <button
+                  onClick={addMissingToFridge}
+                  disabled={addingToCart}
+                  className="mt-3 w-full px-3 py-1.5 rounded-lg bg-green-100 hover:bg-green-200 dark:bg-green-900/20 dark:hover:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  {addingToCart ? 'Dodawanie do lodówki...' : `Dodaj brakujące do lodówki (${missingIngredients})`}
+                </button>
+              ) : (
+                <button
+                  onClick={() => alert('🍳 Możesz ugotować ten przepis! Wszystkie składniki są w lodówce.')}
+                  className="mt-3 w-full px-3 py-1.5 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-sm font-medium transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  Ugotuj 🍳
+                </button>
+              )}
+            </>
           )}
         </motion.div>
 
@@ -352,18 +463,18 @@ export default function RecipeDetailsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6"
+          className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm p-4"
         >
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
             Sposób przygotowania
           </h2>
-          <ol className="space-y-4">
+          <ol className="space-y-2.5">
             {recipe.instructions.map((step, index) => (
-              <li key={index} className="flex gap-4">
-                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 font-bold flex items-center justify-center">
+              <li key={index} className="flex gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 font-bold flex items-center justify-center text-sm">
                   {index + 1}
                 </span>
-                <p className="flex-1 text-gray-700 dark:text-gray-300 pt-1">
+                <p className="flex-1 text-sm text-gray-700 dark:text-gray-300 pt-0.5">
                   {step}
                 </p>
               </li>
@@ -376,10 +487,10 @@ export default function RecipeDetailsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="flex gap-3 sticky bottom-4"
+          className="flex gap-2 sticky bottom-4"
         >
           <button
-            className={`flex-1 px-6 py-4 rounded-lg ${
+            className={`flex-1 px-4 py-3 rounded-lg text-sm ${
               missingIngredients === 0
                 ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
                 : 'bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700'

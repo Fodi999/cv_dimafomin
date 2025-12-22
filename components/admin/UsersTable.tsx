@@ -11,7 +11,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Shield } from "lucide-react";
+import { Trash2, Shield, Crown, GraduationCap, User as UserIcon, Users } from "lucide-react";
 
 interface AdminUser {
   id: string;
@@ -33,16 +33,19 @@ export function UsersTable({
   onUpdateRole,
   onDeleteUser,
 }: UsersTableProps) {
-  const roleConfig: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; label: string }> = {
-    admin: { variant: "destructive", label: "👑 Админ" },
-    instructor: { variant: "default", label: "🎓 Инструктор" },
-    student: { variant: "secondary", label: "👤 Студент" },
+  const roleConfig: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; label: string; icon: any }> = {
+    admin: { variant: "destructive", label: "Админ", icon: Crown },
+    instructor: { variant: "default", label: "Инструктор", icon: GraduationCap },
+    student: { variant: "secondary", label: "Студент", icon: UserIcon },
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>👥 Пользователи</CardTitle>
+        <div className="flex items-center gap-2">
+          <Users className="w-5 h-5" />
+          <CardTitle>Пользователи</CardTitle>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="rounded-md border">
@@ -72,7 +75,10 @@ export function UsersTable({
                     </TableCell>
                     <TableCell className="text-muted-foreground">{user.email}</TableCell>
                     <TableCell>
-                      <Badge variant={config.variant}>{config.label}</Badge>
+                      <Badge variant={config.variant} className="flex items-center gap-1 w-fit">
+                        <config.icon className="w-3 h-3" />
+                        {config.label}
+                      </Badge>
                     </TableCell>
                     <TableCell>Уровень {user.level}</TableCell>
                     <TableCell className="text-right">
