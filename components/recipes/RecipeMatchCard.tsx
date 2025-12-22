@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Clock, Users, ChefHat, TrendingUp, ShoppingCart, AlertCircle } from "lucide-react";
-import type { RecipeMatch } from "@/lib/api";
+import { Clock, Users, ChefHat, TrendingUp, ShoppingCart, AlertCircle, Plus, Minus } from "lucide-react";
+import type { RecipeMatch, RecipeMatchIngredient } from "@/lib/api";
 
 interface RecipeMatchCardProps {
   recipe: RecipeMatch;
-  onCook: (recipeId: string, idempotencyKey: string) => Promise<void>;
-  onAddToShoppingList?: (recipeId: string) => void;
+  onCook: (recipeId: string, idempotencyKey: string, servingsMultiplier: number) => Promise<void>;
+  onAddToShoppingList?: (recipeId: string, missingIngredients: RecipeMatchIngredient[]) => void;
   isLoading?: boolean;
 }
 
@@ -20,6 +20,37 @@ export default function RecipeMatchCard({
 }: RecipeMatchCardProps) {
   const [isCooking, setIsCooking] = useState(false);
   const [cookingKey, setCookingKey] = useState<string | null>(null);
+  
+  // 🆕 Servings state (starts at base servings from recipe)
+  const [servings, setServings] = useState(recipe.servings);
+  
+  // 🆕 Scale coefficient (core logic)
+  const scale = useMemo(() => servings / recipe.servings, [servings, recipe.servings]);
+
+  // 🆕 Helper: Scale quantity
+  const scaleQuantity = (qty: number) => {
+    return Math.round(qty * scale * 100) / 100;
+  };
+
+  // 🆕 Scaled economy (recalculated automatically)
+  const scaledEconomy = useMemo(() => {
+    if (!recipe.economy) {
+      return {
+        usedValue: 0,
+        costToComplete: 0,
+        totalRecipeCost: 0,
+        wasteRiskSaved: 0,
+        currency: 'PLN',
+      };
+    }
+    return {
+      usedValue: recipe.economy.usedValue * scale,
+      costToComplete: recipe.economy.costToComplete * scale,
+      totalRecipeCost: recipe.economy.totalRecipeCost * scale,
+      wasteRiskSaved: recipe.economy.wasteRiskSaved * scale,
+      currency: recipe.economy.currency,
+    };
+  }, [recipe.economy, scale]);
 
   // Format quantity helper
   const formatQuantity = (quantity: number, unit: string) => {
@@ -58,7 +89,8 @@ export default function RecipeMatchCard({
     setCookingKey(idempotencyKey);
 
     try {
-      await onCook(recipe.recipeId, idempotencyKey);
+      // 🆕 Pass servingsMultiplier (scale coefficient)
+      await onCook(recipe.recipeId, idempotencyKey, scale);
     } finally {
       setIsCooking(false);
       setCookingKey(null);
@@ -109,6 +141,12 @@ export default function RecipeMatchCard({
 
       {/* Content */}
       <div className="p-5 space-y-4">
+        {/* 📘 Source Badge - "Przepis z katalogu" */}
+        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 pb-2 border-b border-gray-100 dark:border-gray-800">
+          <span>📘</span>
+          <span>Przepis z katalogu</span>
+        </div>
+
         {/* Title & Meta */}
         <div>
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -121,15 +159,85 @@ export default function RecipeMatchCard({
             </p>
           )}
 
+          {/* 🆕 Match Status Badge */}
+          <div className="mt-2">
+            {recipe.canCookNow ? (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium">
+                <span>✅</span>
+                <span>Możesz ugotować teraz</span>
+              </div>
+            ) : recipe.missingCount > 0 ? (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-medium">
+                <span>🛒</span>
+                <span>Brakuje {recipe.missingCount} {recipe.missingCount === 1 ? 'składnika' : recipe.missingCount < 5 ? 'składników' : 'składników'}</span>
+              </div>
+            ) : (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs font-medium">
+                <span>❌</span>
+                <span>Nie pasuje do lodówki</span>
+              </div>
+            )}
+          </div>
+
           <div className="flex flex-wrap gap-3 mt-3 text-sm text-gray-600 dark:text-gray-400">
             <div className="flex items-center gap-1.5">
               <Clock className="w-4 h-4" />
               <span>{recipe.cookingTime} min</span>
             </div>
-            <div className="flex items-center gap-1.5">
+            
+            {/* 🆕 Servings Selector */}
+            <div className="flex items-center gap-2">
               <Users className="w-4 h-4" />
-              <span>{recipe.servings} porcji</span>
+              <button
+                onClick={() => setServings(Math.max(1, servings - 1))}
+                disabled={servings <= 1}
+                className="w-6 h-6 flex items-center justify-center rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                aria-label="Zmniejsz porcje"
+              >
+                <Minus className="w-3 h-3" />
+              </button>
+              <span className="font-medium min-w-[3ch] text-center text-gray-900 dark:text-white">
+                {servings}
+              </span>
+              <button
+                onClick={() => setServings(Math.min(10, servings + 1))}
+                disabled={servings >= 10}
+                className="w-6 h-6 flex items-center justify-center rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                aria-label="Zwiększ porcje"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+              <span className="text-gray-600 dark:text-gray-400">
+                {servings === 1 ? 'porcja' : servings < 5 ? 'porcje' : 'porcji'}
+              </span>
+              {/* 🆕 Total Yield Indicator */}
+              {(() => {
+                // Calculate total weight of all ingredients
+                const totalUsedWeight = recipe.usedIngredients.reduce((sum, ing) => {
+                  const scaledQty = scaleQuantity(ing.quantity);
+                  if (ing.unit === 'g' || ing.unit === 'ml') return sum + scaledQty;
+                  if (ing.unit === 'kg' || ing.unit === 'l') return sum + scaledQty * 1000;
+                  return sum;
+                }, 0);
+                const totalMissingWeight = recipe.missingIngredients.reduce((sum, ing) => {
+                  const scaledQty = scaleQuantity(ing.quantity);
+                  if (ing.unit === 'g' || ing.unit === 'ml') return sum + scaledQty;
+                  if (ing.unit === 'kg' || ing.unit === 'l') return sum + scaledQty * 1000;
+                  return sum;
+                }, 0);
+                const totalWeight = totalUsedWeight + totalMissingWeight;
+                
+                if (totalWeight > 0) {
+                  return (
+                    <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
+                      (≈{formatQuantity(totalWeight, 'g')})
+                    </span>
+                  );
+                }
+                return null;
+              })()}
             </div>
+            
             {recipe.country && (
               <div className="flex items-center gap-1.5">
                 <span>🌍</span>
@@ -156,7 +264,7 @@ export default function RecipeMatchCard({
               {recipe.usedIngredients.slice(0, 3).map((ing, i) => (
                 <li key={i} className="flex justify-between text-gray-700 dark:text-gray-300">
                   <span>• {ing.name}</span>
-                  <span className="font-medium">{formatQuantity(ing.quantity, ing.unit)}</span>
+                  <span className="font-medium">{formatQuantity(scaleQuantity(ing.quantity), ing.unit)}</span>
                 </li>
               ))}
               {recipe.usedIngredients.length > 3 && (
@@ -179,7 +287,7 @@ export default function RecipeMatchCard({
               {recipe.missingIngredients.slice(0, 3).map((ing, i) => (
                 <li key={i} className="flex justify-between text-gray-700 dark:text-gray-300">
                   <span>• {ing.name}</span>
-                  <span className="font-medium">{formatQuantity(ing.quantity, ing.unit)}</span>
+                  <span className="font-medium">{formatQuantity(scaleQuantity(ing.quantity), ing.unit)}</span>
                 </li>
               ))}
               {recipe.missingIngredients.length > 3 && (
@@ -189,9 +297,9 @@ export default function RecipeMatchCard({
               )}
             </ul>
             
-            {recipe.economy.costToComplete > 0 && (
+            {scaledEconomy.costToComplete > 0 && (
               <div className="text-sm text-amber-700 dark:text-amber-400 font-medium">
-                Koszt dokupienia: ~{recipe.economy.costToComplete.toFixed(2)} {recipe.economy.currency}
+                Koszt dokupienia: ~{scaledEconomy.costToComplete.toFixed(2)} {scaledEconomy.currency}
               </div>
             )}
           </div>
@@ -206,20 +314,40 @@ export default function RecipeMatchCard({
           <div className="space-y-1.5 text-sm">
             <div className="flex justify-between text-gray-700 dark:text-gray-300">
               <span>Wartość z lodówki:</span>
-              <span className="font-medium">{recipe.economy.usedValue.toFixed(2)} {recipe.economy.currency}</span>
+              <span className="font-medium">{scaledEconomy.usedValue.toFixed(2)} {scaledEconomy.currency}</span>
             </div>
             <div className="flex justify-between text-gray-700 dark:text-gray-300">
               <span>Koszt całkowity:</span>
-              <span className="font-medium">{recipe.economy.totalRecipeCost.toFixed(2)} {recipe.economy.currency}</span>
+              <span className="font-medium">{scaledEconomy.totalRecipeCost.toFixed(2)} {scaledEconomy.currency}</span>
             </div>
-            {recipe.economy.wasteRiskSaved > 0 && (
+            {scaledEconomy.wasteRiskSaved > 0 && (
               <div className="flex justify-between text-green-600 dark:text-green-400 font-semibold pt-1 border-t border-purple-200 dark:border-purple-800/30">
                 <span>Uratowano przed marnowaniem:</span>
-                <span>{recipe.economy.wasteRiskSaved.toFixed(2)} {recipe.economy.currency}</span>
+                <span>{scaledEconomy.wasteRiskSaved.toFixed(2)} {scaledEconomy.currency}</span>
               </div>
             )}
           </div>
         </div>
+
+        {/* 🆕 Cooking Steps */}
+        {recipe.steps && recipe.steps.length > 0 && (
+          <div className="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-3 border border-blue-200 dark:border-blue-800/30">
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+              <span className="text-blue-600 dark:text-blue-400">👨‍🍳</span>
+              Sposób przygotowania
+            </h4>
+            <ol className="space-y-2 text-sm">
+              {recipe.steps.map((step, i) => (
+                <li key={i} className="flex gap-2 text-gray-700 dark:text-gray-300">
+                  <span className="font-bold text-blue-600 dark:text-blue-400 flex-shrink-0">
+                    {i + 1}.
+                  </span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex gap-2 pt-2">
@@ -243,7 +371,7 @@ export default function RecipeMatchCard({
             </button>
           ) : (
             <button
-              onClick={() => onAddToShoppingList?.(recipe.recipeId)}
+              onClick={() => onAddToShoppingList?.(recipe.recipeId, recipe.missingIngredients)}
               disabled={isLoading}
               className="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium transition-all flex items-center justify-center gap-2 shadow-sm"
             >

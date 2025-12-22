@@ -1283,6 +1283,8 @@ export interface RecipeMatchIngredient {
   unit: string;
   pricePerUnit?: number;
   totalPrice?: number;
+  available?: number; // 🆕 For used ingredients - how much in fridge
+  estimatedCost?: number; // 🆕 For missing ingredients - shopping cost
 }
 
 export interface RecipeMatchEconomy {
@@ -1302,11 +1304,12 @@ export interface RecipeMatch {
   difficulty?: string;
   cookingTime: number;
   servings: number;
+  steps?: string[]; // 🆕 Cooking steps
   score: number;
   coverage: number;
   usedIngredients: RecipeMatchIngredient[];
   missingIngredients: RecipeMatchIngredient[];
-  economy: RecipeMatchEconomy;
+  economy?: RecipeMatchEconomy; // Optional - may not be present in all responses
   canCookNow: boolean;
   missingCount: number;
   usedCount: number;
@@ -1333,12 +1336,18 @@ export interface CookRecipeResult {
   };
 }
 
+// 🆕 Response structure from /recipes/match endpoint
+export interface RecipeMatchResponse {
+  count: number;
+  recipes: RecipeMatch[];
+}
+
 export const recipeMatchingApi = {
   /**
    * GET /api/recipes/match
    * Find recipes that match user's fridge contents
    */
-  getRecipeMatches: async (params: RecipeMatchParams = {}, token: string): Promise<RecipeMatch[]> => {
+  getRecipeMatches: async (params: RecipeMatchParams = {}, token: string): Promise<RecipeMatchResponse> => {
     const queryParams = new URLSearchParams();
     
     if (params.limit) queryParams.append('limit', params.limit.toString());
@@ -1352,7 +1361,112 @@ export const recipeMatchingApi = {
     const url = `/recipes/match${queryParams.toString() ? `?${queryParams}` : ''}`;
     console.log('🔍 Fetching recipe matches:', url);
     
-    return apiFetch<RecipeMatch[]>(url, { token });
+    return apiFetch<RecipeMatchResponse>(url, { token });
+  },
+
+  /**
+   * POST /api/recipes/recommendations
+   * Get AI-recommended recipe based on fridge contents
+   * Returns ONE BEST recipe (Tinder-like UX)
+   */
+  getRecommendation: async (
+    mode: 'fridge' | 'preferences' = 'fridge', 
+    limit: number = 10, 
+    token: string,
+    excludeRecipeIds?: string[] // 🆕 Exclude already seen recipes
+  ): Promise<RecipeMatch> => {
+    console.log('🎯 Fetching AI recommendation (mode:', mode, 'limit:', limit, ')');
+    if (excludeRecipeIds && excludeRecipeIds.length > 0) {
+      console.log('   Excluding recipes:', excludeRecipeIds);
+    }
+    
+    // apiFetch automatically extracts result.data, so response is already the data object
+    const data = await apiFetch<{
+      recipe: {
+        id: string;
+        canonicalName: string;
+        localName: string;
+        country: string;
+        category: string;
+        difficulty: string;
+        timeMinutes: number;
+        servings: number;
+        steps: string[];
+        allergens?: string[];
+        dietTags?: string[];
+      };
+      match: {
+        canCookNow: boolean;
+        missingRequired: Array<{
+          ingredientId: string;
+          name: string;
+          quantity: number;
+          unit: string;
+          estimatedCost: number;
+        }>;
+        usedIngredients: Array<{
+          ingredientId: string;
+          name: string;
+          quantity: number;
+          unit: string;
+          available: number;
+          isExpiringSoon: boolean;
+        }>;
+      };
+      economy: {
+        usedFromFridge: number;
+        saved: number;
+      };
+    }>('/recipes/recommendations', {
+      method: 'POST',
+      token,
+      body: JSON.stringify({ 
+        mode, 
+        limit,
+        excludeRecipeIds: excludeRecipeIds || []
+      }),
+    });
+
+    console.log('✅ AI Recommendation data:', data);
+
+    // Transform backend response to RecipeMatch format
+    const { recipe, match, economy } = data;
+    
+    return {
+      recipeId: recipe.id,
+      title: recipe.localName,
+      description: '', // Not provided by recommendations endpoint
+      imageUrl: '', // Not provided by recommendations endpoint
+      cookingTime: recipe.timeMinutes,
+      servings: recipe.servings,
+      steps: recipe.steps || [], // 🆕 Include cooking steps
+      difficulty: recipe.difficulty,
+      country: recipe.country,
+      score: 85, // High score for AI recommendation
+      coverage: match.usedIngredients.length > 0 ? 100 : 0, // Simplified
+      canCookNow: match.canCookNow,
+      missingCount: match.missingRequired.length,
+      usedCount: match.usedIngredients.length,
+      usedIngredients: match.usedIngredients.map(ing => ({
+        name: ing.name,
+        quantity: ing.quantity,
+        unit: ing.unit,
+        available: ing.available,
+      })),
+      missingIngredients: match.missingRequired.map(ing => ({
+        name: ing.name,
+        quantity: ing.quantity,
+        unit: ing.unit,
+        estimatedCost: ing.estimatedCost, // 🆕 Cost per ingredient
+      })),
+      economy: {
+        usedValue: economy.usedFromFridge,
+        costToComplete: match.missingRequired.reduce((sum, ing) => sum + ing.estimatedCost, 0), // 🆕 Total shopping cost
+        totalRecipeCost: economy.usedFromFridge + match.missingRequired.reduce((sum, ing) => sum + ing.estimatedCost, 0),
+        wasteRiskSaved: economy.saved,
+        currency: 'PLN',
+      },
+    };
   },
 
   /**

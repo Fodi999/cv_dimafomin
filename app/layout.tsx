@@ -11,6 +11,7 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import PWARegister from "@/components/PWARegister";
 import NavigationBurger from "@/components/NavigationBurger";
 import AuthGate from "@/components/auth/AuthGate";
+import TokenValidator from "@/components/auth/TokenValidator";
 
 const inter = Inter({ 
   subsets: ["latin", "cyrillic"],
@@ -72,6 +73,7 @@ export default function RootLayout({
               <UserProvider>
                 <CartProvider>
                   <RecipeProvider>
+                    <TokenValidator />
                     <AuthGate>
                       <NavigationBurger />
                       <div className="min-h-screen">

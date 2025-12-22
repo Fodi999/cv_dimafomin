@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
@@ -13,16 +13,38 @@ import { animations, gradients } from "@/lib/design-tokens";
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void; // 🆕 Callback после успешной авторизации
+  initialTab?: "login" | "register";
 }
 
-export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "login" }: AuthModalProps) {
   const { t } = useLanguage();
   const { login, register } = useAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"login" | "register">("login");
+  const [activeTab, setActiveTab] = useState<"login" | "register">(initialTab);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // 🔧 FIX: initialTab применяется только один раз при открытии
+  const hasInitialized = useRef(false);
+
+  useEffect(() => {
+    if (isOpen && !hasInitialized.current) {
+      setActiveTab(initialTab);
+      setError(null);
+      hasInitialized.current = true;
+    }
+
+    if (!isOpen) {
+      hasInitialized.current = false;
+    }
+  }, [isOpen, initialTab]);
+
+  // 🔧 FIX: Сбрасываем showPassword при переключении вкладок
+  useEffect(() => {
+    setShowPassword(false);
+  }, [activeTab]);
 
   // Form states
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
@@ -41,24 +63,33 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     try {
       await login(loginForm.email, loginForm.password);
       onClose();
-      // Redirect to assistant after successful login
-      router.push("/assistant");
+      
+      // 🔧 FIX: Используем callback вместо хардкода редиректа
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        // Дефолтное поведение, если callback не передан
+        router.push("/assistant");
+      }
     } catch (error: any) {
       console.error("Login error:", error);
       
-      // Handle different error types
+      // 🔧 FIX: Надёжная обработка ошибок для fetch и axios
+      const status = error?.response?.status ?? error?.status;
+      const message = error?.response?.data?.message ?? error?.message;
+      
       let errorMessage = "Błąd logowania. Sprawdź dane i spróbuj ponownie.";
       
-      if (error.message === "Invalid credentials") {
+      if (message === "Invalid credentials") {
         errorMessage = "Неправильний email або пароль. Спробуйте ще раз.";
-      } else if (error.status === 401) {
+      } else if (status === 401) {
         errorMessage = "Неправильний email або пароль.";
-      } else if (error.status === 404) {
+      } else if (status === 404) {
         errorMessage = "Користувача з таким email не знайдено.";
-      } else if (error.status === 500) {
+      } else if (status === 500) {
         errorMessage = "Помилка сервера. Спробуйте пізніше.";
-      } else if (error.message) {
-        errorMessage = error.message;
+      } else if (message) {
+        errorMessage = message;
       }
       
       setError(errorMessage);
@@ -84,25 +115,33 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setIsLoading(true);
 
     try {
-      // Call register API with name, email, password
       await register(registerForm.name, registerForm.email, registerForm.password);
       onClose();
-      // Redirect to assistant after successful registration
-      router.push("/assistant");
+      
+      // 🔧 FIX: Используем callback вместо хардкода редиректа
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        // Дефолтное поведение, если callback не передан
+        router.push("/assistant");
+      }
     } catch (error: any) {
       console.error("Register error:", error);
       
-      // Handle different error types
+      // 🔧 FIX: Надёжная обработка ошибок для fetch и axios
+      const status = error?.response?.status ?? error?.status;
+      const message = error?.response?.data?.message ?? error?.message;
+      
       let errorMessage = "Błąd rejestracji. Spróbuj ponownie.";
       
-      if (error.message?.includes("already exists") || error.status === 409) {
+      if (message?.includes("already exists") || status === 409) {
         errorMessage = "Користувач з таким email вже існує. Спробуйте увійти.";
-      } else if (error.status === 400) {
+      } else if (status === 400) {
         errorMessage = "Невірні дані. Перевірте правильність введеної інформації.";
-      } else if (error.status === 500) {
+      } else if (status === 500) {
         errorMessage = "Помилка сервера. Спробуйте пізніше.";
-      } else if (error.message) {
-        errorMessage = error.message;
+      } else if (message) {
+        errorMessage = message;
       }
       
       setError(errorMessage);

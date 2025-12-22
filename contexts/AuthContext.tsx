@@ -10,6 +10,11 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   setAuthData: (token: string, role: string) => void;
+  // 🆕 Global modal control
+  isAuthModalOpen: boolean;
+  authModalTab: "login" | "register";
+  openAuthModal: (tab?: "login" | "register") => void;
+  closeAuthModal: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,6 +22,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
+  
+  // 🆕 Global modal state
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState<"login" | "register">("login");
 
   // 🔑 Initialize auth from localStorage (ONCE on mount)
   useEffect(() => {
@@ -130,6 +139,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setRole(newRole);
   };
 
+  // 🆕 Global modal control functions
+  const openAuthModal = (tab: "login" | "register" = "login") => {
+    setAuthModalTab(tab);
+    setIsAuthModalOpen(true);
+  };
+
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
+  };
+
   const value: AuthContextType = {
     token,
     role,
@@ -138,6 +157,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     register,
     logout,
     setAuthData,
+    // Modal control
+    isAuthModalOpen,
+    authModalTab,
+    openAuthModal,
+    closeAuthModal,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

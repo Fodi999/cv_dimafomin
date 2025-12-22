@@ -37,15 +37,15 @@ interface NavLink {
   description?: string; // 🆕 Добавляем описание
   badge?: string; // 🆕 Добавляем badge (например "Core")
   highlight?: boolean; // 🆕 Для выделения killer-feature
+  category?: string; // 🆕 Категория для группировки
 }
 
 export default function NavigationBurger() {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useUser();
-  const { logout } = useAuth();
+  const { logout, isAuthModalOpen, authModalTab, openAuthModal, closeAuthModal } = useAuth(); // 🔧 Используем global state
   const [isOpen, setIsOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -54,9 +54,11 @@ export default function NavigationBurger() {
 
   // Закрыть меню при клике на ссылку
   const handleLinkClick = (href: string) => {
-    console.log("Navigating to:", href);
+    console.log("🔵 NavigationBurger: Navigating to:", href);
+    console.log("🔵 Current pathname:", pathname);
     setIsOpen(false);
     router.push(href);
+    console.log("🔵 Router.push called for:", href);
   };
 
   // Обработчик logout
@@ -83,45 +85,69 @@ export default function NavigationBurger() {
     };
   }, [isOpen]);
 
-  // 🆕 УЛУЧШЕННАЯ НАВИГАЦИЯ с описаниями и правильным порядком
+  // 🆕 ЛОГИЧНАЯ НАВИГАЦИЯ - Вариант А (MVP & массовый пользователь)
+  // Структура: Start → Gotowanie → AI Pomoc → Nauka → Rynek
   const navLinks: NavLink[] = [
+    // ===== 1. START =====
     {
       label: "Strona główna",
       href: "/",
       icon: <Home className="w-5 h-5" />,
-      description: "Twój start w świadomej kuchni",
+      description: "Przegląd wartości i funkcji",
+      category: "Start",
     },
+    
+    // ===== 2. GOTOWANIE =====
     {
-      label: "Lodówka",
+      label: "🧊 Lodówka",
       href: "/fridge",
       icon: <Refrigerator className="w-5 h-5" />,
-      description: "Planowanie posiłków i zakupów",
+      description: "Zarządzaj składnikami i datami",
       badge: "Core",
-      highlight: true, // 🔥 Killer-feature
+      category: "Gotowanie",
     },
     {
-      label: "Asystent AI",
+      label: "⭐ Moje przepisy",
+      href: "/recipes/saved",
+      icon: <BookOpen className="w-5 h-5" />,
+      description: "Twoja kolekcja ulubionych przepisów",
+      category: "Gotowanie",
+    },
+    
+    // ===== 3. AI POMOC =====
+    {
+      label: "🍳 AI Asystent",
       href: "/assistant",
       icon: <BrainCircuit className="w-5 h-5" />,
-      description: "Pomoc w kuchni i decyzjach",
+      description: "Inteligentna pomoc w kuchni",
+      badge: "AI",
+      highlight: true, // 🔥 Killer-feature
+      category: "AI Pomoc",
     },
+    
+    // ===== 4. NAUKA =====
     {
-      label: "Akademia",
+      label: "🎓 Akademia",
       href: "/academy",
-      icon: <BookOpen className="w-5 h-5" />,
-      description: "Ucz się planować i gotować mądrze",
-    },
-    {
-      label: "Kursy",
-      href: "/academy/courses",
       icon: <Sparkles className="w-5 h-5" />,
-      description: "Praktyczne umiejętności krok po kroku",
+      description: "Ucz się planować i gotować mądrze",
+      category: "Nauka",
     },
     {
-      label: "Rynek",
+      label: "📚 Kursy",
+      href: "/academy/courses",
+      icon: <BookOpen className="w-5 h-5" />,
+      description: "Praktyczne umiejętności krok po kroku",
+      category: "Nauka",
+    },
+    
+    // ===== 5. RYNEK =====
+    {
+      label: "🛒 Rynek",
       href: "/market",
       icon: <ShoppingBag className="w-5 h-5" />,
-      description: "Receptury i wymiana ChefTokens",
+      description: "Receptury & wymiana ChefTokens",
+      category: "Rynek",
     },
   ];
 
@@ -131,6 +157,7 @@ export default function NavigationBurger() {
     if (href === "/assistant" && pathname.startsWith("/assistant")) return true;
     if (href === "/market" && pathname === "/market") return true;
     if (href === "/fridge" && pathname === "/fridge") return true;
+    if (href === "/recipes/saved" && pathname.startsWith("/recipes/saved")) return true;
     return false;
   };
 
@@ -238,82 +265,96 @@ export default function NavigationBurger() {
 
               {/* ===== NAVIGATION LINKS ===== */}
               <nav className="space-y-1 flex-1">
-                {navLinks.map((link, idx) => (
-                  <motion.div
-                    key={link.href}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                  >
-                    <motion.div
-                      whileHover={{ x: 8 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleLinkClick(link.href)}
-                      className={`relative flex flex-col px-3 py-2 rounded-lg transition-all cursor-pointer group ${
-                        isActive(link.href)
-                          ? "bg-gradient-to-r from-sky-500/20 to-cyan-500/20 text-sky-600 dark:text-sky-400 border-l-4 border-sky-500"
-                          : link.highlight
-                          ? "bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-gray-700 dark:text-gray-200 hover:from-amber-500/20 hover:to-orange-500/20 border-l-4 border-amber-500/50"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900/50 border-l-4 border-transparent"
-                      }`}
-                    >
-                      {/* Main row: icon + label + badge */}
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`${
-                            isActive(link.href)
-                              ? "text-sky-600 dark:text-sky-400"
-                              : link.highlight
-                              ? "text-amber-600 dark:text-amber-400"
-                              : "text-gray-500 dark:text-gray-400"
-                          }`}
-                        >
-                          {link.icon}
-                        </span>
-                        <span className="font-medium text-[13px] flex-1">{link.label}</span>
-                        
-                        {/* Badge (Core) */}
-                        {link.badge && (
-                          <motion.span
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: idx * 0.05 + 0.2, type: "spring" }}
-                            className="px-1.5 py-0.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[9px] font-bold uppercase rounded-full shadow-sm"
-                          >
-                            {link.badge}
-                          </motion.span>
-                        )}
-                        
-                        {/* Active indicator */}
-                        {isActive(link.href) && (
-                          <motion.div
-                            layoutId="active-indicator"
-                            className="w-1.5 h-1.5 rounded-full bg-sky-500"
-                            transition={{ type: "spring", damping: 20 }}
-                          />
-                        )}
-                      </div>
-                      
-                      {/* Description - sublabel */}
-                      {link.description && (
-                        <motion.p
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          transition={{ delay: idx * 0.05 + 0.1 }}
-                          className={`text-[10px] mt-0.5 ml-7 leading-tight ${
-                            isActive(link.href)
-                              ? "text-sky-500/80 dark:text-sky-400/80"
-                              : link.highlight
-                              ? "text-amber-600/70 dark:text-amber-400/70"
-                              : "text-gray-500 dark:text-gray-500"
-                          }`}
-                        >
-                          {link.description}
-                        </motion.p>
+                {navLinks.map((link, idx) => {
+                  // Show category divider when category changes
+                  const prevLink = idx > 0 ? navLinks[idx - 1] : null;
+                  const showCategoryDivider = prevLink && prevLink.category !== link.category;
+                  
+                  return (
+                    <div key={link.href}>
+                      {/* Category Divider */}
+                      {showCategoryDivider && (
+                        <div className="my-3 px-3">
+                          <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent" />
+                        </div>
                       )}
-                    </motion.div>
-                  </motion.div>
-                ))}
+                      
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                      >
+                        <motion.div
+                          whileHover={{ x: 8 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => handleLinkClick(link.href)}
+                          className={`relative flex flex-col px-3 py-2 rounded-lg transition-all cursor-pointer group ${
+                            isActive(link.href)
+                              ? "bg-gradient-to-r from-sky-500/20 to-cyan-500/20 text-sky-600 dark:text-sky-400 border-l-4 border-sky-500"
+                              : link.highlight
+                              ? "bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-gray-700 dark:text-gray-200 hover:from-amber-500/20 hover:to-orange-500/20 border-l-4 border-amber-500/50"
+                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900/50 border-l-4 border-transparent"
+                          }`}
+                        >
+                          {/* Main row: icon + label + badge */}
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`${
+                                isActive(link.href)
+                                  ? "text-sky-600 dark:text-sky-400"
+                                  : link.highlight
+                                  ? "text-amber-600 dark:text-amber-400"
+                                  : "text-gray-500 dark:text-gray-400"
+                              }`}
+                            >
+                              {link.icon}
+                            </span>
+                            <span className="font-medium text-[13px] flex-1">{link.label}</span>
+                            
+                            {/* Badge (Core) */}
+                            {link.badge && (
+                              <motion.span
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ delay: idx * 0.05 + 0.2, type: "spring" }}
+                                className="px-1.5 py-0.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[9px] font-bold uppercase rounded-full shadow-sm"
+                              >
+                                {link.badge}
+                              </motion.span>
+                            )}
+                            
+                            {/* Active indicator */}
+                            {isActive(link.href) && (
+                              <motion.div
+                                layoutId="active-indicator"
+                                className="w-1.5 h-1.5 rounded-full bg-sky-500"
+                                transition={{ type: "spring", damping: 20 }}
+                              />
+                            )}
+                          </div>
+                          
+                          {/* Description - sublabel */}
+                          {link.description && (
+                            <motion.p
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              transition={{ delay: idx * 0.05 + 0.1 }}
+                              className={`text-[10px] mt-0.5 ml-7 leading-tight ${
+                                isActive(link.href)
+                                  ? "text-sky-500/80 dark:text-sky-400/80"
+                                  : link.highlight
+                                  ? "text-amber-600/70 dark:text-amber-400/70"
+                                  : "text-gray-500 dark:text-gray-500"
+                              }`}
+                            >
+                              {link.description}
+                            </motion.p>
+                          )}
+                        </motion.div>
+                      </motion.div>
+                    </div>
+                  );
+                })}
               </nav>
 
               {/* ===== ADMIN SECTION ===== */}
@@ -427,7 +468,7 @@ export default function NavigationBurger() {
                     <motion.button
                       whileHover={{ x: 4 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => setIsAuthModalOpen(true)}
+                      onClick={() => openAuthModal("login")}
                       className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-medium transition-all text-[13px]"
                     >
                       <LogIn className="w-3.5 h-3.5" />
@@ -436,7 +477,7 @@ export default function NavigationBurger() {
                     <motion.button
                       whileHover={{ x: 4 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => setIsAuthModalOpen(true)}
+                      onClick={() => openAuthModal("register")}
                       className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 border-sky-500 text-sky-600 dark:text-sky-400 hover:bg-sky-500/10 font-medium transition-all text-[13px]"
                     >
                       <User className="w-3.5 h-3.5" />
@@ -478,7 +519,12 @@ export default function NavigationBurger() {
       </AnimatePresence>
 
       {/* ========== AUTH MODAL ========== */}
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={closeAuthModal}
+        initialTab={authModalTab}
+        onSuccess={() => router.push("/assistant")}
+      />
     </>
   );
 }

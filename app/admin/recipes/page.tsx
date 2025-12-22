@@ -445,12 +445,12 @@ export default function RecipesPage() {
           localStorage.setItem("recipes", JSON.stringify(minimalRecipes));
           console.log("✅ План C успішний - збережено 5 рецептів");
         } catch (criticalError) {
-          // ПЛАН D: Очищаємо всю localStorage та зберігаємо заново
+          // ПЛАН D: Очищаємо тільки рецепти та зберігаємо заново
           console.error("❌ План C не вдався:", criticalError);
-          console.log("🔴 ПЛАН D: Очищуємо localStorage повністю...");
+          console.log("🔴 ПЛАН D: Очищуємо recipes з localStorage...");
           try {
-            localStorage.clear();
-            console.log("🧹 localStorage очищена");
+            localStorage.removeItem("recipes"); // 🔧 FIX: Видаляємо тільки recipes, не весь localStorage!
+            console.log("🧹 recipes видалено з localStorage");
             // Спробуємо зберегти всі рецепти заново
             localStorage.setItem("recipes", JSON.stringify(recipesToSave));
             console.log("✅ План D успішний - рецепти збережені після очистки");
@@ -519,9 +519,9 @@ export default function RecipesPage() {
           console.log("⚠️ Збережено скорочену версію (15 рецептів)");
         } catch (fallbackError) {
           console.error("❌ Не вдалося зберегти сокращену версію:", fallbackError);
-          localStorage.clear();
+          localStorage.removeItem("recipes"); // 🔧 FIX: Видаляємо тільки recipes, не весь localStorage!
           localStorage.setItem("recipes", JSON.stringify(limitedRecipes.slice(0, 5)));
-          console.log("⚠️ Очищена localStorage, збережено 5 рецептів");
+          console.log("⚠️ Очищено recipes, збережено 5 рецептів");
         }
       }
       
@@ -577,9 +577,9 @@ export default function RecipesPage() {
           console.log("⚠️ Збережено скорочену версію (15 рецептів)");
         } catch (fallbackError) {
           console.error("❌ Не вдалося зберегти сокращену версію:", fallbackError);
-          localStorage.clear();
+          localStorage.removeItem("recipes"); // 🔧 FIX: Видаляємо тільки recipes, не весь localStorage!
           localStorage.setItem("recipes", JSON.stringify(limitedRecipes.slice(0, 5)));
-          console.log("⚠️ Очищена localStorage, збережено 5 рецептів");
+          console.log("⚠️ Очищено recipes, збережено 5 рецептів");
         }
       }
     }

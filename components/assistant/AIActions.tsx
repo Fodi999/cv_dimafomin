@@ -15,12 +15,12 @@ export function AIActions({ onAnalyze, loading }: AIActionsProps) {
   
   const actions = [
     {
-      goal: "today_meals" as AIGoal,
+      goal: "find_recipes" as AIGoal,
       icon: <ChefHat className="w-5 h-5" />,
-      label: "Stwórz przepis",
-      description: "💰 Z kalkulacją oszczędności! (economy)",
-      color: "from-orange-500 to-red-500",
-      hoverColor: "hover:from-orange-600 hover:to-red-600",
+      label: "Znajdź przepisy z lodówki",
+      description: "� Przepisy z katalogu dopasowane do Twoich składników",
+      color: "from-purple-500 to-pink-500",
+      hoverColor: "hover:from-purple-600 hover:to-pink-600",
     },
     {
       goal: "3_days_plan" as AIGoal,

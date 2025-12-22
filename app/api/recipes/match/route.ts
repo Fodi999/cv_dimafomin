@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getUserIdFromToken } from "@/lib/uuid";
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL ||
   "https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app";
+
+// 🚧 TEMPORARY: Allow testUserID in development
+const ALLOW_TEST_USER_ID = process.env.NODE_ENV === "development";
 
 /**
  * GET /api/recipes/match
@@ -31,6 +35,16 @@ export async function GET(req: NextRequest) {
     searchParams.forEach((value, key) => {
       params.append(key, value);
     });
+
+    // 🚧 TEMPORARY: Extract userId from JWT and add as testUserID for backend compatibility
+    // TODO: Remove this once backend implements proper JWT middleware
+    if (ALLOW_TEST_USER_ID) {
+      const userId = getUserIdFromToken(token);
+      if (userId) {
+        params.set("testUserID", userId);
+        console.log("🚧 [DEV MODE] Adding testUserID from JWT:", userId);
+      }
+    }
 
     console.log("🔍 [GET /api/recipes/match] Proxying to backend:", `${BACKEND_URL}/api/recipes/match`);
     console.log("   Query params:", params.toString());

@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Loader } from "lucide-react";
-import NavigationBurger from "@/components/NavigationBurger";
 
 export default function AdminLayout({
   children,
@@ -14,17 +14,18 @@ export default function AdminLayout({
   const router = useRouter();
   const pathname = usePathname();
   const { user, isLoading } = useUser();
+  const { openAuthModal } = useAuth();
 
   // Проверка прав доступа администратора
   useEffect(() => {
     if (!isLoading) {
       if (!user) {
-        router.push("/login");
+        openAuthModal("login"); // 🔧 Открываем модалку вместо редиректа
       } else if (user.role !== "admin") {
         router.push("/");
       }
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading, router, openAuthModal]);
 
   if (isLoading) {
     return (
@@ -48,8 +49,7 @@ export default function AdminLayout({
       <div className="absolute top-0 right-0 w-96 h-96 bg-sky-400/10 dark:bg-sky-500/20 rounded-full blur-3xl -translate-y-1/2 pointer-events-none -z-10" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-400/10 dark:bg-cyan-500/20 rounded-full blur-3xl translate-y-1/2 pointer-events-none -z-10" />
       
-      {/* Global Navigation */}
-      <NavigationBurger />
+      {/* NavigationBurger already rendered in root layout - no need to duplicate! */}
       
       {/* Content Area - з відступом від fixed NavigationBurger (pt-16 = 64px) */}
       {pathname.includes('/create') ? (

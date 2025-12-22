@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Refrigerator, Loader2, AlertCircle, CheckCircle2, Plus } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { fridgeApi } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import FridgeForm from "@/components/fridge/FridgeForm";
@@ -18,6 +19,7 @@ import type { FridgeItem, AddFridgeItemData, FridgeItemsResponse } from "@/lib/t
 export default function FridgePage() {
   const router = useRouter();
   const { user, isLoading } = useUser();
+  const { openAuthModal } = useAuth();
   const [items, setItems] = useState<FridgeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,11 +33,11 @@ export default function FridgePage() {
   useEffect(() => {
     if (isLoading) return;
     if (!user) {
-      router.push("/login");
+      openAuthModal("login");
       return;
     }
     loadFridgeItems();
-  }, [user, isLoading]);
+  }, [user, isLoading, openAuthModal]);
 
   const loadFridgeItems = async () => {
     try {
@@ -43,7 +45,7 @@ export default function FridgePage() {
       setError(null);
       const token = localStorage.getItem("token");
       if (!token) {
-        router.push("/login");
+        openAuthModal("login");
         return;
       }
       console.log('[FridgePage] 📡 Calling fridgeApi.getItems...');
@@ -63,7 +65,7 @@ export default function FridgePage() {
   const handleAddItem = async (data: AddFridgeItemData) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      router.push("/login");
+      openAuthModal("login");
       return;
     }
     try {
@@ -85,7 +87,7 @@ export default function FridgePage() {
   const handleRemoveItem = async (id: string) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      router.push("/login");
+      openAuthModal("login");
       return;
     }
     try {
@@ -103,7 +105,7 @@ export default function FridgePage() {
   const handleUpdatePrice = async (itemId: string, pricePerUnit: number, currency: string) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      router.push("/login");
+      openAuthModal("login");
       return;
     }
     try {
@@ -141,7 +143,7 @@ export default function FridgePage() {
   const handleUpdateQuantity = async (itemId: string, quantity: number) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      router.push("/login");
+      openAuthModal("login");
       return;
     }
     try {
@@ -174,7 +176,7 @@ export default function FridgePage() {
             <AlertCircle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Wymagana autoryzacja</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">Zaloguj się, aby zarządzać swoją lodówką</p>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => router.push("/login")} className="px-8 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-medium">Zaloguj się</motion.button>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => openAuthModal("login")} className="px-8 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-medium">Zaloguj się</motion.button>
           </motion.div>
         )}
         {!isLoading && user && (

@@ -4,6 +4,7 @@ import withPWA from "@ducanh2912/next-pwa";
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
+  reactStrictMode: false, // 🔧 Отключаем Strict Mode для production-like behavior
   turbopack: {},
   images: {
     remotePatterns: [

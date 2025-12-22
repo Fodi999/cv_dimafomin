@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getUserIdFromToken } from "@/lib/uuid";
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL ||
   "https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app";
+
+// 🚧 TEMPORARY: Allow testUserID in development
+const ALLOW_TEST_USER_ID = process.env.NODE_ENV === "development";
 
 /**
  * POST /api/recipes/[id]/cook
@@ -48,6 +52,21 @@ export async function POST(
       );
     }
 
+    // 🚧 TEMPORARY: Extract userId from JWT for backend compatibility
+    // TODO: Remove this once backend implements proper JWT middleware
+    let requestBody = {
+      servingsMultiplier: servingsMultiplier || 1,
+      idempotencyKey,
+    };
+
+    if (ALLOW_TEST_USER_ID) {
+      const userId = getUserIdFromToken(token);
+      if (userId) {
+        requestBody = { ...requestBody, testUserID: userId } as any;
+        console.log("🚧 [DEV MODE] Adding testUserID from JWT:", userId);
+      }
+    }
+
     console.log(`👨‍🍳 [POST /api/recipes/${recipeId}/cook]`);
     console.log("   Idempotency key:", idempotencyKey);
     console.log("   Servings multiplier:", servingsMultiplier || 1);
@@ -60,10 +79,7 @@ export async function POST(
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        servingsMultiplier: servingsMultiplier || 1,
-        idempotencyKey,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     console.log("📡 Backend response status:", response.status);

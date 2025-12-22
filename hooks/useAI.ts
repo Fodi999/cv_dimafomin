@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export type AIGoal = "today_meals" | "3_days_plan" | "reduce_waste" | "budget_review";
+export type AIGoal = "find_recipes" | "3_days_plan" | "reduce_waste" | "budget_review";
 
 export interface RecipeIngredient {
   name: string;
