@@ -813,11 +813,11 @@ export default function AssistantPage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <Search className="w-6 h-6 text-purple-500" />
-                Dopasowane przepisy
+                <Sparkles className="w-6 h-6 text-purple-500" />
+                Rekomendacja AI
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Przepisy idealnie dopasowane do zawartości twojej lodówki
+                Najlepszy przepis na teraz
               </p>
             </div>
             <div className="flex gap-2">

@@ -185,14 +185,16 @@ export default function SavedRecipeCard({
       </div>
 
       {/* Economy section - show if data available */}
-      {(recipe.usedIngredientsValue || recipe.missingIngredientsCost || recipe.totalWasteSaved) && (
+      {(recipe.usedIngredientsValue !== undefined && recipe.usedIngredientsValue > 0) || 
+       (recipe.missingIngredientsCost !== undefined && recipe.missingIngredientsCost > 0) || 
+       (recipe.totalWasteSaved !== undefined && recipe.totalWasteSaved > 0) ? (
         <div className="px-6 py-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10 border-b border-gray-100 dark:border-gray-800">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
             💰 Ekonomia przepisu
           </h4>
           <div className="grid grid-cols-3 gap-4 text-center">
             {/* Used from fridge */}
-            {recipe.usedIngredientsValue !== undefined && (
+            {recipe.usedIngredientsValue !== undefined && recipe.usedIngredientsValue > 0 && (
               <div>
                 <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Z lodówki</div>
                 <div className="text-lg font-bold text-green-600 dark:text-green-400">
@@ -222,43 +224,34 @@ export default function SavedRecipeCard({
             )}
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* Stats section */}
       <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
-        <div className="grid grid-cols-3 gap-4 text-center">
+        <div className="flex items-center justify-between text-sm">
           {/* Saved date */}
-          <div>
-            <div className="flex items-center justify-center gap-1 text-gray-500 dark:text-gray-400 text-xs mb-1">
-              <Calendar className="w-3.5 h-3.5" />
-              Zapisano
-            </div>
-            <div className="text-sm font-medium text-gray-900 dark:text-white">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-gray-400" />
+            <span className="text-gray-500 dark:text-gray-400">Zapisano:</span>
+            <span className="font-medium text-gray-900 dark:text-white">
               {formatDate(recipe.savedAt)}
-            </div>
+            </span>
           </div>
 
-          {/* Cooked count */}
-          <div>
-            <div className="flex items-center justify-center gap-1 text-gray-500 dark:text-gray-400 text-xs mb-1">
-              <TrendingUp className="w-3.5 h-3.5" />
-              Ugotowano
+          {/* Cooking status - only show if cooked */}
+          {recipe.cookedCount > 0 && (
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-purple-500" />
+              <span className="font-medium text-purple-700 dark:text-purple-400">
+                🍳 Ugotowano {recipe.cookedCount} {recipe.cookedCount === 1 ? 'raz' : 'razy'}
+              </span>
+              {recipe.lastCookedAt && (
+                <span className="text-gray-500 dark:text-gray-400">
+                  • {formatDate(recipe.lastCookedAt)}
+                </span>
+              )}
             </div>
-            <div className="text-sm font-medium text-gray-900 dark:text-white">
-              {recipe.cookedCount} {recipe.cookedCount === 1 ? 'raz' : 'razy'}
-            </div>
-          </div>
-
-          {/* Last cooked */}
-          <div>
-            <div className="flex items-center justify-center gap-1 text-gray-500 dark:text-gray-400 text-xs mb-1">
-              <ChefHat className="w-3.5 h-3.5" />
-              Ostatnio
-            </div>
-            <div className="text-sm font-medium text-gray-900 dark:text-white">
-              {recipe.lastCookedAt ? formatDate(recipe.lastCookedAt) : 'Nigdy'}
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -311,8 +304,8 @@ export default function SavedRecipeCard({
           {/* View details */}
           <button
             onClick={() => {
-              // TODO: Navigate to recipe details page
-              console.log('Navigate to recipe:', recipe.recipeId);
+              // Navigate to recipe details page (backend will fetch full data)
+              window.location.href = `/recipes/${recipe.recipeId}`;
             }}
             disabled={isDeleting || isLoading}
             className={`px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium transition-all flex items-center justify-center gap-2 text-sm ${

@@ -80,12 +80,31 @@ export default function SavedRecipesPage() {
 
       if (data.success && data.data) {
         // ✅ Backend returns: { success: true, data: { recipes: [...], count: N } }
-        const recipesArray = data.data.recipes ?? [];
+        const backendRecipes = data.data.recipes ?? [];
         
-        setRecipes(recipesArray);
-        console.log(`✅ Loaded ${recipesArray.length} saved recipes`);
+        // 🔧 Transform backend structure to frontend format
+        const transformedRecipes = backendRecipes.map((item: any) => ({
+          id: item.id || item.recipe?.id,
+          recipeId: item.recipe?.id || item.recipeId,
+          recipeName: item.recipe?.localName || item.recipeName || 'Bez nazwy',
+          recipeCountry: item.recipe?.country || item.recipeCountry || 'Nieznany',
+          recipeDifficulty: item.recipe?.difficulty || item.recipeDifficulty || 'medium',
+          recipeTimeMinutes: item.recipe?.timeMinutes || item.recipeTimeMinutes || 0,
+          recipeServings: item.servings || item.recipeServings || 0,
+          savedAt: item.savedAt || new Date().toISOString(),
+          cookedCount: item.cookCount || item.cookedCount || 0,
+          lastCookedAt: item.cookedAt || item.lastCookedAt || null,
+          canCookNow: item.canCookNow ?? false,
+          missingIngredientsCount: item.missingIngredientsCount || 0,
+          usedIngredientsValue: item.usedIngredientsValue,
+          missingIngredientsCost: item.missingIngredientsCost,
+          totalWasteSaved: item.totalWasteSaved,
+        }));
         
-        if (recipesArray.length === 0) {
+        setRecipes(transformedRecipes);
+        console.log(`✅ Loaded ${transformedRecipes.length} saved recipes`);
+        
+        if (transformedRecipes.length === 0) {
           toast.info('Brak zapisanych przepisów', 'Zacznij zapisywać przepisy z AI Asystenta!');
         }
       }
