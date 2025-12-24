@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Search, Loader2, AlertCircle } from 'lucide-react';
+import { Star, Search, Loader2, AlertCircle, Filter, CheckCircle, AlertTriangle, ShoppingCart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import SavedRecipeCard, { type SavedRecipe } from '@/components/recipes/SavedRecipeCard';
@@ -23,6 +23,9 @@ export default function SavedRecipesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [needsAuth, setNeedsAuth] = useState(false);
+  
+  // Filter state
+  const [activeFilter, setActiveFilter] = useState<'all' | 'ready' | 'almost' | 'missing'>('all');
   
   // Confirmation modal state
   const [confirmModal, setConfirmModal] = useState<{
@@ -242,6 +245,44 @@ export default function SavedRecipesPage() {
     }
   }, [toast]);
 
+  // 🎯 Filter and sort recipes
+  const filteredAndSortedRecipes = recipes
+    .filter(recipe => {
+      switch (activeFilter) {
+        case 'ready':
+          return recipe.canCookNow === true;
+        case 'almost':
+          return !recipe.canCookNow && (recipe.missingIngredientsCount ?? 0) <= 2;
+        case 'missing':
+          return (recipe.missingIngredientsCount ?? 0) > 2;
+        case 'all':
+        default:
+          return true;
+      }
+    })
+    .sort((a, b) => {
+      // 📊 Sort by readiness (ready first, then by missing count)
+      const aReady = a.canCookNow ? 1 : 0;
+      const bReady = b.canCookNow ? 1 : 0;
+      
+      if (aReady !== bReady) {
+        return bReady - aReady; // Ready recipes first
+      }
+      
+      // If both ready or both not ready, sort by missing ingredients count
+      const aMissing = a.missingIngredientsCount ?? 999;
+      const bMissing = b.missingIngredientsCount ?? 999;
+      return aMissing - bMissing; // Fewer missing first
+    });
+
+  // Count recipes in each filter category
+  const filterCounts = {
+    all: recipes.length,
+    ready: recipes.filter(r => r.canCookNow === true).length,
+    almost: recipes.filter(r => !r.canCookNow && (r.missingIngredientsCount ?? 0) <= 2).length,
+    missing: recipes.filter(r => (r.missingIngredientsCount ?? 0) > 2).length,
+  };
+
 
   // Show auth required message
   if (needsAuth) {
@@ -336,14 +377,104 @@ export default function SavedRecipesPage() {
             </div>
             <div className="text-left">
               <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-                Zapisane przepisy
+                Moja kuchnia
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                Twoja kolekcja ulubionych przepisów
+                Twoje przepisy gotowe do ugotowania
               </p>
             </div>
           </div>
         </motion.div>
+
+        {/* Filters */}
+        {recipes.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="flex flex-wrap items-center gap-3 justify-center"
+          >
+            {/* All */}
+            <button
+              onClick={() => setActiveFilter('all')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                activeFilter === 'all'
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+              }`}
+            >
+              <Star className="w-4 h-4" />
+              <span>Wszystkie</span>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                activeFilter === 'all'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+              }`}>
+                {filterCounts.all}
+              </span>
+            </button>
+
+            {/* Ready */}
+            <button
+              onClick={() => setActiveFilter('ready')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                activeFilter === 'ready'
+                  ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-md'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+              }`}
+            >
+              <CheckCircle className="w-4 h-4" />
+              <span>Gotowe</span>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                activeFilter === 'ready'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+              }`}>
+                {filterCounts.ready}
+              </span>
+            </button>
+
+            {/* Almost ready */}
+            <button
+              onClick={() => setActiveFilter('almost')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                activeFilter === 'almost'
+                  ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-md'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+              }`}
+            >
+              <AlertTriangle className="w-4 h-4" />
+              <span>Prawie gotowe</span>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                activeFilter === 'almost'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+              }`}>
+                {filterCounts.almost}
+              </span>
+            </button>
+
+            {/* Missing ingredients */}
+            <button
+              onClick={() => setActiveFilter('missing')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                activeFilter === 'missing'
+                  ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+              }`}
+            >
+              <ShoppingCart className="w-4 h-4" />
+              <span>Wymaga zakupów</span>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                activeFilter === 'missing'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+              }`}>
+                {filterCounts.missing}
+              </span>
+            </button>
+          </motion.div>
+        )}
 
         {/* Empty State */}
         {recipes.length === 0 && (
@@ -371,33 +502,65 @@ export default function SavedRecipesPage() {
 
         {/* Recipes Grid */}
         {recipes.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {recipes.map((recipe, index) => (
+          <>
+            {/* No results for current filter */}
+            {filteredAndSortedRecipes.length === 0 && (
               <motion.div
-                key={recipe.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-12 text-center"
               >
-                <SavedRecipeCard
-                  recipe={recipe}
-                  onCook={handleCook}
-                  onDelete={handleDelete}
-                  isLoading={loading}
-                />
+                <Filter className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                  Brak przepisów w tej kategorii
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  Spróbuj zmienić filtr lub dodaj więcej przepisów
+                </p>
+                <button
+                  onClick={() => setActiveFilter('all')}
+                  className="px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium transition-all"
+                >
+                  Pokaż wszystkie
+                </button>
               </motion.div>
-            ))}
-          </motion.div>
+            )}
+
+            {/* Recipes Grid */}
+            {filteredAndSortedRecipes.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              >
+                {filteredAndSortedRecipes.map((recipe, index) => (
+                  <motion.div
+                    key={recipe.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <SavedRecipeCard
+                      recipe={recipe}
+                      onCook={handleCook}
+                      onDelete={handleDelete}
+                      isLoading={loading}
+                    />
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </>
         )}
 
         {/* Count Badge */}
-        {recipes.length > 0 && (
+        {recipes.length > 0 && filteredAndSortedRecipes.length > 0 && (
           <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-            Masz {recipes.length} {recipes.length === 1 ? 'zapisany przepis' : 'zapisanych przepisów'}
+            {activeFilter === 'all' ? (
+              <>Masz {recipes.length} {recipes.length === 1 ? 'zapisany przepis' : 'zapisanych przepisów'}</>
+            ) : (
+              <>Wyświetlono {filteredAndSortedRecipes.length} z {recipes.length} przepisów</>
+            )}
           </div>
         )}
       </div>

@@ -4,7 +4,14 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { RecipeCard } from "@/components/recipes/RecipeCard";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChefHat, BookOpen, Lightbulb, Filter } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Type for catalog recipe (matches backend response)
 type CatalogRecipe = {
@@ -25,6 +32,9 @@ export default function RecipesPage() {
   const [recipes, setRecipes] = useState<CatalogRecipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [timeFilter, setTimeFilter] = useState("all");
+  const [difficultyFilter, setDifficultyFilter] = useState("all");
 
   // Load recipes from API (Single Source of Truth)
   useEffect(() => {
@@ -65,6 +75,32 @@ export default function RecipesPage() {
     }
   }
 
+  // Filter logic
+  const filteredRecipes = recipes.filter((recipe) => {
+    // Category filter
+    if (categoryFilter !== "all" && recipe.category?.toLowerCase() !== categoryFilter) {
+      return false;
+    }
+
+    // Time filter
+    if (timeFilter !== "all") {
+      const time = recipe.timeMinutes || 0;
+      if (timeFilter === "quick" && time >= 30) return false;
+      if (timeFilter === "medium" && (time < 30 || time > 60)) return false;
+      if (timeFilter === "long" && time <= 60) return false;
+    }
+
+    // Difficulty filter
+    if (difficultyFilter !== "all") {
+      const diff = recipe.difficulty?.toLowerCase() || "";
+      if (difficultyFilter === "easy" && !["easy", "łatwy", "latwy"].includes(diff)) return false;
+      if (difficultyFilter === "medium" && !["medium", "średni", "sredni"].includes(diff)) return false;
+      if (difficultyFilter === "hard" && !["hard", "trudny"].includes(diff)) return false;
+    }
+
+    return true;
+  });
+
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -90,18 +126,103 @@ export default function RecipesPage() {
           transition={{ duration: 0.6 }}
           className="mb-12"
         >
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            🍱 Przepisy
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl">
-            {loading 
-              ? "Ładowanie przepisów z katalogu..."
-              : recipes.length > 0
-                ? `Odkryj kolekcję ${recipes.length} ${recipes.length === 1 ? 'przepisu' : recipes.length <= 4 ? 'przepisów' : 'przepisów'} z naszego katalogu. Wszystkie dane pochodzą z tego samego źródła co AI Asystent.`
-                : "Odkryj kolekcję autorskich przepisów. Kliknij na przepis, aby zobaczyć pełne detale."
-            }
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <ChefHat className="w-10 h-10 sm:w-12 sm:h-12 text-sky-600 dark:text-sky-400" />
+            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white">
+              Gotowanie
+            </h1>
+          </div>
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto text-center">
+            Katalog przepisów i inspiracji
+          </p>
+          {!loading && recipes.length > 0 && (
+            <div className="flex items-center justify-center gap-2 text-sm font-medium text-sky-600 dark:text-sky-400 mt-2">
+              <BookOpen className="w-4 h-4" />
+              <span>{recipes.length} {recipes.length === 1 ? 'przepis' : 'przepisów'} w katalogu</span>
+            </div>
+          )}
+          <p className="text-sm text-gray-500 dark:text-gray-500 max-w-2xl mx-auto mt-2 text-center">
+            Przeglądaj przepisy. Zapisz je, aby sprawdzić składniki w swojej kuchni.
           </p>
         </motion.div>
+
+        {/* Filters */}
+        {!loading && !error && recipes.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-8 space-y-4"
+          >
+            <div className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <Filter className="w-4 h-4" />
+              Filtry
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Category Filter */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+                  Kategoria
+                </label>
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Wszystkie" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Wszystkie</SelectItem>
+                    <SelectItem value="main">Dania główne</SelectItem>
+                    <SelectItem value="soup">Zupy</SelectItem>
+                    <SelectItem value="salad">Sałatki</SelectItem>
+                    <SelectItem value="sushi">Sushi</SelectItem>
+                    <SelectItem value="dessert">Desery</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Time Filter */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+                  Czas przygotowania
+                </label>
+                <Select value={timeFilter} onValueChange={setTimeFilter}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Dowolny" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Dowolny</SelectItem>
+                    <SelectItem value="quick">&lt; 30 min</SelectItem>
+                    <SelectItem value="medium">30-60 min</SelectItem>
+                    <SelectItem value="long">60+ min</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Difficulty Filter */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+                  Poziom trudności
+                </label>
+                <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Dowolny" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Dowolny</SelectItem>
+                    <SelectItem value="easy">Łatwy</SelectItem>
+                    <SelectItem value="medium">Średni</SelectItem>
+                    <SelectItem value="hard">Trudny</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            {/* Results count */}
+            <div className="text-sm text-gray-600 dark:text-gray-400 text-center">
+              Znaleziono: <span className="font-semibold text-sky-600 dark:text-sky-400">{filteredRecipes.length}</span> z <span className="font-semibold">{recipes.length}</span> {recipes.length === 1 ? 'przepisu' : 'przepisów'}
+            </div>
+          </motion.div>
+        )}
 
         {/* Loading State */}
         {loading && (
@@ -127,31 +248,53 @@ export default function RecipesPage() {
 
         {/* Empty State */}
         {!loading && !error && recipes.length === 0 && (
-          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-8 text-center">
-            <p className="text-gray-600 dark:text-gray-400">
-              📭 Brak przepisów w katalogu
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-12 text-center">
+            <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400 text-lg">
+              Brak przepisów w katalogu
             </p>
           </div>
         )}
 
+        {/* Empty Filter State */}
+        {!loading && !error && recipes.length > 0 && filteredRecipes.length === 0 && (
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-12 text-center">
+            <Filter className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400 mb-4 text-lg">
+              Nie znaleziono przepisów pasujących do wybranych filtrów
+            </p>
+            <button
+              onClick={() => {
+                setCategoryFilter("all");
+                setTimeFilter("all");
+                setDifficultyFilter("all");
+              }}
+              className="px-6 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg transition-colors"
+            >
+              Wyczyść filtry
+            </button>
+          </div>
+        )}
+
         {/* Recipes Grid */}
-        {!loading && !error && recipes.length > 0 && (
-          <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {recipes.map((recipe) => {
-              // Get recipe name (prioritize localName, then canonicalName, then fallback)
-              const recipeName = recipe.localName || recipe.canonicalName || recipe.name || "Unnamed Recipe";
-              
-              return (
-                <motion.div key={recipe.id} variants={item}>
-                  <RecipeCard
-                    id={recipe.id}
-                    title={recipeName}
-                    category={recipe.category}
+        {!loading && !error && filteredRecipes.length > 0 && (
+          <>
+            <motion.div
+              variants={container}
+              initial="hidden"
+              animate="show"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {filteredRecipes.map((recipe) => {
+                // Get recipe name (prioritize localName, then canonicalName, then fallback)
+                const recipeName = recipe.localName || recipe.canonicalName || recipe.name || "Unnamed Recipe";
+                
+                return (
+                  <motion.div key={recipe.id} variants={item}>
+                    <RecipeCard
+                      id={recipe.id}
+                      title={recipeName}
+                      category={recipe.category}
                     difficulty={(recipe.difficulty as "beginner" | "intermediate" | "advanced") || "intermediate"}
                     cookingTime={recipe.timeMinutes || 30}
                     imageUrl={recipe.imageUrl || "https://i.postimg.cc/B63F53xY/DSCF4622.jpg"}
@@ -165,7 +308,23 @@ export default function RecipesPage() {
                 </motion.div>
               );
             })}
-          </motion.div>
+            </motion.div>
+            
+            {/* CTA Hint */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mt-8 p-6 bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-sky-900/20 dark:to-cyan-900/20 rounded-xl border border-sky-200 dark:border-sky-800"
+            >
+              <div className="flex items-start gap-3">
+                <Lightbulb className="w-6 h-6 text-sky-600 dark:text-sky-400 flex-shrink-0 mt-1" />
+                <p className="text-sm text-gray-700 dark:text-gray-300 text-left">
+                  <span className="font-semibold">W katalogu jest {recipes.length} przepisów.</span> Zapisz wybrane, aby AI sprawdziło składniki w Twojej lodówce i pokazało, co możesz ugotować od razu.
+                </p>
+              </div>
+            </motion.div>
+          </>
         )}
 
         {/* Footer CTA */}

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Heart, MessageCircle, Share2, Bookmark } from "lucide-react";
+import { Bookmark } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -31,7 +31,6 @@ export function RecipeCard({
   cookingTime,
   category,
 }: RecipeCardProps) {
-  const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
 
   const getDifficultyColor = (difficulty?: string) => {
@@ -136,51 +135,26 @@ export function RecipeCard({
           </div>
 
           {/* Actions Bar */}
-          <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-800">
-            <div className="flex items-center gap-3">
-              {/* Like Button */}
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setLiked(!liked);
-                }}
-                className={`flex items-center gap-1 text-xs font-medium transition-colors ${
-                  liked
-                    ? "text-red-600 dark:text-red-400"
-                    : "text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
-                }`}
-              >
-                <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
-                <span>{liked ? likes + 1 : likes}</span>
-              </motion.button>
-
-              {/* Comments */}
-              <button
-                onClick={(e) => e.preventDefault()}
-                className="flex items-center gap-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>{comments}</span>
-              </button>
-            </div>
-
+          <div className="flex items-center gap-3 pt-3 border-t border-gray-200 dark:border-gray-800">
             {/* Save Button */}
             <motion.button
-              whileHover={{ scale: 1.1 }}
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={(e) => {
                 e.preventDefault();
                 setSaved(!saved);
+                // TODO: Integrate with backend API to save recipe
+                console.log(`${saved ? 'Usunięto' : 'Zapisano'} przepis:`, id);
               }}
-              className={`flex items-center gap-1 text-xs font-medium transition-colors ${
+              title={saved ? "Usuń z zapisanych" : "Zapisz do 'Moja kuchnia' - Sprawdzisz składniki później"}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all ${
                 saved
-                  ? "text-sky-600 dark:text-sky-400"
-                  : "text-gray-600 dark:text-gray-400 hover:text-sky-600 dark:hover:text-sky-400"
+                  ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700"
+                  : "bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 hover:bg-sky-200 dark:hover:bg-sky-900/50 border border-sky-200 dark:border-sky-800"
               }`}
             >
               <Bookmark className={`w-4 h-4 ${saved ? "fill-current" : ""}`} />
+              <span className="text-xs sm:text-sm">{saved ? "Zapisano" : "⭐ Zapisz"}</span>
             </motion.button>
           </div>
         </div>

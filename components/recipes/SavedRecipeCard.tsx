@@ -100,10 +100,42 @@ export default function SavedRecipeCard({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+      className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow overflow-hidden relative"
     >
+      {/* Delete button - Top left, above everything */}
+      {onDelete && (
+        <button
+          onClick={handleDelete}
+          disabled={isDeleting || isCooking}
+          className="absolute top-3 left-3 z-20 p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 shadow-sm bg-white dark:bg-gray-800"
+          title="Usuń z zapisanych"
+        >
+          <Trash2 className="w-5 h-5" />
+        </button>
+      )}
+
+      {/* 🎯 READY STATUS BADGE - Top right, large and prominent */}
+      <div className="absolute top-3 right-3 z-10">
+        {recipe.canCookNow ? (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold text-xs shadow-lg">
+            <span className="flex h-2 w-2 rounded-full bg-white animate-pulse" />
+            GOTOWE
+          </div>
+        ) : recipe.missingIngredientsCount && recipe.missingIngredientsCount <= 2 ? (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-600 to-orange-600 text-white font-bold text-xs shadow-lg">
+            <span className="flex h-2 w-2 rounded-full bg-white" />
+            PRAWIE GOTOWE
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold text-xs shadow-lg">
+            <span className="flex h-2 w-2 rounded-full bg-white" />
+            BRAKUJE {recipe.missingIngredientsCount}
+          </div>
+        )}
+      </div>
+
       {/* Header */}
-      <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+      <div className="p-6 pt-12 border-b border-gray-100 dark:border-gray-800">{/* pt-12 to make space for buttons */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
@@ -142,45 +174,14 @@ export default function SavedRecipeCard({
               </span>
             </div>
 
-            {/* Status indicators */}
-            <div className="space-y-2">
-              {/* Can cook now */}
-              {recipe.canCookNow && (
-                <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-400">
-                  <span className="flex h-2 w-2 rounded-full bg-green-500" />
-                  <span className="font-medium">✅ Możesz ugotować teraz</span>
-                </div>
-              )}
-
-              {/* Missing ingredients */}
-              {!recipe.canCookNow && recipe.missingIngredientsCount && recipe.missingIngredientsCount > 0 && (
-                <div className="flex items-center gap-2 text-sm text-orange-700 dark:text-orange-400">
-                  <span className="flex h-2 w-2 rounded-full bg-orange-500" />
-                  <span className="font-medium">🛒 Brakuje {recipe.missingIngredientsCount} {recipe.missingIngredientsCount === 1 ? 'składnika' : 'składników'}</span>
-                </div>
-              )}
-
-              {/* Already cooked */}
-              {recipe.lastCookedAt && (
-                <div className="flex items-center gap-2 text-sm text-purple-700 dark:text-purple-400">
-                  <span className="flex h-2 w-2 rounded-full bg-purple-500" />
-                  <span className="font-medium">🔁 Gotowany wcześniej ({formatDate(recipe.lastCookedAt)})</span>
-                </div>
-              )}
-            </div>
+            {/* Additional info - only show if already cooked */}
+            {recipe.lastCookedAt && (
+              <div className="flex items-center gap-2 text-sm text-purple-700 dark:text-purple-400">
+                <span className="flex h-2 w-2 rounded-full bg-purple-500" />
+                <span className="font-medium">🔁 Ostatnio: {formatDate(recipe.lastCookedAt)}</span>
+              </div>
+            )}
           </div>
-
-          {/* Delete button */}
-          {onDelete && (
-            <button
-              onClick={handleDelete}
-              disabled={isDeleting || isCooking}
-              className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
-              title="Usuń z zapisanych"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
-          )}
         </div>
       </div>
 

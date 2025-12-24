@@ -27,6 +27,8 @@ import {
   GraduationCap,
   Library,
   Store,
+  ChefHat,
+  Coins,
 } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -42,6 +44,7 @@ interface NavLink {
   badge?: string; // 🆕 Добавляем badge (например "Core")
   highlight?: boolean; // 🆕 Для выделения killer-feature
   category?: string; // 🆕 Категория для группировки
+  categoryLabel?: string; // 🆕 Видимая метка категории (только для первого элемента группы)
 }
 
 export default function NavigationBurger() {
@@ -89,36 +92,36 @@ export default function NavigationBurger() {
     };
   }, [isOpen]);
 
-  // 🆕 ЛОГИЧНАЯ НАВИГАЦИЯ - Вариант А (MVP & массовый пользователь)
-  // Структура: Start → Gotowanie → AI Pomoc → Nauka → Rynek
+  // ✅ ПРАВИЛЬНА НАВІГАЦІЯ (фокус на journey користувача)
+  // Структура: Home → Lodówka → Gotowanie → AI → Przepisy → Akademia → ChefTokens → Profil
   const navLinks: NavLink[] = [
-    // ===== 1. START =====
+    // ===== START =====
     {
       label: "Strona główna",
       href: "/",
       icon: <Home className="w-5 h-5" />,
       description: "Przegląd wartości i funkcji",
       category: "Start",
+      categoryLabel: "Start",
     },
     
-    // ===== 2. GOTOWANIE =====
+    // ===== KUCHNIA (CORE) =====
     {
       label: "Lodówka",
       href: "/fridge",
       icon: <Refrigerator className="w-5 h-5" />,
       description: "Zarządzaj składnikami i datami",
       badge: "Core",
-      category: "Gotowanie",
+      category: "Kuchnia",
+      categoryLabel: "Kuchnia (CORE)",
     },
     {
-      label: "Moje przepisy",
-      href: "/recipes/saved",
-      icon: <Star className="w-5 h-5" />,
-      description: "Twoja kolekcja ulubionych przepisów",
-      category: "Gotowanie",
+      label: "Gotowanie",
+      href: "/recipes",
+      icon: <ChefHat className="w-5 h-5" />,
+      description: "Katalog przepisów i inspiracji",
+      category: "Kuchnia",
     },
-    
-    // ===== 3. AI POMOC =====
     {
       label: "AI Asystent",
       href: "/assistant",
@@ -126,32 +129,34 @@ export default function NavigationBurger() {
       description: "Inteligentna pomoc w kuchni",
       badge: "AI",
       highlight: true, // 🔥 Killer-feature
-      category: "AI Pomoc",
+      category: "Kuchnia",
+    },
+    {
+      label: "Moje przepisy",
+      href: "/recipes/saved",
+      icon: <Star className="w-5 h-5" />,
+      description: "Twoja kolekcja ulubionych przepisów",
+      category: "Kuchnia",
     },
     
-    // ===== 4. NAUKA =====
+    // ===== ROZWÓJ =====
     {
       label: "Akademia",
       href: "/academy",
       icon: <GraduationCap className="w-5 h-5" />,
-      description: "Ucz się planować i gotować mądrze",
-      category: "Nauka",
-    },
-    {
-      label: "Kursy",
-      href: "/academy/courses",
-      icon: <Library className="w-5 h-5" />,
-      description: "Praktyczne umiejętności krok po kroku",
-      category: "Nauka",
+      description: "Kursy, nauka i rozwój umiejętności",
+      category: "Rozwój",
+      categoryLabel: "Rozwój",
     },
     
-    // ===== 5. RYNEK =====
+    // ===== EKONOMIA =====
     {
-      label: "Rynek",
+      label: "ChefTokens",
       href: "/market",
-      icon: <Store className="w-5 h-5" />,
-      description: "Receptury & wymiana ChefTokens",
-      category: "Rynek",
+      icon: <Coins className="w-5 h-5" />,
+      description: "Wymiana tokenów i nagrody",
+      category: "Ekonomia",
+      categoryLabel: "Ekonomia",
     },
   ];
 
@@ -161,6 +166,7 @@ export default function NavigationBurger() {
     if (href === "/assistant" && pathname.startsWith("/assistant")) return true;
     if (href === "/market" && pathname === "/market") return true;
     if (href === "/fridge" && pathname === "/fridge") return true;
+    if (href === "/recipes" && pathname === "/recipes" && !pathname.startsWith("/recipes/saved")) return true;
     if (href === "/recipes/saved" && pathname.startsWith("/recipes/saved")) return true;
     return false;
   };
@@ -276,10 +282,29 @@ export default function NavigationBurger() {
                   
                   return (
                     <div key={link.href}>
-                      {/* Category Divider */}
-                      {showCategoryDivider && (
-                        <div className="my-3 px-3">
-                          <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent" />
+                      {/* Category Header (з назвою секції) */}
+                      {showCategoryDivider && link.categoryLabel && (
+                        <div className="my-4 px-3">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent" />
+                            <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                              {link.categoryLabel}
+                            </span>
+                            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent" />
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Перший елемент теж має categoryLabel */}
+                      {idx === 0 && link.categoryLabel && (
+                        <div className="mb-3 px-3">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent" />
+                            <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                              {link.categoryLabel}
+                            </span>
+                            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent" />
+                          </div>
                         </div>
                       )}
                       
@@ -315,7 +340,7 @@ export default function NavigationBurger() {
                             </span>
                             <span className="font-medium text-[13px] flex-1">{link.label}</span>
                             
-                            {/* Badge (Core) */}
+                            {/* Badge (Core, AI) */}
                             {link.badge && (
                               <motion.span
                                 initial={{ scale: 0 }}
@@ -337,7 +362,7 @@ export default function NavigationBurger() {
                             )}
                           </div>
                           
-                          {/* Description - sublabel */}
+                          {/* Description (тільки 2 рядки: назва + опис) */}
                           {link.description && (
                             <motion.p
                               initial={{ opacity: 0, height: 0 }}
