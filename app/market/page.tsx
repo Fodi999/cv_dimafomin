@@ -1,91 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ShoppingBag, Search, Coins, Star, Users, Check } from "lucide-react";
+import { ShoppingBag, Search, Coins } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
-
-const mockRecipes = [
-  {
-    id: "1",
-    title: "⭐ Profesjonalne Nigiri: Od A do Z",
-    description: "Kompletny kurs przygotowania nigiri sushi z sekretami japońskich mistrzów",
-    price: 150,
-    rating: 4.9,
-    studentsCount: 234,
-    image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=400",
-    author: "Dima Fomin",
-    difficulty: "Zaawansowany",
-    tokens: "150 CT",
-  },
-  {
-    id: "2",
-    title: "⭐ Maki i Uramaki dla Początkujących",
-    description: "Naucz się gotować popularne rolki w zaledwie 2 godziny",
-    price: 100,
-    rating: 4.7,
-    studentsCount: 567,
-    image: "https://images.unsplash.com/photo-1611143669185-af224c5e3252?w=400",
-    author: "Dima Fomin",
-    difficulty: "Początkujący",
-    tokens: "100 CT",
-  },
-  {
-    id: "3",
-    title: "⭐ Fusion Sushi: Nowoczesny Podejście",
-    description: "Twórz unikalne autorskie sushi z europejskimi składnikami",
-    price: 200,
-    rating: 4.8,
-    studentsCount: 189,
-    image: "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=400",
-    author: "Dima Fomin",
-    difficulty: "Średniozaawansowany",
-    tokens: "200 CT",
-  },
-  {
-    id: "4",
-    title: "⭐ Food Pairing: Idealne Połączenia",
-    description: "Odkryj idealne kombinacje przystawek i napojów jak profesjonalista",
-    price: 180,
-    rating: 5.0,
-    studentsCount: 312,
-    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400",
-    author: "Dima Fomin",
-    difficulty: "Średniozaawansowany",
-    tokens: "180 CT",
-  },
-  {
-    id: "5",
-    title: "⭐ Techniki Krojenia dla Profesjonalistów",
-    description: "Opanuj wszystkie sposoby krojenia na poziomie restauracyjnym",
-    price: 120,
-    rating: 4.9,
-    studentsCount: 445,
-    image: "https://images.unsplash.com/photo-1553504653527-7dd5b39ef828?w=400",
-    author: "Dima Fomin",
-    difficulty: "Średniozaawansowany",
-    tokens: "120 CT",
-  },
-  {
-    id: "6",
-    title: "⭐ Autorskie Dania: Stwórz Swój Styl",
-    description: "Opracuj unikatową recepturę autorską, która odzwierciedla Twój styl",
-    price: 220,
-    rating: 4.8,
-    studentsCount: 256,
-    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400",
-    author: "Dima Fomin",
-    difficulty: "Zaawansowany",
-    tokens: "220 CT",
-  },
-];
+import { useMarketRecipes } from "@/hooks/useMarketRecipes";
+import { MarketRecipeCard } from "@/components/market/MarketRecipeCard";
+import { AIMessageCard } from "@/components/ai/AIMessageCard";
+import { BackButton } from "@/components/common/BackButton";
+import { useRouter } from "next/navigation";
 
 export default function MarketPage() {
   const { t } = useLanguage();
-  const { addToCart, isInCart } = useCart();
+  const { addToCart } = useCart();
+  const router = useRouter();
+  const { data: recipes, loading, error } = useMarketRecipes();
   const [search, setSearch] = useState("");
   const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
 
@@ -97,16 +29,16 @@ export default function MarketPage() {
     };
   }, []);
 
-  const handleAddToCart = (recipe: typeof mockRecipes[0]) => {
+  const handleBuy = (recipe: typeof recipes[0]) => {
     addToCart({
       id: recipe.id,
       title: recipe.title,
-      description: recipe.description,
-      price: recipe.price,
+      description: recipe.description || "",
+      price: recipe.priceCT,
       image: recipe.image,
-      difficulty: recipe.difficulty,
+      difficulty: t.market.difficulty[recipe.level],
       rating: recipe.rating,
-      studentsCount: recipe.studentsCount,
+      studentsCount: recipe.reviews,
       quantity: 1,
     });
     
@@ -121,7 +53,7 @@ export default function MarketPage() {
     }, 2000);
   };
 
-  const filteredRecipes = mockRecipes.filter((recipe) =>
+  const filteredRecipes = recipes.filter((recipe) =>
     recipe.title.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -135,6 +67,16 @@ export default function MarketPage() {
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Back Button */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mb-6"
+        >
+          <BackButton fallbackHref="/recipes" />
+        </motion.div>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -177,98 +119,73 @@ export default function MarketPage() {
           </div>
         </motion.div>
 
-        {/* Recipes Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredRecipes.map((recipe, idx) => (
-            <motion.div
-              key={recipe.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.08, duration: 0.6 }}
-              whileHover={{ y: -8 }}
-              className="group cursor-pointer"
-            >
-              <div className="bg-gradient-to-br from-sky-500/10 to-cyan-500/10 rounded-2xl overflow-hidden border border-sky-300/40 hover:border-sky-300/60 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm h-full flex flex-col">
-                {/* Image */}
-                <div className="relative overflow-hidden h-56">
-                  <img
-                    src={recipe.image}
-                    alt={recipe.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                </div>
-
-                {/* Content */}
-                <div className="p-6 flex flex-col flex-grow">
-                  {/* Title */}
-                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-sky-300 transition-colors">
-                    {recipe.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-gray-300 text-sm mb-6 flex-grow leading-relaxed">
-                    {recipe.description}
-                  </p>
-
-                  {/* Meta Info */}
-                  <div className="space-y-3 mb-6 pb-6 border-t border-sky-300/30">
-                    <div className="flex items-center gap-2 text-gray-300 text-sm">
-                      <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                      <span className="font-semibold">{recipe.rating}</span>
-                      <span className="text-gray-400">•</span>
-                      <Users className="w-4 h-4 text-sky-400" />
-                      <span>{recipe.studentsCount}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-400 text-sm">
-                      <span>{t.common.level} {recipe.difficulty}</span>
-                    </div>
-                  </div>
-
-                  {/* Price & Button */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Coins className="w-5 h-5 text-sky-400" />
-                      <span className="font-bold text-lg text-white">{recipe.tokens}</span>
-                    </div>
-                    {isInCart(recipe.id) || addedItems.has(recipe.id) ? (
-                      <motion.div
-                        initial={{ scale: 0.8 }}
-                        animate={{ scale: 1 }}
-                        className="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg flex items-center gap-2"
-                      >
-                        <Check className="w-4 h-4" />
-                        Dodano
-                      </motion.div>
-                    ) : (
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleAddToCart(recipe)}
-                        className="px-4 py-2 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white font-semibold rounded-lg transition-all"
-                      >
-                        {t.common.buy}
-                      </motion.button>
-                    )}
-                  </div>
+        {/* Loading State */}
+        {loading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div
+                key={i}
+                className="bg-gradient-to-br from-sky-500/10 to-cyan-500/10 rounded-2xl overflow-hidden border border-sky-300/40 animate-pulse h-96"
+              >
+                <div className="h-56 bg-white/10" />
+                <div className="p-6 space-y-4">
+                  <div className="h-6 bg-white/10 rounded w-3/4" />
+                  <div className="h-16 bg-white/10 rounded" />
+                  <div className="h-4 bg-white/10 rounded w-1/2" />
                 </div>
               </div>
-            </motion.div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
-        {/* Empty State */}
-        {filteredRecipes.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            className="text-center py-20"
-          >
-            <Search className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-white mb-2">{t.common.notFound}</h3>
-            <p className="text-gray-400">{t.common.tryAgain}</p>
-          </motion.div>
+        {/* Error State */}
+        {error && !loading && (
+          <AIMessageCard
+            code="MARKET_ERROR"
+            context={{ error }}
+            onAction={(action) => {
+              if (action === "retry") {
+                window.location.reload();
+              } else if (action === "go_back") {
+                router.back();
+              }
+            }}
+          />
+        )}
+
+        {/* Recipes Grid */}
+        {!loading && !error && filteredRecipes.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredRecipes.map((recipe, idx) => (
+              <motion.div
+                key={recipe.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.08, duration: 0.6 }}
+              >
+                <MarketRecipeCard
+                  recipe={recipe}
+                  onBuy={handleBuy}
+                  isAdded={addedItems.has(recipe.id)}
+                />
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {/* Empty State (no results or no data) */}
+        {!loading && !error && filteredRecipes.length === 0 && (
+          <AIMessageCard
+            code={search ? "MARKET_NO_RESULTS" : "MARKET_EMPTY"}
+            context={{ search }}
+            onAction={(action) => {
+              if (action === "clear_search") {
+                setSearch("");
+              } else if (action === "go_academy") {
+                window.location.href = "/academy";
+              }
+            }}
+          />
         )}
 
         {/* CTA Section */}

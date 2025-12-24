@@ -42,6 +42,7 @@ const ICON_MAP: Record<string, React.ComponentType<any>> = {
   Settings: require("lucide-react").Settings,
   LogIn: require("lucide-react").LogIn,
   ChefHat: require("lucide-react").ChefHat,
+  ArrowLeft: require("lucide-react").ArrowLeft,
 };
 
 type AIMessageCardProps = {

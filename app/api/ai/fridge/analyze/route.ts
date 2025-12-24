@@ -5,10 +5,10 @@ const API_BASE =
   "https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app";
 
 type AIGoal =
-  | "today_meals"
-  | "3_days_plan"
-  | "reduce_waste"
-  | "budget_review";
+  | "cook_now"
+  | "expiring_soon"
+  | "save_money"
+  | "quick_meal";
 
 export async function POST(request: NextRequest) {
   try {

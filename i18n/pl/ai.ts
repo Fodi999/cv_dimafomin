@@ -333,3 +333,46 @@ export const FALLBACK_MESSAGE: AIMessage = {
   actions: [],
   dismissible: true,
 };
+
+/**
+ * 🛒 Market-specific AI messages
+ */
+export const marketMessages: Record<string, AIMessageGenerator> = {
+  MARKET_EMPTY: () => ({
+    title: 'Rynek jest pusty',
+    description: 'Nie znaleźliśmy dostępnych przepisów ani kursów. Sprawdź ponownie później lub dodaj swoje pierwsze produkty do katalogu.',
+    level: 'info',
+    actions: [
+      { id: 'go_academy', label: 'Przejdź do Akademii', variant: 'primary', icon: 'ChefHat' },
+    ],
+    dismissible: false,
+  }),
+  
+  MARKET_NO_RESULTS: (ctx = {}) => ({
+    title: 'Nie znaleźliśmy wyników',
+    description: ctx.search 
+      ? `Nie znaleźliśmy przepisów zawierających "${ctx.search}". Spróbuj innego wyszukiwania.`
+      : 'Nie znaleźliśmy przepisów spełniających wybrane kryteria.',
+    level: 'info',
+    actions: [
+      { id: 'clear_search', label: 'Wyczyść wyszukiwanie', variant: 'secondary', icon: 'RefreshCw' },
+    ],
+    dismissible: true,
+  }),
+  
+  MARKET_ERROR: (ctx = {}) => ({
+    title: 'Błąd ładowania przepisów',
+    description: ctx.error 
+      ? `Nie udało się załadować przepisów: ${ctx.error}`
+      : 'Wystąpił błąd podczas ładowania przepisów z serwera.',
+    level: 'error',
+    actions: [
+      { id: 'retry', label: 'Spróbuj ponownie', variant: 'primary', icon: 'RefreshCw' },
+      { id: 'go_back', label: 'Wróć', variant: 'secondary', icon: 'ArrowLeft' },
+    ],
+    dismissible: false,
+  }),
+};
+
+// Merge market messages into main catalog
+Object.assign(aiMessages, marketMessages);

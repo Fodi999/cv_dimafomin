@@ -71,14 +71,8 @@ export default function SavedRecipeCard({
   const handleCook = async () => {
     if (isCooking) return;
     
-    setIsCooking(true);
-    try {
-      await onCook(recipe.recipeId);
-    } catch (err) {
-      console.error('Failed to cook recipe:', err);
-    } finally {
-      setIsCooking(false);
-    }
+    // Navigate to cooking mode
+    window.location.href = `/recipes/${recipe.recipeId}/cook`;
   };
 
   // Handle delete action
@@ -288,17 +282,16 @@ export default function SavedRecipeCard({
 
         {/* Secondary actions */}
         <div className="grid grid-cols-2 gap-3">
-          {/* Add missing to shopping list - show only if ingredients are missing */}
+          {/* Add missing to fridge - show only if ingredients are missing */}
           {!recipe.canCookNow && recipe.missingIngredientsCount && recipe.missingIngredientsCount > 0 && (
             <button
               onClick={() => {
-                // TODO: Implement shopping list integration
-                console.log('Add missing ingredients to shopping list');
+                window.location.href = '/fridge';
               }}
               disabled={isDeleting || isLoading}
-              className="px-4 py-2 rounded-lg bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium transition-all flex items-center justify-center gap-2 text-sm"
+              className="px-4 py-2 rounded-lg bg-sky-100 hover:bg-sky-200 dark:bg-sky-900/20 dark:hover:bg-sky-900/30 text-sky-700 dark:text-sky-300 font-medium transition-all flex items-center justify-center gap-2 text-sm"
             >
-              🛒 Dodaj do zakupów
+              🥬 Dodaj do lodówki
             </button>
           )}
 

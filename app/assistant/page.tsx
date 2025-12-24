@@ -622,9 +622,10 @@ export default function AssistantPage() {
   const handleAnalyze = async (goal: AIGoal) => {
     console.log("🔵 handleAnalyze called with goal:", goal);
     
-    // 🆕 Special handling for "find_recipes" - load matched recipes from catalog
-    if (goal === "find_recipes") {
-      console.log("🟢 Detected find_recipes goal - loading recipes from catalog");
+    // 🆕 Decision Engine: Presets with structured responses
+    // "cook_now" = pokazuj przepisy z lodówki (zero zakupów)
+    if (goal === "cook_now") {
+      console.log("🟢 Detected cook_now preset - loading recipes from catalog");
       console.log("📍 Endpoint: GET /api/recipes/match");
       setShowMatches(true); // Show the matches section
       if (recipeMatches.length === 0) {
@@ -637,8 +638,8 @@ export default function AssistantPage() {
     clearRecipe();
     setRecipeError(null);
     
-    console.log("🟡 Running standard AI analysis for goal:", goal);
-    console.log("📍 Endpoint: /api/ai/fridge/analyze (generic analysis)");
+    console.log("🟡 Running AI analysis for goal:", goal);
+    console.log("📍 Endpoint: /api/ai/fridge/analyze");
     await runAI(goal);
   };
 

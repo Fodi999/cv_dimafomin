@@ -24,6 +24,7 @@ export default function FridgePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showFlowCTA, setShowFlowCTA] = useState(false); // Show CTA after adding items
   const [isSheetOpen, setIsSheetOpen] = useState(false); // Sheet state
   const [isPriceSheetOpen, setIsPriceSheetOpen] = useState(false); // Price sheet state
   const [priceSheetItem, setPriceSheetItem] = useState<FridgeItem | null>(null); // Selected item for price
@@ -78,7 +79,11 @@ export default function FridgePage() {
       // Close sheet and show success
       setIsSheetOpen(false);
       setSuccessMessage("✅ Produkt dodany do lodówki!");
-      setTimeout(() => setSuccessMessage(null), 3000);
+      setShowFlowCTA(true); // Show flow CTAs
+      setTimeout(() => {
+        setSuccessMessage(null);
+        setShowFlowCTA(false);
+      }, 8000); // 8 seconds to see CTAs
     } catch (err: any) {
       throw err; // FridgeForm will handle display
     }
@@ -203,6 +208,39 @@ export default function FridgePage() {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* 🔥 FLOW CTAs - Co dalej? */}
+            <AnimatePresence>
+              {showFlowCTA && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="mb-6 p-6 bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-sky-900/20 dark:to-cyan-900/20 border border-sky-200 dark:border-sky-800 rounded-xl"
+                >
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
+                    Co teraz? 🎯
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <button
+                      onClick={() => router.push("/recipes")}
+                      className="flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white rounded-lg transition-all font-semibold shadow-md hover:shadow-lg"
+                    >
+                      <span className="text-2xl">🍳</span>
+                      <span>Sprawdź, co możesz ugotować</span>
+                    </button>
+                    <button
+                      onClick={() => router.push("/assistant")}
+                      className="flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-all font-semibold shadow-md hover:shadow-lg"
+                    >
+                      <span className="text-2xl">🤖</span>
+                      <span>Zapytaj AI, co zrobić</span>
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <AnimatePresence>
               {error && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center gap-3">

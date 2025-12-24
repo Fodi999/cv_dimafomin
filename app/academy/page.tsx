@@ -17,65 +17,13 @@ import {
   Sparkles
 } from "lucide-react";
 import Link from "next/link";
-
-// Path status type
-type PathStatus = "available" | "in-progress" | "locked" | "completed";
-
-// Path card data
-type PathCard = {
-  id: string;
-  title: string;
-  description: string;
-  modules: number;
-  duration: string;
-  reward: number;
-  status: PathStatus;
-  progress: number;
-};
+import { useRouter } from "next/navigation";
+import { allPaths } from "@/lib/academy/paths-data";
+import type { PathStatus } from "@/lib/academy/paths-data";
 
 export default function AcademyPage() {
-  const paths: PathCard[] = [
-    {
-      id: "foundations",
-      title: "Od zera do świadomego gotowania",
-      description: "Fundament: produkt, smak, decyzje",
-      modules: 5,
-      duration: "~2h",
-      reward: 50,
-      status: "available",
-      progress: 0
-    },
-    {
-      id: "chef-thinking",
-      title: "Myślenie szefa kuchni",
-      description: "Kontrola smaku, czasu i kosztów",
-      modules: 6,
-      duration: "~3h",
-      reward: 75,
-      status: "locked",
-      progress: 0
-    },
-    {
-      id: "food-pairing",
-      title: "Food Pairing & smak",
-      description: "Łączenie potraw i napojów",
-      modules: 4,
-      duration: "~2h",
-      reward: 60,
-      status: "locked",
-      progress: 0
-    },
-    {
-      id: "quick-cooking",
-      title: "Szybka kuchnia na co dzień",
-      description: "Decyzje pod presją czasu",
-      modules: 5,
-      duration: "~2h",
-      reward: 65,
-      status: "locked",
-      progress: 0
-    }
-  ];
+  const router = useRouter();
+  const paths = allPaths;
 
   const benefits = [
     {
@@ -149,7 +97,10 @@ export default function AcademyPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-4 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
+            <button 
+              onClick={() => router.push('/academy/paths/foundations')}
+              className="px-8 py-4 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+            >
               Rozpocznij pierwszą ścieżkę
               <ArrowRight className="w-5 h-5" />
             </button>
@@ -277,16 +228,16 @@ export default function AcademyPage() {
                   <div className="flex flex-wrap gap-4 mb-4 text-sm text-gray-600 dark:text-gray-400">
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
-                      <span>{path.duration}</span>
+                      <span>{path.totalDuration}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Layers className="w-4 h-4" />
-                      <span>{path.modules} modułów</span>
+                      <span>{path.totalModules} modułów</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Coins className="w-4 h-4 text-amber-500" />
                       <span className="font-semibold text-amber-600 dark:text-amber-400">
-                        +{path.reward} ChefTokens
+                        +{path.totalReward} ChefTokens
                       </span>
                     </div>
                   </div>
@@ -294,6 +245,7 @@ export default function AcademyPage() {
                   {/* CTA Button */}
                   <button
                     disabled={isLocked}
+                    onClick={() => !isLocked && router.push(`/academy/paths/${path.id}`)}
                     className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${statusBtn.className}`}
                   >
                     {statusBtn.text}
@@ -423,7 +375,10 @@ export default function AcademyPage() {
             <p className="text-xl mb-8 opacity-90">
               Zacznij myśleć jak kucharz już dziś
             </p>
-            <button className="px-10 py-4 bg-white text-sky-600 font-bold rounded-lg hover:bg-gray-100 transition-colors text-lg flex items-center gap-2 mx-auto">
+            <button 
+              onClick={() => router.push('/academy/paths/foundations')}
+              className="px-10 py-4 bg-white text-sky-600 font-bold rounded-lg hover:bg-gray-100 transition-colors text-lg flex items-center gap-2 mx-auto"
+            >
               Rozpocznij ścieżkę
               <ArrowRight className="w-6 h-6" />
             </button>

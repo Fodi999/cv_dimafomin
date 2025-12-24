@@ -283,6 +283,10 @@ export const translations = {
       title: 'Kupuj Przepisy za ChefTokens',
       subtitle: 'Premiumowe receptury, techniki i pairing-kombinacje od Dima Fomin. Wybieraj potrawy, odkrywaj instrukcje i używaj ChefTokens do zakupów.',
       search: 'Szukaj Przepisów…',
+      empty: 'Brak dostępnych receptur',
+      buy: 'Kup',
+      open: 'Otwórz',
+      owned: 'Posiadane',
       
       difficulty: {
         all: 'Wszystkie Poziomy',
