@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Plus, Bot, TrendingUp, Calendar, Clock } from "lucide-react";
+import { Plus, Bot, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface OverviewTabProps {
@@ -21,77 +21,18 @@ interface OverviewTabProps {
 /**
  * Tab 1: Przegląd (Overview)
  * PHILOSOPHY: Overview, not Admin Panel
- * Answers 4 questions:
- * 1. Кто я? → Level badge
- * 2. Как я справляюсь? → Budget progress
- * 3. Что я делал? → Last 2 actions only
- * 4. Что дальше? → 2 Clear CTAs
+ * Shows: Last actions (history) + Clear next steps (CTAs)
+ * Level/Budget moved to ProgressControl component above tabs
  */
 export function OverviewTab({
-  level,
-  xp,
-  maxXp,
-  weeklyBudget,
-  weeklySpent,
   lastActions,
 }: OverviewTabProps) {
   const router = useRouter();
-  const xpProgress = (xp / maxXp) * 100;
-  const budgetProgress = weeklyBudget && weeklySpent 
-    ? (weeklySpent / weeklyBudget) * 100 
-    : 0;
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      {/* 1. Кто я? - Level Progress */}
-      <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-xl p-3 sm:p-4 border border-amber-500/40">
-        <div className="flex items-center justify-between mb-2">
-          <div>
-            <h3 className="text-sm sm:text-base font-bold text-white">Poziom {level}</h3>
-            <p className="text-[10px] sm:text-xs text-amber-300">
-              {xp} / {maxXp} XP
-            </p>
-          </div>
-          <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" />
-        </div>
-        <div className="w-full bg-white/10 rounded-full h-1.5 sm:h-2 overflow-hidden">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${xpProgress}%` }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="h-full bg-gradient-to-r from-amber-500 to-orange-500"
-          />
-        </div>
-      </div>
-
-      {/* 2. Jak я справляюсь? - Budget Week */}
-      {weeklyBudget && weeklySpent !== undefined && (
-        <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl p-3 sm:p-4 border border-green-500/40">
-          <div className="flex items-center justify-between mb-2">
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-white">Budżet tygodnia</h3>
-              <p className="text-[10px] sm:text-xs text-green-300">
-                {weeklySpent.toFixed(0)} / {weeklyBudget.toFixed(0)} PLN
-              </p>
-            </div>
-            <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" />
-          </div>
-          <div className="w-full bg-white/10 rounded-full h-1.5 sm:h-2 overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${Math.min(budgetProgress, 100)}%` }}
-              transition={{ duration: 1, ease: "easeOut" }}
-              className={`h-full ${
-                budgetProgress > 90
-                  ? "bg-gradient-to-r from-red-500 to-orange-500"
-                  : "bg-gradient-to-r from-green-500 to-emerald-500"
-              }`}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* 3. Что я делал? - Last 2 actions only */}
+      
+      {/* Ostatnie działania - Last 3 actions */}
       {lastActions.length > 0 && (
         <div>
           <h3 className="text-sm sm:text-base font-bold text-white mb-2 flex items-center gap-2">
@@ -99,7 +40,7 @@ export function OverviewTab({
             Ostatnie działania
           </h3>
           <div className="space-y-1.5">
-            {lastActions.slice(0, 2).map((action, index) => (
+            {lastActions.slice(0, 3).map((action, index) => (
               <motion.div
                 key={action.id}
                 initial={{ opacity: 0, x: -20 }}
@@ -130,7 +71,7 @@ export function OverviewTab({
         </div>
       )}
 
-      {/* 4. Что дальше? - 2 Clear CTAs */}
+      {/* Co dalej? - 2 Clear CTAs ONLY */}
       <div>
         <h3 className="text-sm sm:text-base font-bold text-white mb-2">Co dalej?</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
@@ -149,14 +90,15 @@ export function OverviewTab({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => router.push("/assistant")}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl p-3 sm:p-4 text-white text-left transition-all shadow-lg"
+            className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 rounded-xl p-3 sm:p-4 text-white text-left transition-all shadow-lg"
           >
             <Bot className="w-4 h-4 sm:w-5 sm:h-5 mb-1.5" />
             <h4 className="font-bold text-xs sm:text-sm">Otwórz AI</h4>
-            <p className="text-[10px] sm:text-xs text-white/80">Zaplanuj posiłki</p>
+            <p className="text-[10px] sm:text-xs text-white/80">Stwórz przepis</p>
           </motion.button>
         </div>
       </div>
+
     </div>
   );
 }

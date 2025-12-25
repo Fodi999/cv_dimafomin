@@ -16,6 +16,7 @@ import AIRecommendationCard from "@/components/assistant/AIRecommendationCard";
 import { generateUUID } from "@/lib/uuid";
 import { AIMessageCard } from "@/components/ai/AIMessageCard";
 import { useRecipeStats } from "@/hooks/useRecipeStats";
+import { PageLayout, PageHeader } from "@/components/layout/PageLayout";
 
 // Types for recipe response
 interface RecipeIngredient {
@@ -875,32 +876,17 @@ export default function AssistantPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-purple-50 dark:from-gray-950 dark:to-purple-900/20 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto pt-[80px] space-y-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-2"
-        >
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <motion.div
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ repeat: Infinity, duration: 3 }}
-              className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl"
-            >
-              <Sparkles className="w-8 h-8 text-white" />
-            </motion.div>
-            <div className="text-left">
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-                AI Asystent Kuchenny
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                Inteligentne podpowiedzi na podstawie twojej lodówki
-              </p>
-            </div>
-          </div>
-        </motion.div>
+    <PageLayout
+      title="AI Asystent Kuchenny | Modern Food Academy"
+      description="Inteligentne podpowiedzi kulinarne oparte na zawartości twojej lodówki. Generuj przepisy, sprawdzaj składniki i gotuj z AI."
+      background="gradient-purple"
+      maxWidth="lg"
+    >
+      <PageHeader
+        title="AI Asystent Kuchenny"
+        description="Inteligentne podpowiedzi na podstawie twojej lodówki"
+        icon={<Sparkles className="w-6 h-6" />}
+      />
 
         {/* AI Actions - Buttons */}
         <motion.div
@@ -1085,7 +1071,6 @@ export default function AssistantPage() {
             />
           </motion.div>
         )}
-      </div>
-    </div>
+    </PageLayout>
   );
 }

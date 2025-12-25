@@ -151,8 +151,8 @@ export default function NavigationBurger() {
     
     // ===== ЕКОНОМИЯ =====
     {
-      label: "ChefTokens",
-      href: "/cheftokens",
+      label: "Tokens",
+      href: "/tokens",
       icon: <Coins className="w-5 h-5" />,
       description: "Twoja waluta świadomej kuchni",
       category: "Ekonomia",
@@ -164,7 +164,7 @@ export default function NavigationBurger() {
     if (href === "/" && pathname === "/") return true;
     if (href === "/academy" && pathname.startsWith("/academy")) return true;
     if (href === "/assistant" && pathname.startsWith("/assistant")) return true;
-    if (href === "/cheftokens" && pathname === "/cheftokens") return true;
+    if (href === "/tokens" && pathname === "/tokens") return true;
     if (href === "/market" && pathname === "/market") return true;
     if (href === "/fridge" && pathname === "/fridge") return true;
     if (href === "/recipes" && pathname === "/recipes" && !pathname.startsWith("/recipes/saved")) return true;

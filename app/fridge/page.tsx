@@ -15,6 +15,7 @@ import PriceSheet from "@/components/fridge/PriceSheet";
 import QuantitySheet from "@/components/fridge/QuantitySheet";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import type { FridgeItem, AddFridgeItemData, FridgeItemsResponse } from "@/lib/types";
+import { PageLayout, PageHeader } from "@/components/layout/PageLayout";
 
 export default function FridgePage() {
   const router = useRouter();
@@ -169,37 +170,40 @@ export default function FridgePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-sky-50 dark:from-gray-950 dark:to-slate-900 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto pt-[80px]">
-        {isLoading && (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 text-sky-500 animate-spin" />
-          </div>
-        )}
-        {!isLoading && !user && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-12">
-            <AlertCircle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Wymagana autoryzacja</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">Zaloguj się, aby zarządzać swoją lodówką</p>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => openAuthModal("login")} className="px-8 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-medium">Zaloguj się</motion.button>
-          </motion.div>
-        )}
-        {!isLoading && user && (
-          <>
-            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-              <div className="flex items-center gap-3 mb-2">
-                <motion.div whileHover={{ rotate: 10 }} className="p-3 bg-gradient-to-br from-sky-500 to-cyan-500 rounded-xl">
-                  <Refrigerator className="w-8 h-8 text-white" />
-                </motion.div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Moja Lodówka</h1>
-                    <span className="px-2 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold uppercase rounded-full">Core</span>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-400">Centrum planowania posiłków, zakupów i kontroli budżetu</p>
-                </div>
-              </div>
-            </motion.div>
+    <PageLayout
+      title="Moja Lodówka | Modern Food Academy"
+      description="Zarządzaj produktami w lodówce, kontroluj budżet i planuj posiłki z AI."
+      background="gradient-blue"
+      maxWidth="lg"
+    >
+      <PageHeader
+        title="Moja Lodówka"
+        description="Centrum planowania posiłków, zakupów i kontroli budżetu"
+        icon={<Refrigerator className="w-6 h-6" />}
+        actions={
+          <span className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold uppercase rounded-full">
+            Core
+          </span>
+        }
+      />
+
+      {isLoading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 text-sky-500 animate-spin" />
+        </div>
+      )}
+
+      {!isLoading && !user && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-12">
+          <AlertCircle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Wymagana autoryzacja</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">Zaloguj się, aby zarządzać swoją lodówką</p>
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => openAuthModal("login")} className="px-8 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-medium">Zaloguj się</motion.button>
+        </motion.div>
+      )}
+
+      {!isLoading && user && (
+        <>
             <AnimatePresence>
               {successMessage && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center gap-3">
@@ -378,7 +382,6 @@ export default function FridgePage() {
             )}
           </>
         )}
-      </div>
-    </div>
+    </PageLayout>
   );
 }

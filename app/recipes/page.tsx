@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageLayout, PageHeader, PageGrid } from "@/components/layout/PageLayout";
 
 // Type for catalog recipe (matches backend response)
 type CatalogRecipe = {
@@ -117,34 +118,29 @@ export default function RecipesPage() {
   };
 
   return (
-    <main className="min-h-screen bg-white dark:bg-neutral-950 pt-20 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-12"
-        >
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <ChefHat className="w-10 h-10 sm:w-12 sm:h-12 text-sky-600 dark:text-sky-400" />
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white">
-              Gotowanie
-            </h1>
-          </div>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto text-center">
-            Katalog przepisów i inspiracji
-          </p>
-          {!loading && recipes.length > 0 && (
-            <div className="flex items-center justify-center gap-2 text-sm font-medium text-sky-600 dark:text-sky-400 mt-2">
-              <BookOpen className="w-4 h-4" />
-              <span>{recipes.length} {recipes.length === 1 ? 'przepis' : 'przepisów'} w katalogu</span>
-            </div>
-          )}
-          <p className="text-sm text-gray-500 dark:text-gray-500 max-w-2xl mx-auto mt-2 text-center">
-            Przeglądaj przepisy. Zapisz je, aby sprawdzić składniki w swojej kuchni.
-          </p>
-        </motion.div>
+    <PageLayout
+      title="Przepisy | Modern Food Academy"
+      description="Katalog przepisów i inspiracji kulinarnych. Znajdź potrawy, zapisz ulubione i gotuj z AI."
+      background="default"
+      maxWidth="lg"
+    >
+      {/* Header */}
+      <PageHeader
+        title="Gotowanie"
+        description="Katalog przepisów i inspiracji"
+        icon={<ChefHat className="w-6 h-6" />}
+      />
+
+      {!loading && recipes.length > 0 && (
+        <div className="flex items-center justify-center gap-2 text-sm font-medium text-sky-600 dark:text-sky-400 mb-6">
+          <BookOpen className="w-4 h-4" />
+          <span>{recipes.length} {recipes.length === 1 ? 'przepis' : 'przepisów'} w katalogu</span>
+        </div>
+      )}
+
+      <p className="text-sm text-gray-500 dark:text-gray-500 max-w-2xl mx-auto mb-8 text-center">
+        Przeglądaj przepisy. Zapisz je, aby sprawdzić składniki w swojej kuchni.
+      </p>
 
         {/* Filters */}
         {!loading && !error && recipes.length > 0 && (
@@ -279,18 +275,18 @@ export default function RecipesPage() {
         {/* Recipes Grid */}
         {!loading && !error && filteredRecipes.length > 0 && (
           <>
-            <motion.div
-              variants={container}
-              initial="hidden"
-              animate="show"
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
+            <PageGrid columns={3} gap="md">
               {filteredRecipes.map((recipe) => {
                 // Get recipe name (prioritize localName, then canonicalName, then fallback)
                 const recipeName = recipe.localName || recipe.canonicalName || recipe.name || "Unnamed Recipe";
                 
                 return (
-                  <motion.div key={recipe.id} variants={item}>
+                  <motion.div 
+                    key={recipe.id} 
+                    variants={item}
+                    initial="hidden"
+                    animate="show"
+                  >
                     <RecipeCard
                       id={recipe.id}
                       title={recipeName}
@@ -305,10 +301,10 @@ export default function RecipesPage() {
                     likes={0}
                     comments={0}
                   />
-                </motion.div>
-              );
-            })}
-            </motion.div>
+                  </motion.div>
+                );
+              })}
+            </PageGrid>
             
             {/* CTA Hint */}
             <motion.div
@@ -347,7 +343,6 @@ export default function RecipesPage() {
             </motion.button>
           </motion.div>
         )}
-      </div>
-    </main>
+    </PageLayout>
   );
 }

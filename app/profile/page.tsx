@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
 import { SimpleProfileHeader } from "@/components/profile/SimpleProfileHeader";
-import { QuickStats } from "@/components/profile/QuickStats";
+import { HeroKPI } from "@/components/profile/HeroKPI";
+import { ProgressControl } from "@/components/profile/ProgressControl";
 import { ProfileTabs, ProfileTab } from "@/components/profile/ProfileTabs";
 import { OverviewTab } from "@/components/profile/tabs/OverviewTab";
 import { StatsTab } from "@/components/profile/tabs/StatsTab";
@@ -101,7 +102,8 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 pt-16">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3">
-        {/* Верхняя часть: Header */}
+        
+        {/* 🧠 Block 1: Identity (minimal, quiet) */}
         <div className="mb-3 sm:mb-4">
           <SimpleProfileHeader
             name={user.name || "User"}
@@ -111,82 +113,100 @@ export default function ProfilePage() {
             chefTokens={user.chefTokens || 0}
             onEdit={handleEditProfile}
           />
+          {/* Page Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-center text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-2 font-medium"
+          >
+            💼 Twoje centrum zarządzania kuchnią
+          </motion.p>
         </div>
 
-        {/* Layout в 2 колонки: Stats слева, Tabs справа */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
-          {/* Quick Stats - занимает 4 колонки */}
-          <div className="lg:col-span-4">
-            <QuickStats
-              cookedRecipes={stats.cookedRecipes}
-              savedRecipes={stats.savedRecipes}
-              fridgeItems={stats.fridgeItems}
-              savedMoney={stats.savedMoney}
-            />
-          </div>
-
-          {/* Tabs Content - занимает 8 колонок */}
-          <div className="lg:col-span-8 space-y-3 sm:space-y-4">
-            <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-            <AnimatePresence mode="wait">
-              {activeTab === "overview" && (
-                <motion.div
-                  key="overview"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <OverviewTab
-                    level={user.level || 1}
-                    xp={2450}
-                    maxXp={5000}
-                    lastActions={overviewData.lastActions}
-                    weeklyBudget={overviewData.weeklyBudget}
-                    weeklySpent={overviewData.weeklySpent}
-                  />
-                </motion.div>
-              )}
-
-              {activeTab === "stats" && (
-                <motion.div
-                  key="stats"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <StatsTab
-                    weeklyBudget={overviewData.weeklyBudget}
-                    weeklySpent={overviewData.weeklySpent}
-                    wastePercentage={statsData.wastePercentage}
-                    topRecipes={statsData.topRecipes}
-                    topCategories={statsData.topCategories}
-                  />
-                </motion.div>
-              )}
-
-              {activeTab === "resources" && (
-                <motion.div
-                  key="resources"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <ResourcesTab
-                    savedRecipes={stats.savedRecipes}
-                    cookedRecipes={stats.cookedRecipes}
-                    ownRecipes={resourcesData.ownRecipes}
-                    cartItems={resourcesData.cartItems}
-                    purchasedCourses={resourcesData.purchasedCourses}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+        {/* 🔥 Block 2: Hero KPI (Main Metrics - Oszczędzono is PRIMARY) */}
+        <div className="mb-3 sm:mb-4">
+          <HeroKPI
+            savedMoney={stats.savedMoney}
+            cookedRecipes={stats.cookedRecipes}
+            fridgeItems={stats.fridgeItems}
+            chefTokens={user.chefTokens || 0}
+          />
         </div>
+
+        {/* 📈 Block 3: Progress & Control (Level + Budget) */}
+        <div className="mb-3 sm:mb-4">
+          <ProgressControl
+            level={user.level || 1}
+            xp={2450}
+            maxXp={5000}
+            weeklyBudget={overviewData.weeklyBudget}
+            weeklySpent={overviewData.weeklySpent}
+          />
+        </div>
+
+        {/* 🧭 Block 4: Tabs (Przegląd / Statystyki / Zasoby) */}
+        <div className="space-y-3 sm:space-y-4">
+          <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+          <AnimatePresence mode="wait">
+            {activeTab === "overview" && (
+              <motion.div
+                key="overview"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <OverviewTab
+                  level={user.level || 1}
+                  xp={2450}
+                  maxXp={5000}
+                  lastActions={overviewData.lastActions}
+                  weeklyBudget={overviewData.weeklyBudget}
+                  weeklySpent={overviewData.weeklySpent}
+                />
+              </motion.div>
+            )}
+
+            {activeTab === "stats" && (
+              <motion.div
+                key="stats"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <StatsTab
+                  weeklyBudget={overviewData.weeklyBudget}
+                  weeklySpent={overviewData.weeklySpent}
+                  wastePercentage={statsData.wastePercentage}
+                  topRecipes={statsData.topRecipes}
+                  topCategories={statsData.topCategories}
+                />
+              </motion.div>
+            )}
+
+            {activeTab === "resources" && (
+              <motion.div
+                key="resources"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ResourcesTab
+                  savedRecipes={stats.savedRecipes}
+                  cookedRecipes={stats.cookedRecipes}
+                  ownRecipes={resourcesData.ownRecipes}
+                  cartItems={resourcesData.cartItems}
+                  purchasedCourses={resourcesData.purchasedCourses}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
       </div>
     </div>
   );
