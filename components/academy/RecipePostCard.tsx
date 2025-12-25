@@ -61,7 +61,7 @@ export default function RecipePostCard({ post, currentUserId, onLike, onComment 
       {/* User Header */}
       <div className="p-4 flex items-center gap-3 border-b border-gray-100">
         <Link 
-          href={`/academy/user/${post.userId}`}
+          href={`/profile/${post.userId}`}
           className="w-12 h-12 rounded-full bg-gradient-to-r from-[#3BC864] to-[#C5E98A] flex items-center justify-center text-white font-bold text-lg overflow-hidden hover:opacity-80 transition-opacity"
         >
           {post.userAvatar ? (
@@ -73,7 +73,7 @@ export default function RecipePostCard({ post, currentUserId, onLike, onComment 
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <Link 
-              href={`/academy/user/${post.userId}`}
+              href={`/profile/${post.userId}`}
               className="font-bold text-[#1E1A41] hover:text-[#3BC864] transition-colors"
             >
               {post.userName}
@@ -101,7 +101,7 @@ export default function RecipePostCard({ post, currentUserId, onLike, onComment 
       </div>
 
       {/* Image */}
-      <Link href={`/academy/user/${post.userId}`}>
+      <Link href={`/profile/${post.userId}`}>
         <div className="relative aspect-square bg-gray-100 cursor-pointer group">
           <img
             src={post.imageUrl}

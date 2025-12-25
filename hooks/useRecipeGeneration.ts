@@ -144,7 +144,7 @@ export function useRecipeGeneration(): UseRecipeGenerationReturn {
           }
         }
         
-        router.push("/academy/feed");
+        router.push("/academy/community?tab=feed");
       } else {
         alert("Помилка публікації рецепту");
       }
