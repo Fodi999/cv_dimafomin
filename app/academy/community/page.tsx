@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { TrendingUp, MessageSquare, Award } from "lucide-react";
+import { TrendingUp, MessageSquare, Award, ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import CommunityTabs from "./components/CommunityTabs";
 import FeedTab from "./components/FeedTab";
@@ -60,19 +60,33 @@ export default function CommunityPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+      {/* Sticky Header */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <button
+            onClick={() => router.push("/academy")}
+            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium">Academy</span>
+          </button>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+            {community?.title || "Społeczność"}
+          </h1>
+          <div className="w-24" />
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
+        {/* Subtitle */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            {community?.title || "Społeczność"}
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-lg text-gray-600 dark:text-gray-400 text-center">
             {community?.subtitle || "Dziel się przepisami, dyskutuj i ucz się od innych szefów kuchni"}
           </p>
         </motion.div>

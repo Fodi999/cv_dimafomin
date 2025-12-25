@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft, User } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { SimpleProfileHeader } from "@/components/profile/SimpleProfileHeader";
 import { HeroKPI } from "@/components/profile/HeroKPI";
@@ -72,9 +73,9 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
         <div className="text-center">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-sky-500 border-t-transparent mx-auto mb-4" />
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-purple-500 border-t-transparent mx-auto mb-4" />
           <p className="text-gray-600 dark:text-gray-400">Ładowanie profilu...</p>
         </div>
       </div>
@@ -83,14 +84,14 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
         <div className="text-center">
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             Musisz być zalogowany, aby zobaczyć profil
           </p>
           <button
-            onClick={() => router.push("/auth")}
-            className="px-6 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-colors"
+            onClick={() => router.push("/")}
+            className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all"
           >
             Zaloguj się
           </button>
@@ -100,8 +101,26 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 pt-16">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+      {/* Sticky Header */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium">Назад</span>
+          </button>
+          <div className="flex items-center gap-3">
+            <User className="w-6 h-6 text-purple-600" />
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Profil</h1>
+          </div>
+          <div className="w-20" />
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-6">
         
         {/* 🧠 Block 1: Identity (minimal, quiet) */}
         <div className="mb-3 sm:mb-4">

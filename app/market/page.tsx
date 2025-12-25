@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ShoppingBag, Search, Coins } from "lucide-react";
+import { ShoppingBag, Search, Coins, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,6 @@ import { useCart } from "@/contexts/CartContext";
 import { useMarketRecipes } from "@/hooks/useMarketRecipes";
 import { MarketRecipeCard } from "@/components/market/MarketRecipeCard";
 import { AIMessageCard } from "@/components/ai/AIMessageCard";
-import { BackButton } from "@/components/common/BackButton";
 import { useRouter } from "next/navigation";
 
 export default function MarketPage() {
@@ -58,47 +57,34 @@ export default function MarketPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-sky-950 to-cyan-950 pt-24 pb-20">
-      {/* Animated background gradient */}
-      <div className="fixed inset-0 opacity-30 pointer-events-none">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-sky-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-20 w-72 h-72 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000" />
-        <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-sky-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000" />
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+      {/* Sticky Header */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium">Назад</span>
+          </button>
+          <div className="flex items-center gap-3">
+            <ShoppingBag className="w-6 h-6 text-purple-600" />
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t.market.title}</h1>
+          </div>
+          <div className="w-20" />
+        </div>
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Back Button */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4 }}
-          className="mb-6"
-        >
-          <BackButton fallbackHref="/recipes" />
-        </motion.div>
-
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Subtitle */}
+        <motion.p
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-16"
+          className="text-lg text-gray-600 dark:text-gray-400 text-center mb-8"
         >
-          <div className="flex items-center gap-3 mb-6">
-            <motion.div
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              className="p-3 bg-gradient-to-br from-sky-500 to-cyan-500 rounded-lg"
-            >
-              <ShoppingBag className="w-8 h-8 text-white" />
-            </motion.div>
-            <h1 className="text-5xl md:text-6xl font-bold text-white">
-              {t.market.title}
-            </h1>
-          </div>
-          <p className="text-xl text-gray-300 max-w-2xl leading-relaxed mb-2">
-            {t.market.subtitle}
-          </p>
-        </motion.div>
+          {t.market.subtitle}
+        </motion.p>
 
         {/* Search Bar */}
         <motion.div

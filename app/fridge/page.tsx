@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Refrigerator, Loader2, AlertCircle, CheckCircle2, Plus } from "lucide-react";
+import { Refrigerator, Loader2, AlertCircle, CheckCircle2, Plus, ArrowLeft } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { fridgeApi } from "@/lib/api";
@@ -15,7 +15,6 @@ import PriceSheet from "@/components/fridge/PriceSheet";
 import QuantitySheet from "@/components/fridge/QuantitySheet";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import type { FridgeItem, AddFridgeItemData, FridgeItemsResponse } from "@/lib/types";
-import { PageLayout, PageHeader } from "@/components/layout/PageLayout";
 
 export default function FridgePage() {
   const router = useRouter();
@@ -170,22 +169,26 @@ export default function FridgePage() {
   };
 
   return (
-    <PageLayout
-      title="Moja Lodówka | Modern Food Academy"
-      description="Zarządzaj produktami w lodówce, kontroluj budżet i planuj posiłki z AI."
-      background="gradient-blue"
-      maxWidth="lg"
-    >
-      <PageHeader
-        title="Moja Lodówka"
-        description="Centrum planowania posiłków, zakupów i kontroli budżetu"
-        icon={<Refrigerator className="w-6 h-6" />}
-        actions={
-          <span className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold uppercase rounded-full">
-            Core
-          </span>
-        }
-      />
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+      {/* Sticky Header */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium">Назад</span>
+          </button>
+          <div className="flex items-center gap-3">
+            <Refrigerator className="w-6 h-6 text-purple-600" />
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Moja Lodówka</h1>
+          </div>
+          <div className="w-20" />
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 py-8">
 
       {isLoading && (
         <div className="flex items-center justify-center py-12">
@@ -382,6 +385,7 @@ export default function FridgePage() {
             )}
           </>
         )}
-    </PageLayout>
+      </div>
+    </div>
   );
 }

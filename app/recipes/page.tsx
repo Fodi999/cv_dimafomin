@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { RecipeCard } from "@/components/recipes/RecipeCard";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Loader2, ChefHat, BookOpen, Lightbulb, Filter } from "lucide-react";
+import { Loader2, ChefHat, BookOpen, Lightbulb, Filter, ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -12,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PageLayout, PageHeader, PageGrid } from "@/components/layout/PageLayout";
 
 // Type for catalog recipe (matches backend response)
 type CatalogRecipe = {
@@ -30,6 +30,7 @@ type CatalogRecipe = {
 
 export default function RecipesPage() {
   const { t } = useLanguage();
+  const router = useRouter();
   const [recipes, setRecipes] = useState<CatalogRecipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -118,18 +119,26 @@ export default function RecipesPage() {
   };
 
   return (
-    <PageLayout
-      title="Przepisy | Modern Food Academy"
-      description="Katalog przepisów i inspiracji kulinarnych. Znajdź potrawy, zapisz ulubione i gotuj z AI."
-      background="default"
-      maxWidth="lg"
-    >
-      {/* Header */}
-      <PageHeader
-        title="Gotowanie"
-        description="Katalog przepisów i inspiracji"
-        icon={<ChefHat className="w-6 h-6" />}
-      />
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+      {/* Sticky Header */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium">Назад</span>
+          </button>
+          <div className="flex items-center gap-3">
+            <ChefHat className="w-6 h-6 text-purple-600" />
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Gotowanie</h1>
+          </div>
+          <div className="w-20" />
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 py-8">
 
       {!loading && recipes.length > 0 && (
         <div className="flex items-center justify-center gap-2 text-sm font-medium text-sky-600 dark:text-sky-400 mb-6">
@@ -275,7 +284,7 @@ export default function RecipesPage() {
         {/* Recipes Grid */}
         {!loading && !error && filteredRecipes.length > 0 && (
           <>
-            <PageGrid columns={3} gap="md">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredRecipes.map((recipe) => {
                 // Get recipe name (prioritize localName, then canonicalName, then fallback)
                 const recipeName = recipe.localName || recipe.canonicalName || recipe.name || "Unnamed Recipe";
@@ -304,7 +313,7 @@ export default function RecipesPage() {
                   </motion.div>
                 );
               })}
-            </PageGrid>
+            </div>
             
             {/* CTA Hint */}
             <motion.div
@@ -343,6 +352,7 @@ export default function RecipesPage() {
             </motion.button>
           </motion.div>
         )}
-    </PageLayout>
+      </div>
+    </div>
   );
 }
