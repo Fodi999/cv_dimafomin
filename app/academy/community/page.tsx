@@ -1,320 +1,133 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Plus, Users, TrendingUp, Filter, Search } from "lucide-react";
-import { RecipePost } from "@/lib/types";
+import { TrendingUp, MessageSquare, Award } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Button } from "@/components/ui/button";
-import RecipePostCard from "@/components/academy/RecipePostCard";
+import CommunityTabs from "./components/CommunityTabs";
+import FeedTab from "./components/FeedTab";
+import DiscussionsTab from "./components/DiscussionsTab";
 
 export default function CommunityPage() {
   const { t } = useLanguage();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const community = (t.academy as any)?.community;
 
-  const [posts, setPosts] = useState<RecipePost[]>([]);
-  const [filter, setFilter] = useState<"all" | "trending" | "following">("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentUserId] = useState("user123"); // TODO: Get from auth context
+  // Tab state from URL
+  const [activeTab, setActiveTab] = useState<"feed" | "discussions">(
+    (searchParams.get("tab") as "feed" | "discussions") || "feed"
+  );
 
-  // Mock data - replace with API call
-  const mockPosts: RecipePost[] = [
+  // Filter state (shared between tabs)
+  const [feedFilter, setFeedFilter] = useState<"all" | "trending" | "following">("all");
+  const [discussionsFilter, setDiscussionsFilter] = useState<"all" | "trending">("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Update URL when tab changes
+  const handleTabChange = (tab: "feed" | "discussions") => {
+    setActiveTab(tab);
+    router.push(`/academy/community?tab=${tab}`, { scroll: false });
+  };
+
+  // Stats data
+  const stats = [
     {
-      id: "1",
-      userId: "user456",
-      userName: "Ольга Петренко",
-      userAvatar: undefined,
-      userLevel: 5,
-      title: "Ідеальні суші з лососем",
-      description: "Мій перший досвід приготування суші вдома! Використала рецепт з курсу 'Мистецтво Суші з Нуля' і вийшло неймовірно смачно 🍣",
-      imageUrl: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=800",
-      ingredients: [
-        "Рис для суші - 300г",
-        "Лосось свіжий - 200г",
-        "Норі (водорості) - 5 листів",
-        "Рисовий оцет - 50мл",
-        "Васабі, імбир, соєвий соус",
-      ],
-      steps: [
-        "Відварити рис для суші згідно інструкції",
-        "Додати рисовий оцет та перемішати",
-        "Нарізати лосось тонкими смужками",
-        "Розкласти норі на бамбуковій циновці",
-        "Рівномірно розподілити рис по норі",
-        "Викласти начинку та згорнути ролл",
-        "Нарізати на 8 частин гострим ножем",
-      ],
-      category: "Суші",
-      difficulty: "beginner",
-      cookingTime: 45,
-      servings: 4,
-      likes: [
-        { userId: "user123", userName: "Current User", createdAt: "2024-11-05T10:30:00Z" },
-        { userId: "user789", userName: "Іван Коваль", createdAt: "2024-11-05T11:00:00Z" },
-      ],
-      likesCount: 12,
-      comments: [
-        {
-          id: "c1",
-          postId: "1",
-          userId: "user789",
-          userName: "Іван Коваль",
-          userAvatar: undefined,
-          text: "Виглядає дуже апетитно! Обов'язково спробую приготувати за вашим рецептом 😋",
-          createdAt: "2024-11-05T11:00:00Z",
-        },
-      ],
-      commentsCount: 5,
-      tokensEarned: 25,
-      createdAt: "2024-11-05T10:00:00Z",
+      icon: TrendingUp,
+      label: "Aktywne posty",
+      value: "1,234",
+      change: "+12%",
+      color: "text-blue-500",
+      bgColor: "bg-blue-50 dark:bg-blue-900/20"
     },
     {
-      id: "2",
-      userId: "user789",
-      userName: "Андрій Сидоренко",
-      userAvatar: undefined,
-      userLevel: 8,
-      title: "Рамен з курячим бульйоном",
-      description: "Сьогодні вирішив приготувати справжній японський рамен! Процес довгий, але результат того вартий 🍜✨",
-      imageUrl: "https://images.unsplash.com/photo-1557872943-16a5ac26437e?w=800",
-      ingredients: [
-        "Курячий бульйон - 1.5л",
-        "Локшина рамен - 400г",
-        "Яйця - 4 шт",
-        "Куряче філе - 300г",
-        "Зелена цибуля, норі, кунжут",
-      ],
-      steps: [
-        "Приготувати насичений курячий бульйон (4-6 годин)",
-        "Маринувати курку в соєвому соусі",
-        "Зварити яйця всмятку (6.5 хвилин)",
-        "Відварити локшину",
-        "Зібрати рамен: бульйон + локшина + топінги",
-      ],
-      category: "Рамен",
-      difficulty: "intermediate",
-      cookingTime: 360,
-      servings: 4,
-      likes: [],
-      likesCount: 8,
-      comments: [],
-      commentsCount: 2,
-      tokensEarned: 30,
-      createdAt: "2024-11-04T18:00:00Z",
+      icon: MessageSquare,
+      label: "Aktywni szefowie",
+      value: "567",
+      change: "+8%",
+      color: "text-green-500",
+      bgColor: "bg-green-50 dark:bg-green-900/20"
     },
+    {
+      icon: Award,
+      label: "Rozdane tokeny",
+      value: "89K",
+      change: "+23%",
+      color: "text-purple-500",
+      bgColor: "bg-purple-50 dark:bg-purple-900/20"
+    }
   ];
 
-  useEffect(() => {
-    // Load posts (in real app - fetch from API)
-    setPosts(mockPosts);
-  }, []);
-
-  const handleCreatePost = async (data: any) => {
-    console.log("Creating post:", data);
-    
-    // TODO: Send to API
-    // const response = await fetch('/api/community/posts', {
-    //   method: 'POST',
-    //   body: JSON.stringify(data),
-    // });
-
-    // Mock: Add to posts
-    const newPost: RecipePost = {
-      id: Date.now().toString(),
-      userId: currentUserId,
-      userName: "Ви",
-      userLevel: 3,
-      ...data,
-      likes: [],
-      likesCount: 0,
-      comments: [],
-      commentsCount: 0,
-      tokensEarned: 20,
-      createdAt: new Date().toISOString(),
-    };
-
-    setPosts([newPost, ...posts]);
-  };
-
-  const handleLike = (postId: string) => {
-    setPosts(
-      posts.map((post) => {
-        if (post.id === postId) {
-          const isLiked = post.likes.some((like) => like.userId === currentUserId);
-          
-          return {
-            ...post,
-            likes: isLiked
-              ? post.likes.filter((like) => like.userId !== currentUserId)
-              : [...post.likes, { userId: currentUserId, userName: "Current User", createdAt: new Date().toISOString() }],
-            likesCount: isLiked ? post.likesCount - 1 : post.likesCount + 1,
-          };
-        }
-        return post;
-      })
-    );
-  };
-
-  const handleComment = (postId: string, text: string) => {
-    setPosts(
-      posts.map((post) => {
-        if (post.id === postId) {
-          const newComment = {
-            id: Date.now().toString(),
-            postId,
-            userId: currentUserId,
-            userName: "Ви",
-            userAvatar: undefined,
-            text,
-            createdAt: new Date().toISOString(),
-          };
-
-          return {
-            ...post,
-            comments: [...post.comments, newComment],
-            commentsCount: post.commentsCount + 1,
-          };
-        }
-        return post;
-      })
-    );
-  };
-
-  const filteredPosts = posts.filter((post) => {
-    if (searchQuery) {
-      return (
-        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.description.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    return true;
-  });
-
   return (
-    <div className="max-w-4xl mx-auto pb-20">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
-      >
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-4xl font-bold text-[#1E1A41] mb-2 flex items-center gap-3">
-              <Users className="w-10 h-10 text-[#3BC864]" />
-              {community?.title || "Спільнота Шефів"}
-            </h1>
-            <p className="text-lg text-gray-600">
-              {community?.subtitle || "Діліться своїми кулінарними творіннями та натхненням"}
-            </p>
-          </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8"
+        >
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">
+            {community?.title || "Społeczność"}
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            {community?.subtitle || "Dziel się przepisami, dyskutuj i ucz się od innych szefów kuchni"}
+          </p>
+        </motion.div>
 
-          <Button
-            onClick={() => router.push("/assistant")}
-            size="lg"
-            className="bg-gradient-to-r from-[#3BC864] to-[#C5E98A] hover:opacity-90"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            {community?.createPost || "Створити рецепт"}
-          </Button>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-4 border-2 border-purple-200">
-            <p className="text-sm text-purple-700 font-semibold">
-              {community?.totalPosts || "Всього постів"}
-            </p>
-            <p className="text-2xl font-bold text-purple-900">{posts.length}</p>
-          </div>
-          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-4 border-2 border-blue-200">
-            <p className="text-sm text-blue-700 font-semibold">
-              {community?.activeChefs || "Активних шефів"}
-            </p>
-            <p className="text-2xl font-bold text-blue-900">156</p>
-          </div>
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-4 border-2 border-amber-200">
-            <p className="text-sm text-amber-700 font-semibold">
-              {community?.tokensEarned || "Токенів зароблено"}
-            </p>
-            <p className="text-2xl font-bold text-amber-900">2,340</p>
-          </div>
-        </div>
-
-        {/* Filters & Search */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={community?.searchPlaceholder || "Шукати рецепти..."}
-              className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#3BC864] focus:outline-none"
-            />
-          </div>
-
-          <div className="flex gap-2">
-            <button
-              onClick={() => setFilter("all")}
-              className={`px-4 py-3 rounded-xl font-semibold transition-all ${
-                filter === "all"
-                  ? "bg-[#3BC864] text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {community?.all || "Всі"}
-            </button>
-            <button
-              onClick={() => setFilter("trending")}
-              className={`px-4 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${
-                filter === "trending"
-                  ? "bg-[#3BC864] text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              <TrendingUp className="w-4 h-4" />
-              {community?.trending || "Популярні"}
-            </button>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Posts Feed */}
-      <div className="space-y-6">
-        {filteredPosts.length > 0 ? (
-          filteredPosts.map((post, index) => (
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {stats.map((stat, index) => (
             <motion.div
-              key={post.id}
+              key={stat.label}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all"
             >
-              <RecipePostCard
-                post={post}
-                currentUserId={currentUserId}
-                onLike={handleLike}
-                onComment={handleComment}
-              />
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">{stat.label}</p>
+                  <p className="text-3xl font-bold mb-1">{stat.value}</p>
+                  <p className="text-sm text-green-600 dark:text-green-400">{stat.change} ostatni tydzień</p>
+                </div>
+                <div className={`${stat.bgColor} ${stat.color} p-3 rounded-xl`}>
+                  <stat.icon className="w-6 h-6" />
+                </div>
+              </div>
             </motion.div>
-          ))
-        ) : (
-          <div className="text-center py-20">
-            <Users className="w-20 h-20 text-gray-300 mx-auto mb-4" />
-            <p className="text-xl text-gray-500">
-              {community?.noPosts || "Постів ще немає. Будьте першим!"}
-            </p>
-            <Button
-              onClick={() => router.push("/assistant")}
-              className="mt-6 bg-gradient-to-r from-[#3BC864] to-[#C5E98A]"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              {community?.createFirstPost || "Створити перший рецепт"}
-            </Button>
-          </div>
-        )}
+          ))}
+        </div>
+
+        {/* Tabs */}
+        <CommunityTabs activeTab={activeTab} onTabChange={handleTabChange} className="mb-8" />
+
+        {/* Tab Content */}
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {activeTab === "feed" && (
+            <FeedTab
+              filter={feedFilter}
+              onFilterChange={setFeedFilter}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+            />
+          )}
+          {activeTab === "discussions" && (
+            <DiscussionsTab
+              filter={discussionsFilter}
+              onFilterChange={setDiscussionsFilter}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+            />
+          )}
+        </motion.div>
       </div>
     </div>
   );
