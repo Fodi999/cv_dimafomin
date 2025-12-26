@@ -95,8 +95,18 @@ export function AIResults({ result, loading, error, onAddToPlan, onMarkDone }: A
         {/* Single Recipes (today_meals) */}
         {result.recipes && result.recipes.length > 0 && (
           <div className="space-y-4">
+            {/* ✅ Загальний контекст сценарію */}
+            {result.message && (
+              <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+                <p className="text-blue-900 dark:text-blue-100 font-medium flex items-center gap-2">
+                  <span>🎯</span>
+                  {result.message}
+                </p>
+              </div>
+            )}
+            
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Propozycje przepisów
+              Propozycje przepisów ({result.recipes.length})
             </h2>
             <div className="grid grid-cols-1 gap-6">
               {result.recipes.map((recipe, idx) => (

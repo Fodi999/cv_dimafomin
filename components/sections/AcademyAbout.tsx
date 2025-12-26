@@ -6,15 +6,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import {
   ArrowRight,
   Brain,
-  MessageCircle,
   Camera,
-  PlayCircle,
   Lightbulb,
   Zap,
   Sparkles,
-  Coins,
-  TrendingUp,
-  Users,
   BookOpen,
   Clock,
 } from "lucide-react";
@@ -104,50 +99,7 @@ export default function AcademyAbout() {
           </motion.div>
         </motion.div>
 
-        {/* SECTION 3: КАК ПРОХОДИТ ОБУЧЕНИЕ - ИНТЕРАКТИВНЫЕ ШАГИ */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="space-y-8"
-        >
-          <motion.div variants={itemVariants} className="text-center">
-            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
-              {t.sections.about.learningTitle}
-            </h3>
-            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-              {t.sections.about.learningSubtitle}
-            </p>
-          </motion.div>
-
-          <motion.div
-            variants={containerVariants}
-            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {[
-              { icon: <MessageCircle className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.learningMethods[0] },
-              { icon: <Camera className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.learningMethods[1] },
-              { icon: <PlayCircle className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.learningMethods[2] },
-              { icon: <Lightbulb className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.learningMethods[3] },
-              { icon: <Zap className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.learningMethods[4] },
-              { icon: <Coins className="w-6 h-6 text-sky-600 dark:text-sky-400" />, ...t.sections.about.learningMethods[5] },
-            ].map((item, idx) => (
-              <motion.div
-                key={idx}
-                variants={itemVariants}
-                whileHover={{ y: -4 }}
-                className="p-6 rounded-xl bg-gradient-to-br from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 shadow-md dark:shadow-sky-500/5 hover:shadow-lg dark:hover:shadow-sky-500/10 transition-all duration-200"
-              >
-                <div className="text-sky-600 dark:text-sky-400 mb-3">{item.icon}</div>
-                <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-2">{item.title}</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{item.desc}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </motion.div>
-
-        {/* SECTION 4: AI-НАСТАВНИК - ФУНКЦИОНАЛЬНЫЕ ВОЗМОЖНОСТИ */}
+        {/* SECTION 3: AI-НАСТАВНИК - ФУНКЦИОНАЛЬНЫЕ ВОЗМОЖНОСТИ */}
         <motion.div
           variants={containerVariants}
           initial="hidden"

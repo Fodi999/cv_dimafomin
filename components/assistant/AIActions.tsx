@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ChefHat, Clock, AlertTriangle, Coins } from "lucide-react";
+import { ChefHat, Clock, AlertTriangle, Coins, Bot } from "lucide-react";
 import type { AIGoal } from "@/hooks/useAI";
 
 interface AIActionsProps {
@@ -10,15 +10,15 @@ interface AIActionsProps {
 }
 
 export function AIActions({ onAnalyze, loading }: AIActionsProps) {
-  console.log("🟦 AIActions rendered, onAnalyze type:", typeof onAnalyze);
-  console.log("🟦 AIActions loading state:", loading);
+  // � DECISION ENGINE PRESETS (НЕ AI!)
+  // AI = narrator/mentor, НЕ brain/decision-maker
+  // Ці кнопки викликають rules-based decision engine, а не AI-аналіз
   
   // 🔥 NEW: Decision Engine Presets (не чат, а інструмент)
   const actions = [
     {
       goal: "cook_now" as AIGoal,
       icon: <ChefHat className="w-6 h-6" />,
-      emoji: "🍳",
       label: "Co mogę ugotować TERAZ?",
       description: "Pokazuję przepisy z Twojej lodówki — zero zakupów",
       color: "from-sky-500 to-cyan-500",
@@ -27,7 +27,6 @@ export function AIActions({ onAnalyze, loading }: AIActionsProps) {
     {
       goal: "expiring_soon" as AIGoal,
       icon: <AlertTriangle className="w-6 h-6" />,
-      emoji: "⏰",
       label: "Co się zmarnuje w ciągu 24h?",
       description: "Pilne przepisy dla produktów o krótkim terminie",
       color: "from-orange-500 to-red-500",
@@ -36,7 +35,6 @@ export function AIActions({ onAnalyze, loading }: AIActionsProps) {
     {
       goal: "save_money" as AIGoal,
       icon: <Coins className="w-6 h-6" />,
-      emoji: "💸",
       label: "Jak zaoszczędzić dziś pieniądze?",
       description: "Gotuj z tego, co masz — uniknij dodatkowych wydatków",
       color: "from-green-500 to-emerald-500",
@@ -45,7 +43,6 @@ export function AIActions({ onAnalyze, loading }: AIActionsProps) {
     {
       goal: "quick_meal" as AIGoal,
       icon: <Clock className="w-6 h-6" />,
-      emoji: "⚡",
       label: "Co ugotować w 30 minut?",
       description: "Szybkie dania bez skomplikowanych kroków",
       color: "from-purple-500 to-pink-500",
@@ -57,11 +54,14 @@ export function AIActions({ onAnalyze, loading }: AIActionsProps) {
     <div className="space-y-4">
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          🤖 Co chcesz zrobić?
-        </h2>
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <Bot className="w-8 h-8 text-blue-500 dark:text-blue-400" />
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Co chcesz zrobić?
+          </h2>
+        </div>
         <p className="text-gray-600 dark:text-gray-400">
-          Wybierz scenariusz — AI podejmie decyzję na podstawie Twojej lodówki
+          Wybierz scenariusz — Rules Engine podejmie decyzję na podstawie Twojej lodówki
         </p>
       </div>
 
@@ -74,15 +74,8 @@ export function AIActions({ onAnalyze, loading }: AIActionsProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
             onClick={async () => {
-              console.log("🔴 Preset clicked:", action.label, "goal:", action.goal);
-              console.log("🔴 Loading state:", loading);
-              console.log("🔴 About to call onAnalyze with goal:", action.goal);
-              try {
-                await onAnalyze(action.goal);
-                console.log("🟢 onAnalyze completed successfully");
-              } catch (error) {
-                console.error("💥 Error calling onAnalyze:", error);
-              }
+              console.log("🎯 Decision Engine triggered:", action.goal);
+              await onAnalyze(action.goal);
             }}
             disabled={loading}
             className={`
@@ -100,10 +93,10 @@ export function AIActions({ onAnalyze, loading }: AIActionsProps) {
               </div>
             ) : (
               <>
-                {/* Emoji + Icon */}
+                {/* Icon */}
                 <div className="flex-shrink-0">
                   <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                    <span className="text-3xl">{action.emoji}</span>
+                    {action.icon}
                   </div>
                 </div>
 

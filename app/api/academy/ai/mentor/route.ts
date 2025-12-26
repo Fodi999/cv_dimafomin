@@ -78,12 +78,12 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * CORE AI LOGIC: Socratic Method
+ * CORE AI LOGIC: Socratic Method with Task-Specific Completion Criteria
  * 
  * Turn 1: Ask first question (explore intention)
  * Turn 2: Dig deeper (ask "why?", "what if?")
- * Turn 3: Challenge assumptions, lead to conclusions
- * Turn 4+: Complete task if reasoning is clear
+ * Turn 3: Challenge assumptions, check completion criteria
+ * Turn 4+: Complete task if criteria met, otherwise guide further
  */
 async function generateSocraticResponse(
   taskType: MentorRequest["taskType"],
@@ -93,8 +93,21 @@ async function generateSocraticResponse(
   aiQuestions: string[],
   history: MentorRequest["conversationHistory"]
 ): Promise<MentorResponse> {
+  const answerLower = userAnswer.toLowerCase();
   const answerLength = userAnswer.trim().split(" ").length;
-  const isThoughtful = answerLength >= 10; // At least 10 words = thoughtful answer
+  const isThoughtful = answerLength >= 10; // At least 10 words
+
+  // ✅ TASK-SPECIFIC COMPLETION CRITERIA
+  const criteriaCheck = checkTaskCompletionCriteria(taskType, answerLower, history);
+  
+  // 🐛 DEBUG: Log criteria check results
+  console.log(`\n[AI Mentor Turn ${turn}] Task: ${taskType}`);
+  console.log(`[AI Mentor] User answer: "${userAnswer.substring(0, 100)}..."`);
+  console.log(`[AI Mentor] History length: ${history.length} messages`);
+  console.log(`[AI Mentor] Is thoughtful (≥10 words): ${isThoughtful} (${answerLength} words)`);
+  console.log(`[AI Mentor] Criteria completed: ${criteriaCheck.completed}`);
+  console.log(`[AI Mentor] Feedback: ${criteriaCheck.feedback || 'none'}`);
+  console.log(`[AI Mentor] Hint: ${criteriaCheck.hint || 'none'}\n`);
 
   // TURN 1: First question - explore intention
   if (turn === 1) {
@@ -107,19 +120,34 @@ async function generateSocraticResponse(
 
   // TURN 2: Dig deeper - why? what if?
   if (turn === 2) {
+    // ✅ Check if criteria already met (smart student!)
+    if (criteriaCheck.completed && isThoughtful) {
+      return {
+        aiMessage: getFinalFeedback(taskType, userAnswer, criteriaCheck.feedback),
+        shouldCompleteTask: true,
+        conversationTurn: turn,
+        feedbackCode: "excellent",
+        progressUpdate: {
+          earnedTokens: taskType === "reflection" ? 10 : 5,
+          nextAction: "next-task",
+        },
+      };
+    }
+    
+    // ✅ Give hint about what's missing
     return {
-      aiMessage: getDeeperQuestion(taskType, userAnswer, aiQuestions),
+      aiMessage: getDeeperQuestion(taskType, userAnswer, aiQuestions, criteriaCheck.hint),
       shouldCompleteTask: false,
       conversationTurn: 2,
     };
   }
 
-  // TURN 3+: Challenge assumptions or complete
+  // TURN 3+: Check criteria or guide to completion
   if (turn >= 3) {
-    if (isThoughtful) {
-      // User demonstrated clear thinking - complete task
+    if (criteriaCheck.completed && isThoughtful) {
+      // ✅ User demonstrated understanding of key concepts
       return {
-        aiMessage: getFinalFeedback(taskType, userAnswer),
+        aiMessage: getFinalFeedback(taskType, userAnswer, criteriaCheck.feedback),
         shouldCompleteTask: true,
         conversationTurn: turn,
         feedbackCode: "excellent",
@@ -129,9 +157,9 @@ async function generateSocraticResponse(
         },
       };
     } else {
-      // Encourage more depth
+      // ✅ Guide with specific hint about missing criteria
       return {
-        aiMessage: encourageDepth(taskType),
+        aiMessage: encourageDepth(taskType, criteriaCheck.hint),
         shouldCompleteTask: false,
         conversationTurn: turn,
       };
@@ -144,6 +172,137 @@ async function generateSocraticResponse(
     shouldCompleteTask: false,
     conversationTurn: turn,
   };
+}
+
+/**
+ * ✅ TASK COMPLETION CRITERIA CHECKER
+ * Returns whether task goals are achieved + specific feedback
+ */
+function checkTaskCompletionCriteria(
+  taskType: MentorRequest["taskType"],
+  answerLower: string,
+  history: MentorRequest["conversationHistory"]
+): { completed: boolean; feedback: string; hint: string } {
+  // Збираємо ВСЮ історію розмови (не тільки останню відповідь)
+  const allUserMessages = history
+    .filter(msg => msg.role === "user")
+    .map(msg => msg.message.toLowerCase())
+    .join(" ");
+  
+  const fullContext = `${allUserMessages} ${answerLower}`;
+  
+  // 🐛 DEBUG: Log full context for pattern matching
+  console.log(`[Criteria Check] Full context length: ${fullContext.length} chars`);
+  console.log(`[Criteria Check] Full context preview: "${fullContext.substring(0, 200)}..."`);
+
+  switch (taskType) {
+    case "ai-question":
+      // Критерії: розуміння різниці між продуктом і інгредієнтом
+      // ✅ Більш гнучкі паттерни для польської мови
+      const mentionsProduct = /produkt|produktu|produktem|świeży|świeża|jako produkt|potencjałem/.test(fullContext);
+      const mentionsIngredient = /składnik|składnika|surowiec|materiał|jako składnik/.test(fullContext);
+      const mentionsQuality = /świeżoś|świeży|świeża|jakość|termin|wygląd|zapach|aromat|kolor|jędrny|dojrzałość/.test(fullContext);
+      const showsUnderstanding = /nie tylko.*składnik|więcej niż.*składnik|sam w sobie|potencjał|możliwości|teraz.*zanim/.test(fullContext);
+      
+      // 🐛 DEBUG: Log pattern matches
+      console.log(`[Criteria] mentionsProduct: ${mentionsProduct}`);
+      console.log(`[Criteria] mentionsIngredient: ${mentionsIngredient}`);
+      console.log(`[Criteria] mentionsQuality: ${mentionsQuality}`);
+      console.log(`[Criteria] showsUnderstanding: ${showsUnderstanding}`);
+      
+      // ✅ Дві умови достатньо: (product + quality) АБО (not just ingredient + understanding)
+      if ((mentionsProduct && mentionsQuality) || (mentionsIngredient && showsUnderstanding)) {
+        return {
+          completed: true,
+          feedback: "Dokładnie! Widzisz produkt z jego potencjałem, a nie tylko składnik do listy.",
+          hint: ""
+        };
+      }
+      return {
+        completed: false,
+        feedback: "",
+        hint: "Pomyśl o różnicy między 'produktem' (świeży ogórek z charakterem) a 'składnikiem' (ogórek w recepturze)."
+      };
+
+    case "decision":
+      // Критерії: обґрунтування вибору + розуміння наслідків
+      const hasReasoning = /dlatego że|ponieważ|bo|gdyż|przez to/.test(fullContext);
+      const mentionsConsequences = /będzie|stanie|wpłynie|sprawi/.test(fullContext);
+      
+      if (hasReasoning && mentionsConsequences) {
+        return {
+          completed: true,
+          feedback: "Świetna decyzja z jasnym uzasadnieniem!",
+          hint: ""
+        };
+      }
+      return {
+        completed: false,
+        feedback: "",
+        hint: "Wyjaśnij DLACZEGO tak zdecydowałeś i CO TO ZMIENI."
+      };
+
+    case "analysis":
+      // Критерії: помічає деталі + робить висновки
+      const noticesDetails = /zauważyłem|widzę|spostrzegam/.test(fullContext);
+      const makesConclusions = /więc|zatem|dlatego|to znaczy/.test(fullContext);
+      
+      if (noticesDetails && makesConclusions) {
+        return {
+          completed: true,
+          feedback: "Doskonała analiza z konkretnymi wnioskami!",
+          hint: ""
+        };
+      }
+      return {
+        completed: false,
+        feedback: "",
+        hint: "CO zauważyłeś i CO Z TEGO WYNIKA?"
+      };
+
+    case "practice":
+      // Критерії: конкретна дія + обґрунтування
+      const describesAction = /zrobię|będę|zastosuj/.test(fullContext);
+      const explainsWhy = /aby|żeby|w celu|dlatego/.test(fullContext);
+      
+      if (describesAction && explainsWhy) {
+        return {
+          completed: true,
+          feedback: "Świetnie! Widzę konkretny plan działania.",
+          hint: ""
+        };
+      }
+      return {
+        completed: false,
+        feedback: "",
+        hint: "CO DOKŁADNIE zrobisz i PO CO?"
+      };
+
+    case "reflection":
+      // Критерії: самоаналіз + конкретні висновки + план на майбутнє
+      const reflectsOnExperience = /nauczyłem|zrozumiałem|teraz wiem/.test(fullContext);
+      const plansFuture = /następnym razem|w przyszłości|będę pamiętał/.test(fullContext);
+      
+      if (reflectsOnExperience && plansFuture) {
+        return {
+          completed: true,
+          feedback: "Doskonała refleksja! Widzę prawdziwe zrozumienie.",
+          hint: ""
+        };
+      }
+      return {
+        completed: false,
+        feedback: "",
+        hint: "CZEGO SIĘ NAUCZYŁEŚ i JAK TO WYKORZYSTASZ?"
+      };
+
+    default:
+      return {
+        completed: false,
+        feedback: "",
+        hint: "Rozwiń swoją myśl."
+      };
+  }
 }
 
 /**
@@ -171,13 +330,19 @@ function getFirstQuestion(
 }
 
 /**
- * TURN 2: Dig deeper with "why?" and "what if?"
+ * TURN 2: Dig deeper with "why?" and "what if?" + hint if criteria not met
  */
 function getDeeperQuestion(
   taskType: MentorRequest["taskType"],
   userAnswer: string,
-  predefinedQuestions: string[]
+  predefinedQuestions: string[],
+  hint?: string
 ): string {
+  // ✅ If hint provided (criteria not met), guide student
+  if (hint) {
+    return `Interesująca myśl. ${hint}`;
+  }
+
   // Use second predefined question if available
   if (predefinedQuestions.length > 1) {
     return predefinedQuestions[1];
@@ -220,8 +385,14 @@ function getDeeperQuestion(
  */
 function getFinalFeedback(
   taskType: MentorRequest["taskType"],
-  userAnswer: string
+  userAnswer: string,
+  specificFeedback?: string
 ): string {
+  // ✅ Use specific feedback from criteria check if provided
+  if (specificFeedback) {
+    return `${specificFeedback}\nZadanie zaliczone (+5 ChefTokens).\nPrzejdźmy do kolejnego zadania.`;
+  }
+
   const feedback: Record<string, string[]> = {
     "ai-question": [
       "Doskonale! Widzę, że myślisz jak szef kuchni — nie tylko wykonujesz, ale rozumiesz 'dlaczego'.",
@@ -255,9 +426,14 @@ function getFinalFeedback(
 }
 
 /**
- * Encourage more depth if answer is too short
+ * Encourage more depth if answer is too short or criteria not met
  */
-function encourageDepth(taskType: MentorRequest["taskType"]): string {
+function encourageDepth(taskType: MentorRequest["taskType"], hint?: string): string {
+  // ✅ Use specific hint from criteria check if provided
+  if (hint) {
+    return `Dobra myśl, ale jeszcze nie wszystko. ${hint}`;
+  }
+
   const prompts = [
     "Rozumiem, ale powiedz więcej — co dokładnie o tym myślisz?",
     "To dobry początek. Teraz rozwiń swoją myśl — dlaczego tak uważasz?",

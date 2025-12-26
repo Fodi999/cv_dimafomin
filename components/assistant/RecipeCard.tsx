@@ -51,8 +51,17 @@ export function RecipeCard({ recipe, onAddToPlan, onMarkDone, loading }: RecipeC
           </h3>
           {getExpiryBadge()}
         </div>
+        
+        {/* ✅ REASON - ЧОМУ цей рецепт підходить */}
+        {recipe.reason && (
+          <div className="mt-3 flex items-start gap-2">
+            <span className="text-white/70 text-sm">💡</span>
+            <p className="text-white/90 text-sm italic">{recipe.reason}</p>
+          </div>
+        )}
+        
         {recipe.description && (
-          <p className="text-white/90 mt-2">{recipe.description}</p>
+          <p className="text-white/90 mt-2 text-sm">{recipe.description}</p>
         )}
       </div>
 
@@ -214,22 +223,24 @@ export function RecipeCard({ recipe, onAddToPlan, onMarkDone, loading }: RecipeC
       )}
 
       {/* 6️⃣ Preparation Steps (👨‍🍳 Przygotowanie) */}
-      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-        <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-          <span>👨‍🍳</span>
-          Przygotowanie
-        </h4>
-        <ol className="space-y-3">
-          {recipe.steps.map((step, idx) => (
-            <li key={idx} className="flex gap-3 text-sm text-gray-700 dark:text-gray-300">
-              <span className="flex-shrink-0 w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                {idx + 1}
-              </span>
-              <span className="pt-0.5">{step}</span>
-            </li>
-          ))}
-        </ol>
-      </div>
+      {recipe.steps && recipe.steps.length > 0 && (
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            <span>👨‍🍳</span>
+            Przygotowanie
+          </h4>
+          <ol className="space-y-3">
+            {recipe.steps.map((step, idx) => (
+              <li key={idx} className="flex gap-3 text-sm text-gray-700 dark:text-gray-300">
+                <span className="flex-shrink-0 w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                  {idx + 1}
+                </span>
+                <span className="pt-0.5">{step}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
 
       {/* 7️⃣ Chef Tips (opcjonalne - PRO feature w przyszłości) */}
       {recipe.chefTips && recipe.chefTips.length > 0 && (

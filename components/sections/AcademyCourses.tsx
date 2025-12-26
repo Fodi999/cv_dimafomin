@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { MessageCircle, Sparkles, BrainCircuit } from "lucide-react";
+import { Sparkles, BrainCircuit, ChefHat, Lightbulb, Clock, Wine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -45,13 +45,13 @@ export default function AcademyAIMentor() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sky-500/10 dark:bg-sky-500/20 border border-sky-200/50 dark:border-sky-800/50 mb-6">
             <Sparkles className="w-6 h-6 text-sky-600 dark:text-sky-400" />
-            <span className="text-sm font-semibold text-sky-600 dark:text-sky-400 leading-relaxed">{t.chat.preview.title}</span>
+            <span className="text-sm font-semibold text-sky-600 dark:text-sky-400 leading-relaxed">AI-Mentor</span>
           </div>
           <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-            {t.chat.preview.subtitle}
+            Porozmawiaj z AI-Mentorem
           </h2>
           <p className="text-base sm:text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            {t.chat.preview.description}
+            AI-Mentor prowadzi Cię przez decyzje kulinarne za pomocą pytań, scenariuszy i gotowych wyborów.
           </p>
         </motion.div>
 
@@ -75,91 +75,149 @@ export default function AcademyAIMentor() {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h3 className="font-bold text-gray-900 dark:text-white text-base leading-tight">{t.chat.preview.aiMentorName}</h3>
+                <h3 className="font-bold text-gray-900 dark:text-white text-base leading-tight">Dima Fomin AI</h3>
                 <p className="text-gray-500 dark:text-gray-400 text-xs leading-relaxed flex items-center gap-1">
                   <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-                  {t.chat.preview.status}
+                  Online teraz
                 </p>
               </div>
             </div>
 
-            {/* Chat messages */}
-            <div className="p-6 space-y-4 min-h-96 bg-white dark:bg-gray-900 flex flex-col justify-center">
-              {/* AI Message */}
+            {/* Guided Mentor Interface */}
+            <div className="p-6 space-y-6 bg-white dark:bg-gray-900">
+              {/* AI Mentor Question */}
               <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
-                className="flex gap-3 justify-start items-end"
+                className="text-center"
               >
-                <Avatar className="w-8 h-8 flex-shrink-0">
-                  <AvatarFallback className="bg-gradient-to-br from-sky-500 to-cyan-500 dark:from-sky-600 dark:to-cyan-600 text-white font-bold text-xs">DF</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col gap-1 max-w-sm">
-                  <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg rounded-tl-none">
-                    <p className="text-gray-800 dark:text-gray-100 text-sm leading-relaxed">
-                      {t.chat.preview.greeting}
-                    </p>
-                  </div>
-                  <p className="text-gray-500 dark:text-gray-400 text-xs px-1">{t.chat.preview.greetingTime}</p>
-                </div>
+                <p className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                  AI-Mentor zaczyna od pytania:
+                </p>
+                <p className="text-xl font-bold text-sky-600 dark:text-sky-400 italic">
+                  Jakie wyzwanie kulinarne chcesz teraz rozwiązać?
+                </p>
               </motion.div>
 
-              {/* User Message */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="flex gap-3 justify-end items-end"
-              >
-                <div className="flex flex-col gap-1 max-w-sm items-end">
-                  <div className="bg-sky-500 dark:bg-sky-600 text-white p-4 rounded-lg rounded-tr-none shadow-sm">
-                    <p className="text-sm leading-relaxed font-medium">
-                      {t.chat.preview.userQuestion}
-                    </p>
+              {/* Scenario Buttons */}
+              <div className="space-y-3">
+                <motion.button
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white rounded-lg p-4 text-left transition-all shadow-md hover:shadow-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <ChefHat className="w-6 h-6 flex-shrink-0" />
+                    <span className="font-semibold text-sm sm:text-base">
+                      Chcę stworzyć nowoczesne danie
+                    </span>
                   </div>
-                  <p className="text-gray-500 dark:text-gray-400 text-xs px-1">{t.chat.preview.userQuestionTime}</p>
-                </div>
-              </motion.div>
+                </motion.button>
 
-              {/* AI Response */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                className="flex gap-3 justify-start items-end"
-              >
-                <Avatar className="w-8 h-8 flex-shrink-0">
-                  <AvatarFallback className="bg-gradient-to-br from-sky-500 to-cyan-500 dark:from-sky-600 dark:to-cyan-600 text-white font-bold text-xs">DF</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col gap-1 max-w-sm">
-                  <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg rounded-tl-none">
-                    <p className="text-gray-800 dark:text-gray-100 text-sm leading-relaxed">
-                      {t.chat.preview.mentorResponse}
-                    </p>
+                <motion.button
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: 0.2 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg p-4 text-left transition-all shadow-md hover:shadow-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <Lightbulb className="w-6 h-6 flex-shrink-0" />
+                    <span className="font-semibold text-sm sm:text-base">
+                      Chcę poprawić smak mojego dania
+                    </span>
                   </div>
-                  <p className="text-gray-500 dark:text-gray-400 text-xs px-1">{t.chat.preview.mentorResponseTime}</p>
-                </div>
+                </motion.button>
+
+                <motion.button
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: 0.3 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white rounded-lg p-4 text-left transition-all shadow-md hover:shadow-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <Clock className="w-6 h-6 flex-shrink-0" />
+                    <span className="font-semibold text-sm sm:text-base">
+                      Chcę gotować szybciej i taniej
+                    </span>
+                  </div>
+                </motion.button>
+
+                <motion.button
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: 0.4 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg p-4 text-left transition-all shadow-md hover:shadow-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <Wine className="w-6 h-6 flex-shrink-0" />
+                    <span className="font-semibold text-sm sm:text-base">
+                      Chcę dobrać idealne połączenie smaków
+                    </span>
+                  </div>
+                </motion.button>
+              </div>
+
+              {/* Explanation */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-lg p-4 text-center"
+              >
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  <Sparkles className="w-4 h-4 inline mr-1 text-sky-600 dark:text-sky-400" />
+                  AI-Mentor zada kolejne pytania i poprowadzi Cię krok po kroku — jak prawdziwy szef kuchni.
+                </p>
               </motion.div>
             </div>
 
-            {/* Chat input */}
-            <div className="border-t-2 border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-900 flex gap-3">
-              <input
-                type="text"
-                placeholder={t.chat.preview.inputPlaceholder}
-                disabled
-                className="flex-1 px-4 py-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-gray-600 dark:text-gray-400 text-sm focus:outline-none cursor-not-allowed font-medium border-2 border-gray-200 dark:border-gray-700 placeholder-gray-400 dark:placeholder-gray-500 transition-colors"
-              />
-              <button
-                disabled
-                className="px-5 py-3 bg-sky-500 text-white rounded-lg cursor-not-allowed opacity-60 hover:opacity-70 transition-opacity border-2 border-sky-500"
-              >
-                <MessageCircle className="w-5 h-5" />
-              </button>
+            {/* Example Dialog Section */}
+            <div className="border-t-2 border-gray-200 dark:border-gray-700 p-6 bg-gray-50 dark:bg-gray-800/50">
+              <p className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
+                Przykład rozmowy z AI-Mentorem:
+              </p>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-start gap-2">
+                  <span className="text-sky-600 dark:text-sky-400 font-bold">→</span>
+                  <p className="text-sky-600 dark:text-sky-400 font-medium">
+                    Dlaczego wybrałeś ten produkt?
+                  </p>
+                </div>
+                <div className="pl-6 text-gray-600 dark:text-gray-400">
+                  Bo jest świeży i aromatyczny.
+                </div>
+                
+                <div className="flex items-start gap-2 mt-4">
+                  <span className="text-sky-600 dark:text-sky-400 font-bold">→</span>
+                  <p className="text-sky-600 dark:text-sky-400 font-medium">
+                    Jak możesz wykorzystać ten aromat najefektywniej?
+                  </p>
+                </div>
+                <div className="pl-6 text-gray-600 dark:text-gray-400">
+                  Zmieniając technikę obróbki.
+                </div>
+              </div>
+              
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-4 italic border-t border-gray-200 dark:border-gray-700 pt-4">
+                AI-Mentor nie mówi, co robić.<br />
+                Pomaga zrozumieć, dlaczego to działa.
+              </p>
             </div>
           </motion.div>
 

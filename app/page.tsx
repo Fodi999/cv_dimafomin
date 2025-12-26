@@ -3,7 +3,6 @@
 import AcademyHero from "@/components/sections/AcademyHero";
 import AcademyAbout from "@/components/sections/AcademyAbout";
 import AcademyAIMentor from "@/components/sections/AcademyCourses";
-import AcademyCoursesPreview from "@/components/sections/AcademyCoursesPreview";
 import AcademyChefTokens from "@/components/sections/AcademyChefTokens";
 import AcademyFooter from "@/components/sections/AcademyFooter";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -30,7 +29,6 @@ export default function Home() {
         <AcademyHero />
         <AcademyAbout />
         <AcademyAIMentor />
-        <AcademyCoursesPreview />
         <AcademyChefTokens />
         <AcademyFooter />
       </main>
