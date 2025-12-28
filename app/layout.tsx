@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { cookies } from "next/headers";
 import "./globals.css";
 import { getMetadata } from "@/lib/seo";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -16,6 +17,9 @@ import AuthGate from "@/components/auth/AuthGate";
 import TokenValidator from "@/components/auth/TokenValidator";
 import { Toaster } from "@/components/ui/sonner";
 import { I18nDevWarning } from "@/components/dev/I18nDevWarning";
+import { getDictionary } from "@/lib/i18n/getDictionary";
+import { DEFAULT_LANGUAGE, LANGUAGE_COOKIE_KEY, isSupportedLanguage } from "@/lib/i18n/constants";
+import type { Language } from "@/lib/i18n/types";
 
 const inter = Inter({ 
   subsets: ["latin", "cyrillic"],
@@ -26,13 +30,32 @@ const inter = Inter({
 // Default metadata (будет использоваться как fallback)
 export const metadata: Metadata = getMetadata("pl");
 
-export default function RootLayout({
+/**
+ * Root Layout (SSR with cookie-based i18n)
+ * 
+ * Flow:
+ * 1. Read language from cookie (set by middleware.ts)
+ * 2. Load dictionary server-side
+ * 3. Pass both to LanguageProvider
+ * 4. SSR renders with correct language (no hydration mismatch)
+ */
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // 1. Read language from cookie (SSR-safe)
+  const cookieStore = await cookies();
+  const langCookie = cookieStore.get(LANGUAGE_COOKIE_KEY)?.value;
+  const language: Language = langCookie && isSupportedLanguage(langCookie) 
+    ? langCookie 
+    : DEFAULT_LANGUAGE;
+
+  // 2. Load dictionary server-side
+  const dictionary = await getDictionary(language);
+
   return (
-    <html lang="pl" data-scroll-behavior="smooth" className={inter.className}>
+    <html lang={language} data-scroll-behavior="smooth" className={inter.className}>
       <head>
         {/* Viewport - Fixed scale, no zoom, safe-area support */}
         <meta 
@@ -75,7 +98,7 @@ export default function RootLayout({
           <AuthProvider>
             <UserProvider>
               <SettingsProvider>
-                <LanguageProvider>
+                <LanguageProvider initialLanguage={language} dictionary={dictionary}>
                   <CartProvider>
                     <RecipeProvider>
                       <NotificationProvider>

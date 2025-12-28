@@ -3,10 +3,13 @@
  * Типы для системы интернационализации
  */
 
+import type { Language } from "./constants";
+
 /**
  * Поддерживаемые языки
+ * Re-export for convenience
  */
-export type Language = "pl" | "en" | "ru";
+export type { Language } from "./constants";
 
 /**
  * Структура словаря
