@@ -4,7 +4,68 @@
  */
 
 export const academy = {
-  // Hero Section
+  // New Academy Page (v2)
+  page: {
+    title: "Academy of Conscious Cooking",
+    subtitle: "Develop chef's thinking, not just learn recipes",
+    description: "Development paths based on practice, AI dialogue, and real kitchen decisions.",
+    
+    cta: {
+      startFirst: "Start your first path",
+      howItWorks: "How Academy works",
+    },
+    
+    howItWorks: {
+      title: "How Academy works",
+      paths: {
+        title: "Development paths",
+        description: "Not courses, but logical skill paths",
+      },
+      dialog: {
+        title: "AI dialogue",
+        description: "AI guides you through decisions, analysis, and practice",
+      },
+      tokens: {
+        title: "ChefTokens",
+        description: "Earn tokens for progress and conscious choices",
+      },
+    },
+    
+    pathsSection: {
+      title: "Choose your development path",
+    },
+    
+    pathStatus: {
+      available: "Start",
+      inProgress: "Continue",
+      locked: "Locked",
+      completed: "Completed",
+      unlockRequirement: "Complete previous path to unlock",
+    },
+    
+    benefits: {
+      title: "What you'll gain",
+      thinking: "Chef's thinking, not recipe copying",
+      lessWaste: "Less food waste",
+      betterTaste: "Better taste without expensive purchases",
+      realSkills: "Real skills for life",
+    },
+    
+    aiExample: {
+      question: "Why did you choose this product? What do you think will taste best in this dish?",
+      answer: "Because it's fresh and has an intense aroma...",
+      followUp: "Great! Now think: how can you use this aroma most effectively?",
+      explanation: "AI-Mentor doesn't tell you what to do",
+      explanationDetail: "It asks, analyzes, and helps you make decisions — like a real chef.",
+    },
+    
+    finalCta: {
+      badge: "First path is free",
+      title: "Start thinking like a chef today",
+    },
+  },
+  
+  // Hero Section (old)
   hero: {
     badge: "Culinary growth with AI",
     headingLine1: "Fodi Academy",

@@ -20,9 +20,11 @@ import {
   GraduationCap,
   Utensils
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function ChefTokensPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   
   // Mock user state (later replace with real auth)
   const [isLoggedIn] = useState(false); // Change to true to test logged-in state
@@ -42,16 +44,17 @@ export default function ChefTokensPage() {
           <div className="inline-flex items-center gap-2 bg-amber-100 dark:bg-amber-900/20 px-4 py-2 rounded-full mb-6">
             <Coins className="w-5 h-5 text-amber-600 dark:text-amber-400" />
             <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">
-              Twoja waluta świadomej kuchni
+              {t?.tokens?.page?.hero?.badge || "Your conscious cooking currency"}
             </span>
           </div>
 
           <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            ChefTokens — Twoja waluta<br />świadomej kuchni
+            {t?.tokens?.page?.hero?.title || "ChefTokens — Your currency of"}<br />
+            {t?.tokens?.page?.hero?.titleHighlight || "conscious cooking"}
           </h1>
 
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
-            ChefTokens pomagają podejmować mądre decyzje: planować, gotować i uczyć się bez chaosu.
+            {t?.tokens?.page?.hero?.description || "ChefTokens help you make smart decisions: plan, cook, and learn without chaos."}
           </p>
 
           {/* 3 Bullets */}
@@ -61,10 +64,10 @@ export default function ChefTokensPage() {
                 <CheckCircle className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                🔄 Kontrola decyzji, nie „paywall"
+                {t?.tokens?.page?.hero?.features?.control?.title || "🔄 Decision control, not \"paywall\""}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Tokeny uczą planowania, nie blokują dostępu
+                {t?.tokens?.page?.hero?.features?.control?.description || "Tokens teach planning, not block access"}
               </p>
             </div>
 
@@ -73,10 +76,10 @@ export default function ChefTokensPage() {
                 <Brain className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                🧠 Uczysz się myśleć jak kucharz
+                {t?.tokens?.page?.hero?.features?.thinking?.title || "🧠 Learn to think like a chef"}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Każda akcja to świadoma decyzja
+                {t?.tokens?.page?.hero?.features?.thinking?.description || "Every action is a conscious decision"}
               </p>
             </div>
 
@@ -85,10 +88,10 @@ export default function ChefTokensPage() {
                 <TrendingUp className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                ♻️ Mniej marnowania, więcej kontroli
+                {t?.tokens?.page?.hero?.features?.planning?.title || "♻️ Less waste, more control"}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Planowanie zamiast chaosu
+                {t?.tokens?.page?.hero?.features?.planning?.description || "Planning instead of chaos"}
               </p>
             </div>
           </div>
@@ -105,7 +108,7 @@ export default function ChefTokensPage() {
             <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-8 rounded-2xl text-white shadow-2xl">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold mb-1">Twoje ChefTokens</h2>
+                  <h2 className="text-2xl font-bold mb-1">{t?.tokens?.page?.yourTokens?.title || "Your ChefTokens"}</h2>
                   <p className="text-amber-100">Bieżące saldo</p>
                 </div>
                 <Coins className="w-12 h-12 text-amber-100" />
@@ -141,10 +144,10 @@ export default function ChefTokensPage() {
             <div className="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 p-8 rounded-2xl text-center border-2 border-dashed border-gray-300 dark:border-gray-700">
               <Coins className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                Twoje ChefTokens
+                {t?.tokens?.page?.yourTokens?.title || "Your ChefTokens"}
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Zaloguj się, aby zobaczyć swoje saldo i historię
+                {t?.tokens?.page?.yourTokens?.loginPrompt || "Log in to see your balance and history"}
               </p>
               <button
                 onClick={() => router.push("/auth/login")}
@@ -165,10 +168,10 @@ export default function ChefTokensPage() {
           className="mb-16"
         >
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3 text-center">
-            Jak zdobywasz ChefTokens
+            {t?.tokens?.page?.howToEarn?.title || "How you earn ChefTokens"}
           </h2>
           <p className="text-center text-gray-600 dark:text-gray-400 mb-8">
-            ChefTokens nagradzają działanie, nie klikanie.
+            {t?.tokens?.page?.howToEarn?.subtitle || "ChefTokens reward action, not clicking."}
           </p>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -178,13 +181,15 @@ export default function ChefTokensPage() {
                 <ChefHat className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                Ugotowanie przepisu
+                {t?.tokens?.page?.howToEarn?.methods?.cookRecipe?.title || "Cook a recipe"}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                Każdy przepis, który zrealizujesz i oznaczysz jako „ugotowany"
+                {t?.tokens?.page?.howToEarn?.methods?.cookRecipe?.description || "Every recipe you complete and mark as \"cooked\""}
               </p>
               <div className="flex items-center gap-2">
-                <div className="text-2xl font-bold text-sky-600 dark:text-sky-400">+5 CT</div>
+                <div className="text-2xl font-bold text-sky-600 dark:text-sky-400">
+                  {t?.tokens?.page?.howToEarn?.methods?.cookRecipe?.reward || "+5 CT"}
+                </div>
               </div>
             </div>
 
@@ -194,13 +199,15 @@ export default function ChefTokensPage() {
                 <MessageSquare className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                Dialog z AI (zadanie)
+                {t?.tokens?.page?.howToEarn?.methods?.aiDialog?.title || "AI dialogue (task)"}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                Ukończenie jednego zadania w dialogu z AI Mentor
+                {t?.tokens?.page?.howToEarn?.methods?.aiDialog?.description || "Complete one task in dialogue with AI Mentor"}
               </p>
               <div className="flex items-center gap-2">
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">+2 CT</div>
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                  {t?.tokens?.page?.howToEarn?.methods?.aiDialog?.reward || "+2 CT"}
+                </div>
               </div>
             </div>
 
@@ -210,13 +217,15 @@ export default function ChefTokensPage() {
                 <GraduationCap className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                Moduł w Akademii
+                {t?.tokens?.page?.howToEarn?.methods?.academyModule?.title || "Academy module"}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                Ukończenie pełnego modułu z wszystkimi zadaniami
+                {t?.tokens?.page?.howToEarn?.methods?.academyModule?.description || "Complete a full module with all tasks"}
               </p>
               <div className="flex items-center gap-2">
-                <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">+10 CT</div>
+                <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                  {t?.tokens?.page?.howToEarn?.methods?.academyModule?.reward || "+10 CT"}
+                </div>
               </div>
             </div>
 
@@ -226,13 +235,15 @@ export default function ChefTokensPage() {
                 <Camera className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                Analiza dania
+                {t?.tokens?.page?.howToEarn?.methods?.dishAnalysis?.title || "Dish analysis"}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                Prześlij zdjęcie i otrzymaj analizę AI
+                {t?.tokens?.page?.howToEarn?.methods?.dishAnalysis?.description || "Upload a photo and get AI analysis"}
               </p>
               <div className="flex items-center gap-2">
-                <div className="text-2xl font-bold text-pink-600 dark:text-pink-400">+5 CT</div>
+                <div className="text-2xl font-bold text-pink-600 dark:text-pink-400">
+                  {t?.tokens?.page?.howToEarn?.methods?.dishAnalysis?.reward || "+5 CT"}
+                </div>
               </div>
             </div>
 
@@ -242,13 +253,15 @@ export default function ChefTokensPage() {
                 <Award className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                Ukończenie ścieżki
+                {t?.tokens?.page?.howToEarn?.methods?.completePath?.title || "Complete path"}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                Finalizacja całej ścieżki rozwoju w Akademii
+                {t?.tokens?.page?.howToEarn?.methods?.completePath?.description || "Finish entire development path in Academy"}
               </p>
               <div className="flex items-center gap-2">
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">+50 CT</div>
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  {t?.tokens?.page?.howToEarn?.methods?.completePath?.reward || "+50 CT"}
+                </div>
               </div>
             </div>
           </div>
@@ -262,10 +275,10 @@ export default function ChefTokensPage() {
           className="mb-16"
         >
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3 text-center">
-            Na co wydajesz ChefTokens
+            {t?.tokens?.page?.howToSpend?.title || "What you spend ChefTokens on"}
           </h2>
           <p className="text-center text-gray-600 dark:text-gray-400 mb-8">
-            Każde użycie tokenów to świadoma decyzja, nie przypadkowy klik.
+            {t?.tokens?.page?.howToSpend?.subtitle || "Every token use is a conscious decision, not a random click."}
           </p>
 
           <div className="grid md:grid-cols-2 gap-6">
@@ -277,16 +290,20 @@ export default function ChefTokensPage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                    Zapytania do AI
+                    {t?.tokens?.page?.howToSpend?.options?.aiQuestions?.title || "AI questions"}
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Zadaj pytanie AI o produkt, technikę lub pairing
+                    {t?.tokens?.page?.howToSpend?.options?.aiQuestions?.description || "Ask AI about products, techniques, or pairing"}
                   </p>
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-purple-600 dark:text-purple-400 font-bold">1–3 CT</span>
-                <span className="text-xs text-gray-500">za pytanie</span>
+                <span className="text-purple-600 dark:text-purple-400 font-bold">
+                  {t?.tokens?.page?.howToSpend?.options?.aiQuestions?.cost || "1–3 CT"}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {t?.tokens?.page?.howToSpend?.options?.aiQuestions?.unit || "per question"}
+                </span>
               </div>
             </div>
 
@@ -298,16 +315,20 @@ export default function ChefTokensPage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                    Premium przepisy
+                    {t?.tokens?.page?.howToSpend?.options?.premiumRecipes?.title || "Premium recipes"}
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Dostęp do zaawansowanych przepisów szefów kuchni
+                    {t?.tokens?.page?.howToSpend?.options?.premiumRecipes?.description || "Access advanced recipes from chefs"}
                   </p>
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sky-600 dark:text-sky-400 font-bold">5–15 CT</span>
-                <span className="text-xs text-gray-500">za przepis</span>
+                <span className="text-sky-600 dark:text-sky-400 font-bold">
+                  {t?.tokens?.page?.howToSpend?.options?.premiumRecipes?.cost || "5–15 CT"}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {t?.tokens?.page?.howToSpend?.options?.premiumRecipes?.unit || "per recipe"}
+                </span>
               </div>
             </div>
 
@@ -319,16 +340,20 @@ export default function ChefTokensPage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                    Zaawansowane ścieżki Akademii
+                    {t?.tokens?.page?.howToSpend?.options?.advancedPaths?.title || "Advanced Academy paths"}
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Odblokuj zaawansowane kursy po ukończeniu podstaw
+                    {t?.tokens?.page?.howToSpend?.options?.advancedPaths?.description || "Unlock advanced courses after basics"}
                   </p>
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-amber-600 dark:text-amber-400 font-bold">20–50 CT</span>
-                <span className="text-xs text-gray-500">za ścieżkę</span>
+                <span className="text-amber-600 dark:text-amber-400 font-bold">
+                  {t?.tokens?.page?.howToSpend?.options?.advancedPaths?.cost || "20–50 CT"}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {t?.tokens?.page?.howToSpend?.options?.advancedPaths?.unit || "per path"}
+                </span>
               </div>
             </div>
 
@@ -340,16 +365,20 @@ export default function ChefTokensPage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                    Analizy smaków / pairing
+                    {t?.tokens?.page?.howToSpend?.options?.flavorAnalysis?.title || "Flavor analysis / pairing"}
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Sprawdź, jakie produkty pasują do siebie
+                    {t?.tokens?.page?.howToSpend?.options?.flavorAnalysis?.description || "Check which products pair well together"}
                   </p>
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-pink-600 dark:text-pink-400 font-bold">3–10 CT</span>
-                <span className="text-xs text-gray-500">za analizę</span>
+                <span className="text-pink-600 dark:text-pink-400 font-bold">
+                  {t?.tokens?.page?.howToSpend?.options?.flavorAnalysis?.cost || "3–10 CT"}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {t?.tokens?.page?.howToSpend?.options?.flavorAnalysis?.unit || "per analysis"}
+                </span>
               </div>
             </div>
           </div>
@@ -364,26 +393,26 @@ export default function ChefTokensPage() {
         >
           <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/10 dark:to-purple-900/10 p-8 rounded-2xl border border-indigo-200 dark:border-indigo-800">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-              Dlaczego to działa
+              {t?.tokens?.page?.whyItWorks?.title || "Why it works"}
             </h2>
 
             <div className="max-w-3xl mx-auto mb-8">
               <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
-                <strong>ChefTokens nie są karą.</strong><br />
-                Są mechanizmem, który:
+                <strong>{t?.tokens?.page?.whyItWorks?.subtitle || "ChefTokens are not a penalty."}</strong><br />
+                {t?.tokens?.page?.whyItWorks?.description || "They are a mechanism that:"}
               </p>
               <ul className="space-y-3 text-gray-700 dark:text-gray-300">
                 <li className="flex items-start gap-3">
                   <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
-                  <span><strong>uczy planowania</strong> — zamiast chaosu i impulsywnych decyzji</span>
+                  <span><strong>{t?.tokens?.page?.whyItWorks?.benefits?.planning || "teaches planning — instead of chaos and impulsive decisions"}</strong></span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
-                  <span><strong>ogranicza chaos</strong> — każda akcja ma wartość i konsekwencje</span>
+                  <span><strong>{t?.tokens?.page?.whyItWorks?.benefits?.noChaos || "limits chaos — every action has value and consequences"}</strong></span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
-                  <span><strong>wzmacnia dobre decyzje kuchenne</strong> — nagradzamy działanie, nie klikanie</span>
+                  <span><strong>{t?.tokens?.page?.whyItWorks?.benefits?.goodDecisions || "reinforces good cooking decisions — we reward action, not clicking"}</strong></span>
                 </li>
               </ul>
             </div>
@@ -392,20 +421,24 @@ export default function ChefTokensPage() {
               <div className="bg-white dark:bg-gray-800 p-6 rounded-xl">
                 <div className="flex items-center gap-3 mb-3">
                   <XCircle className="w-6 h-6 text-red-500" />
-                  <h3 className="font-bold text-gray-900 dark:text-white">Brak scrollowania bez sensu</h3>
+                  <h3 className="font-bold text-gray-900 dark:text-white">
+                    {t?.tokens?.page?.whyItWorks?.points?.noScrolling?.title || "No mindless scrolling"}
+                  </h3>
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Każda akcja jest świadoma, nie przypadkowa
+                  {t?.tokens?.page?.whyItWorks?.points?.noScrolling?.description || "Every action is conscious, not random"}
                 </p>
               </div>
 
               <div className="bg-white dark:bg-gray-800 p-6 rounded-xl">
                 <div className="flex items-center gap-3 mb-3">
                   <CheckCircle className="w-6 h-6 text-green-500" />
-                  <h3 className="font-bold text-gray-900 dark:text-white">Każda akcja ma wartość</h3>
+                  <h3 className="font-bold text-gray-900 dark:text-white">
+                    {t?.tokens?.page?.whyItWorks?.points?.valueInAction?.title || "Every action has value"}
+                  </h3>
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Uczysz się podejmować lepsze decyzje kulinarne
+                  {t?.tokens?.page?.whyItWorks?.points?.valueInAction?.description || "You learn to make better culinary decisions"}
                 </p>
               </div>
             </div>
@@ -420,7 +453,7 @@ export default function ChefTokensPage() {
           className="text-center"
         >
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            Gdzie teraz?
+            {t?.tokens?.page?.cta?.title || "Where now?"}
           </h2>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">

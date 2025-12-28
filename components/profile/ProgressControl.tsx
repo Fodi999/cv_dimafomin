@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Award, TrendingUp, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ProgressControlProps {
   level: number;
@@ -23,6 +24,8 @@ export function ProgressControl({
   weeklyBudget,
   weeklySpent,
 }: ProgressControlProps) {
+  const { t } = useLanguage();
+  
   const xpPercentage = (xp / maxXp) * 100;
   const budgetPercentage = (weeklySpent / weeklyBudget) * 100;
   
@@ -75,7 +78,7 @@ export function ProgressControl({
             <div className="flex items-center gap-2">
               <Award className="w-5 h-5 text-violet-400" />
               <h3 className="text-sm sm:text-base font-semibold text-white">
-                Poziom {level}
+                {t?.profile?.progress?.level || "Level"} {level}
               </h3>
             </div>
             <div className="text-xs sm:text-sm text-violet-300/80 font-medium">
@@ -96,7 +99,7 @@ export function ProgressControl({
           <div className="flex items-center gap-1.5 text-violet-300/70">
             <TrendingUp className="w-3.5 h-3.5" />
             <span className="text-xs">
-              {Math.round(xpPercentage)}% do następnego poziomu
+              {Math.round(xpPercentage)}% {t?.profile?.progress?.toNextLevel?.replace("{percent}", "") || "to next level"}
             </span>
           </div>
         </div>
@@ -116,7 +119,7 @@ export function ProgressControl({
             <div className="flex items-center gap-2">
               <BudgetIcon className={`w-5 h-5 ${budgetTheme.text}`} />
               <h3 className="text-sm sm:text-base font-semibold text-white">
-                Budżet tygodnia
+                {t?.profile?.budget?.title || "Weekly budget"}
               </h3>
             </div>
             <div className={`text-xs sm:text-sm ${budgetTheme.text} font-medium`}>
@@ -136,13 +139,19 @@ export function ProgressControl({
           
           <div className={`flex items-center gap-1.5 ${budgetTheme.text}/70`}>
             {budgetStatus === "safe" && (
-              <span className="text-xs">✅ Świetnie! Pozostało {weeklyBudget - weeklySpent} PLN</span>
+              <span className="text-xs">
+                {t?.profile?.budget?.remaining?.replace("{amount}", String(weeklyBudget - weeklySpent)) || 
+                  `✅ Great! ${weeklyBudget - weeklySpent} PLN remaining`}
+              </span>
             )}
             {budgetStatus === "warning" && (
               <span className="text-xs">⚠️ Uwaga! Pozostało {weeklyBudget - weeklySpent} PLN</span>
             )}
             {budgetStatus === "danger" && (
-              <span className="text-xs">🚨 Przekroczono budżet o {weeklySpent - weeklyBudget} PLN</span>
+              <span className="text-xs">
+                {t?.profile?.budget?.overBudget?.replace("{amount}", String(weeklySpent - weeklyBudget)) || 
+                  `🚨 Over budget by ${weeklySpent - weeklyBudget} PLN`}
+              </span>
             )}
           </div>
         </div>

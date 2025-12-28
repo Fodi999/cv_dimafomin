@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import AuthModal from "@/components/auth/AuthModal";
 import { NotificationBell } from "@/components/NotificationBell";
 import { CartIcon } from "@/components/CartIcon";
@@ -52,6 +53,7 @@ export default function NavigationBurger() {
   const router = useRouter();
   const { user } = useUser();
   const { logout, isAuthModalOpen, authModalTab, openAuthModal, closeAuthModal } = useAuth(); // 🔧 Используем global state
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -97,66 +99,66 @@ export default function NavigationBurger() {
   const navLinks: NavLink[] = [
     // ===== START =====
     {
-      label: "Strona główna",
+      label: t?.navigation?.menu?.home?.label || "Home",
       href: "/",
       icon: <Home className="w-5 h-5" />,
-      description: "Przegląd wartości i funkcji",
+      description: t?.navigation?.menu?.home?.description || "Overview of features and values",
       category: "Start",
-      categoryLabel: "Start",
+      categoryLabel: t?.navigation?.categories?.start || "Start",
     },
     
     // ===== KUCHNIA (CORE) =====
     {
-      label: "Lodówka",
+      label: t?.navigation?.menu?.fridge?.label || "Fridge",
       href: "/fridge",
       icon: <Refrigerator className="w-5 h-5" />,
-      description: "Zarządzaj składnikami i datami",
-      badge: "Core",
+      description: t?.navigation?.menu?.fridge?.description || "Manage ingredients and dates",
+      badge: t?.navigation?.menu?.fridge?.badge || "Core",
       category: "Kuchnia",
-      categoryLabel: "Kuchnia (CORE)",
+      categoryLabel: t?.navigation?.categories?.kitchen || "Kitchen (CORE)",
     },
     {
-      label: "Gotowanie",
+      label: t?.navigation?.menu?.cooking?.label || "Cooking",
       href: "/recipes",
       icon: <ChefHat className="w-5 h-5" />,
-      description: "Katalog przepisów i inspiracji",
+      description: t?.navigation?.menu?.cooking?.description || "Recipe catalog and inspiration",
       category: "Kuchnia",
     },
     {
-      label: "AI Asystent",
+      label: t?.navigation?.menu?.assistant?.label || "AI Assistant",
       href: "/assistant",
       icon: <BrainCircuit className="w-5 h-5" />,
-      description: "Inteligentna pomoc w kuchni",
-      badge: "AI",
+      description: t?.navigation?.menu?.assistant?.description || "Smart kitchen help",
+      badge: t?.navigation?.menu?.assistant?.badge || "AI",
       highlight: true, // 🔥 Killer-feature
       category: "Kuchnia",
     },
     {
-      label: "Moje przepisy",
+      label: t?.navigation?.menu?.myRecipes?.label || "My Recipes",
       href: "/recipes/saved",
       icon: <Star className="w-5 h-5" />,
-      description: "Twoja kolekcja ulubionych przepisów",
+      description: t?.navigation?.menu?.myRecipes?.description || "Your favorite recipes collection",
       category: "Kuchnia",
     },
     
     // ===== ROZWÓJ =====
     {
-      label: "Akademia",
+      label: t?.navigation?.menu?.academy?.label || "Academy",
       href: "/academy",
       icon: <GraduationCap className="w-5 h-5" />,
-      description: "Kursy, nauka i rozwój umiejętności",
+      description: t?.navigation?.menu?.academy?.description || "Courses, learning and skill development",
       category: "Rozwój",
-      categoryLabel: "Rozwój",
+      categoryLabel: t?.navigation?.categories?.development || "Development",
     },
     
     // ===== ЕКОНОМИЯ =====
     {
-      label: "Tokens",
+      label: t?.navigation?.menu?.tokens?.label || "Tokens",
       href: "/tokens",
       icon: <Coins className="w-5 h-5" />,
-      description: "Twoja waluta świadomej kuchni",
+      description: t?.navigation?.menu?.tokens?.description || "Your conscious kitchen currency",
       category: "Ekonomia",
-      categoryLabel: "Ekonomia",
+      categoryLabel: t?.navigation?.categories?.economy || "Economy",
     },
   ];
 
@@ -476,7 +478,7 @@ export default function NavigationBurger() {
                           {user.name}
                         </p>
                         <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
-                          Mój profil
+                          {t?.navigation?.menu?.profile?.label || "My Profile"}
                         </p>
                       </div>
                       <User className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 flex-shrink-0" />
@@ -489,7 +491,7 @@ export default function NavigationBurger() {
                       className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 transition-all font-medium text-[13px]"
                     >
                       <LogOut className="w-3.5 h-3.5" />
-                      Wyloguj
+                      {t?.navigation?.logout || "Log out"}
                     </motion.button>
                   </>
                 ) : (
@@ -502,7 +504,7 @@ export default function NavigationBurger() {
                       className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-medium transition-all text-[13px]"
                     >
                       <LogIn className="w-3.5 h-3.5" />
-                      Zaloguj się
+                      {t?.navigation?.login || "Log in"}
                     </motion.button>
                     <motion.button
                       whileHover={{ x: 4 }}
@@ -511,7 +513,7 @@ export default function NavigationBurger() {
                       className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 border-sky-500 text-sky-600 dark:text-sky-400 hover:bg-sky-500/10 font-medium transition-all text-[13px]"
                     >
                       <User className="w-3.5 h-3.5" />
-                      Zarejestruj się
+                      {t?.navigation?.register || "Sign up"}
                     </motion.button>
                   </>
                 )}

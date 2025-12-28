@@ -3,6 +3,128 @@
  */
 
 export const tokens = {
+  // ChefTokens Page (v2)
+  page: {
+    hero: {
+      badge: "Your conscious cooking currency",
+      title: "ChefTokens — Your currency of",
+      titleHighlight: "conscious cooking",
+      description: "ChefTokens help you make smart decisions: plan, cook, and learn without chaos.",
+      
+      features: {
+        control: {
+          title: "🔄 Decision control, not \"paywall\"",
+          description: "Tokens teach planning, not block access",
+        },
+        thinking: {
+          title: "🧠 Learn to think like a chef",
+          description: "Every action is a conscious decision",
+        },
+        planning: {
+          title: "♻️ Less waste, more control",
+          description: "Planning instead of chaos",
+        },
+      },
+    },
+    
+    yourTokens: {
+      title: "Your ChefTokens",
+      loginPrompt: "Log in to see your balance and history",
+    },
+    
+    howToEarn: {
+      title: "How you earn ChefTokens",
+      subtitle: "ChefTokens reward action, not clicking.",
+      
+      methods: {
+        cookRecipe: {
+          title: "Cook a recipe",
+          description: "Every recipe you complete and mark as \"cooked\"",
+          reward: "+5 CT",
+        },
+        aiDialog: {
+          title: "AI dialogue (task)",
+          description: "Complete one task in dialogue with AI Mentor",
+          reward: "+2 CT",
+        },
+        academyModule: {
+          title: "Academy module",
+          description: "Complete a full module with all tasks",
+          reward: "+10 CT",
+        },
+        dishAnalysis: {
+          title: "Dish analysis",
+          description: "Upload a photo and get AI analysis",
+          reward: "+5 CT",
+        },
+        completePath: {
+          title: "Complete path",
+          description: "Finish entire development path in Academy",
+          reward: "+50 CT",
+        },
+      },
+    },
+    
+    howToSpend: {
+      title: "What you spend ChefTokens on",
+      subtitle: "Every token use is a conscious decision, not a random click.",
+      
+      options: {
+        aiQuestions: {
+          title: "AI questions",
+          description: "Ask AI about products, techniques, or pairing",
+          cost: "1–3 CT",
+          unit: "per question",
+        },
+        premiumRecipes: {
+          title: "Premium recipes",
+          description: "Access advanced recipes from chefs",
+          cost: "5–15 CT",
+          unit: "per recipe",
+        },
+        advancedPaths: {
+          title: "Advanced Academy paths",
+          description: "Unlock advanced courses after basics",
+          cost: "20–50 CT",
+          unit: "per path",
+        },
+        flavorAnalysis: {
+          title: "Flavor analysis / pairing",
+          description: "Check which products pair well together",
+          cost: "3–10 CT",
+          unit: "per analysis",
+        },
+      },
+    },
+    
+    whyItWorks: {
+      title: "Why it works",
+      subtitle: "ChefTokens are not a penalty.",
+      description: "They are a mechanism that:",
+      
+      benefits: {
+        planning: "teaches planning — instead of chaos and impulsive decisions",
+        noChaos: "limits chaos — every action has value and consequences",
+        goodDecisions: "reinforces good cooking decisions — we reward action, not clicking",
+      },
+      
+      points: {
+        noScrolling: {
+          title: "No mindless scrolling",
+          description: "Every action is conscious, not random",
+        },
+        valueInAction: {
+          title: "Every action has value",
+          description: "You learn to make better culinary decisions",
+        },
+      },
+    },
+    
+    cta: {
+      title: "Where now?",
+    },
+  },
+
   wallet: {
     title: "ChefTokens Wallet",
     balance: "Balance",

@@ -10,6 +10,7 @@ export default function LanguageSwitcher() {
 
   return (
     <div className="flex items-center gap-2 bg-gray-900/10 dark:bg-gray-700/20 backdrop-blur-sm rounded-full p-1 border border-gray-900/20 dark:border-gray-700/50 relative">
+      {/* Polish */}
       <button
         onClick={() => setLanguage('pl')}
         className="relative px-4 py-2 text-sm font-semibold rounded-full transition-all duration-300"
@@ -22,7 +23,39 @@ export default function LanguageSwitcher() {
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           />
         )}
-        <span className={`relative z-10 font-bold ${language === 'pl' ? 'text-white' : 'text-gray-700 dark:text-gray-400'}`}>Polski</span>
+        <span className={`relative z-10 font-bold ${language === 'pl' ? 'text-white' : 'text-gray-700 dark:text-gray-400'}`}>PL</span>
+      </button>
+
+      {/* English */}
+      <button
+        onClick={() => setLanguage('en')}
+        className="relative px-4 py-2 text-sm font-semibold rounded-full transition-all duration-300"
+      >
+        {language === 'en' && (
+          <motion.div
+            layoutId="activeLang"
+            className={`absolute inset-0 ${gradients.primary} rounded-full shadow-lg dark:shadow-sky-500/30`}
+            initial={false}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          />
+        )}
+        <span className={`relative z-10 font-bold ${language === 'en' ? 'text-white' : 'text-gray-700 dark:text-gray-400'}`}>EN</span>
+      </button>
+
+      {/* Russian */}
+      <button
+        onClick={() => setLanguage('ru')}
+        className="relative px-4 py-2 text-sm font-semibold rounded-full transition-all duration-300"
+      >
+        {language === 'ru' && (
+          <motion.div
+            layoutId="activeLang"
+            className={`absolute inset-0 ${gradients.primary} rounded-full shadow-lg dark:shadow-sky-500/30`}
+            initial={false}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          />
+        )}
+        <span className={`relative z-10 font-bold ${language === 'ru' ? 'text-white' : 'text-gray-700 dark:text-gray-400'}`}>RU</span>
       </button>
     </div>
   );

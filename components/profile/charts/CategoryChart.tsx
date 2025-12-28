@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { PieChart } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CategoryChartProps {
   categories: Array<{
@@ -16,6 +17,7 @@ interface CategoryChartProps {
  * Donut chart showing category breakdown
  */
 export function CategoryChart({ categories }: CategoryChartProps) {
+  const { t } = useLanguage();
   const total = categories.reduce((sum, cat) => sum + cat.spent, 0);
   
   let cumulativePercent = 0;
@@ -43,7 +45,9 @@ export function CategoryChart({ categories }: CategoryChartProps) {
   return (
     <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl p-3 sm:p-4 border border-purple-500/40">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm sm:text-base font-bold text-white">Wydatki według kategorii</h3>
+        <h3 className="text-sm sm:text-base font-bold text-white">
+          {t?.profile?.stats?.categoryChart?.title || "Spending by category"}
+        </h3>
         <PieChart className="w-4 h-4 text-purple-400" />
       </div>
 

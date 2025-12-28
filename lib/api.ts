@@ -13,7 +13,45 @@
 
 // Re-export base utilities and types
 export { apiFetch, API_BASE_URL } from './api/base';
-export type { ApiOptions, ApiResponse } from './api/base';
+export type { ApiOptions, ApiResponse, ApiError } from './api/base';
+
+// Re-export API contract types
+export {
+  ApiErrorCode,
+  createApiResponse,
+  createApiError,
+  createValidationError,
+  isApiResponse,
+  isApiError,
+} from './api/types';
+
+export type {
+  ApiResponseMeta,
+  ApiPagination,
+  ApiFieldError,
+  ApiErrorMeta,
+  ApiErrorCodeType,
+  // Domain types
+  UserProfile,
+  AuthResponse,
+  LanguageChangeResponse,
+  SettingsResponse,
+  FridgeItem,
+  Recipe,
+  RecipeIngredient,
+  RecipeStep,
+  RecipeNutrition,
+  Task,
+  Wallet,
+  WalletTransaction,
+  // Request types
+  LoginRequest,
+  RegisterRequest,
+  UpdateProfileRequest,
+  UpdateSettingsRequest,
+  AddFridgeItemRequest,
+  MatchRecipesRequest,
+} from './api/types';
 
 // Re-export all API modules
 export { authApi } from './api/auth';

@@ -18,55 +18,59 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { allPaths } from "@/lib/academy/paths-data";
 import type { PathStatus } from "@/lib/academy/paths-data";
 
 export default function AcademyPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const paths = allPaths;
 
   const benefits = [
     {
       icon: Brain,
-      text: "Myślenie kucharza, nie kopiowanie przepisów"
+      text: t?.academy?.page?.benefits?.thinking || "Chef's thinking, not recipe copying"
     },
     {
       icon: TrendingUp,
-      text: "Mniej marnowania produktów"
+      text: t?.academy?.page?.benefits?.lessWaste || "Less food waste"
     },
     {
       icon: DollarSign,
-      text: "Lepszy smak bez droższych zakupów"
+      text: t?.academy?.page?.benefits?.betterTaste || "Better taste without expensive purchases"
     },
     {
       icon: Target,
-      text: "Realne umiejętności na całe życie"
+      text: t?.academy?.page?.benefits?.realSkills || "Real skills for life"
     }
   ];
 
   const getStatusButton = (status: PathStatus) => {
+    const statusText = t?.academy?.page?.pathStatus;
+    
     switch (status) {
       case "available":
         return {
-          text: "Rozpocznij",
+          text: statusText?.available || "Start",
           className: "bg-sky-600 hover:bg-sky-700 text-white",
           icon: ArrowRight
         };
       case "in-progress":
         return {
-          text: "Kontynuuj",
+          text: statusText?.inProgress || "Continue",
           className: "bg-amber-600 hover:bg-amber-700 text-white",
           icon: ArrowRight
         };
       case "locked":
         return {
-          text: "Zablokowana",
+          text: statusText?.locked || "Locked",
           className: "bg-gray-600 cursor-not-allowed text-gray-300",
           icon: Lock
         };
       case "completed":
         return {
-          text: "Ukończona",
+          text: statusText?.completed || "Completed",
           className: "bg-green-600 text-white cursor-default",
           icon: CheckCircle
         };
@@ -85,15 +89,15 @@ export default function AcademyPage() {
           className="text-center mb-16 pt-12"
         >
           <h1 className="text-5xl sm:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-            Akademia świadomego gotowania
+            {t?.academy?.page?.title || "Academy of Conscious Cooking"}
           </h1>
           
           <p className="text-2xl text-gray-700 dark:text-gray-300 mb-4 font-semibold">
-            Rozwijaj myślenie kucharza, nie tylko ucz się przepisów
+            {t?.academy?.page?.subtitle || "Develop chef's thinking, not just learn recipes"}
           </p>
           
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-8">
-            Ścieżki rozwoju oparte na praktyce, dialogu z AI i realnych decyzjach w kuchni.
+            {t?.academy?.page?.description || "Development paths based on practice, AI dialogue, and real kitchen decisions."}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -101,11 +105,11 @@ export default function AcademyPage() {
               onClick={() => router.push('/academy/paths/foundations')}
               className="px-8 py-4 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
             >
-              Rozpocznij pierwszą ścieżkę
+              {t?.academy?.page?.cta?.startFirst || "Start your first path"}
               <ArrowRight className="w-5 h-5" />
             </button>
             <button className="px-8 py-4 bg-white dark:bg-gray-800 border-2 border-sky-600 text-sky-600 dark:text-sky-400 font-semibold rounded-lg hover:bg-sky-50 dark:hover:bg-gray-700 transition-colors">
-              Jak działa Akademia
+              {t?.academy?.page?.cta?.howItWorks || "How Academy works"}
             </button>
           </div>
         </motion.div>
@@ -118,7 +122,7 @@ export default function AcademyPage() {
           className="mb-20"
         >
           <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
-            Jak działa Akademia
+            {t?.academy?.page?.howItWorks?.title || "How Academy works"}
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -128,10 +132,10 @@ export default function AcademyPage() {
                 <Brain className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                Ścieżki rozwoju
+                {t?.academy?.page?.howItWorks?.paths?.title || "Development paths"}
               </h3>
               <p className="text-gray-700 dark:text-gray-300">
-                Nie kursy, lecz logiczne ścieżki umiejętności
+                {t?.academy?.page?.howItWorks?.paths?.description || "Not courses, but logical skill paths"}
               </p>
             </div>
 
@@ -141,10 +145,10 @@ export default function AcademyPage() {
                 <MessageSquare className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                Dialog z AI
+                {t?.academy?.page?.howItWorks?.dialog?.title || "AI dialogue"}
               </h3>
               <p className="text-gray-700 dark:text-gray-300">
-                AI prowadzi Cię przez decyzje, analizę i praktykę
+                {t?.academy?.page?.howItWorks?.dialog?.description || "AI guides you through decisions, analysis, and practice"}
               </p>
             </div>
 
@@ -154,10 +158,10 @@ export default function AcademyPage() {
                 <Coins className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                ChefTokens
+                {t?.academy?.page?.howItWorks?.tokens?.title || "ChefTokens"}
               </h3>
               <p className="text-gray-700 dark:text-gray-300">
-                Zdobywasz tokeny za postęp i świadome wybory
+                {t?.academy?.page?.howItWorks?.tokens?.description || "Earn tokens for progress and conscious choices"}
               </p>
             </div>
           </div>
@@ -171,7 +175,7 @@ export default function AcademyPage() {
           className="mb-20"
         >
           <h2 className="text-4xl font-bold text-center text-gray-900 dark:text-white mb-12">
-            Wybierz swoją ścieżkę rozwoju
+            {t?.academy?.page?.pathsSection?.title || "Choose your development path"}
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -254,7 +258,7 @@ export default function AcademyPage() {
 
                   {isLocked && (
                     <p className="text-xs text-center text-gray-500 dark:text-gray-500 mt-3">
-                      Ukończ poprzednią ścieżkę, aby odblokować
+                      {t?.academy?.page?.pathStatus?.unlockRequirement || "Complete previous path to unlock"}
                     </p>
                   )}
                 </motion.div>
@@ -271,7 +275,7 @@ export default function AcademyPage() {
           className="mb-20"
         >
           <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
-            Co zyskasz
+            {t?.academy?.page?.benefits?.title || "What you'll gain"}
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
@@ -316,7 +320,7 @@ export default function AcademyPage() {
                     </div>
                     <div>
                       <p className="text-sm text-gray-900 dark:text-white">
-                        Dlaczego wybrałeś ten produkt? Co Twoim zdaniem będzie smakować najlepiej w tym daniu?
+                        {t?.academy?.page?.aiExample?.question || "Why did you choose this product?"}
                       </p>
                     </div>
                   </div>
@@ -324,7 +328,7 @@ export default function AcademyPage() {
 
                 <div className="bg-sky-100 dark:bg-sky-900/30 p-4 rounded-2xl ml-8">
                   <p className="text-sm text-gray-900 dark:text-white">
-                    Bo jest świeży i ma intensywny zapach...
+                    {t?.academy?.page?.aiExample?.answer || "Because it's fresh..."}
                   </p>
                 </div>
 
@@ -335,7 +339,7 @@ export default function AcademyPage() {
                     </div>
                     <div>
                       <p className="text-sm text-gray-900 dark:text-white">
-                        Świetnie! Teraz pomyśl: jak możesz użyć tego aromatu najefektywniej?
+                        {t?.academy?.page?.aiExample?.followUp || "Great! Now think: how can you use this aroma most effectively?"}
                       </p>
                     </div>
                   </div>
@@ -345,10 +349,10 @@ export default function AcademyPage() {
               {/* Right: Description */}
               <div>
                 <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                  AI-Mentor nie mówi Ci co robić
+                  {t?.academy?.page?.aiExample?.explanation || "AI-Mentor doesn't tell you what to do"}
                 </h3>
                 <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
-                  On pyta, analizuje i pomaga podejmować decyzje — jak prawdziwy szef kuchni.
+                  {t?.academy?.page?.aiExample?.explanationDetail || "It asks, analyzes, and helps you make decisions — like a real chef."}
                 </p>
                 <Link href="/assistant">
                   <button className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors flex items-center gap-2">
@@ -370,16 +374,16 @@ export default function AcademyPage() {
         >
           <div className="bg-gradient-to-r from-sky-600 to-cyan-600 rounded-3xl p-12 text-white">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Pierwsza ścieżka jest darmowa
+              {t?.academy?.page?.finalCta?.badge || "First path is free"}
             </h2>
             <p className="text-xl mb-8 opacity-90">
-              Zacznij myśleć jak kucharz już dziś
+              {t?.academy?.page?.finalCta?.title || "Start thinking like a chef today"}
             </p>
             <button 
               onClick={() => router.push('/academy/paths/foundations')}
               className="px-10 py-4 bg-white text-sky-600 font-bold rounded-lg hover:bg-gray-100 transition-colors text-lg flex items-center gap-2 mx-auto"
             >
-              Rozpocznij ścieżkę
+              {t?.academy?.page?.cta?.startFirst || "Start your first path"}
               <ArrowRight className="w-6 h-6" />
             </button>
           </div>

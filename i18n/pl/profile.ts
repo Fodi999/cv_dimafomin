@@ -4,6 +4,79 @@
  */
 
 export const profile = {
+  // Profile Page (Dashboard)
+  page: {
+    title: "Profil",
+    backButton: "Назад",
+    subtitle: "💼 Twoje centrum zarządzania kuchnią",
+    loading: "Ładowanie profilu...",
+    notLoggedIn: "Musisz być zalogowany, aby zobaczyć profil",
+    loginButton: "Zaloguj się",
+    editProfile: "Edytuj profil",
+    editShort: "Edytuj",
+    settings: "Ustawienia",
+    settingsShort: "Settings",
+  },
+
+  // KPI Cards (Hero Metrics)
+  kpi: {
+    savedMoney: {
+      label: "💰 Oszczędzono",
+      thisMonth: "W tym miesiącu",
+      currency: "PLN",
+    },
+    cookedRecipes: {
+      label: "Ugotowane",
+      unit: "przepisów",
+    },
+    fridgeItems: {
+      label: "W lodówce",
+      unit: "produktów",
+    },
+    chefTokens: {
+      label: "ChefTokens",
+      unit: "CT",
+    },
+  },
+
+  // Progress & Level
+  progress: {
+    level: "Poziom",
+    levelNumber: "Poziom {level}",
+    xpProgress: "{current} / {max} XP",
+    toNextLevel: "{percent}% do następnego poziomu",
+  },
+
+  // Weekly Budget
+  budget: {
+    title: "Budżet tygodnia",
+    spent: "{spent} / {total} PLN",
+    remaining: "✅ Świetnie! Pozostało {amount} PLN",
+    overBudget: "⚠️ Przekroczono budżet o {amount} PLN",
+  },
+
+  // Tabs
+  tabs: {
+    overview: "Przegląd",
+    stats: "Statystyki",
+    resources: "Zasoby",
+  },
+
+  // Overview Tab
+  overview: {
+    lastActions: "Ostatnie działania",
+    noActions: "Brak ostatnich działań",
+    whatNext: "Co dalej?",
+  },
+
+  // Activity Types
+  activities: {
+    dishCooked: "Ugotowano: {dish}",
+    productAdded: "Dodano: {product}",
+    recipesSaved: "Zapisano przepis: {recipe}",
+    courseCompleted: "Ukończono kurs: {course}",
+  },
+
   // Profile Header
   header: {
     title: "Profil",
@@ -190,6 +263,46 @@ export const profile = {
     rank: "Ranga",
     achievements: "Osiągnięcia",
     badges: "Odznaki",
+    
+    // Stats Tab Charts & Data
+    budgetChart: {
+      title: "Budżet (ostatnie 4 tygodnie)",
+      spent: "Wydano",
+      budget: "Budżet",
+      week: "Tydz {number}",
+    },
+    wasteChart: {
+      title: "Marnotrawstwo jedzenia",
+      trend: "Trend:",
+      trendDown: "Maleje ✓",
+      trendUp: "Rośnie",
+      trendStable: "Stabilny",
+    },
+    cookedVsConsumed: {
+      title: "Ugotowane vs Zjedzone",
+      cooked: "Ugotowano",
+      consumed: "Zjedzone",
+      efficiency: "{percent}% efektywności",
+    },
+    categoryChart: {
+      title: "Wydatki według kategorii",
+    },
+    waste: {
+      title: "Marnowanie produktów",
+      great: "Świetny wynik! 🎉",
+      good: "Dobra praca 👍",
+      canImprove: "Możesz lepiej ♻️",
+      wastedProducts: "produktów zmarnowanych",
+    },
+    topRecipes: {
+      title: "Najczęściej gotowane",
+      cooked: "{count}× ugotowano",
+      noData: "Brak danych",
+    },
+    topCategories: {
+      title: "Kategorie z największym wydatkiem",
+      noData: "Brak danych",
+    },
   },
 
   // Messages

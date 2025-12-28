@@ -4,7 +4,68 @@
  */
 
 export const academy = {
-  // Hero Section
+  // New Academy Page (v2)
+  page: {
+    title: "Akademia świadomego gotowania",
+    subtitle: "Rozwijaj myślenie kucharza, nie tylko ucz się przepisów",
+    description: "Ścieżki rozwoju oparte na praktyce, dialogu z AI i realnych decyzjach w kuchni.",
+    
+    cta: {
+      startFirst: "Rozpocznij pierwszą ścieżkę",
+      howItWorks: "Jak działa Akademia",
+    },
+    
+    howItWorks: {
+      title: "Jak działa Akademia",
+      paths: {
+        title: "Ścieżki rozwoju",
+        description: "Nie kursy, lecz logiczne ścieżki umiejętności",
+      },
+      dialog: {
+        title: "Dialog z AI",
+        description: "AI prowadzi Cię przez decyzje, analizę i praktykę",
+      },
+      tokens: {
+        title: "ChefTokens",
+        description: "Zdobywasz tokeny za postęp i świadome wybory",
+      },
+    },
+    
+    pathsSection: {
+      title: "Wybierz swoją ścieżkę rozwoju",
+    },
+    
+    pathStatus: {
+      available: "Rozpocznij",
+      inProgress: "Kontynuuj",
+      locked: "Zablokowana",
+      completed: "Ukończona",
+      unlockRequirement: "Ukończ poprzednią ścieżkę, aby odblokować",
+    },
+    
+    benefits: {
+      title: "Co zyskasz",
+      thinking: "Myślenie kucharza, nie kopiowanie przepisów",
+      lessWaste: "Mniej marnowania produktów",
+      betterTaste: "Lepszy smak bez droższych zakupów",
+      realSkills: "Realne umiejętności na całe życie",
+    },
+    
+    aiExample: {
+      question: "Dlaczego wybrałeś ten produkt? Co Twoim zdaniem będzie smakować najlepiej w tym daniu?",
+      answer: "Bo jest świeży i ma intensywny zapach...",
+      followUp: "Świetnie! Teraz pomyśl: jak możesz użyć tego aromatu najefektywniej?",
+      explanation: "AI-Mentor nie mówi Ci co robić",
+      explanationDetail: "On pyta, analizuje i pomaga podejmować decyzje — jak prawdziwy szef kuchni.",
+    },
+    
+    finalCta: {
+      badge: "Pierwsza ścieżka jest darmowa",
+      title: "Zacznij myśleć jak kucharz już dziś",
+    },
+  },
+  
+  // Hero Section (old)
   hero: {
     badge: "Kulinarny rozwój z AI",
     headingLine1: "Fodi Academy",

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { TrendingDown, TrendingUp, Minus } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface WasteChartProps {
   wasteData: Array<{
@@ -15,6 +16,8 @@ interface WasteChartProps {
  * Line chart showing waste % over last 4 weeks
  */
 export function WasteChart({ wasteData }: WasteChartProps) {
+  const { t } = useLanguage();
+  
   const maxValue = Math.max(...wasteData.map(w => w.percentage), 20); // min 20% for scale
   const points = wasteData.map((week, index) => ({
     x: (index / (wasteData.length - 1)) * 100,
@@ -32,10 +35,18 @@ export function WasteChart({ wasteData }: WasteChartProps) {
     return `${path} L ${point.x} ${point.y}`;
   }, "");
 
+  const getTrendText = () => {
+    if (trend === "down") return t?.profile?.stats?.wasteChart?.trendDown || "Decreasing ✓";
+    if (trend === "up") return t?.profile?.stats?.wasteChart?.trendUp || "Increasing";
+    return t?.profile?.stats?.wasteChart?.trendStable || "Stable";
+  };
+
   return (
     <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-xl p-3 sm:p-4 border border-amber-500/40">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm sm:text-base font-bold text-white">Marnotrawstwo jedzenia</h3>
+        <h3 className="text-sm sm:text-base font-bold text-white">
+          {t?.profile?.stats?.wasteChart?.title || "Food waste"}
+        </h3>
         {trend === "down" && <TrendingDown className="w-4 h-4 text-green-400" />}
         {trend === "up" && <TrendingUp className="w-4 h-4 text-red-400" />}
         {trend === "stable" && <Minus className="w-4 h-4 text-gray-400" />}
@@ -132,13 +143,13 @@ export function WasteChart({ wasteData }: WasteChartProps) {
       {/* Trend info */}
       <div className="mt-3 pt-3 border-t border-white/10">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] text-gray-400">Trend:</span>
+          <span className="text-[10px] text-gray-400">
+            {t?.profile?.stats?.wasteChart?.trend || "Trend:"}
+          </span>
           <span className={`text-xs font-bold ${
             trend === "down" ? "text-green-400" : trend === "up" ? "text-red-400" : "text-gray-400"
           }`}>
-            {trend === "down" && "Maleje ✓"}
-            {trend === "up" && "Rośnie ✗"}
-            {trend === "stable" && "Stabilne →"}
+            {getTrendText()}
           </span>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { User, Mail, Edit2, Coins, Award, Settings } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SimpleProfileHeaderProps {
   name: string;
@@ -29,6 +30,7 @@ export function SimpleProfileHeader({
   onEdit,
   onSettings,
 }: SimpleProfileHeaderProps) {
+  const { t } = useLanguage();
   const [imageError, setImageError] = useState(false);
 
   return (
@@ -86,8 +88,8 @@ export function SimpleProfileHeader({
               className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 text-white text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 sm:gap-2"
             >
               <Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Edytuj profil</span>
-              <span className="sm:hidden">Edytuj</span>
+              <span className="hidden sm:inline">{t?.profile?.page?.editProfile || "Edit profile"}</span>
+              <span className="sm:hidden">{t?.profile?.page?.editShort || "Edit"}</span>
             </motion.button>
           )}
 
@@ -100,8 +102,8 @@ export function SimpleProfileHeader({
               className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 rounded-lg text-white text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 sm:gap-2 shadow-lg"
             >
               <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Ustawienia</span>
-              <span className="sm:hidden">Settings</span>
+              <span className="hidden sm:inline">{t?.profile?.page?.settings || "Settings"}</span>
+              <span className="sm:hidden">{t?.profile?.page?.settingsShort || "Settings"}</span>
             </motion.button>
           )}
         </div>
@@ -112,7 +114,9 @@ export function SimpleProfileHeader({
           <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1 sm:px-3 sm:py-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-lg border border-amber-500/40">
             <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
             <div>
-              <div className="text-[9px] sm:text-[10px] text-amber-300 font-medium leading-tight">Poziom</div>
+              <div className="text-[9px] sm:text-[10px] text-amber-300 font-medium leading-tight">
+                {t?.profile?.progress?.level || "Level"}
+              </div>
               <div className="text-sm sm:text-base font-bold text-white leading-tight">{level}</div>
             </div>
           </div>
@@ -121,7 +125,9 @@ export function SimpleProfileHeader({
           <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1 sm:px-3 sm:py-1.5 bg-gradient-to-r from-sky-500/20 to-cyan-500/20 rounded-lg border border-sky-500/40">
             <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-400" />
             <div>
-              <div className="text-[9px] sm:text-[10px] text-sky-300 font-medium leading-tight">ChefTokens</div>
+              <div className="text-[9px] sm:text-[10px] text-sky-300 font-medium leading-tight">
+                {t?.profile?.kpi?.chefTokens?.label || "ChefTokens"}
+              </div>
               <div className="text-sm sm:text-base font-bold text-white leading-tight">{chefTokens} CT</div>
             </div>
           </div>

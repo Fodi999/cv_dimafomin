@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { LayoutDashboard, BookOpen, BarChart3, Coins } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export type ProfileTab = "overview" | "stats" | "resources";
 
@@ -13,15 +14,17 @@ interface ProfileTabsProps {
 /**
  * Profile Tab Navigation
  * 3 tabs with CLEAR PURPOSE:
- * - Przegląd: Main dashboard (level, budget, last actions, CTAs)
- * - Statystyki: Pure analytics (charts, waste %, top categories)
- * - Zasoby: My resources (recipes, cart, purchased courses)
+ * - Overview: Main dashboard (level, budget, last actions, CTAs)
+ * - Statistics: Pure analytics (charts, waste %, top categories)
+ * - Resources: My resources (recipes, cart, purchased courses)
  */
 export function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
+  const { t } = useLanguage();
+
   const tabs: Array<{ id: ProfileTab; label: string; icon: React.ReactNode }> = [
-    { id: "overview", label: "Przegląd", icon: <LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5" /> },
-    { id: "stats", label: "Statystyki", icon: <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5" /> },
-    { id: "resources", label: "Zasoby", icon: <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" /> },
+    { id: "overview", label: t?.profile?.tabs?.overview || "Overview", icon: <LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5" /> },
+    { id: "stats", label: t?.profile?.tabs?.stats || "Statistics", icon: <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5" /> },
+    { id: "resources", label: t?.profile?.tabs?.resources || "Resources", icon: <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" /> },
   ];
 
   return (

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ChefHat, Utensils } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CookedVsConsumedProps {
   data: Array<{
@@ -16,12 +17,15 @@ interface CookedVsConsumedProps {
  * Comparison chart showing cooking efficiency
  */
 export function CookedVsConsumedChart({ data }: CookedVsConsumedProps) {
+  const { t } = useLanguage();
   const maxValue = Math.max(...data.map(d => Math.max(d.cooked, d.consumed)));
 
   return (
     <div className="bg-gradient-to-br from-sky-500/20 to-cyan-500/20 rounded-xl p-3 sm:p-4 border border-sky-500/40">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm sm:text-base font-bold text-white">Ugotowane vs Zjedzone</h3>
+        <h3 className="text-sm sm:text-base font-bold text-white">
+          {t?.profile?.stats?.cookedVsConsumed?.title || "Cooked vs Consumed"}
+        </h3>
         <Utensils className="w-4 h-4 text-sky-400" />
       </div>
 
@@ -38,7 +42,8 @@ export function CookedVsConsumedChart({ data }: CookedVsConsumedProps) {
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[10px] sm:text-xs text-gray-400">{week.week}</span>
                 <span className="text-[10px] sm:text-xs text-sky-400">
-                  {efficiency.toFixed(0)}% efektywności
+                  {t?.profile?.stats?.cookedVsConsumed?.efficiency?.replace("{percent}", efficiency.toFixed(0)) || 
+                    `${efficiency.toFixed(0)}% efficiency`}
                 </span>
               </div>
 
@@ -83,11 +88,15 @@ export function CookedVsConsumedChart({ data }: CookedVsConsumedProps) {
       <div className="flex items-center gap-4 mt-3 pt-3 border-t border-white/10">
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-gradient-to-r from-purple-500 to-pink-500" />
-          <span className="text-[10px] text-gray-400">Ugotowano</span>
+          <span className="text-[10px] text-gray-400">
+            {t?.profile?.stats?.cookedVsConsumed?.cooked || "Cooked"}
+          </span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-gradient-to-r from-sky-500 to-cyan-500" />
-          <span className="text-[10px] text-gray-400">Zjedzone</span>
+          <span className="text-[10px] text-gray-400">
+            {t?.profile?.stats?.cookedVsConsumed?.consumed || "Consumed"}
+          </span>
         </div>
       </div>
     </div>

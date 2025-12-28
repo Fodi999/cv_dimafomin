@@ -2,20 +2,20 @@
 
 import { Globe, Clock, Scale } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
-import { useTranslations } from "@/hooks/useTranslations";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { Language, TimeFormat, Units } from "@/lib/types/settings";
 
 export default function CoreSettingsSection() {
   const { settings, updateSettings, isUpdating } = useSettings();
-  const { t } = useTranslations();
+  const { t, language, setLanguage } = useLanguage();
 
   /**
    * Handle language change
-   * Auto-saves to backend via SettingsContext
+   * Uses new cookie-based system with reload
    */
-  async function handleLanguageChange(lang: Language) {
-    if (lang === settings.language) return;
-    await updateSettings({ language: lang });
+  function handleLanguageChange(lang: Language) {
+    if (lang === language) return;
+    setLanguage(lang); // Will update cookie and reload
   }
 
   /**
@@ -40,10 +40,10 @@ export default function CoreSettingsSection() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {t("settings.core.title")}
+          {t?.profile?.settings?.general?.title || "Core Settings"}
         </h2>
         <p className="text-gray-600 dark:text-gray-400">
-          {t("settings.core.subtitle")}
+          {t?.profile?.settings?.subtitle || "Language, time format, and units"}
         </p>
       </div>
 
@@ -52,22 +52,21 @@ export default function CoreSettingsSection() {
         <div className="flex items-center gap-2">
           <Globe className="w-5 h-5 text-purple-500" />
           <label className="text-sm font-semibold text-gray-900 dark:text-white">
-            {t("settings.language")}
+            {t?.profile?.settings?.general?.language || "Language"}
           </label>
         </div>
         <div className="grid grid-cols-3 gap-3">
           {(["pl", "en", "ru"] as Language[]).map((lang) => {
-            const isActive = settings.language === lang;
+            const isActive = language === lang;
             const labels = { pl: "🇵🇱 Polski", en: "🇬🇧 English", ru: "🇷🇺 Русский" };
             
             return (
               <button
                 key={lang}
                 onClick={() => handleLanguageChange(lang)}
-                disabled={isUpdating}
                 className={`
                   px-4 py-3 rounded-xl border-2 text-sm font-medium
-                  transition-all duration-200 disabled:opacity-50
+                  transition-all duration-200
                   ${isActive
                     ? "border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-700 dark:text-purple-300 shadow-md"
                     : "border-gray-200 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-500 text-gray-700 dark:text-gray-300"
@@ -89,15 +88,15 @@ export default function CoreSettingsSection() {
         <div className="flex items-center gap-2">
           <Clock className="w-5 h-5 text-purple-500" />
           <label className="text-sm font-semibold text-gray-900 dark:text-white">
-            {t("settings.timeFormat")}
+            Time Format
           </label>
         </div>
         <div className="grid grid-cols-2 gap-3">
           {(["24h", "12h"] as TimeFormat[]).map((format) => {
             const isActive = settings.timeFormat === format;
             const labels = {
-              "12h": t("settings.timeFormat.12h"),
-              "24h": t("settings.timeFormat.24h"),
+              "12h": "12-hour",
+              "24h": "24-hour",
             };
             
             return (
@@ -126,15 +125,15 @@ export default function CoreSettingsSection() {
         <div className="flex items-center gap-2">
           <Scale className="w-5 h-5 text-purple-500" />
           <label className="text-sm font-semibold text-gray-900 dark:text-white">
-            {t("settings.units")}
+            Units
           </label>
         </div>
         <div className="grid grid-cols-2 gap-3">
           {(["metric", "kitchen"] as Units[]).map((system) => {
             const isActive = settings.units === system;
             const labels = {
-              metric: t("settings.units.metric"),
-              kitchen: t("settings.units.imperial"),
+              metric: "Metric (g, ml)",
+              kitchen: "Imperial (cups, oz)",
             };
             
             return (

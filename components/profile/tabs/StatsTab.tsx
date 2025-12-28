@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { TrendingDown, Trash2, ChefHat, ShoppingCart } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { BudgetChart } from "@/components/profile/charts/BudgetChart";
 import { WasteChart } from "@/components/profile/charts/WasteChart";
 import { CategoryChart } from "@/components/profile/charts/CategoryChart";
@@ -32,6 +33,7 @@ export function StatsTab({
   topRecipes,
   topCategories,
 }: StatsTabProps) {
+  const { t } = useLanguage();
   // Mock data for charts (replace with real data from backend)
   const budgetData = [
     { week: "Tydz 1", spent: 250, budget: 300 },
@@ -81,16 +83,24 @@ export function StatsTab({
       <div className="bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl p-3 sm:p-4 border border-orange-500/40">
         <div className="flex items-start justify-between mb-2 sm:mb-3">
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-white mb-1">Marnowanie produktów</h3>
+            <h3 className="text-sm sm:text-base font-bold text-white mb-1">
+              {t?.profile?.stats?.waste?.title || "Product waste"}
+            </h3>
             <p className="text-[10px] sm:text-xs text-gray-400">
-              {wastePercentage < 10 ? "Świetny wynik! 🎉" : wastePercentage < 20 ? "Dobra praca 👍" : "Możesz lepiej ♻️"}
+              {wastePercentage < 10 
+                ? t?.profile?.stats?.waste?.great || "Great result! 🎉"
+                : wastePercentage < 20 
+                ? t?.profile?.stats?.waste?.good || "Good job 👍"
+                : t?.profile?.stats?.waste?.canImprove || "Can improve ♻️"}
             </p>
           </div>
           <Trash2 className="w-5 h-5 sm:w-6 sm:h-6 text-orange-400" />
         </div>
         <div className="flex items-end gap-2 sm:gap-3">
           <div className="text-3xl sm:text-4xl font-bold text-white">{wastePercentage}%</div>
-          <div className="text-[10px] sm:text-xs text-gray-400 pb-0.5 sm:pb-1 leading-tight">produktów zmarnowanych</div>
+          <div className="text-[10px] sm:text-xs text-gray-400 pb-0.5 sm:pb-1 leading-tight">
+            {t?.profile?.stats?.waste?.wastedProducts || "products wasted"}
+          </div>
         </div>
       </div>
 
@@ -98,7 +108,7 @@ export function StatsTab({
       <div>
         <h3 className="text-sm sm:text-base font-bold text-white mb-2 sm:mb-3 flex items-center gap-2">
           <ChefHat className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-400" />
-          Najczęściej gotowane
+          {t?.profile?.stats?.topRecipes?.title || "Most cooked"}
         </h3>
         {topRecipes.length > 0 ? (
           <div className="space-y-1.5 sm:space-y-2">
@@ -115,7 +125,10 @@ export function StatsTab({
                     <div className="text-lg sm:text-xl font-bold text-sky-400">#{index + 1}</div>
                     <div>
                       <p className="text-white font-medium text-xs sm:text-sm leading-tight">{recipe.name}</p>
-                      <p className="text-[9px] sm:text-[10px] text-gray-400">{recipe.count}× ugotowano</p>
+                      <p className="text-[9px] sm:text-[10px] text-gray-400">
+                        {t?.profile?.stats?.topRecipes?.cooked?.replace("{count}", String(recipe.count)) || 
+                          `${recipe.count}× cooked`}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -124,7 +137,9 @@ export function StatsTab({
           </div>
         ) : (
           <div className="bg-white/5 rounded-lg p-4 sm:p-6 border border-white/10 text-center">
-            <p className="text-gray-400 text-xs sm:text-sm">Brak danych</p>
+            <p className="text-gray-400 text-xs sm:text-sm">
+              {t?.profile?.stats?.topRecipes?.noData || "No data"}
+            </p>
           </div>
         )}
       </div>
@@ -133,7 +148,7 @@ export function StatsTab({
       <div>
         <h3 className="text-sm sm:text-base font-bold text-white mb-2 sm:mb-3 flex items-center gap-2">
           <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-400" />
-          Kategorie z największym wydatkiem
+          {t?.profile?.stats?.topCategories?.title || "Categories with highest spending"}
         </h3>
         {topCategories.length > 0 ? (
           <div className="space-y-1.5 sm:space-y-2">
@@ -162,7 +177,9 @@ export function StatsTab({
           </div>
         ) : (
           <div className="bg-white/5 rounded-lg p-4 sm:p-6 border border-white/10 text-center">
-            <p className="text-gray-400 text-xs sm:text-sm">Brak danych</p>
+            <p className="text-gray-400 text-xs sm:text-sm">
+              {t?.profile?.stats?.topCategories?.noData || "No data"}
+            </p>
           </div>
         )}
       </div>

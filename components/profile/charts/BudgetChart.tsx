@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface BudgetChartProps {
   weeklyData: Array<{
@@ -16,12 +17,15 @@ interface BudgetChartProps {
  * Simple bar chart showing last 4 weeks
  */
 export function BudgetChart({ weeklyData }: BudgetChartProps) {
+  const { t } = useLanguage();
   const maxValue = Math.max(...weeklyData.map(w => Math.max(w.spent, w.budget)));
 
   return (
     <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-xl p-3 sm:p-4 border border-green-500/40">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm sm:text-base font-bold text-white">Budżet (ostatnie 4 tygodnie)</h3>
+        <h3 className="text-sm sm:text-base font-bold text-white">
+          {t?.profile?.stats?.budgetChart?.title || "Budget (last 4 weeks)"}
+        </h3>
         <TrendingUp className="w-4 h-4 text-green-400" />
       </div>
 
@@ -75,11 +79,15 @@ export function BudgetChart({ weeklyData }: BudgetChartProps) {
       <div className="flex items-center gap-4 mt-3 pt-3 border-t border-white/10">
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-gradient-to-r from-green-500 to-emerald-500" />
-          <span className="text-[10px] text-gray-400">Wydano</span>
+          <span className="text-[10px] text-gray-400">
+            {t?.profile?.stats?.budgetChart?.spent || "Spent"}
+          </span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded bg-white/10" />
-          <span className="text-[10px] text-gray-400">Budżet</span>
+          <span className="text-[10px] text-gray-400">
+            {t?.profile?.stats?.budgetChart?.budget || "Budget"}
+          </span>
         </div>
       </div>
     </div>

@@ -4,7 +4,129 @@
  */
 
 export const tokens = {
-  // Wallet
+  // ChefTokens Page (v2)
+  page: {
+    hero: {
+      badge: "Twoja waluta świadomej kuchni",
+      title: "ChefTokens — Twoja waluta",
+      titleHighlight: "świadomej kuchni",
+      description: "ChefTokens pomagają podejmować mądre decyzje: planować, gotować i uczyć się bez chaosu.",
+      
+      features: {
+        control: {
+          title: "🔄 Kontrola decyzji, nie \"paywall\"",
+          description: "Tokeny uczą planowania, nie blokują dostępu",
+        },
+        thinking: {
+          title: "🧠 Uczysz się myśleć jak kucharz",
+          description: "Każda akcja to świadoma decyzja",
+        },
+        planning: {
+          title: "♻️ Mniej marnowania, więcej kontroli",
+          description: "Planowanie zamiast chaosu",
+        },
+      },
+    },
+    
+    yourTokens: {
+      title: "Twoje ChefTokens",
+      loginPrompt: "Zaloguj się, aby zobaczyć swoje saldo i historię",
+    },
+    
+    howToEarn: {
+      title: "Jak zdobywasz ChefTokens",
+      subtitle: "ChefTokens nagradzają działanie, nie klikanie.",
+      
+      methods: {
+        cookRecipe: {
+          title: "Ugotowanie przepisu",
+          description: "Każdy przepis, który zrealizujesz i oznaczysz jako \"ugotowany\"",
+          reward: "+5 CT",
+        },
+        aiDialog: {
+          title: "Dialog z AI (zadanie)",
+          description: "Ukończenie jednego zadania w dialogu z AI Mentor",
+          reward: "+2 CT",
+        },
+        academyModule: {
+          title: "Moduł w Akademii",
+          description: "Ukończenie pełnego modułu z wszystkimi zadaniami",
+          reward: "+10 CT",
+        },
+        dishAnalysis: {
+          title: "Analiza dania",
+          description: "Prześlij zdjęcie i otrzymaj analizę AI",
+          reward: "+5 CT",
+        },
+        completePath: {
+          title: "Ukończenie ścieżki",
+          description: "Finalizacja całej ścieżki rozwoju w Akademii",
+          reward: "+50 CT",
+        },
+      },
+    },
+    
+    howToSpend: {
+      title: "Na co wydajesz ChefTokens",
+      subtitle: "Każde użycie tokenów to świadoma decyzja, nie przypadkowy klik.",
+      
+      options: {
+        aiQuestions: {
+          title: "Zapytania do AI",
+          description: "Zadaj pytanie AI o produkt, technikę lub pairing",
+          cost: "1–3 CT",
+          unit: "za pytanie",
+        },
+        premiumRecipes: {
+          title: "Premium przepisy",
+          description: "Dostęp do zaawansowanych przepisów szefów kuchni",
+          cost: "5–15 CT",
+          unit: "za przepis",
+        },
+        advancedPaths: {
+          title: "Zaawansowane ścieżki Akademii",
+          description: "Odblokuj zaawansowane kursy po ukończeniu podstaw",
+          cost: "20–50 CT",
+          unit: "za ścieżkę",
+        },
+        flavorAnalysis: {
+          title: "Analizy smaków / pairing",
+          description: "Sprawdź, jakie produkty pasują do siebie",
+          cost: "3–10 CT",
+          unit: "za analizę",
+        },
+      },
+    },
+    
+    whyItWorks: {
+      title: "Dlaczego to działa",
+      subtitle: "ChefTokens nie są karą.",
+      description: "Są mechanizmem, który:",
+      
+      benefits: {
+        planning: "uczy planowania — zamiast chaosu i impulsywnych decyzji",
+        noChao: "ogranicza chaos — każda akcja ma wartość i konsekwencje",
+        goodDecisions: "wzmacnia dobre decyzje kuchenne — nagradzamy działanie, nie klikanie",
+      },
+      
+      points: {
+        noScrolling: {
+          title: "Brak scrollowania bez sensu",
+          description: "Każda akcja jest świadoma, nie przypadkowa",
+        },
+        valueInAction: {
+          title: "Każda akcja ma wartość",
+          description: "Uczysz się podejmować lepsze decyzje kulinarne",
+        },
+      },
+    },
+    
+    cta: {
+      title: "Gdzie teraz?",
+    },
+  },
+  
+  // Wallet (old)
   wallet: {
     title: "Portfel ChefTokens",
     balance: "Saldo",

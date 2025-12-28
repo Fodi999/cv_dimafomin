@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, User } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { SimpleProfileHeader } from "@/components/profile/SimpleProfileHeader";
 import { HeroKPI } from "@/components/profile/HeroKPI";
 import { ProgressControl } from "@/components/profile/ProgressControl";
@@ -16,6 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function ProfilePage() {
   const router = useRouter();
   const { user, isLoading, updateProfile } = useUser();
+  const { t } = useLanguage();
 
   const [activeTab, setActiveTab] = useState<ProfileTab>("overview");
 
@@ -80,7 +82,9 @@ export default function ProfilePage() {
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
         <div className="text-center">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-purple-500 border-t-transparent mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Ładowanie profilu...</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            {t?.profile?.page?.loading || "Loading profile..."}
+          </p>
         </div>
       </div>
     );
@@ -91,13 +95,13 @@ export default function ProfilePage() {
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
         <div className="text-center">
           <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Musisz być zalogowany, aby zobaczyć profil
+            {t?.profile?.page?.notLoggedIn || "You must be logged in to view profile"}
           </p>
           <button
             onClick={() => router.push("/")}
             className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all"
           >
-            Zaloguj się
+            {t?.profile?.page?.loginButton || "Log in"}
           </button>
         </div>
       </div>
@@ -114,11 +118,13 @@ export default function ProfilePage() {
             className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Назад</span>
+            <span className="font-medium">{t?.profile?.page?.backButton || "Back"}</span>
           </button>
           <div className="flex items-center gap-3">
             <User className="w-6 h-6 text-purple-600" />
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Profil</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+              {t?.profile?.page?.title || "Profile"}
+            </h1>
           </div>
           <div className="w-20" />
         </div>
@@ -144,7 +150,7 @@ export default function ProfilePage() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-center text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-2 font-medium"
           >
-            💼 Twoje centrum zarządzania kuchnią
+            {t?.profile?.page?.subtitle || "💼 Your kitchen management center"}
           </motion.p>
         </div>
 

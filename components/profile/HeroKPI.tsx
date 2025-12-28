@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { PiggyBank, ChefHat, Refrigerator, Coins, TrendingUp } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface HeroKPIProps {
   savedMoney: number;
@@ -21,6 +22,8 @@ export function HeroKPI({
   fridgeItems,
   chefTokens,
 }: HeroKPIProps) {
+  const { t } = useLanguage();
+  
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       {/* PRIMARY KPI - Oszczędzono (Hero Card) */}
@@ -46,13 +49,15 @@ export function HeroKPI({
           
           <div className="space-y-1">
             <p className="text-sm sm:text-base text-emerald-300/80 font-medium">
-              💰 Oszczędzono
+              {t?.profile?.kpi?.savedMoney?.label || "💰 Saved"}
             </p>
             <p className="text-4xl sm:text-5xl font-bold text-white">
-              {savedMoney.toFixed(2)} <span className="text-2xl sm:text-3xl text-emerald-300">PLN</span>
+              {savedMoney.toFixed(2)} <span className="text-2xl sm:text-3xl text-emerald-300">
+                {t?.profile?.kpi?.savedMoney?.currency || "PLN"}
+              </span>
             </p>
             <p className="text-xs sm:text-sm text-emerald-300/60">
-              W tym miesiącu
+              {t?.profile?.kpi?.savedMoney?.thisMonth || "This month"}
             </p>
           </div>
         </div>
@@ -76,13 +81,13 @@ export function HeroKPI({
           
           <div className="space-y-0.5">
             <p className="text-xs sm:text-sm text-violet-300/80 font-medium">
-              Ugotowane
+              {t?.profile?.kpi?.cookedRecipes?.label || "Cooked"}
             </p>
             <p className="text-3xl sm:text-4xl font-bold text-white">
               {cookedRecipes}
             </p>
             <p className="text-[10px] sm:text-xs text-violet-300/60">
-              przepisów
+              {t?.profile?.kpi?.cookedRecipes?.unit || "recipes"}
             </p>
           </div>
         </div>
@@ -104,13 +109,13 @@ export function HeroKPI({
           
           <div className="space-y-0.5">
             <p className="text-xs sm:text-sm text-sky-300/80 font-medium">
-              W lodówce
+              {t?.profile?.kpi?.fridgeItems?.label || "In fridge"}
             </p>
             <p className="text-3xl sm:text-4xl font-bold text-white">
               {fridgeItems}
             </p>
             <p className="text-[10px] sm:text-xs text-sky-300/60">
-              produktów
+              {t?.profile?.kpi?.fridgeItems?.unit || "products"}
             </p>
           </div>
         </div>

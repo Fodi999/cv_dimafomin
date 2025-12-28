@@ -3,6 +3,79 @@
  */
 
 export const profile = {
+  // Profile Page (Dashboard)
+  page: {
+    title: "Профиль",
+    backButton: "Назад",
+    subtitle: "💼 Твой центр управления кухней",
+    loading: "Загрузка профиля...",
+    notLoggedIn: "Войди, чтобы увидеть профиль",
+    loginButton: "Войти",
+    editProfile: "Редактировать профиль",
+    editShort: "Ред.",
+    settings: "Настройки",
+    settingsShort: "Настройки",
+  },
+
+  // KPI Cards (Hero Metrics)
+  kpi: {
+    savedMoney: {
+      label: "💰 Сэкономлено",
+      thisMonth: "В этом месяце",
+      currency: "PLN",
+    },
+    cookedRecipes: {
+      label: "Приготовлено",
+      unit: "рецептов",
+    },
+    fridgeItems: {
+      label: "В холодильнике",
+      unit: "продуктов",
+    },
+    chefTokens: {
+      label: "ChefTokens",
+      unit: "CT",
+    },
+  },
+
+  // Progress & Level
+  progress: {
+    level: "Уровень",
+    levelNumber: "Уровень {level}",
+    xpProgress: "{current} / {max} XP",
+    toNextLevel: "{percent}% до следующего уровня",
+  },
+
+  // Weekly Budget
+  budget: {
+    title: "Бюджет недели",
+    spent: "{spent} / {total} PLN",
+    remaining: "✅ Отлично! Осталось {amount} PLN",
+    overBudget: "⚠️ Превышен бюджет на {amount} PLN",
+  },
+
+  // Tabs
+  tabs: {
+    overview: "Обзор",
+    stats: "Статистика",
+    resources: "Ресурсы",
+  },
+
+  // Overview Tab
+  overview: {
+    lastActions: "Последние действия",
+    noActions: "Нет последних действий",
+    whatNext: "Что дальше?",
+  },
+
+  // Activity Types
+  activities: {
+    dishCooked: "Приготовлено: {dish}",
+    productAdded: "Добавлено: {product}",
+    recipesSaved: "Сохранён рецепт: {recipe}",
+    courseCompleted: "Завершён курс: {course}",
+  },
+
   header: {
     title: "Профиль",
     subtitle: "Управляйте своим аккаунтом и настройками",
@@ -183,6 +256,46 @@ export const profile = {
     rank: "Ранг",
     achievements: "Достижения",
     badges: "Значки",
+    
+    // Stats Tab Charts & Data
+    budgetChart: {
+      title: "Бюджет (последние 4 недели)",
+      spent: "Потрачено",
+      budget: "Бюджет",
+      week: "Нед {number}",
+    },
+    wasteChart: {
+      title: "Потери продуктов",
+      trend: "Тренд:",
+      trendDown: "Уменьшается ✓",
+      trendUp: "Растёт",
+      trendStable: "Стабильно",
+    },
+    cookedVsConsumed: {
+      title: "Приготовлено vs Съедено",
+      cooked: "Приготовлено",
+      consumed: "Съедено",
+      efficiency: "{percent}% эффективности",
+    },
+    categoryChart: {
+      title: "Расходы по категориям",
+    },
+    waste: {
+      title: "Потери продуктов",
+      great: "Отличный результат! 🎉",
+      good: "Хорошая работа 👍",
+      canImprove: "Можно лучше ♻️",
+      wastedProducts: "продуктов потеряно",
+    },
+    topRecipes: {
+      title: "Чаще всего готовится",
+      cooked: "{count}× приготовлено",
+      noData: "Нет данных",
+    },
+    topCategories: {
+      title: "Категории с наибольшими расходами",
+      noData: "Нет данных",
+    },
   },
 
   messages: {
