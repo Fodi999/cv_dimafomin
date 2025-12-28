@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { Language } from "@/lib/translations";
+import type { Language } from "@/lib/i18n/types";
 import { gradients } from "@/lib/design-tokens";
 
 export default function LanguageSwitcher() {
