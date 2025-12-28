@@ -7,6 +7,23 @@ import { gradients } from "@/lib/design-tokens";
 import Image from "next/image";
 import Link from "next/link";
 
+/**
+ * RecipeCard для Marketplace
+ * 
+ * Карточка рецепта в маркетплейсе для покупки за ChefTokens.
+ * Показывает цену, рейтинг, количество студентов, уровень сложности.
+ * 
+ * @usage Используется на странице /market для листинга рецептов
+ * @features
+ * - Price in ChefTokens (монетизация)
+ * - Rating (⭐) & students count
+ * - Buy button → purchase flow
+ * - Compact design для grid layout
+ * - Навигация на /market/[id]
+ * 
+ * @see components/assistant/RecipeCard.tsx - для AI-рекомендаций
+ * @see components/recipes/RecipeCard.tsx - для общего списка
+ */
 interface RecipeCardProps {
   id: string;
   title: string;

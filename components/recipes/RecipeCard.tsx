@@ -5,6 +5,24 @@ import { Bookmark } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
+/**
+ * RecipeCard для общего списка рецептов
+ * 
+ * Универсальная карточка для отображения рецептов в feed,
+ * профилях пользователей, списках. Включает социальные метрики.
+ * 
+ * @usage Используется на /recipes, в профилях, feed ленте
+ * @features
+ * - Author info с аватаром и именем
+ * - Social metrics (likes ❤️, comments 💬)
+ * - Category badge
+ * - Hover effects для интерактивности
+ * - Bookmark функционал
+ * - Навигация на /recipes/[id]
+ * 
+ * @see components/assistant/RecipeCard.tsx - для AI-рекомендаций
+ * @see components/market/RecipeCard.tsx - для маркетплейса
+ */
 export interface RecipeCardProps {
   id: string;
   title: string;

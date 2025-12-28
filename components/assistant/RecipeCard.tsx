@@ -4,6 +4,24 @@ import { motion } from "framer-motion";
 import { Clock, Users, ChefHat, CheckCircle2, Calendar } from "lucide-react";
 import type { Recipe } from "@/hooks/useAI";
 
+/**
+ * RecipeCard для AI Assistant
+ * 
+ * Показывает AI-рекомендации рецептов на основе анализа холодильника.
+ * Включает экономические данные, приоритет истечения срока продуктов,
+ * процент совпадения с имеющимися ингредиентами.
+ * 
+ * @usage Используется на странице /assistant для AI-рекомендаций
+ * @features
+ * - Economy data (cost, savings) из recipe.economy
+ * - Expiry priority badge (high/medium/low)
+ * - Match percentage с холодильником
+ * - Actions: Add to Plan, Mark Done
+ * - Калории, время готовки, порции
+ * 
+ * @see components/market/RecipeCard.tsx - для маркетплейса
+ * @see components/recipes/RecipeCard.tsx - для общего списка
+ */
 interface RecipeCardProps {
   recipe: Recipe;
   onAddToPlan?: (recipe: Recipe) => void;
