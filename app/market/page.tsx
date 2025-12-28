@@ -185,12 +185,12 @@ export default function MarketPage() {
             {t.market.title}
           </h2>
           <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
-            {t.hero.earnTokens}
+            {t.market.subtitle}
           </p>
           <Link href="/academy/earn-tokens">
             <Button className="px-8 py-4 bg-white text-sky-600 hover:bg-gray-100 font-bold rounded-xl transition-all inline-flex items-center gap-2">
               <Coins className="w-5 h-5" />
-              {t.hero.earnTokens}
+              {t.market.subtitle}
             </Button>
           </Link>
         </motion.div>

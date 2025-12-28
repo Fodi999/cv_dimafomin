@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Coins } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TreasuryData {
   balance: number;
@@ -13,6 +14,7 @@ interface TreasuryData {
 }
 
 export default function HeroTreasuryWidget() {
+  const { t } = useLanguage();
   const [treasury, setTreasury] = useState<TreasuryData | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
@@ -111,7 +113,7 @@ export default function HeroTreasuryWidget() {
             <Coins className="w-8 h-8 text-sky-400" />
           </div>
           <div>
-            <p className="text-xs text-gray-400">Ładowanie kazny...</p>
+            <p className="text-xs text-gray-400">{t.academy.treasury.loading}</p>
           </div>
         </div>
       </motion.div>
@@ -136,15 +138,15 @@ export default function HeroTreasuryWidget() {
             <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-sky-400" />
           </div>
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-white">Token Treasury</h3>
-            <p className="text-xs text-gray-400">Bank ChefTokens</p>
+            <h3 className="text-sm sm:text-base font-bold text-white">{t.academy.treasury.title}</h3>
+            <p className="text-xs text-gray-400">{t.academy.treasury.subtitle}</p>
           </div>
         </div>
         
         {/* Last Updated */}
         {lastUpdated && (
           <div className="text-right">
-            <p className="text-xs text-gray-500">Zaktualizowano:</p>
+            <p className="text-xs text-gray-500">{t.academy.treasury.updated}</p>
             <p className="text-xs font-mono text-sky-400">{lastUpdated}</p>
           </div>
         )}
@@ -168,7 +170,7 @@ export default function HeroTreasuryWidget() {
       
       {/* Description */}
       <div className="text-xs sm:text-sm text-gray-400 leading-relaxed">
-        <p>ChefTokens to wewnętrzna waluta platformy, która pomaga podejmować świadome decyzje: planujesz zapytania do AI, otwierasz receptury i uczysz się korzystać z wiedzy bez nadmiaru i chaosu.</p>
+        <p>{t.academy.treasury.description}</p>
       </div>
     </motion.div>
   );

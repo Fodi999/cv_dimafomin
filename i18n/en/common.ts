@@ -1,0 +1,123 @@
+/**
+ * Common UI translations (EN)
+ * Общие элементы интерфейса
+ */
+
+export const common = {
+  // Actions
+  save: "Save",
+  cancel: "Cancel",
+  delete: "Delete",
+  edit: "Edit",
+  create: "Create",
+  update: "Update",
+  close: "Close",
+  back: "Back",
+  next: "Next",
+  previous: "Previous",
+  submit: "Submit",
+  confirm: "Confirm",
+  apply: "Apply",
+  reset: "Reset",
+  clear: "Clear",
+  filter: "Filter",
+  search: "Search",
+  sort: "Sort",
+  view: "View",
+  select: "Select",
+  viewAll: "View all",
+  viewMore: "View more",
+  learnMore: "Learn more",
+  getStarted: "Get started",
+  download: "Download",
+  upload: "Upload",
+  share: "Share",
+  copy: "Copy",
+  paste: "Paste",
+  cut: "Cut",
+  undo: "Undo",
+  redo: "Redo",
+  refresh: "Refresh",
+  reload: "Reload",
+  
+  // Status
+  loading: "Loading...",
+  saving: "Saving...",
+  processing: "Processing...",
+  success: "Success",
+  error: "Error",
+  warning: "Warning",
+  info: "Info",
+  pending: "Pending",
+  completed: "Completed",
+  failed: "Failed",
+  active: "Active",
+  inactive: "Inactive",
+  enabled: "Enabled",
+  disabled: "Disabled",
+  online: "Online",
+  offline: "Offline",
+  
+  // Common phrases
+  yes: "Yes",
+  no: "No",
+  ok: "OK",
+  or: "or",
+  and: "and",
+  of: "of",
+  in: "in",
+  at: "at",
+  to: "to",
+  from: "from",
+  with: "with",
+  by: "by",
+  for: "for",
+  
+  // Time
+  now: "Now",
+  today: "Today",
+  yesterday: "Yesterday",
+  tomorrow: "Tomorrow",
+  week: "Week",
+  month: "Month",
+  year: "Year",
+  minute: "Minute",
+  hour: "Hour",
+  day: "Day",
+  
+  // General
+  all: "All",
+  none: "None",
+  other: "Other",
+  more: "More",
+  less: "Less",
+  show: "Show",
+  hide: "Hide",
+  required: "Required",
+  optional: "Optional",
+  default: "Default",
+  custom: "Custom",
+  
+  // Pagination
+  page: "Page",
+  perPage: "Per page",
+  total: "Total",
+  showing: "Showing",
+  results: "results",
+  noResults: "No results found",
+  loadMore: "Load more",
+  
+  // Notifications
+  notificationTitle: "Notification",
+  successMessage: "Operation completed successfully",
+  errorMessage: "An error occurred",
+  warningMessage: "Warning",
+  infoMessage: "Information",
+  
+  // Development Modal
+  devModal: {
+    title: "Under Construction",
+    message: "Coming Soon!",
+    follow: "Follow for Updates",
+  },
+} as const;

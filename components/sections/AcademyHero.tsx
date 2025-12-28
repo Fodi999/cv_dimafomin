@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Sparkles, Waves } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import HeroTreasuryWidget from "./HeroTreasuryWidget";
 
 export default function AcademyHero() {
   const { t } = useLanguage();
@@ -53,7 +54,7 @@ export default function AcademyHero() {
         >
           <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-sky-300 dark:text-sky-300" />
           <span className="text-xs sm:text-sm font-semibold text-white leading-relaxed">
-            {t.hero.badge}
+            {t.academy.hero.badge}
           </span>
         </motion.div>
 
@@ -66,18 +67,18 @@ export default function AcademyHero() {
           <div className="space-y-1 sm:space-y-2 mb-4 sm:mb-6">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-cyan-300 to-sky-400">
-                {t.hero.headingLine1}
+                {t.academy.hero.headingLine1}
               </span>
               <br />
-              <span className="text-white">{t.hero.headingLine2}</span>
+              <span className="text-white">{t.academy.hero.headingLine2}</span>
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-300 to-cyan-400">
-                {t.hero.headingLine3}
+                {t.academy.hero.headingLine3}
               </span>
               <br />
-              <span className="text-white">{t.hero.headingLine4}</span>
+              <span className="text-white">{t.academy.hero.headingLine4}</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-cyan-300">
-                {t.hero.headingLine4Continuation}
+                {t.academy.hero.headingLine4Continuation}
               </span>
             </h1>
           </div>
@@ -90,7 +91,7 @@ export default function AcademyHero() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 font-medium mb-3 sm:mb-4 md:mb-6 max-w-3xl leading-relaxed"
         >
-          {t.hero.platformDescription}
+          {t.academy.hero.platformDescription}
         </motion.p>
 
         {/* AI Mentor description */}
@@ -100,7 +101,7 @@ export default function AcademyHero() {
           transition={{ duration: 0.6, delay: 0.25 }}
           className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-400 mb-4 sm:mb-6 max-w-3xl leading-relaxed"
         >
-          {t.hero.aiMentorDescription}
+          {t.academy.hero.aiMentorDescription}
         </motion.p>
 
         {/* CTA phrase */}
@@ -121,14 +122,14 @@ export default function AcademyHero() {
         >
           <Link href="/academy" className="group w-full sm:w-auto">
             <Button className="bg-white text-black hover:bg-gray-100 font-medium px-6 py-2.5 sm:px-8 sm:py-3 text-sm sm:text-base rounded-lg border-2 border-white hover:border-gray-100 shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 w-full">
-              {t.hero.startLearning}
+              {t.academy.hero.startLearning}
               <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform ml-2" />
             </Button>
           </Link>
 
           <Link href="/assistant" className="group w-full sm:w-auto">
             <Button className="bg-black text-white hover:bg-gray-900 border-2 border-white font-medium px-6 py-2.5 sm:px-8 sm:py-3 text-sm sm:text-base rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 w-full">
-              {t.hero.startDialog}
+              {t.academy.hero.startDialog}
               <Waves className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform ml-2" />
             </Button>
           </Link>
@@ -142,9 +143,9 @@ export default function AcademyHero() {
           className="grid grid-cols-3 gap-3 sm:gap-4 md:gap-6 max-w-2xl mx-auto mt-8 sm:mt-12 md:mt-20"
         >
           {[
-            { number: t.hero.stats.recipes, label: t.hero.stats.recipesLabel },
-            { number: t.hero.stats.students, label: t.hero.stats.studentsLabel },
-            { number: t.hero.stats.support, label: t.hero.stats.supportLabel },
+            { number: t.academy.hero.stats.recipes, label: t.academy.hero.stats.recipesLabel },
+            { number: t.academy.hero.stats.students, label: t.academy.hero.stats.studentsLabel },
+            { number: t.academy.hero.stats.support, label: t.academy.hero.stats.supportLabel },
           ].map((stat, index) => (
             <motion.div
               key={index}
@@ -157,6 +158,16 @@ export default function AcademyHero() {
               <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-400 dark:text-gray-500 tracking-wide font-medium">{stat.label}</p>
             </motion.div>
           ))}
+        </motion.div>
+
+        {/* Treasury Widget */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="flex justify-center mt-12 sm:mt-16 md:mt-20"
+        >
+          <HeroTreasuryWidget />
         </motion.div>
         </div>
       </div>

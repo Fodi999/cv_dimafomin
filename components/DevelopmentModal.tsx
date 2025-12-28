@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X, Hammer, Sparkles } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface DevelopmentModalProps {
   title?: string;
@@ -9,9 +10,10 @@ interface DevelopmentModalProps {
 }
 
 export default function DevelopmentModal({
-  title = "Strona w budowie",
-  message = "Wkrótce otwarcie!",
+  title,
+  message,
 }: DevelopmentModalProps) {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -75,7 +77,7 @@ export default function DevelopmentModal({
             id="modal-title"
             className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3"
           >
-            {title}
+            {title || t.common.devModal.title}
           </h2>
 
           {/* Message */}
@@ -83,7 +85,7 @@ export default function DevelopmentModal({
             id="modal-description"
             className="text-base sm:text-lg text-gray-600 dark:text-gray-300 mb-8 leading-relaxed"
           >
-            {message}
+            {message || t.common.devModal.message}
           </p>
 
           {/* Action Button */}
@@ -91,13 +93,13 @@ export default function DevelopmentModal({
             onClick={handleClose}
             className="w-full bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
           >
-            Rozumiem
+            {t.common.close}
           </button>
 
           {/* Additional Info (optional) */}
           <p className="mt-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1.5">
             <Sparkles className="w-4 h-4" />
-            Śledź aktualizacje
+            {t.common.devModal.follow}
           </p>
         </div>
       </div>

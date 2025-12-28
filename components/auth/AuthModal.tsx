@@ -182,13 +182,13 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
                 </button>
                 <h2 className="text-2xl font-bold text-white">
                   {activeTab === "login"
-                    ? t.auth?.login?.title || "Zaloguj się"
-                    : t.auth?.register?.title || "Zarejestruj się"}
+                    ? t.auth.login.title
+                    : t.auth.register.title}
                 </h2>
                 <p className="text-white/80 text-sm mt-1">
                   {activeTab === "login"
-                    ? t.auth?.login?.subtitle || "Zaloguj się do swojego konta"
-                    : t.auth?.register?.subtitle || "Stwórz nowe konto"}
+                    ? t.auth.login.subtitle
+                    : t.auth.register.subtitle}
                 </p>
               </div>
 
@@ -202,7 +202,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
                       : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                   }`}
                 >
-                  {t.auth?.loginTab || "Logowanie"}
+                  {t.auth.loginTab}
                 </button>
                 <button
                   onClick={() => setActiveTab("register")}
@@ -212,7 +212,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
                       : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                   }`}
                 >
-                  {t.auth?.registerTab || "Rejestracja"}
+                  {t.auth.registerTab}
                 </button>
               </div>
 
@@ -249,13 +249,13 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        {t.auth?.email || "Email"}
+                        {t.auth.email}
                       </label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                         <Input
                           type="email"
-                          placeholder={t.auth?.emailPlaceholder || "twoj@email.com"}
+                          placeholder="email@example.com"
                           value={loginForm.email}
                           onChange={(e) =>
                             setLoginForm({ ...loginForm, email: e.target.value })
@@ -268,7 +268,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        {t.auth?.password || "Hasło"}
+                        {t.auth.password}
                       </label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
@@ -300,14 +300,14 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
                       <label className="flex items-center">
                         <input type="checkbox" className="mr-2 accent-sky-600 dark:accent-sky-500" />
                         <span className="text-gray-600 dark:text-gray-400">
-                          {t.auth?.rememberMe || "Zapamiętaj mnie"}
+                          {t.auth.rememberMe}
                         </span>
                       </label>
                       <button
                         type="button"
                         className="text-sky-600 dark:text-sky-400 hover:underline"
                       >
-                        {t.auth?.forgotPassword || "Zapomniałeś hasła?"}
+                        {t.auth.forgotPassword}
                       </button>
                     </div>
 
@@ -317,21 +317,21 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
                       className={`w-full ${gradients.primary} hover:shadow-lg dark:hover:shadow-sky-500/30 text-white font-bold`}
                     >
                       {isLoading
-                        ? t.auth?.loading || "Ładowanie..."
-                        : t.auth?.loginButton || "Zaloguj się"}
+                        ? t.auth.loading
+                        : t.auth.loginButton}
                     </Button>
                   </form>
                 ) : (
                   <form onSubmit={handleRegister} className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        {t.auth?.name || "Imię i nazwisko"}
+                        {t.auth.name}
                       </label>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                         <Input
                           type="text"
-                          placeholder={t.auth?.namePlaceholder || "Jan Kowalski"}
+                          placeholder="John Doe"
                           value={registerForm.name}
                           onChange={(e) =>
                             setRegisterForm({ ...registerForm, name: e.target.value })
@@ -344,13 +344,13 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        {t.auth?.email || "Email"}
+                        {t.auth.email}
                       </label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                         <Input
                           type="email"
-                          placeholder={t.auth?.emailPlaceholder || "twoj@email.com"}
+                          placeholder="email@example.com"
                           value={registerForm.email}
                           onChange={(e) =>
                             setRegisterForm({ ...registerForm, email: e.target.value })
@@ -363,7 +363,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        {t.auth?.password || "Hasło"}
+                        {t.auth.password}
                       </label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
@@ -396,7 +396,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        {t.auth?.confirmPassword || "Potwierdź hasło"}
+                        {t.auth.confirmPassword}
                       </label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
@@ -422,8 +422,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
                       className={`w-full ${gradients.primary} hover:shadow-lg dark:hover:shadow-sky-500/30 text-white font-bold`}
                     >
                       {isLoading
-                        ? t.auth?.loading || "Ładowanie..."
-                        : t.auth?.registerButton || "Zarejestruj się"}
+                        ? t.auth.loading
+                        : t.auth.registerButton}
                     </Button>
                   </form>
                 )}
@@ -433,22 +433,22 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
               <div className="px-6 pb-6 text-center text-sm text-gray-500 dark:text-gray-400">
                 {activeTab === "login" ? (
                   <p>
-                    {t.auth?.noAccount || "Nie masz konta?"}{" "}
+                    {t.auth.noAccount}{" "}
                     <button
                       onClick={() => setActiveTab("register")}
                       className="text-sky-600 dark:text-sky-400 hover:underline font-medium"
                     >
-                      {t.auth?.registerNow || "Zarejestruj się"}
+                      {t.auth.registerNow}
                     </button>
                   </p>
                 ) : (
                   <p>
-                    {t.auth?.haveAccount || "Masz już konto?"}{" "}
+                    {t.auth.haveAccount}{" "}
                     <button
                       onClick={() => setActiveTab("login")}
                       className="text-sky-600 dark:text-sky-400 hover:underline font-medium"
                     >
-                      {t.auth?.loginNow || "Zaloguj się"}
+                      {t.auth.loginNow}
                     </button>
                   </p>
                 )}

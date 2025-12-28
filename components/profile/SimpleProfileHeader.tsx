@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { User, Mail, Edit2, Coins, Award } from "lucide-react";
+import { User, Mail, Edit2, Coins, Award, Settings } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -12,6 +12,7 @@ interface SimpleProfileHeaderProps {
   level: number;
   chefTokens: number;
   onEdit?: () => void;
+  onSettings?: () => void;
 }
 
 /**
@@ -26,6 +27,7 @@ export function SimpleProfileHeader({
   level,
   chefTokens,
   onEdit,
+  onSettings,
 }: SimpleProfileHeaderProps) {
   const [imageError, setImageError] = useState(false);
 
@@ -86,6 +88,20 @@ export function SimpleProfileHeader({
               <Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Edytuj profil</span>
               <span className="sm:hidden">Edytuj</span>
+            </motion.button>
+          )}
+
+          {/* Settings Button */}
+          {onSettings && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onSettings}
+              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 rounded-lg text-white text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 sm:gap-2 shadow-lg"
+            >
+              <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Ustawienia</span>
+              <span className="sm:hidden">Settings</span>
             </motion.button>
           )}
         </div>

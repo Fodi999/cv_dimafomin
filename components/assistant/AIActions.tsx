@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ChefHat, Clock, AlertTriangle, Coins, Bot } from "lucide-react";
 import type { AIGoal } from "@/hooks/useAI";
+import { useTranslations } from "@/hooks/useTranslations";
 
 interface AIActionsProps {
   onAnalyze: (goal: AIGoal) => void | Promise<void>;
@@ -10,41 +11,50 @@ interface AIActionsProps {
 }
 
 export function AIActions({ onAnalyze, loading }: AIActionsProps) {
-  // � DECISION ENGINE PRESETS (НЕ AI!)
+  const { t } = useTranslations();
+  
+  // 🎯 DECISION ENGINE PRESETS (НЕ AI!)
   // AI = narrator/mentor, НЕ brain/decision-maker
   // Ці кнопки викликають rules-based decision engine, а не AI-аналіз
   
   // 🔥 NEW: Decision Engine Presets (не чат, а інструмент)
-  const actions = [
+  const actions: Array<{ 
+    goal: AIGoal; 
+    icon: React.ReactNode;
+    labelKey: string;
+    descKey: string;
+    color: string; 
+    hoverColor: string;
+  }> = [
     {
-      goal: "cook_now" as AIGoal,
+      goal: "cook_now",
       icon: <ChefHat className="w-6 h-6" />,
-      label: "Co mogę ugotować TERAZ?",
-      description: "Pokazuję przepisy z Twojej lodówki — zero zakupów",
+      labelKey: "ai.actions.cook_now.label",
+      descKey: "ai.actions.cook_now.desc",
       color: "from-sky-500 to-cyan-500",
       hoverColor: "hover:from-sky-600 hover:to-cyan-600",
     },
     {
-      goal: "expiring_soon" as AIGoal,
+      goal: "expiring_soon",
       icon: <AlertTriangle className="w-6 h-6" />,
-      label: "Co się zmarnuje w ciągu 24h?",
-      description: "Pilne przepisy dla produktów o krótkim terminie",
+      labelKey: "ai.actions.expiring_soon.label",
+      descKey: "ai.actions.expiring_soon.desc",
       color: "from-orange-500 to-red-500",
       hoverColor: "hover:from-orange-600 hover:to-red-600",
     },
     {
-      goal: "save_money" as AIGoal,
+      goal: "save_money",
       icon: <Coins className="w-6 h-6" />,
-      label: "Jak zaoszczędzić dziś pieniądze?",
-      description: "Gotuj z tego, co masz — uniknij dodatkowych wydatków",
+      labelKey: "ai.actions.save_money.label",
+      descKey: "ai.actions.save_money.desc",
       color: "from-green-500 to-emerald-500",
       hoverColor: "hover:from-green-600 hover:to-emerald-600",
     },
     {
-      goal: "quick_meal" as AIGoal,
+      goal: "quick_meal",
       icon: <Clock className="w-6 h-6" />,
-      label: "Co ugotować w 30 minut?",
-      description: "Szybkie dania bez skomplikowanych kroków",
+      labelKey: "ai.actions.quick_meal.label",
+      descKey: "ai.actions.quick_meal.desc",
       color: "from-purple-500 to-pink-500",
       hoverColor: "hover:from-purple-600 hover:to-pink-600",
     },
@@ -57,11 +67,11 @@ export function AIActions({ onAnalyze, loading }: AIActionsProps) {
         <div className="flex items-center justify-center gap-2 mb-2">
           <Bot className="w-8 h-8 text-blue-500 dark:text-blue-400" />
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Co chcesz zrobić?
+            {t("ai.actions.title" as any)}
           </h2>
         </div>
         <p className="text-gray-600 dark:text-gray-400">
-          Wybierz scenariusz — Rules Engine podejmie decyzję na podstawie Twojej lodówki
+          {t("ai.actions.subtitle" as any)}
         </p>
       </div>
 
@@ -103,10 +113,10 @@ export function AIActions({ onAnalyze, loading }: AIActionsProps) {
                 {/* Text content */}
                 <div className="flex-1 pt-1">
                   <h3 className="text-lg font-bold mb-1 leading-tight">
-                    {action.label}
+                    {t(action.labelKey as any)}
                   </h3>
                   <p className="text-sm text-white/90 leading-snug">
-                    {action.description}
+                    {t(action.descKey as any)}
                   </p>
                 </div>
               </>

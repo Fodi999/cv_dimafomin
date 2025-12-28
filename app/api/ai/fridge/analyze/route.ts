@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getFridgeAnalysisPrompt, isValidLocale, type Locale } from "@/lib/ai-prompts";
+import { getMessageForGoal, getReasonForGoal } from "@/lib/decision-engine-messages";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE ||
@@ -20,13 +22,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Get user's language from Accept-Language header
+    const acceptLanguage = request.headers.get("Accept-Language") || "pl";
+    const userLanguage = isValidLocale(acceptLanguage) ? acceptLanguage : "pl";
+
     const { goal, preferences } = await request.json();
 
     if (!goal) {
       return NextResponse.json({ error: "Goal is required" }, { status: 400 });
     }
 
-    console.log("[Decision Engine] Goal:", goal);
+    console.log("[Decision Engine] Goal:", goal, "| Language:", userLanguage);
 
     // Використовуємо /recipes/match замість AI
     // Decision engine: правила фільтрації рецептів
@@ -79,11 +85,11 @@ export async function POST(request: NextRequest) {
 
     const data = await matchResponse.json();
     
-    // Додаємо контекстне пояснення для КОЖНОГО рецепта
+    // Додаємо контекстне пояснення для КОЖНОГО рецепта з правильною мовою
     const recipesWithContext = (data.recipes || data.data?.recipes || []).map((recipe: any) => ({
       ...recipe,
-      reason: getReasonForGoal(goal, recipe),
-      contextMessage: getMessageForGoal(goal)
+      reason: getReasonForGoal(goal, recipe, userLanguage),
+      contextMessage: getMessageForGoal(goal, userLanguage)
     }));
     
     // Форматуємо відповідь як AI response
@@ -91,8 +97,9 @@ export async function POST(request: NextRequest) {
       success: true,
       goal,
       recipes: recipesWithContext,
-      message: getMessageForGoal(goal),
-      usedDecisionEngine: true // маркер що це НЕ AI, а rules
+      message: getMessageForGoal(goal, userLanguage),
+      usedDecisionEngine: true, // маркер що це НЕ AI, а rules
+      language: userLanguage // передаємо мову назад для перевірки
     };
 
     return NextResponse.json(aiFormattedResponse);
@@ -102,56 +109,5 @@ export async function POST(request: NextRequest) {
       { error: "Internal Server Error" },
       { status: 500 }
     );
-  }
-}
-
-// Helper: повідомлення для кожної мети
-function getMessageForGoal(goal: AIGoal): string {
-  const messages = {
-    cook_now: "Znalazłem przepisy, które możesz ugotować TERAZ z lodówki!",
-    expiring_soon: "Te produkty psują się w ciągu 24h - użyj je jak najszybciej!",
-    save_money: "Gotuj z tego co masz - zero dodatkowych zakupów!",
-    quick_meal: "Szybkie dania gotowe w 30 minut lub mniej!"
-  };
-  return messages[goal];
-}
-
-// Helper: причина ЧОМУ цей рецепт підходить
-function getReasonForGoal(goal: AIGoal, recipe: any): string {
-  const hasAllIngredients = recipe.ingredientsMissing?.length === 0;
-  const matchPercent = recipe.matchPercentage || 0;
-  
-  switch (goal) {
-    case "cook_now":
-      if (hasAllIngredients) {
-        return "Masz wszystkie składniki w lodówce";
-      }
-      return `Masz ${matchPercent}% składników - reszta to podstawowe produkty`;
-    
-    case "expiring_soon":
-      if (recipe.expiryPriority === "critical") {
-        return "Zużywa produkty, które psują się dziś!";
-      }
-      if (recipe.expiryPriority === "warning") {
-        return "Zużywa produkty z krótkim terminem";
-      }
-      return "Najlepsza opcja na wykorzystanie produktów";
-    
-    case "save_money":
-      if (hasAllIngredients) {
-        return "Zero dodatkowych zakupów - oszczędzasz 100%";
-      }
-      const saved = recipe.economy?.savedMoney || 0;
-      if (saved > 0) {
-        return `Oszczędzasz ${saved.toFixed(2)} PLN używając produktów z lodówki`;
-      }
-      return "Maksymalne wykorzystanie tego co masz";
-    
-    case "quick_meal":
-      const time = recipe.timeMinutes || recipe.cookingTime || 30;
-      return `Gotowe w ${time} minut - proste i szybkie`;
-    
-    default:
-      return "Dopasowane do Twoich produktów";
   }
 }

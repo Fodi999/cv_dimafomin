@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
-import type { Language } from "./translations";
+import type { Language } from "./i18n/types";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://dima-fomin.pl";
+
+// Helper to safely access config with fallback
+function safeGetConfig<T>(config: { pl: T; ua: T }, language: Language): T {
+  // Map "en" and "ru" to "pl" as fallback since we only have pl/ua configs
+  const key = (language === "pl") ? "pl" : (language === "en" || language === "ru") ? "pl" : "ua";
+  return config[key as "pl" | "ua"];
+}
 
 export const seoConfig = {
   pl: {
@@ -53,7 +60,7 @@ export const seoConfig = {
 };
 
 export function getMetadata(language: Language): Metadata {
-  const config = seoConfig[language];
+  const config = seoConfig[language as "pl" | "ua"] || seoConfig["pl"];
   const langPath = language === "pl" ? "/pl" : "/ua";
 
   return {
@@ -210,11 +217,12 @@ export function generatePageMetadata(
   const { title, description, keywords = [], image, type = "website", noIndex = false } = config;
   const langPath = language === "pl" ? "/pl" : "/ua";
   const fullTitle = `${title} | Dima Fomin`;
+  const seoLang = (language as "pl" | "ua") === "pl" || (language as "pl" | "ua") === "ua" ? (language as "pl" | "ua") : "pl";
 
   return {
     title: fullTitle,
     description,
-    keywords: [...keywords, ...seoConfig[language].keywords],
+    keywords: [...keywords, ...seoConfig[seoLang].keywords],
     
     alternates: {
       canonical: `${SITE_URL}${langPath}`,
@@ -227,7 +235,7 @@ export function generatePageMetadata(
 
     openGraph: {
       type,
-      locale: seoConfig[language].locale,
+      locale: seoConfig[seoLang].locale,
       url: `${SITE_URL}${langPath}`,
       title: fullTitle,
       description,
@@ -283,7 +291,7 @@ export function getAcademyMetadata(language: Language = "pl"): Metadata {
     },
   };
 
-  return generatePageMetadata(config[language], language);
+  return generatePageMetadata(safeGetConfig(config, language), language);
 }
 
 /**
@@ -303,7 +311,7 @@ export function getMarketMetadata(language: Language = "pl"): Metadata {
     },
   };
 
-  return generatePageMetadata(config[language], language);
+  return generatePageMetadata(safeGetConfig(config, language), language);
 }
 
 /**
@@ -325,7 +333,7 @@ export function getChatMetadata(language: Language = "pl"): Metadata {
     },
   };
 
-  return generatePageMetadata(config[language], language);
+  return generatePageMetadata(safeGetConfig(config, language), language);
 }
 
 /**
@@ -353,7 +361,7 @@ export function getProfileMetadata(
     },
   };
 
-  return generatePageMetadata(config[language], language);
+  return generatePageMetadata(safeGetConfig(config, language), language);
 }
 
 /**

@@ -71,6 +71,10 @@ export default function ProfilePage() {
     console.log("Edit profile clicked");
   };
 
+  const handleSettings = () => {
+    router.push("/profile/settings");
+  };
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
@@ -131,6 +135,7 @@ export default function ProfilePage() {
             level={user.level || 1}
             chefTokens={user.chefTokens || 0}
             onEdit={handleEditProfile}
+            onSettings={handleSettings}
           />
           {/* Page Subtitle */}
           <motion.p

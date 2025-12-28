@@ -6,6 +6,7 @@ export const API_BASE_URL = "/api";
 
 export interface ApiOptions extends RequestInit {
   token?: string;
+  language?: string; // Add language support
 }
 
 export interface ApiResponse<T> {
@@ -16,18 +17,38 @@ export interface ApiResponse<T> {
 }
 
 /**
+ * Get current language from localStorage (fallback for when context is not available)
+ */
+function getCurrentLanguage(): string {
+  if (typeof window === "undefined") return "pl";
+  return localStorage.getItem("preferred-language") || "pl";
+}
+
+/**
+ * Get auth token from localStorage (fallback for when context is not available)
+ */
+function getAuthToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("token"); // ✅ Правильний ключ
+}
+
+/**
  * Generic API fetch wrapper with error handling
+ * Automatically adds Authorization and Accept-Language headers
  */
 export async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
-  const { token, ...fetchOptions } = options;
+  const { token, language, ...fetchOptions } = options;
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    "Accept-Language": language || getCurrentLanguage(), // Always send language
     ...(fetchOptions.headers as Record<string, string>),
   };
 
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+  // Auto-add token from localStorage if not provided
+  const authToken = token || getAuthToken();
+  if (authToken) {
+    headers["Authorization"] = `Bearer ${authToken}`;
   }
 
   const url = `${API_BASE_URL}${endpoint}`;

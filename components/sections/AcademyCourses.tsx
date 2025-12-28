@@ -45,13 +45,13 @@ export default function AcademyAIMentor() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sky-500/10 dark:bg-sky-500/20 border border-sky-200/50 dark:border-sky-800/50 mb-6">
             <Sparkles className="w-6 h-6 text-sky-600 dark:text-sky-400" />
-            <span className="text-sm font-semibold text-sky-600 dark:text-sky-400 leading-relaxed">AI-Mentor</span>
+            <span className="text-sm font-semibold text-sky-600 dark:text-sky-400 leading-relaxed">{t.academy.courses.badge}</span>
           </div>
           <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-            Porozmawiaj z AI-Mentorem
+            {t.academy.courses.title}
           </h2>
           <p className="text-base sm:text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            AI-Mentor prowadzi Cię przez decyzje kulinarne za pomocą pytań, scenariuszy i gotowych wyborów.
+            {t.academy.courses.subtitle}
           </p>
         </motion.div>
 
@@ -75,10 +75,10 @@ export default function AcademyAIMentor() {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h3 className="font-bold text-gray-900 dark:text-white text-base leading-tight">Dima Fomin AI</h3>
+                <h3 className="font-bold text-gray-900 dark:text-white text-base leading-tight">{t.academy.courses.mentorName}</h3>
                 <p className="text-gray-500 dark:text-gray-400 text-xs leading-relaxed flex items-center gap-1">
                   <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-                  Online teraz
+                  {t.academy.courses.mentorStatus}
                 </p>
               </div>
             </div>
@@ -94,10 +94,10 @@ export default function AcademyAIMentor() {
                 className="text-center"
               >
                 <p className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                  AI-Mentor zaczyna od pytania:
+                  {t.academy.courses.question}
                 </p>
                 <p className="text-xl font-bold text-sky-600 dark:text-sky-400 italic">
-                  Jakie wyzwanie kulinarne chcesz teraz rozwiązać?
+                  {t.academy.courses.mainQuestion}
                 </p>
               </motion.div>
 
@@ -115,7 +115,7 @@ export default function AcademyAIMentor() {
                   <div className="flex items-center gap-3">
                     <ChefHat className="w-6 h-6 flex-shrink-0" />
                     <span className="font-semibold text-sm sm:text-base">
-                      Chcę stworzyć nowoczesne danie
+                      {t.academy.courses.scenario1}
                     </span>
                   </div>
                 </motion.button>
@@ -132,7 +132,7 @@ export default function AcademyAIMentor() {
                   <div className="flex items-center gap-3">
                     <Lightbulb className="w-6 h-6 flex-shrink-0" />
                     <span className="font-semibold text-sm sm:text-base">
-                      Chcę poprawić smak mojego dania
+                      {t.academy.courses.scenario2}
                     </span>
                   </div>
                 </motion.button>
@@ -149,7 +149,7 @@ export default function AcademyAIMentor() {
                   <div className="flex items-center gap-3">
                     <Clock className="w-6 h-6 flex-shrink-0" />
                     <span className="font-semibold text-sm sm:text-base">
-                      Chcę gotować szybciej i taniej
+                      {t.academy.courses.scenario3}
                     </span>
                   </div>
                 </motion.button>
@@ -166,7 +166,7 @@ export default function AcademyAIMentor() {
                   <div className="flex items-center gap-3">
                     <Wine className="w-6 h-6 flex-shrink-0" />
                     <span className="font-semibold text-sm sm:text-base">
-                      Chcę dobrać idealne połączenie smaków
+                      {t.academy.courses.scenario4}
                     </span>
                   </div>
                 </motion.button>
@@ -182,7 +182,7 @@ export default function AcademyAIMentor() {
               >
                 <p className="text-sm text-gray-700 dark:text-gray-300">
                   <Sparkles className="w-4 h-4 inline mr-1 text-sky-600 dark:text-sky-400" />
-                  AI-Mentor zada kolejne pytania i poprowadzi Cię krok po kroku — jak prawdziwy szef kuchni.
+                  {t.academy.courses.explanation}
                 </p>
               </motion.div>
             </div>
@@ -190,33 +190,32 @@ export default function AcademyAIMentor() {
             {/* Example Dialog Section */}
             <div className="border-t-2 border-gray-200 dark:border-gray-700 p-6 bg-gray-50 dark:bg-gray-800/50">
               <p className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
-                Przykład rozmowy z AI-Mentorem:
+                {t.academy.courses.exampleTitle}
               </p>
               <div className="space-y-3 text-sm">
                 <div className="flex items-start gap-2">
                   <span className="text-sky-600 dark:text-sky-400 font-bold">→</span>
                   <p className="text-sky-600 dark:text-sky-400 font-medium">
-                    Dlaczego wybrałeś ten produkt?
+                    {t.academy.courses.exampleQ1}
                   </p>
                 </div>
                 <div className="pl-6 text-gray-600 dark:text-gray-400">
-                  Bo jest świeży i aromatyczny.
+                  {t.academy.courses.exampleA1}
                 </div>
                 
                 <div className="flex items-start gap-2 mt-4">
                   <span className="text-sky-600 dark:text-sky-400 font-bold">→</span>
                   <p className="text-sky-600 dark:text-sky-400 font-medium">
-                    Jak możesz wykorzystać ten aromat najefektywniej?
+                    {t.academy.courses.exampleQ2}
                   </p>
                 </div>
                 <div className="pl-6 text-gray-600 dark:text-gray-400">
-                  Zmieniając technikę obróbki.
+                  {t.academy.courses.exampleA2}
                 </div>
               </div>
               
-              <p className="text-xs text-gray-500 dark:text-gray-500 mt-4 italic border-t border-gray-200 dark:border-gray-700 pt-4">
-                AI-Mentor nie mówi, co robić.<br />
-                Pomaga zrozumieć, dlaczego to działa.
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-4 italic border-t border-gray-200 dark:border-gray-700 pt-4 whitespace-pre-line">
+                {t.academy.courses.exampleNote}
               </p>
             </div>
           </motion.div>
@@ -231,7 +230,7 @@ export default function AcademyAIMentor() {
           >
             <Link href="/assistant">
               <Button className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-medium px-8 py-3 text-base rounded-lg shadow-md hover:shadow-lg dark:shadow-sky-500/20 dark:hover:shadow-sky-500/30 transition-all duration-200 active:scale-95 group">
-                {t.sections.about.ctaButton}
+                {t.academy.courses.ctaButton}
               </Button>
             </Link>
           </motion.div>

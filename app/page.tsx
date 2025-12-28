@@ -4,6 +4,7 @@ import AcademyHero from "@/components/sections/AcademyHero";
 import AcademyAbout from "@/components/sections/AcademyAbout";
 import AcademyAIMentor from "@/components/sections/AcademyCourses";
 import AcademyChefTokens from "@/components/sections/AcademyChefTokens";
+import AcademyCoursesPreview from "@/components/sections/AcademyCoursesPreview";
 import AcademyFooter from "@/components/sections/AcademyFooter";
 import ScrollToTop from "@/components/ScrollToTop";
 import ScrollProgress from "@/components/ScrollProgress";
@@ -20,16 +21,14 @@ export default function Home() {
       <ScrollToTop />
       
       {/* Модальное окно "Сайт в разработке" */}
-      <DevelopmentModal 
-        title="Strona w budowie"
-        message="Wkrótce otwarcie!"
-      />
+      <DevelopmentModal />
       
       <main className="relative w-full min-h-screen overflow-y-auto">
         <AcademyHero />
         <AcademyAbout />
-        <AcademyAIMentor />
         <AcademyChefTokens />
+        <AcademyAIMentor />
+        <AcademyCoursesPreview />
         <AcademyFooter />
       </main>
     </>

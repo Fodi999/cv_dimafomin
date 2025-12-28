@@ -4,6 +4,7 @@ import "./globals.css";
 import { getMetadata } from "@/lib/seo";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { SettingsProvider } from "@/contexts/SettingsContext";
 import { UserProvider } from "@/contexts/UserContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { RecipeProvider } from "@/contexts/RecipeContext";
@@ -14,6 +15,7 @@ import NavigationBurger from "@/components/NavigationBurger";
 import AuthGate from "@/components/auth/AuthGate";
 import TokenValidator from "@/components/auth/TokenValidator";
 import { Toaster } from "@/components/ui/sonner";
+import { I18nDevWarning } from "@/components/dev/I18nDevWarning";
 
 const inter = Inter({ 
   subsets: ["latin", "cyrillic"],
@@ -71,25 +73,29 @@ export default function RootLayout({
         <PWARegister />
         <ThemeProvider defaultTheme="system">
           <AuthProvider>
-            <LanguageProvider>
-              <UserProvider>
-                <CartProvider>
-                  <RecipeProvider>
-                    <NotificationProvider>
-                      <TokenValidator />
-                      <AuthGate>
-                        <NavigationBurger />
-                        <div className="min-h-screen">
-                          {children}
-                        </div>
-                      </AuthGate>
-                      {/* Global Toaster for toast notifications */}
-                      <Toaster richColors position="top-center" />
-                    </NotificationProvider>
-                  </RecipeProvider>
-                </CartProvider>
-              </UserProvider>
-            </LanguageProvider>
+            <UserProvider>
+              <SettingsProvider>
+                <LanguageProvider>
+                  <CartProvider>
+                    <RecipeProvider>
+                      <NotificationProvider>
+                        <TokenValidator />
+                        <AuthGate>
+                          <NavigationBurger />
+                          <div className="min-h-screen">
+                            {children}
+                          </div>
+                        </AuthGate>
+                        {/* Global Toaster for toast notifications */}
+                        <Toaster richColors position="top-center" />
+                        {/* i18n Dev Warnings (only in development) */}
+                        <I18nDevWarning />
+                      </NotificationProvider>
+                    </RecipeProvider>
+                  </CartProvider>
+                </LanguageProvider>
+              </SettingsProvider>
+            </UserProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

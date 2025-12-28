@@ -24,23 +24,23 @@ export default function AcademyChefTokens() {
   const benefits = [
     {
       icon: <Coins className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-      title: t.tokens.earn.title,
-      description: t.tokens.earn.description,
+      title: t.academy.tokens.earn.title,
+      description: t.academy.tokens.earn.description,
     },
     {
       icon: <TrendingUp className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-      title: t.tokens.spend.title,
-      description: t.tokens.spend.description,
+      title: t.academy.tokens.spend.title,
+      description: t.academy.tokens.spend.description,
     },
     {
       icon: <Gem className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-      title: t.tokens.aiPayment.title,
-      description: t.tokens.aiPayment.description,
+      title: t.academy.tokens.aiPayment.title,
+      description: t.academy.tokens.aiPayment.description,
     },
     {
       icon: <Gift className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-      title: t.tokens.exchange.title,
-      description: t.tokens.exchange.description,
+      title: t.academy.tokens.exchange.title,
+      description: t.academy.tokens.exchange.description,
     },
   ];
 
@@ -81,7 +81,7 @@ export default function AcademyChefTokens() {
           <motion.div variants={itemVariants} className="text-center">
             <div className="flex items-center justify-center gap-3 flex-wrap mb-4">
               <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white leading-tight">
-                {t.tokens.title}
+                {t.academy.tokens.title}
               </h2>
               
               {/* 💰 User Balance Badge - Visible only for authenticated users */}
@@ -101,7 +101,7 @@ export default function AcademyChefTokens() {
               )}
             </div>
             <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-              {t.tokens.description}
+              {t.academy.tokens.description}
             </p>
           </motion.div>
 
@@ -127,9 +127,9 @@ export default function AcademyChefTokens() {
             className="grid sm:grid-cols-3 gap-6"
           >
             {[
-              { icon: <TrendingUp className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "50,000+", label: t.tokens.stats.inCirculation },
-              { icon: <Users className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "1000+", label: t.tokens.stats.activeUsers },
-              { icon: <Zap className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "24/7", label: t.tokens.stats.aiAvailability },
+              { icon: <TrendingUp className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "50,000+", label: t.academy.tokens.stats.inCirculation },
+              { icon: <Users className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "1000+", label: t.academy.tokens.stats.activeUsers },
+              { icon: <Zap className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "24/7", label: t.academy.tokens.stats.aiAvailability },
             ].map((item, idx) => (
               <motion.div
                 key={idx}
@@ -151,7 +151,7 @@ export default function AcademyChefTokens() {
             <Link href="/profile">
               <Button className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-medium px-8 py-3 text-base rounded-lg shadow-md hover:shadow-lg dark:shadow-sky-500/20 dark:hover:shadow-sky-500/30 transition-all active:scale-95 group w-full md:w-auto flex items-center justify-center gap-2">
                 <Coins className="w-5 h-5" />
-                Sprawdzić saldo tokenów
+                {t.academy.tokens.checkBalance}
               </Button>
             </Link>
           </motion.div>

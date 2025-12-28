@@ -12,36 +12,36 @@ export default function AcademyCoursesPreview() {
   const courses = [
     {
       id: 1,
-      title: t.academy.courses.course1.title,
-      description: t.academy.courses.course1.description,
+      title: t.academy.coursesPreview.course1.title,
+      description: t.academy.coursesPreview.course1.description,
       image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=400&fit=crop",
       icon: Fish,
-      level: t.academy.courses.course1.level,
-      duration: t.academy.courses.course1.duration,
+      level: t.academy.coursesPreview.course1.level,
+      duration: t.academy.coursesPreview.course1.duration,
       rating: 4.9,
       students: 250,
       progress: 45,
     },
     {
       id: 2,
-      title: t.academy.courses.course2.title,
-      description: t.academy.courses.course2.description,
+      title: t.academy.coursesPreview.course2.title,
+      description: t.academy.coursesPreview.course2.description,
       image: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&h=400&fit=crop",
       icon: Shell,
-      level: t.academy.courses.course2.level,
-      duration: t.academy.courses.course2.duration,
+      level: t.academy.coursesPreview.course2.level,
+      duration: t.academy.coursesPreview.course2.duration,
       rating: 4.8,
       students: 180,
       progress: 60,
     },
     {
       id: 3,
-      title: t.academy.courses.course3.title,
-      description: t.academy.courses.course3.description,
+      title: t.academy.coursesPreview.course3.title,
+      description: t.academy.coursesPreview.course3.description,
       image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=600&h=400&fit=crop",
       icon: Utensils,
-      level: t.academy.courses.course3.level,
-      duration: t.academy.courses.course3.duration,
+      level: t.academy.coursesPreview.course3.level,
+      duration: t.academy.coursesPreview.course3.duration,
       rating: 5.0,
       students: 420,
       progress: 30,
@@ -67,12 +67,6 @@ export default function AcademyCoursesPreview() {
     },
   };
 
-  const levelColors: Record<string, string> = {
-    "Начинающий": "bg-green-100 text-green-700",
-    "Средний": "bg-orange-100 text-orange-700",
-    "Продвинутый": "bg-red-100 text-red-700",
-  };
-
   return (
     <section className="py-24 relative overflow-hidden bg-gradient-to-b from-white/50 to-white dark:from-gray-950/50 dark:to-gray-950">
       {/* Background */}
@@ -93,10 +87,10 @@ export default function AcademyCoursesPreview() {
             <BookOpen className="w-6 h-6 text-sky-600 dark:text-sky-400" />
           </div>
           <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
-            {t.academy.courses.title}
+            {t.academy.coursesPreview.title}
           </h2>
           <p className="text-base sm:text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            {t.academy.courses.subtitle}
+            {t.academy.coursesPreview.subtitle}
           </p>
         </motion.div>
 
@@ -142,8 +136,8 @@ export default function AcademyCoursesPreview() {
                   {/* Level badge - bottom left */}
                   <div className="absolute bottom-4 left-4 z-20">
                     <span className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors ${
-                      course.level === t.academy.courses.beginner ? "bg-emerald-500/90 text-white" :
-                      course.level === t.academy.courses.intermediate ? "bg-amber-500/90 text-white" :
+                      course.level === t.academy.coursesPreview.beginner ? "bg-emerald-500/90 text-white" :
+                      course.level === t.academy.coursesPreview.intermediate ? "bg-amber-500/90 text-white" :
                       "bg-rose-500/90 text-white"
                     }`}>
                       {course.level}
@@ -178,7 +172,7 @@ export default function AcademyCoursesPreview() {
                   {/* Progress bar */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Ukończone</span>
+                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{t.academy.coursesPreview.completed}</span>
                       <span className="text-xs font-bold text-sky-600 dark:text-sky-400">{course.progress}%</span>
                     </div>
                     <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
@@ -199,7 +193,7 @@ export default function AcademyCoursesPreview() {
                       whileTap={{ scale: 0.98 }}
                       className="w-full bg-white/10 hover:bg-white/20 dark:bg-white/10 dark:hover:bg-white/20 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 font-medium py-2.5 rounded-lg transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-600 flex items-center justify-center gap-2 text-sm"
                     >
-                      Więcej informacji
+                      {t.academy.coursesPreview.moreInfo}
                       <ArrowRight className="w-4 h-4" />
                     </motion.button>
                   </Link>
@@ -219,7 +213,7 @@ export default function AcademyCoursesPreview() {
         >
           <Link href="/academy/courses">
             <Button className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-medium px-8 py-3 text-base rounded-lg shadow-md hover:shadow-lg dark:shadow-sky-500/20 dark:hover:shadow-sky-500/30 transition-all duration-200 active:scale-95 group">
-              Zobacz wszystkie kursy
+              {t.academy.coursesPreview.viewAll}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
             </Button>
           </Link>
