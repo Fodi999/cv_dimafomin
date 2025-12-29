@@ -28,6 +28,7 @@ export interface Dictionary {
   market: Record<string, any>;
   fridge: Record<string, any>;
   losses: Record<string, any>;
+  ingredients: Record<string, any>;
 }
 
 /**

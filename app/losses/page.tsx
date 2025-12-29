@@ -144,80 +144,99 @@ export default function LossesPage() {
           </div>
         </motion.div>
 
-        {/* Events List */}
+        {/* 📦 Утилизированные продукты - Events List */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <RefreshCw className="w-8 h-8 animate-spin text-orange-600" />
           </div>
         ) : losses.length > 0 ? (
-          <div className="space-y-4">
-            {losses.map((event, index) => (
-              <motion.div
-                key={event.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * index }}
-                className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                      {event.name}
-                    </h3>
-                    <div className="flex flex-wrap gap-3 text-sm text-gray-600 dark:text-gray-400">
-                      <span className="flex items-center gap-1">
-                        <strong>{t?.losses?.event?.reason || "Przyczyna"}:</strong>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <Package className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                {t?.losses?.list?.title || "Утилизированные продукты"}
+              </h2>
+            </div>
+            
+            <div className="space-y-4">
+              {losses.map((event, index) => (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 * index }}
+                  className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg transition-all border border-gray-200 dark:border-gray-700"
+                >
+                  {/* Header - Product Name + Category */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                        {event.name}
+                      </h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         {getReasonLabel(event.reason)}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <strong>{t?.losses?.event?.quantity || "Ilość"}:</strong>
-                        {event.quantity} {event.unit}
+                      </p>
+                    </div>
+                    
+                    {/* Loss amount - highlighted */}
+                    <div className="text-right bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-lg">
+                      <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                        💰 {event.loss.toFixed(2)} PLN
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Body - Quantity & Reason */}
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                      <span className="text-lg">📦</span>
+                      <span className="font-semibold">{event.quantity} {event.unit}</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🗑️</span>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        <strong>{t?.losses?.event?.reason || "Przyczyna"}:</strong>{" "}
+                        {getReasonLabel(event.reason)}
                       </span>
                     </div>
                   </div>
-                  
-                  {/* Loss amount */}
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                      –{event.loss.toFixed(2)} PLN
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500">
-                      {t?.losses?.event?.loss || "Potrata"}
-                    </p>
-                  </div>
-                </div>
 
-                {/* Dates */}
-                <div className="grid grid-cols-2 gap-4 text-sm border-t border-gray-200 dark:border-gray-700 pt-4">
-                  <div>
-                    <p className="text-gray-500 dark:text-gray-500 mb-1">
-                      {t?.losses?.event?.added || "Dodano"}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {formatDate(event.addedDate)}
-                    </p>
+                  {/* Footer - Timeline */}
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                        <span>📅 {t?.losses?.event?.added || "Dodano"}:</span>
+                        <span className="font-medium text-gray-900 dark:text-white">
+                          {formatDate(event.addedDate)}
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                        <span>⏰ {t?.losses?.event?.expired || "Przeterminowane"}:</span>
+                        <span className="font-medium text-red-600 dark:text-red-400">
+                          {formatDate(event.expiryDate)}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Context (optional) */}
+                    {event.context && (
+                      <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          <strong>📝 {t?.losses?.event?.context || "Kontekst"}:</strong> {event.context}
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <p className="text-gray-500 dark:text-gray-500 mb-1">
-                      {t?.losses?.event?.expired || "Przeterminowane"}
-                    </p>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {formatDate(event.expiryDate)}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Context (if available) */}
-                {event.context && (
-                  <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                    <p className="text-sm text-gray-700 dark:text-gray-300">
-                      <strong>{t?.losses?.event?.context || "Kontekst"}:</strong> {event.context}
-                    </p>
-                  </div>
-                )}
-              </motion.div>
-            ))}
-          </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         ) : (
           // Empty state
           <motion.div

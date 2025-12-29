@@ -15,6 +15,7 @@ import { errors } from "@/i18n/en/errors";
 import { market } from "@/i18n/en/market";
 import { fridge } from "@/i18n/en/fridge";
 import { losses } from "@/i18n/en/losses";
+import { ingredients } from "@/i18n/en/ingredients";
 
 export const en = {
   common,
@@ -29,5 +30,6 @@ export const en = {
   market,
   fridge,
   losses,
+  ingredients,
 } as const;
 

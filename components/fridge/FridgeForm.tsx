@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, AlertCircle } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translateIngredient, generateIngredientSlug } from "@/lib/i18n/translateIngredient";
 import IngredientAutocomplete from "./IngredientAutocomplete";
 import type { CatalogIngredient, AddFridgeItemData } from "@/lib/types";
 
@@ -12,6 +14,7 @@ interface FridgeFormProps {
 }
 
 export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
+  const { t } = useLanguage();
   const [searchValue, setSearchValue] = useState("");
   const [selectedIngredient, setSelectedIngredient] = useState<CatalogIngredient | null>(null);
   const [quantity, setQuantity] = useState("");
@@ -30,13 +33,13 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
     setError(null);
     
     if (!selectedIngredient) {
-      setError("Wybierz produkt z listy");
+      setError(t?.fridge?.form?.selectProduct || "Select a product from the list");
       return;
     }
     
     const quantityNum = parseFloat(quantity);
     if (!quantity || isNaN(quantityNum) || quantityNum <= 0) {
-      setError("Podaj prawidłową ilość (większą niż 0)");
+      setError(t?.fridge?.form?.invalidQuantity || "Enter a valid quantity (greater than 0)");
       return;
     }
     
@@ -71,24 +74,38 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
       setPricePer("kg");
     } catch (err: any) {
       console.error("Failed to add item:", err);
-      setError(err.message || "Błąd podczas dodawania produktu");
+      setError(err.message || t?.fridge?.form?.addError || "Error adding product");
     } finally {
       setIsAdding(false);
     }
   };
+  
+  // ✅ Переводим название выбранного ингредиента
+  const translatedIngredientName = selectedIngredient 
+    ? translateIngredient(
+        selectedIngredient.name, 
+        selectedIngredient.i18nKey || generateIngredientSlug(selectedIngredient.name),
+        t
+      )
+    : null;
+    
+  // ✅ Переводим категорию
+  const translatedCategory = selectedIngredient?.category
+    ? (t?.fridge?.categories?.[selectedIngredient.category] || selectedIngredient.category)
+    : null;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Produkt
+          {t?.fridge?.form?.productLabel || "Product"}
         </label>
         <IngredientAutocomplete
           value={searchValue}
           onChange={setSearchValue}
           onSelect={handleIngredientSelect}
           token={token}
-          placeholder="Szukaj produktu (np. mleko, jajka)..."
+          placeholder={t?.fridge?.form?.searchPlaceholder || "Search for product (e.g. milk, eggs)..."}
         />
         
         {selectedIngredient && (
@@ -98,15 +115,15 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
             className="mt-3 p-4 bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-sky-900/20 dark:to-cyan-900/20 rounded-lg border border-sky-200 dark:border-sky-800/30"
           >
             <p className="text-sm text-gray-900 dark:text-white font-medium">
-              ✅ Wybrany produkt: {selectedIngredient.name}
+              ✅ {t?.fridge?.form?.selectedProduct || "Selected product"}: {translatedIngredientName}
             </p>
             <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-              Jednostka: <span className="font-medium">{selectedIngredient.unit}</span> • Kategoria: {selectedIngredient.category}
+              {t?.fridge?.form?.unit || "Unit"}: <span className="font-medium">{selectedIngredient.unit}</span> • {t?.fridge?.form?.category || "Category"}: {translatedCategory}
             </p>
             
             {selectedIngredient.defaultShelfLifeDays && (
               <p className="text-xs text-green-600 dark:text-green-400 mt-2 flex items-center gap-1">
-                📅 Termin ważności: 
+                📅 {t?.fridge?.form?.expiryDate || "Expiry date"}: 
                 <span className="font-medium">
                   {(() => {
                     const expDate = new Date();
@@ -118,7 +135,7 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
                     });
                   })()}
                 </span>
-                ({selectedIngredient.defaultShelfLifeDays} dni)
+                ({t?.fridge?.form?.expiryInDays?.replace('{{days}}', String(selectedIngredient.defaultShelfLifeDays)) || `${selectedIngredient.defaultShelfLifeDays} days`})
               </p>
             )}
           </motion.div>
@@ -127,7 +144,7 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
 
       <div className="pt-2">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Ilość {selectedIngredient && `(${selectedIngredient.unit})`}
+          {t?.fridge?.form?.quantity || "Quantity"} {selectedIngredient && `(${selectedIngredient.unit})`}
         </label>
         <input
           type="number"
@@ -135,7 +152,11 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
           min="0"
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
-          placeholder={selectedIngredient ? `np. 500 ${selectedIngredient.unit}` : "Najpierw wybierz produkt"}
+          placeholder={
+            selectedIngredient 
+              ? t?.fridge?.form?.quantityPlaceholder?.replace('{{unit}}', selectedIngredient.unit) || `e.g. 500 ${selectedIngredient.unit}`
+              : t?.fridge?.form?.selectProductFirst || "Select a product first"
+          }
           disabled={!selectedIngredient}
           className="w-full px-4 py-3 rounded-lg border border-sky-200 dark:border-sky-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed"
         />
@@ -144,7 +165,7 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
       {/* 💰 Price Input (Recommended) */}
       <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          💰 Cena <span className="text-xs font-normal text-amber-600 dark:text-amber-400">(polecane - do obliczeń oszczędności)</span>
+          💰 {t?.fridge?.form?.priceLabel || "Price"} <span className="text-xs font-normal text-amber-600 dark:text-amber-400">{t?.fridge?.form?.priceRecommended || "(recommended - for savings calculations)"}</span>
         </label>
         <div className="flex gap-2">
           <input
@@ -153,11 +174,11 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
             min="0"
             value={priceValue}
             onChange={(e) => setPriceValue(e.target.value)}
-            placeholder="np. 50"
+            placeholder={t?.fridge?.form?.pricePlaceholder || "e.g. 50"}
             disabled={!selectedIngredient}
             className="flex-1 px-4 py-3 rounded-lg border border-sky-200 dark:border-sky-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed"
           />
-          <span className="flex items-center px-3 text-sm text-gray-600 dark:text-gray-400">PLN za</span>
+          <span className="flex items-center px-3 text-sm text-gray-600 dark:text-gray-400">{t?.fridge?.form?.pricePerLabel || "PLN per"}</span>
           <select
             value={pricePer}
             onChange={(e) => setPricePer(e.target.value as "kg" | "l" | "szt")}
@@ -171,7 +192,7 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
         </div>
         <p className="mt-2 text-xs text-amber-600 dark:text-amber-400 flex items-start gap-1">
           <span className="text-base">⚠️</span>
-          <span><strong>Bez ceny nie pokażemy ile oszczędzasz</strong> w przepisach. Dodaj cenę, aby zobaczyć realne oszczędności!</span>
+          <span><strong>{t?.fridge?.form?.priceWarning || "Without price we won't show how much you save on recipes. Add price to see real savings!"}</strong></span>
         </p>
       </div>
 
@@ -194,7 +215,7 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
         className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-medium flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <Plus className="w-5 h-5" />
-        {isAdding ? "Dodawanie..." : "Dodaj do lodówki"}
+        {isAdding ? (t?.fridge?.form?.adding || "Adding...") : (t?.fridge?.form?.addButton || "Add to Fridge")}
       </motion.button>
     </form>
   );

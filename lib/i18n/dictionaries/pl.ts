@@ -15,6 +15,7 @@ import { errors } from "@/i18n/pl/errors";
 import { market } from "@/i18n/pl/market";
 import { fridge } from "@/i18n/pl/fridge";
 import { losses } from "@/i18n/pl/losses";
+import { ingredients } from "@/i18n/pl/ingredients";
 
 export const pl = {
   common,
@@ -29,6 +30,7 @@ export const pl = {
   market,
   fridge,
   losses,
+  ingredients,
 } as const;
 
 export type Dictionary = typeof pl;

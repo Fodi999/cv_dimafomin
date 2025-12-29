@@ -15,6 +15,7 @@ import {
   Fish,
   Package
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import FridgeItem from "./FridgeItem";
 import type { FridgeItem as FridgeItemType } from "@/lib/types";
 
@@ -26,20 +27,22 @@ interface FridgeListProps {
 }
 
 // ✅ Профессиональные категории с иконками lucide-react
-const CATEGORIES = [
-  { value: "all", label: "Wszystkie", Icon: LayoutGrid },
-  { value: "Nabiał", label: "Nabiał", Icon: Milk },
-  { value: "Mięso", label: "Mięso", Icon: Beef },
-  { value: "Warzywa", label: "Warzywa", Icon: Carrot },
-  { value: "Owoce", label: "Owoce", Icon: Apple },
-  { value: "Pieczywo", label: "Pieczywo", Icon: Croissant },
-  { value: "Napoje", label: "Napoje", Icon: Coffee },
-  { value: "Ryby", label: "Ryby", Icon: Fish },
-  { value: "Inne", label: "Inne", Icon: Package },
+const getCategoryConfig = (t: any) => [
+  { value: "all", label: t?.fridge?.categories?.all || "All", Icon: LayoutGrid },
+  { value: "Nabiał", label: t?.fridge?.categories?.dairy || "Dairy", Icon: Milk },
+  { value: "Mięso", label: t?.fridge?.categories?.meat || "Meat", Icon: Beef },
+  { value: "Warzywa", label: t?.fridge?.categories?.vegetables || "Vegetables", Icon: Carrot },
+  { value: "Owoce", label: t?.fridge?.categories?.fruits || "Fruits", Icon: Apple },
+  { value: "Pieczywo", label: t?.fridge?.categories?.bread || "Bread", Icon: Croissant },
+  { value: "Napoje", label: t?.fridge?.categories?.drinks || "Drinks", Icon: Coffee },
+  { value: "Ryby", label: t?.fridge?.categories?.fish || "Fish", Icon: Fish },
+  { value: "Inne", label: t?.fridge?.categories?.other || "Other", Icon: Package },
 ];
 
 export default function FridgeList({ items, onDelete, onPriceClick, onQuantityClick }: FridgeListProps) {
+  const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState("all");
+  const CATEGORIES = getCategoryConfig(t);
   
   console.log('[FridgeList] Received items:', items);
   console.log('[FridgeList] Items count:', items?.length);
@@ -74,24 +77,24 @@ export default function FridgeList({ items, onDelete, onPriceClick, onQuantityCl
       >
         <Refrigerator className="w-16 h-16 text-gray-400 mx-auto mb-4" />
         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-          Twoja lodówka jest pusta
+          {t?.fridge?.messages?.empty || "Your fridge is empty"}
         </h3>
         <div className="max-w-md mx-auto text-left">
           <p className="text-gray-600 dark:text-gray-400 mb-3">
-            Dodaj produkty, aby:
+            {t?.fridge?.emptyState?.title || "Add products to:"}
           </p>
           <ul className="space-y-2 text-gray-700 dark:text-gray-300">
             <li className="flex items-start gap-2">
               <span className="text-sky-500 mt-1">•</span>
-              <span>AI mogło zaproponować przepisy</span>
+              <span>{t?.fridge?.emptyState?.reason1 || "Get AI recipe suggestions"}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-sky-500 mt-1">•</span>
-              <span>wykorzystać produkty przed końcem terminu</span>
+              <span>{t?.fridge?.emptyState?.reason2 || "Use products before expiry"}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-sky-500 mt-1">•</span>
-              <span>nie kupować tego, czego już masz</span>
+              <span>{t?.fridge?.emptyState?.reason3 || "Avoid buying duplicates"}</span>
             </li>
           </ul>
         </div>
@@ -106,13 +109,13 @@ export default function FridgeList({ items, onDelete, onPriceClick, onQuantityCl
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <Refrigerator className="w-5 h-5 text-sky-500" />
-            Produkty w lodówce
+            {t?.fridge?.title || "Fridge"}
             <span className="px-2.5 py-0.5 bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 text-sm font-semibold rounded-full">
               {items.length}
             </span>
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Przeglądaj produkty według kategorii
+            {t?.fridge?.categories?.title || "Browse products by category"}
           </p>
         </div>
         
@@ -167,7 +170,7 @@ export default function FridgeList({ items, onDelete, onPriceClick, onQuantityCl
           className="text-center py-8 px-6 bg-white dark:bg-slate-800 rounded-xl shadow border border-gray-200 dark:border-gray-700"
         >
           <p className="text-gray-600 dark:text-gray-400">
-            Brak produktów w kategorii <span className="font-semibold">{CATEGORIES.find(c => c.value === activeCategory)?.label}</span>
+            {t?.fridge?.emptyCategory?.replace('{{category}}', CATEGORIES.find(c => c.value === activeCategory)?.label || '') || `No products in category ${CATEGORIES.find(c => c.value === activeCategory)?.label}`}
           </p>
         </motion.div>
       ) : (

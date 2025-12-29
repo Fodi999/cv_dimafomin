@@ -15,6 +15,7 @@ import { errors } from "@/i18n/ru/errors";
 import { market } from "@/i18n/ru/market";
 import { fridge } from "@/i18n/ru/fridge";
 import { losses } from "@/i18n/ru/losses";
+import { ingredients } from "@/i18n/ru/ingredients";
 
 export const ru = {
   common,
@@ -29,5 +30,6 @@ export const ru = {
   market,
   fridge,
   losses,
+  ingredients,
 } as const;
 

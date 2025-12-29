@@ -205,6 +205,7 @@ export interface CatalogIngredient {
   unit: string;
   category: string;
   defaultShelfLifeDays: number;
+  i18nKey?: string; // ✅ Ключ для перевода (например, "ingredient.cucumber")
 }
 
 export interface IngredientSearchResponse {
@@ -221,6 +222,7 @@ export interface FridgeItem {
   ingredient: {
     name: string;
     category: string;
+    i18nKey?: string; // ✅ Ключ для перевода (например, "ingredient.cucumber")
   };
   quantity: number;
   unit: string;

@@ -20,30 +20,58 @@ export const losses = {
     title: "Za ostatnie {days} dni",
     products: "{count} produkt",
     productsPlural: "{count} produktów",
-    loss: "{amount} PLN potерь",
-    averageLoss: "Średnia potеря: {amount} PLN",
+    totalLoss: "Całkowite straty",
+    avgLoss: "Średnia strata: {amount} PLN",
+    loss: "{amount} PLN strat",
+    averageLoss: "Średnia strata: {amount} PLN",
     noLosses: "Brak strat w tym okresie",
   },
-  
+
+  // List section
+  list: {
+    title: "Zutylizowane produkty",
+    subtitle: "Chronologiczny dziennik zdarzeń utylizacji",
+  },
+
   // Card
   card: {
     reason: "Przyczyna",
     quantity: "Ilość",
-    loss: "Potеря",
+    loss: "Strata",
     added: "Dodano",
     expired: "Wygasło",
     context: "Kontekst",
-    contextFridge: "Холодильник",
+    contextFridge: "Lodówka",
   },
-  
+
+  // Event details
+  event: {
+    reason: "Przyczyna",
+    quantity: "Ilość",
+    loss: "Strata",
+    added: "Dodano",
+    expired: "Przeterminowane",
+    context: "Kontekst",
+  },
+
   // Reasons
   reason: {
-    expired: "Истёк срок годности",
+    expired: "Upłynął termin ważności",
     spoiled: "Produkt się zepsuł",
     forgotten: "Produkt został zapomniany",
+    damaged: "Produkt uszkodzony",
+    mistake: "Pomyłka",
     other: "Inna przyczyna",
   },
-  
+
+  // Reasons (для getReasonLabel)
+  reasons: {
+    expired: "Upłynął termin ważności",
+    damaged: "Produkt uszkodzony",
+    spoiled: "Produkt się zepsuł",
+    mistake: "Pomyłka",
+  },
+
   // Messages
   messages: {
     loading: "Ładowanie historii...",
@@ -51,7 +79,13 @@ export const losses = {
     empty: "Historia jest pusta",
     emptyDescription: "Produkty, które wygasły, pojawią się tutaj.",
   },
-  
+
+  // Empty state
+  empty: {
+    title: "Brak zarejestrowanych strat",
+    description: "Brak utylizacji w ciągu ostatnich {days} dni",
+  },
+
   // Filters
   filters: {
     period: "Okres",
@@ -59,6 +93,12 @@ export const losses = {
     days30: "30 dni",
     days90: "90 dni",
     all: "Wszystko",
+  },
+
+  // Actions
+  actions: {
+    refresh: "Odśwież",
+    export: "Eksportuj",
   },
   
   // Charts (optional)

@@ -70,9 +70,16 @@ export function useFridgeLosses(days: number = 30): UseFridgeLossesReturn {
         method: "GET",
       });
 
+      console.log("[useFridgeLosses] 📦 Full API response:", data);
+      console.log("[useFridgeLosses] 📦 data.events:", data.events);
+      console.log("[useFridgeLosses] 📦 data.summary:", data.summary);
+
       // Parse response
       const events: LossEvent[] = data.events || [];
       const summaryData = data.summary || {};
+
+      console.log("[useFridgeLosses] 📊 Parsed events:", events);
+      console.log("[useFridgeLosses] 📊 Parsed summary:", summaryData);
 
       setLosses(events);
       setSummary({

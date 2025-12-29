@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Refrigerator, Loader2, AlertCircle, CheckCircle2, Plus, ArrowLeft, Trash2 } from "lucide-react";
+import { Refrigerator, Loader2, AlertCircle, CheckCircle2, Plus, ArrowLeft } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { fridgeApi } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import FridgeForm from "@/components/fridge/FridgeForm";
@@ -21,6 +22,7 @@ export default function FridgePage() {
   const router = useRouter();
   const { user, isLoading } = useUser();
   const { openAuthModal } = useAuth();
+  const { t } = useLanguage();
   const [items, setItems] = useState<FridgeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +36,7 @@ export default function FridgePage() {
 
   // 🔥 Фильтрация: разделяем active (ok/warning/critical) vs expired
   const activeItems = items.filter((i) => ACTIVE_STATUSES.includes(i.status));
-  const expiredItems = items.filter((i) => i.status === "expired");
+  // ❌ expiredItems УДАЛЕНЫ - источник истины только /api/history/losses
   const criticalItems = activeItems.filter((i) => i.status === "critical");
 
   useEffect(() => {
@@ -62,7 +64,7 @@ export default function FridgePage() {
       console.log('[FridgePage] 📦 Setting items state with:', response.items || []);
       setItems(response.items || []);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Błąd ładowania produktów";
+      const errorMessage = err instanceof Error ? err.message : t?.fridge?.messages?.error || "Error loading products";
       console.error("Failed to load fridge items:", err);
       setError(errorMessage);
     } finally {
@@ -80,7 +82,7 @@ export default function FridgePage() {
       await fridgeApi.addItem(data, token);
       await loadFridgeItems();
       setIsSheetOpen(false);
-      setSuccessMessage("✅ Produkt dodany do lodówki!");
+      setSuccessMessage(t?.fridge?.messages?.addSuccess || "✅ Product added to fridge!");
       setShowFlowCTA(true);
       setTimeout(() => {
         setSuccessMessage(null);
@@ -102,10 +104,10 @@ export default function FridgePage() {
       // 🔥 Перезагружаем данные с сервера для консистентности
       // (важно для будущего soft-delete / auto-move to history)
       await loadFridgeItems();
-      setSuccessMessage("✅ Produkt usunięty!");
+      setSuccessMessage(t?.fridge?.messages?.deleteSuccess || "✅ Product deleted!");
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Błąd podczas usuwania produktu";
+      const errorMessage = err instanceof Error ? err.message : t?.fridge?.messages?.deleteError || "Error deleting product";
       console.error("Failed to delete item:", err);
       setError(errorMessage);
       setTimeout(() => setError(null), 5000);
@@ -127,10 +129,10 @@ export default function FridgePage() {
       await loadFridgeItems();
       setIsPriceSheetOpen(false);
       setPriceSheetItem(null);
-      setSuccessMessage("✅ Cena zaktualizowana!");
+      setSuccessMessage(t?.fridge?.messages?.priceUpdated || "✅ Price updated!");
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Błąd podczas aktualizacji ceny";
+      const errorMessage = err instanceof Error ? err.message : t?.fridge?.messages?.priceError || "Error updating price";
       console.error("Failed to update price:", err);
       setError(errorMessage);
       setTimeout(() => setError(null), 5000);
@@ -158,10 +160,10 @@ export default function FridgePage() {
       await loadFridgeItems();
       setIsQuantitySheetOpen(false);
       setQuantitySheetItem(null);
-      setSuccessMessage("✅ Ilość zaktualizowana!");
+      setSuccessMessage(t?.fridge?.messages?.quantityUpdated || "✅ Quantity updated!");
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Błąd podczas aktualizacji ilości";
+      const errorMessage = err instanceof Error ? err.message : t?.fridge?.messages?.quantityError || "Error updating quantity";
       console.error("Failed to update quantity:", err);
       setError(errorMessage);
       setTimeout(() => setError(null), 5000);
@@ -178,11 +180,11 @@ export default function FridgePage() {
             className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Назад</span>
+            <span className="font-medium">{t?.fridge?.backButton || "Back"}</span>
           </button>
           <div className="flex items-center gap-3">
             <Refrigerator className="w-6 h-6 text-purple-600" />
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Moja Lodówka</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t?.fridge?.title || "Fridge"}</h1>
           </div>
           <div className="w-20" />
         </div>
@@ -198,9 +200,9 @@ export default function FridgePage() {
         {!isLoading && !user && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-12">
             <AlertCircle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Wymagana autoryzacja</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">Zaloguj się, aby zarządzać swoją lodówką</p>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => openAuthModal("login")} className="px-8 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-medium">Zaloguj się</motion.button>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t?.fridge?.messages?.authRequired || "Authorization required"}</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">{t?.fridge?.messages?.authRequiredDesc || "Log in to manage your fridge"}</p>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => openAuthModal("login")} className="px-8 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-medium">{t?.fridge?.messages?.loginButton || "Log in"}</motion.button>
           </motion.div>
         )}
 
@@ -225,7 +227,7 @@ export default function FridgePage() {
                   className="mb-6 p-6 bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-sky-900/20 dark:to-cyan-900/20 border border-sky-200 dark:border-sky-800 rounded-xl"
                 >
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
-                    Co teraz? 🎯
+                    {t?.fridge?.flow?.whatNext || "What now? 🎯"}
                   </h3>
                   <div className="grid md:grid-cols-2 gap-3">
                     <button
@@ -233,14 +235,14 @@ export default function FridgePage() {
                       className="flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white rounded-lg transition-all font-semibold shadow-md hover:shadow-lg"
                     >
                       <span className="text-2xl">🍳</span>
-                      <span>Sprawdź, co możesz ugotować</span>
+                      <span>{t?.fridge?.flow?.checkRecipes || "Check what you can cook"}</span>
                     </button>
                     <button
                       onClick={() => router.push("/assistant")}
                       className="flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-all font-semibold shadow-md hover:shadow-lg"
                     >
                       <span className="text-2xl">🤖</span>
-                      <span>Zapytaj AI, co zrobić</span>
+                      <span>{t?.fridge?.flow?.askAI || "Ask AI what to do"}</span>
                     </button>
                   </div>
                 </motion.div>
@@ -265,33 +267,11 @@ export default function FridgePage() {
                 {/* 📊 Statistics - ТОЛЬКО activeItems (без expired) */}
                 {activeItems.length > 0 && <FridgeStats items={activeItems} />}
 
-                {/* 🗑️ Блок просроченных продуктов (СВОДКА, не карточки) */}
-                {expiredItems.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
-                  >
-                    <div className="flex items-start gap-3">
-                      <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="font-semibold text-red-800 dark:text-red-200">
-                          🗑️ Zutylizowane produkty
-                        </p>
-                        <p className="text-sm text-red-700 dark:text-red-300">
-                          {expiredItems.length} {expiredItems.length === 1 ? 'produkt' : expiredItems.length >= 2 && expiredItems.length <= 4 ? 'produkty' : 'produktów'} • {expiredItems.reduce((s, i) => s + (i.totalPrice || 0), 0).toFixed(2)} PLN strat
-                        </p>
-                        <button
-                          onClick={() => router.push("/losses")}
-                          className="mt-2 text-sm font-medium text-red-700 dark:text-red-300 hover:underline"
-                        >
-                          Zobacz historię strat →
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
+                {/* 
+                  ❌ УДАЛЁН БЛОК "Zutylizowane produkty" 
+                  📌 Причина: Локальный expiredItems != backend history
+                  ✅ Источник истины: ТОЛЬКО /losses (GET /api/history/losses)
+                */}
 
                 {/* ✨ AI Actions - ТОЛЬКО если есть activeItems */}
                 {activeItems.length > 0 && (
@@ -315,14 +295,14 @@ export default function FridgePage() {
                         className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-medium rounded-lg shadow-lg flex items-center justify-center gap-2 transition-all"
                       >
                         <Plus className="w-5 h-5" />
-                        Dodaj produkt
+                        {t?.fridge?.actions?.addProduct || "Add product"}
                       </motion.button>
                     </SheetTrigger>
                     <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto p-0">
                       <SheetHeader className="px-6 pt-6 pb-4">
-                        <SheetTitle>Dodaj produkt do lodówki</SheetTitle>
+                        <SheetTitle>{t?.fridge?.form?.addToFridgeTitle || "Add product to fridge"}</SheetTitle>
                         <SheetDescription>
-                          Wyszukaj produkt i podaj ilość. Backend automatycznie obliczy termin ważności.
+                          {t?.fridge?.form?.addToFridgeDesc || "Search for a product and enter quantity. Backend will automatically calculate expiry date."}
                         </SheetDescription>
                       </SheetHeader>
                       <div className="px-6 pb-6">
@@ -344,9 +324,9 @@ export default function FridgePage() {
                 <Sheet open={isPriceSheetOpen} onOpenChange={setIsPriceSheetOpen}>
                   <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto p-0">
                     <SheetHeader className="px-6 pt-6 pb-4">
-                      <SheetTitle>Dodaj cenę produktu</SheetTitle>
+                      <SheetTitle>{t?.fridge?.form?.updatePriceTitle || "Add product price"}</SheetTitle>
                       <SheetDescription>
-                        Podaj cenę za wybraną jednostkę. System automatycznie obliczy całkowitą wartość.
+                        {t?.fridge?.form?.updatePriceDesc || "Enter price per selected unit. System will automatically calculate total value."}
                       </SheetDescription>
                     </SheetHeader>
                     <div className="px-6 pb-6">
@@ -361,9 +341,9 @@ export default function FridgePage() {
                 <Sheet open={isQuantitySheetOpen} onOpenChange={setIsQuantitySheetOpen}>
                   <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto p-0">
                     <SheetHeader className="px-6 pt-6 pb-4">
-                      <SheetTitle>Zmień ilość produktu</SheetTitle>
+                      <SheetTitle>{t?.fridge?.form?.updateQuantityTitle || "Change product quantity"}</SheetTitle>
                       <SheetDescription>
-                        Zaktualizuj ilość produktu. Cena całkowita zostanie przeliczona automatycznie.
+                        {t?.fridge?.form?.updateQuantityDesc || "Update product quantity. Total price will be recalculated automatically."}
                       </SheetDescription>
                     </SheetHeader>
                     <div className="px-6 pb-6">
@@ -385,15 +365,16 @@ export default function FridgePage() {
                     <AlertCircle className="w-5 h-5 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
                     <div>
                       <p className="text-sm font-semibold text-orange-900 dark:text-orange-100 mb-1">
-                        ⚠️ Produkty wymagające szybkiego użycia
+                        {t?.fridge?.warnings?.quickUseTitle || "⚠️ Products requiring quick use"}
                       </p>
                       <p className="text-sm text-orange-800 dark:text-orange-200">
                         {(() => {
                           const criticalValue = criticalItems.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
                           if (criticalValue > 0) {
-                            return `Produkty za ${criticalValue.toFixed(2)} PLN wkrótce się zepsują. AI może zaproponować, co z nich ugotować.`;
+                            const message = t?.fridge?.warnings?.quickUseMessage || "Products worth {amount} PLN will spoil soon. AI can suggest what to cook with them.";
+                            return message.replace('{amount}', criticalValue.toFixed(2));
                           }
-                          return `Masz ${criticalItems.length} ${criticalItems.length === 1 ? 'produkt' : 'produktów'} do szybkiego użycia.`;
+                          return `${t?.fridge?.stats?.quickUse || "Products for quick use"}: ${criticalItems.length}`;
                         })()}
                       </p>
                     </div>
@@ -405,7 +386,7 @@ export default function FridgePage() {
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-8 p-4 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/30 rounded-lg flex gap-3">
                     <AlertCircle className="w-5 h-5 text-sky-600 dark:text-sky-400 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-sm text-sky-900 dark:text-sky-100"><span className="font-semibold">Wskazówka:</span> Produkty z krótkim terminem ważności będą oznaczone ostrzeżeniem — AI zaproponuje, co ugotować w pierwszej kolejności.</p>
+                      <p className="text-sm text-sky-900 dark:text-sky-100">{t?.fridge?.warnings?.hint || "Hint: Products with short expiry dates will be marked with a warning — AI will suggest what to cook first."}</p>
                     </div>
                   </motion.div>
                 )}
