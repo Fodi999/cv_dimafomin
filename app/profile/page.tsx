@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { SimpleProfileHeader } from "@/components/profile/SimpleProfileHeader";
 import { HeroKPI } from "@/components/profile/HeroKPI";
 import { ProgressControl } from "@/components/profile/ProgressControl";
+import { CollectiveInsight } from "@/components/profile/CollectiveInsight";
 import { ProfileTabs, ProfileTab } from "@/components/profile/ProfileTabs";
 import { OverviewTab } from "@/components/profile/tabs/OverviewTab";
 import { StatsTab } from "@/components/profile/tabs/StatsTab";
@@ -175,7 +176,12 @@ export default function ProfilePage() {
           />
         </div>
 
-        {/* 🧭 Block 4: Tabs (Przegląd / Statystyki / Zasoby) */}
+        {/* � Block 4: Collective Insight (AI-mediated social layer) */}
+        <div className="mb-4 sm:mb-6">
+          <CollectiveInsight userLevel={user.level || 1} />
+        </div>
+
+        {/* �🧭 Block 5: Tabs (Przegląd / Statystyki / Zasoby) */}
         <div className="space-y-3 sm:space-y-4">
           <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
 

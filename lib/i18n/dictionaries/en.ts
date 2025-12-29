@@ -13,6 +13,8 @@ import { tokens } from "@/i18n/en/tokens";
 import { admin } from "@/i18n/en/admin";
 import { errors } from "@/i18n/en/errors";
 import { market } from "@/i18n/en/market";
+import { fridge } from "@/i18n/en/fridge";
+import { losses } from "@/i18n/en/losses";
 
 export const en = {
   common,
@@ -25,5 +27,7 @@ export const en = {
   admin,
   errors,
   market,
+  fridge,
+  losses,
 } as const;
 

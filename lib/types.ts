@@ -212,6 +212,10 @@ export interface IngredientSearchResponse {
   items: CatalogIngredient[];
 }
 
+// 🔥 Централизованные статусы для FridgeItem
+export type FridgeItemStatus = 'ok' | 'warning' | 'critical' | 'expired';
+export const ACTIVE_STATUSES: readonly FridgeItemStatus[] = ['ok', 'warning', 'critical'] as const;
+
 export interface FridgeItem {
   id: string;
   ingredient: {
@@ -223,7 +227,7 @@ export interface FridgeItem {
   arrivedAt?: string; // Дата добавления продукта (ISO 8601)
   expiresAt: string;
   daysLeft: number;
-  status: 'ok' | 'warning' | 'critical' | 'expired';
+  status: FridgeItemStatus;
   totalPrice?: number; // Total price for this item (backend calculated)
   currency?: string; // Currency code (e.g., "PLN")
   pricePerUnit?: number; // Price per unit (user input or backend default)

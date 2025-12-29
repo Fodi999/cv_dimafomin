@@ -79,7 +79,7 @@ export default function CoreSettingsSection() {
           })}
         </div>
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          📌 Wpływa na: UI, teksty, AI-odpowiedzi, podpowiedzi, błędy
+          📌 {t?.profile?.settings?.general?.languageDescription || "Affects: UI, texts, AI responses, hints, errors"}
         </p>
       </div>
 
@@ -88,15 +88,15 @@ export default function CoreSettingsSection() {
         <div className="flex items-center gap-2">
           <Clock className="w-5 h-5 text-purple-500" />
           <label className="text-sm font-semibold text-gray-900 dark:text-white">
-            Time Format
+            {t?.profile?.settings?.general?.timeFormat || "Time Format"}
           </label>
         </div>
         <div className="grid grid-cols-2 gap-3">
           {(["24h", "12h"] as TimeFormat[]).map((format) => {
             const isActive = settings.timeFormat === format;
             const labels = {
-              "12h": "12-hour",
-              "24h": "24-hour",
+              "12h": t?.profile?.settings?.general?.timeFormat12h || "12-hour",
+              "24h": t?.profile?.settings?.general?.timeFormat24h || "24-hour",
             };
             
             return (
@@ -125,15 +125,15 @@ export default function CoreSettingsSection() {
         <div className="flex items-center gap-2">
           <Scale className="w-5 h-5 text-purple-500" />
           <label className="text-sm font-semibold text-gray-900 dark:text-white">
-            Units
+            {t?.profile?.settings?.general?.units || "Units"}
           </label>
         </div>
         <div className="grid grid-cols-2 gap-3">
           {(["metric", "kitchen"] as Units[]).map((system) => {
             const isActive = settings.units === system;
             const labels = {
-              metric: "Metric (g, ml)",
-              kitchen: "Imperial (cups, oz)",
+              metric: t?.profile?.settings?.general?.unitsMetric || "Metric (g, ml)",
+              kitchen: t?.profile?.settings?.general?.unitsKitchen || "Imperial (cups, oz)",
             };
             
             return (
@@ -156,13 +156,13 @@ export default function CoreSettingsSection() {
           })}
         </div>
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          📌 Ważne dla rецептів i AI
+          📌 {t?.profile?.settings?.general?.unitsDescription || "Important for recipes and AI"}
         </p>
       </div>
 
       <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          ✨ Zmiany są zapisywane automatycznie i stosowane natychmiast
+          ✨ {t?.profile?.settings?.general?.autoSave || "Changes are saved automatically and applied immediately"}
         </p>
       </div>
     </div>

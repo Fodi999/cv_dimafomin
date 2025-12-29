@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Package, Coins, AlertTriangle } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { FridgeItem } from "@/lib/types";
 
 interface FridgeStatsProps {
@@ -9,6 +10,8 @@ interface FridgeStatsProps {
 }
 
 export default function FridgeStats({ items }: FridgeStatsProps) {
+  const { t } = useLanguage();
+  
   // Calculate total value
   const totalValue = items.reduce((sum, item) => {
     return sum + (item.totalPrice || 0);
@@ -35,7 +38,7 @@ export default function FridgeStats({ items }: FridgeStatsProps) {
             <Package className="w-5 h-5 text-sky-600 dark:text-sky-400" />
           </div>
           <div>
-            <p className="text-xs text-gray-600 dark:text-gray-400">Produkty</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400">{t?.fridge?.stats?.products || "Products"}</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
               {itemsCount}
             </p>
@@ -50,14 +53,14 @@ export default function FridgeStats({ items }: FridgeStatsProps) {
             <Coins className="w-5 h-5 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <p className="text-xs text-gray-600 dark:text-gray-400">Wartość lodówki</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400">{t?.fridge?.stats?.fridgeValue || "Fridge Value"}</p>
             {hasPrice ? (
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {totalValue.toFixed(2)} PLN
               </p>
             ) : (
               <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">
-                Brak cen
+                {t?.fridge?.stats?.noPrices || "No prices"}
               </p>
             )}
           </div>
@@ -72,12 +75,12 @@ export default function FridgeStats({ items }: FridgeStatsProps) {
               <AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
             </div>
             <div>
-              <p className="text-xs text-gray-600 dark:text-gray-400">Ryzyko straty</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">{t?.fridge?.stats?.lossRisk || "Loss Risk"}</p>
               <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                 {criticalValue.toFixed(2)} PLN
               </p>
               <p className="text-[10px] text-gray-500 dark:text-gray-500 mt-0.5">
-                Produkty do szybkiego użycia
+                {t?.fridge?.stats?.quickUse || "Products for quick use"}
               </p>
             </div>
           </div>

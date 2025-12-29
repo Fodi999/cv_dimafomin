@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { 
   Settings, 
   Globe, 
@@ -25,6 +26,7 @@ type SettingsSection =
 export default function SettingsPage() {
   const router = useRouter();
   const { isLoaded, isUpdating } = useSettings();
+  const { t } = useLanguage();
   const [activeSection, setActiveSection] = useState<SettingsSection>("core");
 
   if (!isLoaded) {
@@ -32,16 +34,31 @@ export default function SettingsPage() {
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-purple-500 border-t-transparent mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Ładowanie ustawień...</p>
+          <p className="text-gray-600 dark:text-gray-400">{t?.profile?.settings?.loading || "Loading settings..."}</p>
         </div>
       </div>
     );
   }
 
   const sections = [
-    { id: "core", label: "Podstawowe", icon: Settings, description: "Język, czas, jednostki" },
-    { id: "ai", label: "AI & Mentor", icon: Bot, description: "Styl asystenta" },
-    { id: "notifications", label: "Powiadomienia", icon: Bell, description: "Ważne przypomnienia" },
+    { 
+      id: "core", 
+      label: t?.profile?.settings?.sections?.core?.label || "Core", 
+      icon: Settings, 
+      description: t?.profile?.settings?.sections?.core?.description || "Language, time, units" 
+    },
+    { 
+      id: "ai", 
+      label: t?.profile?.settings?.sections?.ai?.label || "AI & Mentor", 
+      icon: Bot, 
+      description: t?.profile?.settings?.sections?.ai?.description || "Assistant style" 
+    },
+    { 
+      id: "notifications", 
+      label: t?.profile?.settings?.sections?.notifications?.label || "Notifications", 
+      icon: Bell, 
+      description: t?.profile?.settings?.sections?.notifications?.description || "Important reminders" 
+    },
   ] as const;
 
   return (
@@ -54,11 +71,11 @@ export default function SettingsPage() {
             className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Назад</span>
+            <span className="font-medium">{t?.profile?.settings?.backButton || "Back"}</span>
           </button>
           <div className="flex items-center gap-3">
             <Settings className="w-6 h-6 text-purple-600" />
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Ustawienia</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t?.profile?.settings?.title || "Settings"}</h1>
           </div>
           <div className="w-20" />
         </div>
@@ -72,7 +89,7 @@ export default function SettingsPage() {
           transition={{ duration: 0.5 }}
           className="text-center text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6 font-medium"
         >
-          Proste ustawienia. Inteligentne działanie.
+          {t?.profile?.settings?.subtitle || "Simple settings. Smart action."}
         </motion.p>
         <div className="grid grid-cols-12 gap-6">
           {/* Sidebar Navigation */}
@@ -132,7 +149,7 @@ export default function SettingsPage() {
                   className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg text-blue-700 dark:text-blue-300 text-sm flex items-center gap-2"
                 >
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-                  <span>Zapisywanie...</span>
+                  <span>{t?.profile?.settings?.saving || "Saving..."}</span>
                 </motion.div>
               )}
 

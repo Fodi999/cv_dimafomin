@@ -77,6 +77,18 @@ export const profile = {
     courseCompleted: "Ukończono kurs: {course}",
   },
 
+  // Collective Insight (AI-mediated social layer)
+  collectiveInsight: {
+    title: "🧠 Jak myślą inni kucharze na Twoim etapie",
+    subtitle: "Anonimowe obserwacje oparte na decyzjach innych użytkowników",
+    footer: "Agregowane anonimowo z działań społeczności",
+    insights: [
+      "Wielu użytkowników na poziomie 1 skupia się teraz bardziej na zarządzaniu lodówką niż na nowych przepisach.",
+      "Często pojawia się potrzeba uproszczenia technik zamiast ich komplikowania.",
+      "To dobry moment, aby zacząć kontrolować koszt bez utraty smaku.",
+    ],
+  },
+
   // Profile Header
   header: {
     title: "Profil",
@@ -116,12 +128,39 @@ export const profile = {
   // Settings
   settings: {
     title: "Ustawienia",
-    subtitle: "Zarządzaj preferencjami konta",
+    subtitle: "Proste ustawienia. Inteligentne działanie.",
+    backButton: "Назад",
+    loading: "Ładowanie ustawień...",
+    saving: "Zapisywanie...",
+    
+    // Sections
+    sections: {
+      core: {
+        label: "Podstawowe",
+        description: "Język, czas, jednostki",
+      },
+      ai: {
+        label: "AI & Mentor",
+        description: "Styl asystenta",
+      },
+      notifications: {
+        label: "Powiadomienia",
+        description: "Ważne przypomnienia",
+      },
+    },
     
     general: {
       title: "Ogólne",
       language: "Język",
-      languageDescription: "Wybierz preferowany język interfejsu",
+      languageDescription: "Wpływa na: UI, teksty, AI-odpowiedzi, podpowiedzi, błędy",
+      timeFormat: "Format czasu",
+      timeFormatDescription: "Wybierz format wyświetlania czasu",
+      timeFormat12h: "12-godzinny",
+      timeFormat24h: "24-godzinny",
+      units: "Jednostki",
+      unitsDescription: "Ważne dla przepisów i AI",
+      unitsMetric: "Metryczne (g, ml)",
+      unitsKitchen: "Kuchenne (szklanki, łyżki)",
       theme: "Motyw",
       themeDescription: "Wybierz jasny lub ciemny motyw",
       light: "Jasny",
@@ -129,6 +168,7 @@ export const profile = {
       system: "Systemowy",
       timezone: "Strefa czasowa",
       timezoneDescription: "Wybierz swoją strefę czasową",
+      autoSave: "Zmiany są zapisywane automatycznie i stosowane natychmiast",
     },
 
     notifications: {

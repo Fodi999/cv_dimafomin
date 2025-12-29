@@ -13,6 +13,8 @@ import { tokens } from "@/i18n/pl/tokens";
 import { admin } from "@/i18n/pl/admin";
 import { errors } from "@/i18n/pl/errors";
 import { market } from "@/i18n/pl/market";
+import { fridge } from "@/i18n/pl/fridge";
+import { losses } from "@/i18n/pl/losses";
 
 export const pl = {
   common,
@@ -25,6 +27,8 @@ export const pl = {
   admin,
   errors,
   market,
+  fridge,
+  losses,
 } as const;
 
 export type Dictionary = typeof pl;

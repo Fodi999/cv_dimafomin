@@ -11,7 +11,11 @@ import type {
   ApiError,
 } from "./types";
 
-export const API_BASE_URL = "/api";
+// Use backend API URL from environment variable, fallback to Next.js routes
+// IMPORTANT: Always use backend API for data endpoints
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE
+  ? `${process.env.NEXT_PUBLIC_API_BASE}/api`
+  : "/api";
 
 export interface ApiOptions extends RequestInit {
   token?: string;

@@ -26,6 +26,8 @@ export interface Dictionary {
   admin: Record<string, any>;
   errors: Record<string, any>;
   market: Record<string, any>;
+  fridge: Record<string, any>;
+  losses: Record<string, any>;
 }
 
 /**

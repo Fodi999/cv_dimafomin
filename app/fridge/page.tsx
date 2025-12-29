@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Refrigerator, Loader2, AlertCircle, CheckCircle2, Plus, ArrowLeft } from "lucide-react";
+import { Refrigerator, Loader2, AlertCircle, CheckCircle2, Plus, ArrowLeft, Trash2 } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { fridgeApi } from "@/lib/api";
@@ -15,6 +15,7 @@ import PriceSheet from "@/components/fridge/PriceSheet";
 import QuantitySheet from "@/components/fridge/QuantitySheet";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import type { FridgeItem, AddFridgeItemData, FridgeItemsResponse } from "@/lib/types";
+import { ACTIVE_STATUSES } from "@/lib/types";
 
 export default function FridgePage() {
   const router = useRouter();
@@ -24,12 +25,17 @@ export default function FridgePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [showFlowCTA, setShowFlowCTA] = useState(false); // Show CTA after adding items
-  const [isSheetOpen, setIsSheetOpen] = useState(false); // Sheet state
-  const [isPriceSheetOpen, setIsPriceSheetOpen] = useState(false); // Price sheet state
-  const [priceSheetItem, setPriceSheetItem] = useState<FridgeItem | null>(null); // Selected item for price
-  const [isQuantitySheetOpen, setIsQuantitySheetOpen] = useState(false); // Quantity sheet state
-  const [quantitySheetItem, setQuantitySheetItem] = useState<FridgeItem | null>(null); // Selected item for quantity
+  const [showFlowCTA, setShowFlowCTA] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isPriceSheetOpen, setIsPriceSheetOpen] = useState(false);
+  const [priceSheetItem, setPriceSheetItem] = useState<FridgeItem | null>(null);
+  const [isQuantitySheetOpen, setIsQuantitySheetOpen] = useState(false);
+  const [quantitySheetItem, setQuantitySheetItem] = useState<FridgeItem | null>(null);
+
+  // 🔥 Фильтрация: разделяем active (ok/warning/critical) vs expired
+  const activeItems = items.filter((i) => ACTIVE_STATUSES.includes(i.status));
+  const expiredItems = items.filter((i) => i.status === "expired");
+  const criticalItems = activeItems.filter((i) => i.status === "critical");
 
   useEffect(() => {
     if (isLoading) return;
@@ -55,9 +61,10 @@ export default function FridgePage() {
       console.log('[FridgePage] 📦 Response.items:', response?.items);
       console.log('[FridgePage] 📦 Setting items state with:', response.items || []);
       setItems(response.items || []);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Błąd ładowania produktów";
       console.error("Failed to load fridge items:", err);
-      setError(err.message || "Błąd ładowania produktów");
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -70,22 +77,17 @@ export default function FridgePage() {
       return;
     }
     try {
-      // MVP: Add item, then refetch full list
       await fridgeApi.addItem(data, token);
-      
-      // Refetch to get updated list with backend-calculated expiry
       await loadFridgeItems();
-      
-      // Close sheet and show success
       setIsSheetOpen(false);
       setSuccessMessage("✅ Produkt dodany do lodówki!");
-      setShowFlowCTA(true); // Show flow CTAs
+      setShowFlowCTA(true);
       setTimeout(() => {
         setSuccessMessage(null);
         setShowFlowCTA(false);
-      }, 8000); // 8 seconds to see CTAs
-    } catch (err: any) {
-      throw err; // FridgeForm will handle display
+      }, 8000);
+    } catch (err: unknown) {
+      throw err;
     }
   };
 
@@ -97,12 +99,15 @@ export default function FridgePage() {
     }
     try {
       await fridgeApi.deleteItem(id, token);
-      setItems(items.filter((item) => item.id !== id));
+      // 🔥 Перезагружаем данные с сервера для консистентности
+      // (важно для будущего soft-delete / auto-move to history)
+      await loadFridgeItems();
       setSuccessMessage("✅ Produkt usunięty!");
       setTimeout(() => setSuccessMessage(null), 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Błąd podczas usuwania produktu";
       console.error("Failed to delete item:", err);
-      setError(err.message || "Błąd podczas usuwania produktu");
+      setError(errorMessage);
       setTimeout(() => setError(null), 5000);
     }
   };
@@ -114,23 +119,20 @@ export default function FridgePage() {
       return;
     }
     try {
-      // Event sourcing: добавляем price-event вместо обновления
       await fridgeApi.addPrice(itemId, { 
         pricePerUnit, 
         currency,
-        source: 'manual' // 📌 Обязательное поле для event sourcing
+        source: 'manual'
       }, token);
-      
-      // Refetch to get updated totalPrice from backend
       await loadFridgeItems();
-      
       setIsPriceSheetOpen(false);
       setPriceSheetItem(null);
       setSuccessMessage("✅ Cena zaktualizowana!");
       setTimeout(() => setSuccessMessage(null), 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Błąd podczas aktualizacji ceny";
       console.error("Failed to update price:", err);
-      setError(err.message || "Błąd podczas aktualizacji ceny");
+      setError(errorMessage);
       setTimeout(() => setError(null), 5000);
     }
   };
@@ -153,17 +155,15 @@ export default function FridgePage() {
     }
     try {
       await fridgeApi.updateItemQuantity(itemId, { quantity }, token);
-      
-      // Refetch to get updated data from backend
       await loadFridgeItems();
-      
       setIsQuantitySheetOpen(false);
       setQuantitySheetItem(null);
       setSuccessMessage("✅ Ilość zaktualizowana!");
       setTimeout(() => setSuccessMessage(null), 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Błąd podczas aktualizacji ilości";
       console.error("Failed to update quantity:", err);
-      setError(err.message || "Błąd podczas aktualizacji ilości");
+      setError(errorMessage);
       setTimeout(() => setError(null), 5000);
     }
   };
@@ -189,24 +189,23 @@ export default function FridgePage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 text-sky-500 animate-spin" />
+          </div>
+        )}
 
-      {isLoading && (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 text-sky-500 animate-spin" />
-        </div>
-      )}
+        {!isLoading && !user && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-12">
+            <AlertCircle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Wymagana autoryzacja</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">Zaloguj się, aby zarządzać swoją lodówką</p>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => openAuthModal("login")} className="px-8 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-medium">Zaloguj się</motion.button>
+          </motion.div>
+        )}
 
-      {!isLoading && !user && (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-12">
-          <AlertCircle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Wymagana autoryzacja</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">Zaloguj się, aby zarządzać swoją lodówką</p>
-          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => openAuthModal("login")} className="px-8 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-medium">Zaloguj się</motion.button>
-        </motion.div>
-      )}
-
-      {!isLoading && user && (
-        <>
+        {!isLoading && user && (
+          <>
             <AnimatePresence>
               {successMessage && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center gap-3">
@@ -256,17 +255,46 @@ export default function FridgePage() {
                 </motion.div>
               )}
             </AnimatePresence>
+
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="w-8 h-8 text-sky-500 animate-spin" />
               </div>
             ) : (
               <>
-                {/* � Statistics */}
-                {items.length > 0 && <FridgeStats items={items} />}
+                {/* 📊 Statistics - ТОЛЬКО activeItems (без expired) */}
+                {activeItems.length > 0 && <FridgeStats items={activeItems} />}
 
-                {/* ✨ AI Actions */}
-                {items.length > 0 && (
+                {/* 🗑️ Блок просроченных продуктов (СВОДКА, не карточки) */}
+                {expiredItems.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+                  >
+                    <div className="flex items-start gap-3">
+                      <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="font-semibold text-red-800 dark:text-red-200">
+                          🗑️ Zutylizowane produkty
+                        </p>
+                        <p className="text-sm text-red-700 dark:text-red-300">
+                          {expiredItems.length} {expiredItems.length === 1 ? 'produkt' : expiredItems.length >= 2 && expiredItems.length <= 4 ? 'produkty' : 'produktów'} • {expiredItems.reduce((s, i) => s + (i.totalPrice || 0), 0).toFixed(2)} PLN strat
+                        </p>
+                        <button
+                          onClick={() => router.push("/losses")}
+                          className="mt-2 text-sm font-medium text-red-700 dark:text-red-300 hover:underline"
+                        >
+                          Zobacz historię strat →
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* ✨ AI Actions - ТОЛЬКО если есть activeItems */}
+                {activeItems.length > 0 && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -277,7 +305,7 @@ export default function FridgePage() {
                   </motion.div>
                 )}
 
-                {/* �🔘 Dodaj produkt button */}
+                {/* ➕ Dodaj produkt button */}
                 <div className="mb-6">
                   <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                     <SheetTrigger asChild>
@@ -304,9 +332,9 @@ export default function FridgePage() {
                   </Sheet>
                 </div>
 
-                {/* 📋 Lista produktów lub empty state */}
+                {/* 📋 Lista produktów - ТОЛЬКО activeItems (без expired) */}
                 <FridgeList 
-                  items={items} 
+                  items={activeItems} 
                   onDelete={handleRemoveItem} 
                   onPriceClick={handlePriceClick}
                   onQuantityClick={handleQuantityClick}
@@ -346,8 +374,8 @@ export default function FridgePage() {
                   </SheetContent>
                 </Sheet>
                 
-                {/* 💡 Economic hint for critical/expired items */}
-                {items.length > 0 && items.some(item => item.status === 'critical' || item.status === 'expired') && (
+                {/* ⚠️ Предупреждение для critical items - ТОЛЬКО critical (не expired) */}
+                {criticalItems.length > 0 && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -361,7 +389,6 @@ export default function FridgePage() {
                       </p>
                       <p className="text-sm text-orange-800 dark:text-orange-200">
                         {(() => {
-                          const criticalItems = items.filter(item => item.status === 'critical' || item.status === 'expired');
                           const criticalValue = criticalItems.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
                           if (criticalValue > 0) {
                             return `Produkty za ${criticalValue.toFixed(2)} PLN wkrótce się zepsują. AI może zaproponować, co z nich ugotować.`;
@@ -373,7 +400,8 @@ export default function FridgePage() {
                   </motion.div>
                 )}
                 
-                {items.length > 0 && (
+                {/* 💡 Wskazówka */}
+                {activeItems.length > 0 && (
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-8 p-4 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/30 rounded-lg flex gap-3">
                     <AlertCircle className="w-5 h-5 text-sky-600 dark:text-sky-400 flex-shrink-0 mt-0.5" />
                     <div>

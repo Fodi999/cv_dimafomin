@@ -76,6 +76,18 @@ export const profile = {
     courseCompleted: "Completed course: {course}",
   },
 
+  // Collective Insight (AI-mediated social layer)
+  collectiveInsight: {
+    title: "🧠 How other chefs at your stage think",
+    subtitle: "Anonymous observations based on other users' decisions",
+    footer: "Anonymously aggregated from community activity",
+    insights: [
+      "Many level 1 users are now focusing more on managing their fridge than on new recipes.",
+      "There's often a need to simplify techniques rather than complicate them.",
+      "This is a good time to start controlling costs without losing flavor.",
+    ],
+  },
+
   header: {
     title: "Profile",
     subtitle: "Manage your account and settings",
@@ -111,12 +123,39 @@ export const profile = {
 
   settings: {
     title: "Settings",
-    subtitle: "Manage account preferences",
+    subtitle: "Simple settings. Smart action.",
+    backButton: "Back",
+    loading: "Loading settings...",
+    saving: "Saving...",
+    
+    // Sections
+    sections: {
+      core: {
+        label: "Core",
+        description: "Language, time, units",
+      },
+      ai: {
+        label: "AI & Mentor",
+        description: "Assistant style",
+      },
+      notifications: {
+        label: "Notifications",
+        description: "Important reminders",
+      },
+    },
     
     general: {
       title: "General",
       language: "Language",
-      languageDescription: "Select your preferred interface language",
+      languageDescription: "Affects: UI, texts, AI responses, hints, errors",
+      timeFormat: "Time Format",
+      timeFormatDescription: "Choose time display format",
+      timeFormat12h: "12-hour",
+      timeFormat24h: "24-hour",
+      units: "Units",
+      unitsDescription: "Important for recipes and AI",
+      unitsMetric: "Metric (g, ml)",
+      unitsKitchen: "Imperial (cups, oz)",
       theme: "Theme",
       themeDescription: "Choose light or dark theme",
       light: "Light",
@@ -124,6 +163,7 @@ export const profile = {
       system: "System",
       timezone: "Timezone",
       timezoneDescription: "Select your timezone",
+      autoSave: "Changes are saved automatically and applied immediately",
     },
 
     notifications: {
