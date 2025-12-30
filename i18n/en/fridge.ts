@@ -1,19 +1,5 @@
 /**
  * Fridge translations (EN)
- * Холодильник  // Item status
-  status: {
-    expired: "Expired",
-    critical: "Use soon",
-    fresh: "Fresh",
-    unknown: "Unknown status",
-    dontUse: "Don't use",
-    useNow: "Use now",
-    lastDay: "Last day",
-    daysLeft: "{{days}} day left",
-    daysLeftPlural: "{{days}} days left",
-    stillDays: "{{days}} day left",
-    stillDaysPlural: "{{days}} days left",
-  },роки годности
  */
 
 export const fridge = {
@@ -126,6 +112,25 @@ export const fridge = {
     authRequiredDesc: "Log in to manage your fridge",
     loginButton: "Log in",
   },
+
+  // Price modal
+  priceModal: {
+    title: "Add price",
+    priceFor: "Price per:",
+    amount: "Amount:",
+    amountPlaceholder: "e.g. 3.20",
+    estimatedValue: "Estimated product value:",
+    invalidPrice: "Enter a valid price (greater than 0)",
+    saving: "Saving...",
+    save: "Save price",
+    cancel: "Cancel",
+    saveError: "Error saving price",
+    units: {
+      kg: "kilogram (kg)",
+      l: "liter (l)",
+      szt: "piece (pc)",
+    },
+  },
   
   // Form
   form: {
@@ -159,6 +164,10 @@ export const fridge = {
     updatePriceDesc: "Enter price per selected unit. System will automatically calculate total value.",
     updateQuantityTitle: "Change product quantity",
     updateQuantityDesc: "Update product quantity. Total price will be recalculated automatically.",
+    currency: "Currency",
+    estimatedTotal: "Estimated total cost:",
+    noResults: "No products found for",
+    tryDifferentName: "Try entering a different name",
   },
   
   // Flow CTAs

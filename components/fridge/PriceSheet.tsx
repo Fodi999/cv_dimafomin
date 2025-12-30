@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { DollarSign, Loader2 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translateIngredient, generateIngredientSlug } from "@/lib/i18n/translateIngredient";
 import type { FridgeItem } from "@/lib/types";
 
 interface PriceSheetProps {
@@ -11,6 +13,7 @@ interface PriceSheetProps {
 }
 
 export default function PriceSheet({ item, onSave }: PriceSheetProps) {
+  const { t } = useLanguage();
   const [priceValue, setPriceValue] = useState<string>("");
   const [priceUnit, setPriceUnit] = useState<"kg" | "l" | "szt">("kg");
   const [currency, setCurrency] = useState<string>("PLN");
@@ -55,7 +58,7 @@ export default function PriceSheet({ item, onSave }: PriceSheetProps) {
 
     const value = parseFloat(priceValue);
     if (isNaN(value) || value <= 0) {
-      setError("Podaj prawidłową cenę");
+      setError(t?.fridge?.priceModal?.invalidPrice || "Enter a valid price");
       return;
     }
 
@@ -64,7 +67,7 @@ export default function PriceSheet({ item, onSave }: PriceSheetProps) {
       const normalizedPrice = normalizePrice(value, priceUnit);
       await onSave(item.id, normalizedPrice, currency);
     } catch (err: any) {
-      setError(err.message || "Błąd podczas zapisywania ceny");
+      setError(err.message || t?.fridge?.priceModal?.saveError || "Error saving price");
     } finally {
       setIsSubmitting(false);
     }
@@ -75,7 +78,11 @@ export default function PriceSheet({ item, onSave }: PriceSheetProps) {
       {/* Header with item info */}
       <div className="p-4 bg-gradient-to-br from-sky-50 to-cyan-50 dark:from-sky-950/30 dark:to-cyan-950/30 rounded-lg border border-sky-200 dark:border-sky-800/30">
         <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1">
-          {item.ingredient.name}
+          {translateIngredient(
+            item.ingredient.name,
+            item.ingredient.i18nKey || generateIngredientSlug(item.ingredient.name),
+            t
+          )}
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400">
           {item.quantity} {item.unit}
@@ -86,7 +93,7 @@ export default function PriceSheet({ item, onSave }: PriceSheetProps) {
         {/* Price Unit Selector */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Cena za:
+            {t?.fridge?.priceModal?.priceFor || "Price per:"}
           </label>
           <div className="grid grid-cols-3 gap-2">
             {["kg", "l", "szt"].map((unit) => (
@@ -113,7 +120,7 @@ export default function PriceSheet({ item, onSave }: PriceSheetProps) {
         {/* Price Input */}
         <div>
           <label htmlFor="priceValue" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Kwota:
+            {t?.fridge?.priceModal?.amount || "Amount:"}
           </label>
           <div className="relative">
             <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -122,7 +129,7 @@ export default function PriceSheet({ item, onSave }: PriceSheetProps) {
               id="priceValue"
               step="0.01"
               min="0.01"
-              placeholder="np. 3.20"
+              placeholder={t?.fridge?.priceModal?.amountPlaceholder || "e.g. 3.20"}
               value={priceValue}
               onChange={(e) => setPriceValue(e.target.value)}
               className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
@@ -134,7 +141,7 @@ export default function PriceSheet({ item, onSave }: PriceSheetProps) {
         {/* Currency Selector */}
         <div>
           <label htmlFor="currency" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Waluta:
+            {t?.fridge?.form?.currency || "Currency:"}
           </label>
           <select
             id="currency"
@@ -156,7 +163,7 @@ export default function PriceSheet({ item, onSave }: PriceSheetProps) {
             className="p-4 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800/30 rounded-lg"
           >
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-              Szacunkowy koszt całości:
+              {t?.fridge?.form?.estimatedTotal || "Estimated total cost:"}
             </p>
             <p className="text-2xl font-bold text-green-700 dark:text-green-400">
               {estimatedTotal.toFixed(2)} {currency}
@@ -189,10 +196,10 @@ export default function PriceSheet({ item, onSave }: PriceSheetProps) {
           {isSubmitting ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
-              Zapisywanie...
+              {t?.fridge?.priceModal?.saving || "Saving..."}
             </>
           ) : (
-            "Zapisz cenę"
+            t?.fridge?.priceModal?.save || "Save price"
           )}
         </motion.button>
       </form>

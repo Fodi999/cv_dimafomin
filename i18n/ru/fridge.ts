@@ -1,19 +1,6 @@
 /**
  * Fridge translations (RU)
- * Холодильник  // Item status
-  status: {
-    expired: "Просрочено",
-    critical: "Использовать скоро",
-    fresh: "Свежее",
-    unknown: "Неизвестный статус",
-    dontUse: "Не использовать",
-    useNow: "Использовать сейчас",
-    lastDay: "Последний день",
-    daysLeft: "Остался {{days}} день",
-    daysLeftPlural: "Осталось {{days}} дней",
-    stillDays: "Ещё {{days}} день",
-    stillDaysPlural: "Ещё {{days}} дней",
-  },роки годности
+ * Холодильник
  */
 
 export const fridge = {
@@ -126,6 +113,26 @@ export const fridge = {
     authRequiredDesc: "Войдите, чтобы управлять своим холодильником",
     loginButton: "Войти",
   },
+
+  // Price modal
+  priceModal: {
+    title: "Добавить цену",
+    priceFor: "Цена за:",
+    amount: "Сумма:",
+    amountPlaceholder: "например, 3.20",
+    estimatedValue: "Примерная стоимость продукта:",
+    invalidPrice: "Укажите корректную цену (больше 0)",
+    saving: "Сохранение...",
+    save: "Сохранить цену",
+    cancel: "Отмена",
+    saveError: "Ошибка при сохранении цены",
+    units: {
+      kg: "килограмм (кг)",
+      l: "литр (л)",
+      szt: "штука (шт)",
+    },
+  },
+  
   
   // Form
   form: {
@@ -159,6 +166,10 @@ export const fridge = {
     updatePriceDesc: "Укажите цену за выбранную единицу. Система автоматически рассчитает общую стоимость.",
     updateQuantityTitle: "Изменить количество продукта",
     updateQuantityDesc: "Обновите количество продукта. Общая цена будет пересчитана автоматически.",
+    currency: "Валюта",
+    estimatedTotal: "Примерная общая стоимость:",
+    noResults: "Продукты не найдены для",
+    tryDifferentName: "Попробуйте ввести другое название",
   },
   
   // Flow CTAs

@@ -62,8 +62,8 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
           borderColor: "border-green-200 dark:border-green-800/30",
           label: t?.fridge?.status?.fresh || "Fresh",
           description: daysLeft > 7 
-            ? (t?.fridge?.status?.stillDaysPlural?.replace('{{days}}', String(daysLeft)) || `${daysLeft} days left`)
-            : (t?.fridge?.status?.daysLeftPlural?.replace('{{days}}', String(daysLeft)) || `${daysLeft} days`),
+            ? (t?.fridge?.status?.stillDaysPlural?.replace('{days}', String(daysLeft)) || `${daysLeft} days left`)
+            : (t?.fridge?.status?.daysLeftPlural?.replace('{days}', String(daysLeft)) || `${daysLeft} days`),
         };
       case "warning":
         return {
@@ -73,7 +73,7 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
           bgColor: "bg-orange-50 dark:bg-orange-900/20",
           borderColor: "border-orange-200 dark:border-orange-800/30",
           label: t?.fridge?.status?.critical || "Use soon",
-          description: t?.fridge?.status?.daysLeftPlural?.replace('{{days}}', String(daysLeft)) || `${daysLeft} days left`,
+          description: t?.fridge?.status?.daysLeftPlural?.replace('{days}', String(daysLeft)) || `${daysLeft} days left`,
         };
       case "critical":
         return {
@@ -85,7 +85,7 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
           label: t?.fridge?.status?.useNow || "Use now!",
           description: daysLeft === 0 
             ? (t?.fridge?.status?.lastDay || "Last day") 
-            : (t?.fridge?.status?.daysLeftPlural?.replace('{{days}}', String(daysLeft)) || `${daysLeft} days`),
+            : (t?.fridge?.status?.daysLeftPlural?.replace('{days}', String(daysLeft)) || `${daysLeft} days`),
         };
       case "expired":
         return {

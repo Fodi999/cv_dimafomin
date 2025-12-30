@@ -135,7 +135,7 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
                     });
                   })()}
                 </span>
-                ({t?.fridge?.form?.expiryInDays?.replace('{{days}}', String(selectedIngredient.defaultShelfLifeDays)) || `${selectedIngredient.defaultShelfLifeDays} days`})
+                ({t?.fridge?.form?.expiryInDays?.replace('{days}', String(selectedIngredient.defaultShelfLifeDays)) || `${selectedIngredient.defaultShelfLifeDays} days`})
               </p>
             )}
           </motion.div>
@@ -154,7 +154,7 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
           onChange={(e) => setQuantity(e.target.value)}
           placeholder={
             selectedIngredient 
-              ? t?.fridge?.form?.quantityPlaceholder?.replace('{{unit}}', selectedIngredient.unit) || `e.g. 500 ${selectedIngredient.unit}`
+              ? t?.fridge?.form?.quantityPlaceholder?.replace('{unit}', selectedIngredient.unit) || `e.g. 500 ${selectedIngredient.unit}`
               : t?.fridge?.form?.selectProductFirst || "Select a product first"
           }
           disabled={!selectedIngredient}

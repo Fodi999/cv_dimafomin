@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, DollarSign } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translateIngredient, generateIngredientSlug } from "@/lib/i18n/translateIngredient";
 import type { FridgeItem } from "@/lib/types";
 
 interface PriceModalProps {
@@ -20,6 +22,7 @@ function normalizePrice(value: number, unit: "kg" | "l" | "szt"): number {
 }
 
 export default function PriceModal({ item, isOpen, onClose, onSave }: PriceModalProps) {
+  const { t } = useLanguage();
   const [priceValue, setPriceValue] = useState("");
   const [priceUnit, setPriceUnit] = useState<"kg" | "l" | "szt">(
     item.unit === "g" || item.unit === "kg" ? "kg" :
@@ -35,7 +38,7 @@ export default function PriceModal({ item, isOpen, onClose, onSave }: PriceModal
 
     const value = parseFloat(priceValue);
     if (!priceValue || isNaN(value) || value <= 0) {
-      setError("Podaj prawidłową cenę (większą niż 0)");
+      setError(t?.fridge?.priceModal?.invalidPrice || "Enter a valid price (greater than 0)");
       return;
     }
 
@@ -51,7 +54,7 @@ export default function PriceModal({ item, isOpen, onClose, onSave }: PriceModal
       onClose();
     } catch (err: any) {
       console.error("Failed to save price:", err);
-      setError(err.message || "Błąd podczas zapisywania ceny");
+      setError(err.message || t?.fridge?.priceModal?.saveError || "Error saving price");
     } finally {
       setIsSaving(false);
     }
@@ -111,10 +114,14 @@ export default function PriceModal({ item, isOpen, onClose, onSave }: PriceModal
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                      Dodaj cenę
+                      {t?.fridge?.priceModal?.title || "Add price"}
                     </h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {item.ingredient.name}
+                      {translateIngredient(
+                        item.ingredient.name,
+                        item.ingredient.i18nKey || generateIngredientSlug(item.ingredient.name),
+                        t
+                      )}
                     </p>
                   </div>
                 </div>
@@ -127,22 +134,22 @@ export default function PriceModal({ item, isOpen, onClose, onSave }: PriceModal
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Cena za:
+                    {t?.fridge?.priceModal?.priceFor || "Price per:"}
                   </label>
                   <select
                     value={priceUnit}
                     onChange={(e) => setPriceUnit(e.target.value as "kg" | "l" | "szt")}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
-                    <option value="kg">kilogram (kg)</option>
-                    <option value="l">litr (l)</option>
-                    <option value="szt">sztuka (szt)</option>
+                    <option value="kg">{t?.fridge?.priceModal?.units?.kg || "kilogram (kg)"}</option>
+                    <option value="l">{t?.fridge?.priceModal?.units?.l || "liter (l)"}</option>
+                    <option value="szt">{t?.fridge?.priceModal?.units?.szt || "piece (pc)"}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Kwota:
+                    {t?.fridge?.priceModal?.amount || "Amount:"}
                   </label>
                   <div className="flex gap-2">
                     <input
@@ -151,7 +158,7 @@ export default function PriceModal({ item, isOpen, onClose, onSave }: PriceModal
                       min="0"
                       value={priceValue}
                       onChange={(e) => setPriceValue(e.target.value)}
-                      placeholder="np. 3.20"
+                      placeholder={t?.fridge?.priceModal?.amountPlaceholder || "e.g. 3.20"}
                       className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
                       autoFocus
                     />
@@ -169,7 +176,7 @@ export default function PriceModal({ item, isOpen, onClose, onSave }: PriceModal
                     className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-lg"
                   >
                     <p className="text-xs text-green-700 dark:text-green-300 mb-1">
-                      Szacunkowa wartość produktu:
+                      {t?.fridge?.priceModal?.estimatedValue || "Estimated product value:"}
                     </p>
                     <p className="text-lg font-bold text-green-600 dark:text-green-400">
                       ≈ {estimatedTotal.toFixed(2)} {currency}
@@ -194,14 +201,14 @@ export default function PriceModal({ item, isOpen, onClose, onSave }: PriceModal
                     onClick={onClose}
                     className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
                   >
-                    Anuluj
+                    {t?.fridge?.priceModal?.cancel || "Cancel"}
                   </button>
                   <button
                     type="submit"
                     disabled={isSaving || !priceValue}
                     className="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isSaving ? "Zapisywanie..." : "Zapisz cenę"}
+                    {isSaving ? (t?.fridge?.priceModal?.saving || "Saving...") : (t?.fridge?.priceModal?.save || "Save price")}
                   </button>
                 </div>
               </form>

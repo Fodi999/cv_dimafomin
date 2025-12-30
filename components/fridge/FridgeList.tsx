@@ -170,7 +170,7 @@ export default function FridgeList({ items, onDelete, onPriceClick, onQuantityCl
           className="text-center py-8 px-6 bg-white dark:bg-slate-800 rounded-xl shadow border border-gray-200 dark:border-gray-700"
         >
           <p className="text-gray-600 dark:text-gray-400">
-            {t?.fridge?.emptyCategory?.replace('{{category}}', CATEGORIES.find(c => c.value === activeCategory)?.label || '') || `No products in category ${CATEGORIES.find(c => c.value === activeCategory)?.label}`}
+            {t?.fridge?.emptyCategory?.replace('{category}', CATEGORIES.find(c => c.value === activeCategory)?.label || '') || `No products in category ${CATEGORIES.find(c => c.value === activeCategory)?.label}`}
           </p>
         </motion.div>
       ) : (

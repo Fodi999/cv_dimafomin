@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Loader2 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translateIngredient, generateIngredientSlug } from "@/lib/i18n/translateIngredient";
 import { fridgeApi } from "@/lib/api";
 import type { CatalogIngredient, IngredientSearchResponse } from "@/lib/types";
 
@@ -20,9 +22,10 @@ export default function IngredientAutocomplete({
   onChange,
   onSelect,
   token,
-  placeholder = "Szukaj produktu...",
+  placeholder = "Search for product...",
   categoryFilter = null,
 }: IngredientAutocompleteProps) {
+  const { t } = useLanguage();
   const [suggestions, setSuggestions] = useState<CatalogIngredient[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -40,13 +43,15 @@ export default function IngredientAutocomplete({
 
       setLoading(true);
       try {
-        console.log('[IngredientAutocomplete] 🔍 Calling fridgeApi.searchIngredients with:', value);
+        if (process.env.NODE_ENV === "development") {
+          console.log('[IngredientAutocomplete] 🔍 Calling fridgeApi.searchIngredients with:', value);
+        }
         const response = await fridgeApi.searchIngredients(value, token) as IngredientSearchResponse;
-        console.log('[IngredientAutocomplete] 📦 RAW response from API:', response);
-        console.log('[IngredientAutocomplete] 📦 Response type:', typeof response);
-        console.log('[IngredientAutocomplete] 📦 Response.items:', response?.items);
-        console.log('[IngredientAutocomplete] 📦 Response.data:', (response as any)?.data);
-        console.log('[IngredientAutocomplete] 📦 Full response keys:', response ? Object.keys(response) : 'null');
+        
+        if (process.env.NODE_ENV === "development") {
+          console.log('[IngredientAutocomplete] 📦 RAW response from API:', response);
+          console.log('[IngredientAutocomplete] 📦 Response.items:', response?.items);
+        }
         
         // ✅ Чистая работа с данными: API слой уже нормализовал ответ
         let items = response?.items ?? [];
@@ -54,12 +59,14 @@ export default function IngredientAutocomplete({
         // ✅ Фильтрация по категории (если указан фильтр)
         if (categoryFilter) {
           items = items.filter(item => item.category === categoryFilter);
-          console.log('[IngredientAutocomplete] 🔍 Filtered by category:', categoryFilter, '→', items.length, 'items');
+          if (process.env.NODE_ENV === "development") {
+            console.log('[IngredientAutocomplete] 🔍 Filtered by category:', categoryFilter, '→', items.length, 'items');
+          }
         }
         
-        console.log('[IngredientAutocomplete] Items extracted:', items);
-        console.log('[IngredientAutocomplete] Items count:', items.length);
-        console.log('[IngredientAutocomplete] Setting isOpen to:', items.length > 0);
+        if (process.env.NODE_ENV === "development") {
+          console.log('[IngredientAutocomplete] Items count:', items.length);
+        }
         
         setSuggestions(items);
         setIsOpen(items.length > 0); // Открываем только если есть результаты
@@ -118,9 +125,30 @@ export default function IngredientAutocomplete({
 
   const handleSelect = (ingredient: CatalogIngredient) => {
     onSelect(ingredient);
-    onChange(ingredient.name);
+    // ✅ 2025 Pattern: Не сохраняем ingredient.name в value
+    // Frontend хранит только inputValue, а selectedIngredient передаётся через onSelect
+    // UI отобразит ingredient.name на любом языке через translateIngredient
+    onChange(""); // Очищаем input после выбора
     setIsOpen(false);
     setSuggestions([]);
+  };
+
+  // ✅ Highlight helper: подсвечивает совпадение в тексте
+  const highlightMatch = (text: string, query: string) => {
+    if (!query.trim()) return text;
+    
+    const regex = new RegExp(`(${query})`, 'gi');
+    const parts = text.split(regex);
+    
+    return parts.map((part, index) => 
+      regex.test(part) ? (
+        <mark key={index} className="bg-sky-200 dark:bg-sky-800 font-semibold">
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    );
   };
 
   return (
@@ -153,15 +181,28 @@ export default function IngredientAutocomplete({
             className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 border border-sky-200 dark:border-sky-800 rounded-lg shadow-lg max-h-64 overflow-y-auto"
           >
             {suggestions.map((ingredient, index) => {
-              if (index === 0) {
+              if (index === 0 && process.env.NODE_ENV === "development") {
                 console.log('[IngredientAutocomplete] 🎨 Rendering dropdown with', suggestions.length, 'items');
               }
+              
+              // ✅ Переводим название ингредиента
+              const translatedName = translateIngredient(
+                ingredient.name,
+                ingredient.i18nKey || generateIngredientSlug(ingredient.name),
+                t
+              );
+              
+              // ✅ Переводим категорию
+              const translatedCategory = t?.fridge?.categories?.[ingredient.category] || ingredient.category;
+              
               return (
                 <motion.div
                   key={ingredient.id}
                   whileHover={{ backgroundColor: "rgba(14, 165, 233, 0.1)" }}
                   onClick={() => {
-                    console.log('[IngredientAutocomplete] ✅ Selected:', ingredient);
+                    if (process.env.NODE_ENV === "development") {
+                      console.log('[IngredientAutocomplete] ✅ Selected:', ingredient);
+                    }
                     handleSelect(ingredient);
                   }}
                   className={`px-4 py-3 cursor-pointer transition-colors ${
@@ -173,10 +214,10 @@ export default function IngredientAutocomplete({
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <p className="font-medium text-gray-900 dark:text-white">
-                        {ingredient.name}
+                        {highlightMatch(translatedName, value)}
                       </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Kategoria: {ingredient.category}
+                        {t?.fridge?.item?.category || "Category"}: {translatedCategory}
                       </p>
                     </div>
                     <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">
@@ -198,10 +239,10 @@ export default function IngredientAutocomplete({
           className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 border border-orange-200 dark:border-orange-800 rounded-lg shadow-lg p-4"
         >
           <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-            🔍 Nie znaleziono produktów dla &quot;{value}&quot;
+            🔍 {t?.fridge?.form?.noResults || 'No products found for'} &quot;{value}&quot;
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-500 text-center mt-1">
-            Spróbuj wpisać inną nazwę
+            {t?.fridge?.form?.tryDifferentName || 'Try entering a different name'}
           </p>
         </motion.div>
       )}

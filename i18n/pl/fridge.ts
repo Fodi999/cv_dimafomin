@@ -1,19 +1,5 @@
 /**
  * Fridge translations (PL)
- * Холодильник  // Item status
-  status: {
-    expired: "Przeterminowane",
-    critical: "Zużyj wkrótce",
-    fresh: "Świeże",
-    unknown: "Nieznany status",
-    dontUse: "Nie używaj",
-    useNow: "Użyj teraz",
-    lastDay: "Ostatni dzień",
-    daysLeft: "Zostało {{days}} dzień",
-    daysLeftPlural: "Zostało {{days}} dni",
-    stillDays: "Jeszcze {{days}} dzień",
-    stillDaysPlural: "Jeszcze {{days}} dni",
-  },роки годности
  */
 
 export const fridge = {
@@ -92,10 +78,10 @@ export const fridge = {
   
   // Losses summary (for fridge page)
   lossesSummary: {
-    title: "⚠️ Потери за последние {days} дней",
-    products: "продуктов",
-    totalLoss: "потерь",
-    viewHistory: "Посмотреть историю",
+    title: "⚠️ Straty z ostatnich {days} dni",
+    products: "produktów",
+    totalLoss: "strat",
+    viewHistory: "Zobacz historię",
   },
   
   // Actions
@@ -125,6 +111,25 @@ export const fridge = {
     authRequired: "Wymagana autoryzacja",
     authRequiredDesc: "Zaloguj się, aby zarządzać swoją lodówką",
     loginButton: "Zaloguj się",
+  },
+
+  // Price modal
+  priceModal: {
+    title: "Dodaj cenę",
+    priceFor: "Cena za:",
+    amount: "Kwota:",
+    amountPlaceholder: "np. 3.20",
+    estimatedValue: "Szacunkowa wartość produktu:",
+    invalidPrice: "Podaj prawidłową cenę (większą niż 0)",
+    saving: "Zapisywanie...",
+    save: "Zapisz cenę",
+    cancel: "Anuluj",
+    saveError: "Błąd podczas zapisywania ceny",
+    units: {
+      kg: "kilogram (kg)",
+      l: "litr (l)",
+      szt: "sztuka (szt)",
+    },
   },
   
   // Form
@@ -159,6 +164,10 @@ export const fridge = {
     updatePriceDesc: "Podaj cenę za wybraną jednostkę. System automatycznie obliczy całkowitą wartość.",
     updateQuantityTitle: "Zmień ilość produktu",
     updateQuantityDesc: "Zaktualizuj ilość produktu. Cena całkowita zostanie przeliczona automatycznie.",
+    currency: "Waluta",
+    estimatedTotal: "Szacunkowy koszt całości:",
+    noResults: "Nie znaleziono produktów dla",
+    tryDifferentName: "Spróbuj wpisać inną nazwę",
   },
   
   // Flow CTAs
