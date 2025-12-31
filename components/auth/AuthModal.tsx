@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -311,15 +310,15 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
                       </button>
                     </div>
 
-                    <Button
+                    <button
                       type="submit"
                       disabled={isLoading}
-                      className={`w-full ${gradients.primary} hover:shadow-lg dark:hover:shadow-sky-500/30 text-white font-bold`}
+                      className={`w-full h-10 px-4 py-2 rounded-md font-medium text-white transition-all disabled:opacity-50 disabled:pointer-events-none ${gradients.primary} hover:shadow-lg dark:hover:shadow-sky-500/30`}
                     >
                       {isLoading
-                        ? t.auth.loading
-                        : t.auth.loginButton}
-                    </Button>
+                        ? t?.auth?.loading || "Loading..."
+                        : t?.auth?.login?.submit || "Log in"}
+                    </button>
                   </form>
                 ) : (
                   <form onSubmit={handleRegister} className="space-y-4">
@@ -416,15 +415,15 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
                       </div>
                     </div>
 
-                    <Button
+                    <button
                       type="submit"
                       disabled={isLoading}
-                      className={`w-full ${gradients.primary} hover:shadow-lg dark:hover:shadow-sky-500/30 text-white font-bold`}
+                      className={`w-full h-10 px-4 py-2 rounded-md font-medium text-white transition-all disabled:opacity-50 disabled:pointer-events-none ${gradients.primary} hover:shadow-lg dark:hover:shadow-sky-500/30`}
                     >
                       {isLoading
-                        ? t.auth.loading
-                        : t.auth.registerButton}
-                    </Button>
+                        ? t?.auth?.loading || "Loading..."
+                        : t?.auth?.register?.submit || "Register"}
+                    </button>
                   </form>
                 )}
               </div>

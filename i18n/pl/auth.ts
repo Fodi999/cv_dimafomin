@@ -4,6 +4,21 @@
  */
 
 export const auth = {
+  // Top-level keys for tabs and common elements
+  loginTab: "Logowanie",
+  registerTab: "Rejestracja",
+  email: "Email",
+  password: "Hasło",
+  name: "Imię",
+  confirmPassword: "Potwierdź hasło",
+  rememberMe: "Zapamiętaj mnie",
+  forgotPassword: "Zapomniałeś hasła?",
+  noAccount: "Nie masz konta?",
+  registerNow: "Zarejestruj się",
+  haveAccount: "Masz już konto?",
+  loginNow: "Zaloguj się",
+  loading: "Ładowanie...",
+
   // Login
   login: {
     title: "Zaloguj się",
