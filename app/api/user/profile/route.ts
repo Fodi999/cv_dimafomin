@@ -107,3 +107,53 @@ export async function PUT(req: NextRequest) {
     );
   }
 }
+
+/**
+ * PATCH /api/user/profile
+ * Частично обновить профиль текущего пользователя
+ */
+export async function PATCH(req: NextRequest) {
+  try {
+    const token = req.headers.get('authorization');
+    
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Authorization token required' },
+        { status: 401 }
+      );
+    }
+
+    const body = await req.json();
+    console.log('[API Proxy] PATCH /api/user/profile');
+    console.log('[API Proxy] Body:', JSON.stringify(body, null, 2));
+
+    const backendUrl = `${BACKEND_URL}/api/user/profile`;
+    
+    const response = await fetch(backendUrl, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': token,
+        'Cookie': req.headers.get('cookie') || '',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      console.error('[API Proxy] Backend error:', response.status, data);
+      return NextResponse.json(data, { status: response.status });
+    }
+
+    console.log('[API Proxy] ✅ Success, profile updated');
+    return NextResponse.json(data);
+    
+  } catch (error: any) {
+    console.error('[API Proxy] Error updating user profile:', error);
+    return NextResponse.json(
+      { error: 'Failed to update user profile', details: error.message },
+      { status: 500 }
+    );
+  }
+}
