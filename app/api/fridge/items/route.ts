@@ -86,12 +86,16 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+    
+    console.log('[API Proxy] ========================================');
     console.log('[API Proxy] POST /api/fridge/items');
-    console.log('[API Proxy] Body:', JSON.stringify(body, null, 2));
-    console.log('[API Proxy] Token:', token.substring(0, 20) + '...');
+    console.log('[API Proxy] Request body:', JSON.stringify(body, null, 2));
+    console.log('[API Proxy] Token (first 30 chars):', token.substring(0, 30) + '...');
+    console.log('[API Proxy] Token starts with Bearer?', token.startsWith('Bearer '));
 
     const backendUrl = `${BACKEND_URL}/api/fridge/items`;
     console.log('[API Proxy] Forwarding to:', backendUrl);
+    console.log('[API Proxy] ========================================');
 
     const response = await fetch(backendUrl, {
       method: 'POST',
@@ -103,31 +107,29 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify(body),
     });
 
-    const data = await response.json();
+    let data;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      console.error('[API Proxy] Failed to parse response as JSON:', parseError);
+      data = { error: 'Invalid JSON response from backend' };
+    }
     
     if (!response.ok) {
-      console.error('[API Proxy] Backend error:', response.status, data);
-      console.error('[API Proxy] Full error:', JSON.stringify(data, null, 2));
+      console.error('[API Proxy] ❌ Backend error:', response.status);
+      console.error('[API Proxy] Request body was:', JSON.stringify(body, null, 2));
+      console.error('[API Proxy] Response data:', JSON.stringify(data, null, 2));
+      console.error('[API Proxy] Response headers:', Object.fromEntries(response.headers.entries()));
       
-      // 🔧 TEMPORARY: If backend returns 500, create mock item (endpoint not implemented yet)
-      if (response.status === 500) {
-        console.warn('[API Proxy] ⚠️ Backend fridge POST not implemented yet - returning mock item');
-        const mockItem = {
-          id: `mock-${Date.now()}`,
-          ingredient: {
-            name: body.ingredientId, // We don't have ingredient name, use ID
-            category: 'other'
-          },
-          quantity: body.quantity,
-          unit: body.unit,
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
-          daysLeft: 7,
-          status: 'ok' as const
-        };
-        return NextResponse.json(mockItem);
-      }
-      
-      return NextResponse.json(data, { status: response.status });
+      // Return the actual error from backend
+      return NextResponse.json(
+        { 
+          error: data.message || data.error || 'Failed to add item',
+          code: data.code || 'BACKEND_ERROR',
+          details: data
+        }, 
+        { status: response.status }
+      );
     }
 
     console.log('[API Proxy] ✅ Success, item added:', data.id);
