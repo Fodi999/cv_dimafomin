@@ -74,6 +74,17 @@ export interface RecipeMatchResponse {
   recipes: RecipeMatch[];
 }
 
+/**
+ * Available Recipes - categorized by cooking feasibility
+ * Used on /recipes page for cooking-first UX
+ */
+export interface AvailableRecipesResponse {
+  canCook: RecipeMatch[];      // ✅ Can cook NOW (missingCount === 0)
+  almostCook: RecipeMatch[];   // 🟡 Missing 1-2 ingredients
+  needToBuy: RecipeMatch[];    // 🔴 Missing 3+ ingredients
+  total: number;
+}
+
 export type AIRecommendationResult =
   | { status: 'ok'; recipe: RecipeMatch }
   | { status: 'no-results'; message: string; error?: string; requiresUserAction?: boolean };
@@ -159,6 +170,37 @@ export const recipeMatchingApi = {
     } catch (error: any) {
       return { status: 'no-results', message: error.message || 'Nie udało się załadować rekomendacji', error: error.toString() };
     }
+  },
+
+  /**
+   * Get available recipes categorized by cooking feasibility
+   * For /recipes page cooking-first UX
+   */
+  getAvailableRecipes: async (params: RecipeMatchParams = {}, token: string): Promise<AvailableRecipesResponse> => {
+    // Fetch all recipe matches
+    const response = await recipeMatchingApi.getRecipeMatches(params, token);
+    
+    // Categorize recipes based on missingCount
+    const canCook: RecipeMatch[] = [];
+    const almostCook: RecipeMatch[] = [];
+    const needToBuy: RecipeMatch[] = [];
+    
+    response.recipes.forEach(recipe => {
+      if (recipe.missingCount === 0) {
+        canCook.push(recipe);
+      } else if (recipe.missingCount <= 2) {
+        almostCook.push(recipe);
+      } else {
+        needToBuy.push(recipe);
+      }
+    });
+    
+    return {
+      canCook,
+      almostCook,
+      needToBuy,
+      total: response.recipes.length
+    };
   },
 
   cookRecipe: async (recipeId: string, params: CookRecipeParams, token: string): Promise<CookRecipeResult> => {
