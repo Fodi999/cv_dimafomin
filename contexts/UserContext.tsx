@@ -15,7 +15,7 @@ interface User {
   instagram?: string;
   telegram?: string;
   whatsapp?: string;
-  role: "student" | "instructor" | "admin" | "home_chef";
+  role: "student" | "instructor" | "admin" | "superadmin" | "home_chef"; // 🆕 Добавили superadmin
   level?: number;
   xp?: number;
   chefTokens?: number;

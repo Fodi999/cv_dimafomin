@@ -12,8 +12,8 @@ import { RecipeProvider } from "@/contexts/RecipeContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import PWARegister from "@/components/PWARegister";
-import NavigationBurger from "@/components/NavigationBurger";
 import AuthGate from "@/components/auth/AuthGate";
+import GlobalAuthModal from "@/components/auth/GlobalAuthModal"; // 🆕 Global auth modal
 import TokenValidator from "@/components/auth/TokenValidator";
 import { Toaster } from "@/components/ui/sonner";
 import { I18nDevWarning } from "@/components/dev/I18nDevWarning";
@@ -103,8 +103,14 @@ export default async function RootLayout({
                     <RecipeProvider>
                       <NotificationProvider>
                         <TokenValidator />
+                        <GlobalAuthModal /> {/* 🆕 Global auth modal for all pages */}
                         <AuthGate>
-                          <NavigationBurger />
+                          {/* ❌ NavigationBurger видалено з root layout */}
+                          {/* ✅ Кожен контекст має свою навігацію:
+                              - Public: мінімальний хедер на app/page.tsx
+                              - User: UserNavigation в app/(user)/layout.tsx
+                              - Admin: AdminNavigation в app/admin/layout.tsx
+                          */}
                           <div className="min-h-screen">
                             {children}
                           </div>

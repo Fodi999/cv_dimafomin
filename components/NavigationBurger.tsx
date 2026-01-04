@@ -61,11 +61,6 @@ export default function NavigationBurger() {
     setIsMounted(true);
   }, []);
 
-  // 🚫 Hide NavigationBurger on admin pages
-  if (pathname?.startsWith('/admin')) {
-    return null;
-  }
-
   // Закрыть меню при клике на ссылку
   const handleLinkClick = (href: string) => {
     console.log("🔵 NavigationBurger: Navigating to:", href);
@@ -99,8 +94,19 @@ export default function NavigationBurger() {
     };
   }, [isOpen]);
 
-  // ✅ ПРАВИЛЬНА НАВІГАЦІЯ (фокус на journey користувача)
-  // Структура: Home → Lodówka → Gotowanie → AI → Przepisy → Akademia → ChefTokens → Profil
+  // 🚫 Hide NavigationBurger on admin and protected user routes - AFTER all hooks
+  const protectedUserRoutes = ['/fridge', '/recipes', '/assistant', '/tokens', '/academy', '/market', '/losses', '/profile'];
+  const isProtectedRoute = pathname?.startsWith('/admin') || protectedUserRoutes.some(route => pathname?.startsWith(route));
+  
+  if (isProtectedRoute) {
+    console.log('🚫 [NavigationBurger] Hidden on protected page:', pathname);
+    return null;
+  }
+
+  console.log('✅ [NavigationBurger] Rendering on page:', pathname);
+
+  // ✅ ПУБЛІЧНА НАВІГАЦІЯ (для гостей и главной страницы)
+  // Структура: Home → Академія (превью) → Ціни → Про нас
   const navLinks: NavLink[] = [
     // ===== START =====
     {

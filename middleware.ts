@@ -1,6 +1,13 @@
 /**
- * i18n Middleware
- * Гарантирует наличие языка в cookie при каждом запросе
+ * Combined Middleware: i18n + Role-based Routing
+ * 
+ * 1. Гарантирует наличие языка в cookie
+ * 2. Защищает маршруты на основе роли пользователя
+ * 
+ * 3 зоны доступа:
+ * - `/` - Публичная (доступна всем)
+ * - Пользовательские маршруты (только для USER): /fridge, /recipes, /assistant, /tokens, /academy, /market, /losses, /profile
+ * - `/admin` - Админ-панель (только для ADMIN/SUPERADMIN)
  * 
  * @see https://nextjs.org/docs/app/building-your-application/routing/middleware
  */
@@ -14,26 +21,144 @@ import {
   isSupportedLanguage,
 } from "@/lib/i18n/constants";
 
-export function middleware(req: NextRequest) {
-  // Читаем язык из cookie
-  const cookieLang = req.cookies.get(LANGUAGE_COOKIE_KEY)?.value;
+// 🔒 Protected USER routes (Route Group (user) renders as root paths)
+const PROTECTED_USER_ROUTES = [
+  "/fridge",
+  "/recipes",
+  "/assistant",
+  "/tokens",
+  "/academy",
+  "/market",
+  "/losses",
+  "/profile",
+];
 
-  // Валидируем и фолбэчим на дефолтный
+// Helper: Check if path is a protected user route
+function isProtectedUserRoute(pathname: string): boolean {
+  return PROTECTED_USER_ROUTES.some(route => 
+    pathname === route || pathname.startsWith(route + "/")
+  );
+}
+
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  // ==================== 1. i18n Logic ====================
+  const cookieLang = req.cookies.get(LANGUAGE_COOKIE_KEY)?.value;
   const lang = cookieLang && isSupportedLanguage(cookieLang)
     ? cookieLang
     : DEFAULT_LANGUAGE;
 
-  // Создаём response
-  const res = NextResponse.next();
+  // ==================== 2. Auth & Role Logic ====================
+  const token = req.cookies.get("token")?.value;
+  const role = req.cookies.get("role")?.value;
 
-  // Устанавливаем/обновляем cookie
+  // Публичные маршруты (доступны всем)
+  const publicPaths = [
+    "/",
+    "/academy",
+    "/pricing",
+    "/about",
+    "/auth",
+    "/api", // API routes всегда доступны
+  ];
+
+  const isPublicPath = publicPaths.some((path) => 
+    pathname === path || pathname.startsWith(`${path}/`)
+  );
+
+  // 🔓 Гость (не авторизован)
+  if (!token) {
+    // Гость пытается попасть в USER routes или /admin → редирект на главную
+    if (isProtectedUserRoute(pathname) || pathname.startsWith("/admin")) {
+      console.log(`🚫 [Middleware] Guest tried to access: ${pathname} → redirecting to /`);
+      const url = req.nextUrl.clone();
+      url.pathname = "/";
+      const res = NextResponse.redirect(url);
+      res.cookies.set(LANGUAGE_COOKIE_KEY, lang, {
+        path: "/",
+        maxAge: LANGUAGE_COOKIE_MAX_AGE,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+      });
+      return res;
+    }
+
+    // Гость на публичной странице → разрешаем
+    const res = NextResponse.next();
+    res.cookies.set(LANGUAGE_COOKIE_KEY, lang, {
+      path: "/",
+      maxAge: LANGUAGE_COOKIE_MAX_AGE,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+    return res;
+  }
+
+  // 🛡 Админ (role === "admin" или "superadmin")
+  if (role === "admin" || role === "superadmin") {
+    // Админ пытается попасть в USER routes → редирект в /admin
+    if (isProtectedUserRoute(pathname)) {
+      console.log(`🛡 [Middleware] Admin tried to access user route: ${pathname} → redirecting to /admin`);
+      const url = req.nextUrl.clone();
+      url.pathname = "/admin";
+      const res = NextResponse.redirect(url);
+      res.cookies.set(LANGUAGE_COOKIE_KEY, lang, {
+        path: "/",
+        maxAge: LANGUAGE_COOKIE_MAX_AGE,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+      });
+      return res;
+    }
+
+    // Админ на / или /admin → разрешаем
+    const res = NextResponse.next();
+    res.cookies.set(LANGUAGE_COOKIE_KEY, lang, {
+      path: "/",
+      maxAge: LANGUAGE_COOKIE_MAX_AGE,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+    return res;
+  }
+
+  // 👤 Обычный пользователь (USER)
+  if (token && role !== "admin" && role !== "superadmin") {
+    // Пользователь пытается попасть в /admin → редирект в /academy
+    if (pathname.startsWith("/admin")) {
+      console.log(`👤 [Middleware] User tried to access /admin: ${pathname} → redirecting to /academy`);
+      const url = req.nextUrl.clone();
+      url.pathname = "/academy";
+      const res = NextResponse.redirect(url);
+      res.cookies.set(LANGUAGE_COOKIE_KEY, lang, {
+        path: "/",
+        maxAge: LANGUAGE_COOKIE_MAX_AGE,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+      });
+      return res;
+    }
+
+    // Пользователь на / или /app → разрешаем
+    const res = NextResponse.next();
+    res.cookies.set(LANGUAGE_COOKIE_KEY, lang, {
+      path: "/",
+      maxAge: LANGUAGE_COOKIE_MAX_AGE,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+    return res;
+  }
+
+  // Fallback: просто применяем i18n
+  const res = NextResponse.next();
   res.cookies.set(LANGUAGE_COOKIE_KEY, lang, {
     path: "/",
     maxAge: LANGUAGE_COOKIE_MAX_AGE,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
   });
-
   return res;
 }
 

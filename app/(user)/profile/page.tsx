@@ -111,26 +111,6 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
-      {/* Sticky Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">{t?.profile?.page?.backButton || "Back"}</span>
-          </button>
-          <div className="flex items-center gap-3">
-            <User className="w-6 h-6 text-purple-600" />
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-              {t?.profile?.page?.title || "Profile"}
-            </h1>
-          </div>
-          <div className="w-20" />
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-3 sm:px-4 py-6">
         
         {/* 🧠 Block 1: Identity (minimal, quiet) */}

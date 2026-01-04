@@ -1,15 +1,21 @@
 /**
- * Admin Navigation Schema
+ * Admin Navigation Schema - Professional SaaS Structure
  * 
- * Профессиональная структура админ-панели:
- * - Dashboard: Обзор системы, KPI, мониторинг
- * - Users: Управление пользователями, роли, доступы
- * - Content: Рецепты, ингредиенты, категории, локализация
- * - AI & Logic: Сценарии AI, промпты, логи
- * - Economy: Токены, транзакции, награды
- * - Operations: Заказы, платежи, подписки
- * - Integrations: API, вебхуки, внешние сервисы
- * - Settings: Конфигурация системы
+ * Clean, business-focused admin navigation (7 core sections):
+ * 1. Dashboard - System overview, KPIs
+ * 2. Users - User management, roles, activity log
+ * 3. Content - Recipes, ingredients, courses, localization
+ * 4. AI - Scenarios, prompts, cost limits
+ * 5. Economy - Token treasury, transactions, bonuses/penalties
+ * 6. Integrations - API keys, webhooks, external services
+ * 7. Settings - General config, feature flags, security
+ * 
+ * Key principles:
+ * - 7 sections max (optimal cognitive load)
+ * - No duplicates
+ * - Business-focused language
+ * - Max 2 levels deep
+ * - RBAC + Feature flags support
  */
 
 import {
@@ -18,43 +24,35 @@ import {
   BookOpen,
   Brain,
   Wallet,
-  ShoppingCart,
   Plug,
   Settings,
   ChefHat,
   Carrot,
   Languages,
   Shield,
-  MessageSquare,
-  FileText,
-  TrendingUp,
   Activity,
-  CreditCard,
-  Package,
+  TrendingUp,
+  Gift,
   Key,
   Webhook,
+  Cloud,
   Flag,
   Lock,
+  Zap,
   type LucideIcon,
 } from "lucide-react";
 
-/**
- * Типы ролей для доступа к разделам
- */
+// ═══════════════════════════════════════════════════════════
+// TYPES
+// ═══════════════════════════════════════════════════════════
+
 export type AdminRole = "admin" | "superadmin" | "moderator" | "support";
 
-/**
- * Feature flags для условного отображения разделов
- */
 export type FeatureFlag = 
-  | "operations"
-  | "integrations" 
-  | "ai_logs"
-  | "advanced_settings";
+  | "integrations"
+  | "advanced_ai"
+  | "economy_management";
 
-/**
- * Элемент навигации
- */
 export interface NavigationItem {
   id: string;
   label: {
@@ -64,15 +62,11 @@ export interface NavigationItem {
   };
   icon: LucideIcon;
   href: string;
-  badge?: string; // Для отображения счетчиков
-  requiredRoles?: AdminRole[]; // Если не указано - доступно всем админам
-  requiredFeatures?: FeatureFlag[]; // Требуемые feature flags
-  children?: NavigationItem[];
+  badge?: string;
+  requiredRoles?: AdminRole[];
+  requiredFeatures?: FeatureFlag[];
 }
 
-/**
- * Секция навигации (группа разделов)
- */
 export interface NavigationSection {
   id: string;
   label: {
@@ -82,22 +76,24 @@ export interface NavigationSection {
   };
   items: NavigationItem[];
   requiredRoles?: AdminRole[];
-  requiredFeatures?: FeatureFlag[]; // Feature flags для секции
+  requiredFeatures?: FeatureFlag[];
 }
 
-/**
- * Полная схема админ-навигации
- */
+// ═══════════════════════════════════════════════════════════
+// NAVIGATION SCHEMA - 7 CORE SECTIONS
+// ═══════════════════════════════════════════════════════════
+
 export const adminNavigationSchema: NavigationSection[] = [
-  // ═══════════════════════════════════════════════════════════
-  // 🏠 DASHBOARD - Главная панель
-  // ═══════════════════════════════════════════════════════════
+  
+  // ───────────────────────────────────────────────────────
+  // 📊 1. DASHBOARD
+  // ───────────────────────────────────────────────────────
   {
     id: "dashboard",
     label: {
-      en: "Overview",
-      ru: "Обзор",
-      pl: "Przegląd",
+      en: "Dashboard",
+      ru: "Панель управления",
+      pl: "Panel sterowania",
     },
     items: [
       {
@@ -113,9 +109,9 @@ export const adminNavigationSchema: NavigationSection[] = [
     ],
   },
 
-  // ═══════════════════════════════════════════════════════════
-  // 👥 USERS - Управление пользователями
-  // ═══════════════════════════════════════════════════════════
+  // ───────────────────────────────────────────────────────
+  // 👥 2. USERS (Пользователи)
+  // ───────────────────────────────────────────────────────
   {
     id: "users",
     label: {
@@ -125,11 +121,11 @@ export const adminNavigationSchema: NavigationSection[] = [
     },
     items: [
       {
-        id: "users-list",
+        id: "users",
         label: {
-          en: "All Users",
-          ru: "Все пользователи",
-          pl: "Wszyscy użytkownicy",
+          en: "Users",
+          ru: "Пользователи",
+          pl: "Użytkownicy",
         },
         icon: Users,
         href: "/admin/users",
@@ -137,16 +133,16 @@ export const adminNavigationSchema: NavigationSection[] = [
       {
         id: "roles",
         label: {
-          en: "Roles & Permissions",
+          en: "Roles & Access",
           ru: "Роли и доступы",
-          pl: "Role i uprawnienia",
+          pl: "Role i dostępy",
         },
         icon: Shield,
         href: "/admin/users/roles",
         requiredRoles: ["admin", "superadmin"],
       },
       {
-        id: "user-activity",
+        id: "activity",
         label: {
           en: "Activity Log",
           ru: "Журнал активности",
@@ -158,9 +154,9 @@ export const adminNavigationSchema: NavigationSection[] = [
     ],
   },
 
-  // ═══════════════════════════════════════════════════════════
-  // 🍽️ CONTENT - Управление контентом
-  // ═══════════════════════════════════════════════════════════
+  // ───────────────────────────────────────────────────────
+  // 🍽️ 3. CONTENT (Контент)
+  // ───────────────────────────────────────────────────────
   {
     id: "content",
     label: {
@@ -208,62 +204,58 @@ export const adminNavigationSchema: NavigationSection[] = [
         },
         icon: Languages,
         href: "/admin/localization",
-        requiredRoles: ["admin", "superadmin"],
       },
     ],
   },
 
-  // ═══════════════════════════════════════════════════════════
-  // 🧠 AI & LOGIC - Управление AI и бизнес-логикой
-  // ═══════════════════════════════════════════════════════════
+  // ───────────────────────────────────────────────────────
+  // 🤖 4. AI
+  // ───────────────────────────────────────────────────────
   {
     id: "ai",
     label: {
-      en: "AI & Logic",
-      ru: "AI и логика",
-      pl: "AI i logika",
+      en: "AI",
+      ru: "AI",
+      pl: "AI",
     },
     items: [
       {
         id: "ai-scenarios",
         label: {
-          en: "AI Scenarios",
-          ru: "Сценарии AI",
-          pl: "Scenariusze AI",
+          en: "Scenarios",
+          ru: "Сценарии",
+          pl: "Scenariusze",
         },
         icon: Brain,
-        href: "/admin/ai/scenarios",
-        requiredRoles: ["admin", "superadmin"],
+        href: "/admin/ai-scenarios",
       },
       {
         id: "prompts",
         label: {
-          en: "Prompt Templates",
-          ru: "Шаблоны промптов",
-          pl: "Szablony promptów",
+          en: "Prompts",
+          ru: "Промпты",
+          pl: "Prompty",
         },
-        icon: MessageSquare,
-        href: "/admin/ai/prompts",
-        requiredRoles: ["admin", "superadmin"],
+        icon: Zap,
+        href: "/admin/prompts",
       },
       {
-        id: "ai-logs",
+        id: "ai-limits",
         label: {
-          en: "AI Logs",
-          ru: "Логи AI",
-          pl: "Logi AI",
+          en: "Limits & Cost",
+          ru: "Лимиты и стоимость",
+          pl: "Limity i koszt",
         },
-        icon: FileText,
-        href: "/admin/ai/logs",
-        requiredRoles: ["admin", "superadmin"],
-        requiredFeatures: ["ai_logs"],
+        icon: TrendingUp,
+        href: "/admin/ai-limits",
+        requiredFeatures: ["advanced_ai"],
       },
     ],
   },
 
-  // ═══════════════════════════════════════════════════════════
-  // 💰 ECONOMY - Экономика и токены
-  // ═══════════════════════════════════════════════════════════
+  // ───────────────────────────────────────────────────────
+  // 💰 5. ECONOMY (Экономика)
+  // ───────────────────────────────────────────────────────
   {
     id: "economy",
     label: {
@@ -273,7 +265,7 @@ export const adminNavigationSchema: NavigationSection[] = [
     },
     items: [
       {
-        id: "token-bank",
+        id: "treasury",
         label: {
           en: "Token Treasury",
           ru: "Казна токенов",
@@ -293,66 +285,22 @@ export const adminNavigationSchema: NavigationSection[] = [
         href: "/admin/transactions",
       },
       {
-        id: "rewards",
+        id: "bonuses",
         label: {
-          en: "Rewards & Penalties",
-          ru: "Награды и штрафы",
-          pl: "Nagrody i kary",
+          en: "Bonuses & Penalties",
+          ru: "Бонусы и штрафы",
+          pl: "Bonusy i kary",
         },
-        icon: CreditCard,
+        icon: Gift,
         href: "/admin/rewards",
       },
     ],
+    requiredFeatures: ["economy_management"],
   },
 
-  // ═══════════════════════════════════════════════════════════
-  // 📦 OPERATIONS - Операции и заказы
-  // ═══════════════════════════════════════════════════════════
-  {
-    id: "operations",
-    label: {
-      en: "Operations",
-      ru: "Операции",
-      pl: "Operacje",
-    },
-    requiredFeatures: ["operations"],
-    items: [
-      {
-        id: "orders",
-        label: {
-          en: "Orders",
-          ru: "Заказы",
-          pl: "Zamówienia",
-        },
-        icon: ShoppingCart,
-        href: "/admin/orders",
-      },
-      {
-        id: "payments",
-        label: {
-          en: "Payments",
-          ru: "Платежи",
-          pl: "Płatności",
-        },
-        icon: CreditCard,
-        href: "/admin/payments",
-      },
-      {
-        id: "subscriptions",
-        label: {
-          en: "Subscriptions",
-          ru: "Подписки",
-          pl: "Subskrypcje",
-        },
-        icon: Package,
-        href: "/admin/subscriptions",
-      },
-    ],
-  },
-
-  // ═══════════════════════════════════════════════════════════
-  // 🔌 INTEGRATIONS - Интеграции
-  // ═══════════════════════════════════════════════════════════
+  // ───────────────────────────────────────────────────────
+  // 🔌 6. INTEGRATIONS (Интеграции)
+  // ───────────────────────────────────────────────────────
   {
     id: "integrations",
     label: {
@@ -360,7 +308,6 @@ export const adminNavigationSchema: NavigationSection[] = [
       ru: "Интеграции",
       pl: "Integracje",
     },
-    requiredRoles: ["admin", "superadmin"],
     items: [
       {
         id: "api-keys",
@@ -383,21 +330,22 @@ export const adminNavigationSchema: NavigationSection[] = [
         href: "/admin/integrations/webhooks",
       },
       {
-        id: "external-services",
+        id: "services",
         label: {
           en: "External Services",
           ru: "Внешние сервисы",
           pl: "Usługi zewnętrzne",
         },
-        icon: Plug,
-        href: "/admin/integrations",
+        icon: Cloud,
+        href: "/admin/integrations/services",
       },
     ],
+    requiredFeatures: ["integrations"],
   },
 
-  // ═══════════════════════════════════════════════════════════
-  // ⚙️ SETTINGS - Настройки системы
-  // ═══════════════════════════════════════════════════════════
+  // ───────────────────────────────────────────────────────
+  // ⚙️ 7. SETTINGS (Настройки)
+  // ───────────────────────────────────────────────────────
   {
     id: "settings",
     label: {
@@ -409,15 +357,15 @@ export const adminNavigationSchema: NavigationSection[] = [
       {
         id: "general",
         label: {
-          en: "General Settings",
-          ru: "Основные настройки",
-          pl: "Ustawienia ogólne",
+          en: "General",
+          ru: "Общие",
+          pl: "Ogólne",
         },
         icon: Settings,
         href: "/admin/settings",
       },
       {
-        id: "feature-flags",
+        id: "features",
         label: {
           en: "Feature Flags",
           ru: "Флаги функций",
@@ -425,7 +373,7 @@ export const adminNavigationSchema: NavigationSection[] = [
         },
         icon: Flag,
         href: "/admin/settings/features",
-        requiredRoles: ["admin", "superadmin"],
+        requiredRoles: ["superadmin"],
       },
       {
         id: "security",
@@ -436,63 +384,108 @@ export const adminNavigationSchema: NavigationSection[] = [
         },
         icon: Lock,
         href: "/admin/settings/security",
-        requiredRoles: ["superadmin"],
+        requiredRoles: ["admin", "superadmin"],
       },
     ],
   },
 ];
 
+// ═══════════════════════════════════════════════════════════
+// HELPER FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+
 /**
- * Получить локализованный label
+ * Filter navigation by role and feature flags
+ */
+export function filterNavigation(
+  schema: NavigationSection[],
+  userRole: AdminRole,
+  enabledFeatures: FeatureFlag[]
+): NavigationSection[] {
+  return schema
+    .filter((section) => {
+      // Check section-level role requirements
+      if (section.requiredRoles && !section.requiredRoles.includes(userRole)) {
+        return false;
+      }
+      
+      // Check section-level feature requirements
+      if (section.requiredFeatures && 
+          !section.requiredFeatures.some(f => enabledFeatures.includes(f))) {
+        return false;
+      }
+      
+      return true;
+    })
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => {
+        // Check item-level role requirements
+        if (item.requiredRoles && !item.requiredRoles.includes(userRole)) {
+          return false;
+        }
+        
+        // Check item-level feature requirements
+        if (item.requiredFeatures && 
+            !item.requiredFeatures.some(f => enabledFeatures.includes(f))) {
+          return false;
+        }
+        
+        return true;
+      }),
+    }))
+    .filter((section) => section.items.length > 0); // Remove empty sections
+}
+
+/**
+ * Get localized label
  */
 export function getLocalizedLabel(
   item: NavigationItem | NavigationSection,
-  language: "en" | "ru" | "pl" = "en"
+  language: "en" | "ru" | "pl"
 ): string {
   return item.label[language] || item.label.en;
 }
 
 /**
- * Проверить доступ к разделу по роли
+ * Find navigation item by ID
  */
-export function hasAccess(
-  item: NavigationItem | NavigationSection,
-  userRole: AdminRole
-): boolean {
-  if (!item.requiredRoles || item.requiredRoles.length === 0) {
-    return true; // Доступно всем админам
+export function findNavigationItem(
+  schema: NavigationSection[],
+  itemId: string
+): NavigationItem | undefined {
+  for (const section of schema) {
+    const found = section.items.find((item) => item.id === itemId);
+    if (found) return found;
   }
-  return item.requiredRoles.includes(userRole);
+  return undefined;
 }
 
 /**
- * Проверить доступ по feature flags
+ * Get breadcrumbs for current path
  */
-export function hasFeature(
-  item: NavigationItem | NavigationSection,
-  enabledFeatures: FeatureFlag[]
-): boolean {
-  if (!item.requiredFeatures || item.requiredFeatures.length === 0) {
-    return true;
+export function getBreadcrumbs(
+  schema: NavigationSection[],
+  pathname: string,
+  language: "en" | "ru" | "pl" = "en"
+): Array<{ label: string; href: string }> {
+  const breadcrumbs: Array<{ label: string; href: string }> = [];
+  
+  for (const section of schema) {
+    for (const item of section.items) {
+      if (pathname === item.href || pathname.startsWith(item.href + "/")) {
+        breadcrumbs.push({
+          label: getLocalizedLabel(section, language),
+          href: "#",
+        });
+        breadcrumbs.push({
+          label: getLocalizedLabel(item, language),
+          href: item.href,
+        });
+        return breadcrumbs;
+      }
+    }
   }
-  return item.requiredFeatures.every((flag: FeatureFlag) => enabledFeatures.includes(flag));
-}
-
-/**
- * Фильтровать навигацию по роли и feature flags
- */
-export function filterNavigation(
-  navigation: NavigationSection[],
-  userRole: AdminRole,
-  enabledFeatures: FeatureFlag[] = []
-): NavigationSection[] {
-  return navigation
-    .filter((section) => hasAccess(section, userRole) && hasFeature(section, enabledFeatures))
-    .map((section) => ({
-      ...section,
-      items: section.items.filter(
-        (item) => hasAccess(item, userRole) && hasFeature(item, enabledFeatures)
-      ),
-    }))
-    .filter((section) => section.items.length > 0);
+  
+  return breadcrumbs;
 }

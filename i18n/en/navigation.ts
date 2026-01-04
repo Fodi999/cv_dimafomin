@@ -10,6 +10,7 @@ export const navigation = {
     kitchen: "Kitchen (CORE)",
     development: "Development",
     economy: "Economy",
+    profile: "Profile",
   },
 
   // Menu items

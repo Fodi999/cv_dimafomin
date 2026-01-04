@@ -1,14 +1,11 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-
-export default function AdminPage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace("/admin/dashboard");
-  }, [router]);
-
-  return null;
+/**
+ * Admin Root Redirect
+ * 
+ * /admin → /admin/dashboard (server-side)
+ * No UI, instant redirect.
+ */
+export default function AdminIndex() {
+  redirect("/admin/dashboard");
 }

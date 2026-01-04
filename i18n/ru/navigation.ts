@@ -9,6 +9,7 @@ export const navigation = {
     kitchen: "Кухня (ЯДРО)",
     development: "Развитие",
     economy: "Экономика",
+    profile: "Профиль",
   },
 
   // Menu items

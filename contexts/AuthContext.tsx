@@ -6,8 +6,8 @@ interface AuthContextType {
   token: string | null;
   role: string | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<string>; // 🆕 Возвращает redirect URL
+  register: (name: string, email: string, password: string) => Promise<string>; // 🆕 Возвращает redirect URL
   logout: () => void;
   setAuthData: (token: string, role: string) => void;
   // 🆕 Global modal control
@@ -15,6 +15,8 @@ interface AuthContextType {
   authModalTab: "login" | "register";
   openAuthModal: (tab?: "login" | "register") => void;
   closeAuthModal: () => void;
+  // 🆕 Helper to get redirect URL based on role
+  getRedirectUrl: (userRole: string) => string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<string> => {
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -69,18 +71,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("token", token);
       localStorage.setItem("role", user.role);
       
+      // 🆕 Save to cookies (для middleware)
+      document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; samesite=lax`; // 7 days
+      document.cookie = `role=${user.role}; path=/; max-age=${60 * 60 * 24 * 7}; samesite=lax`;
+      
       // Update state
       setToken(token);
       setRole(user.role);
       
       console.log("[AuthContext] ✅ Login successful, role:", user.role);
+      
+      // 🆕 Return redirect URL based on role
+      return getRedirectUrl(user.role);
     } catch (error) {
       console.error("[AuthContext] ❌ Login error:", error);
       throw error;
     }
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (name: string, email: string, password: string): Promise<string> => {
     try {
       const response = await fetch("/api/auth/register", {
         method: "POST",
@@ -108,15 +117,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("token", token);
       localStorage.setItem("role", user.role);
       
+      // 🆕 Save to cookies (для middleware)
+      document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; samesite=lax`; // 7 days
+      document.cookie = `role=${user.role}; path=/; max-age=${60 * 60 * 24 * 7}; samesite=lax`;
+      
       // Update state
       setToken(token);
       setRole(user.role);
       
       console.log("[AuthContext] ✅ Registration successful, role:", user.role);
+      
+      // 🆕 Return redirect URL based on role
+      return getRedirectUrl(user.role);
     } catch (error) {
       console.error("[AuthContext] ❌ Registration error:", error);
       throw error;
     }
+  };
+
+  // 🆕 Helper function: определяет URL редиректа в зависимости от роли
+  const getRedirectUrl = (userRole: string): string => {
+    // Admin и Superadmin → admin panel
+    if (userRole === "admin" || userRole === "superadmin") {
+      console.log("[AuthContext] 🔐 Admin detected, redirecting to /admin/dashboard");
+      return "/admin/dashboard";
+    }
+    
+    // Обычные пользователи → свой профиль
+    console.log("[AuthContext] 👤 Regular user, redirecting to /profile");
+    return "/profile";
   };
 
   const logout = () => {
@@ -124,6 +153,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("user");
+    
+    // 🆕 Clear cookies
+    document.cookie = "token=; path=/; max-age=0";
+    document.cookie = "role=; path=/; max-age=0";
     
     // Clear state
     setToken(null);
@@ -157,6 +190,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     register,
     logout,
     setAuthData,
+    getRedirectUrl, // 🆕 Expose helper function
     // Modal control
     isAuthModalOpen,
     authModalTab,

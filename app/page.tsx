@@ -1,5 +1,6 @@
 "use client";
 
+import PublicHeader from "@/components/layout/PublicHeader";
 import AcademyHero from "@/components/sections/AcademyHero";
 import AcademyAbout from "@/components/sections/AcademyAbout";
 import AcademyAIMentor from "@/components/sections/AcademyCourses";
@@ -20,10 +21,13 @@ export default function Home() {
       <ScrollProgress />
       <ScrollToTop />
       
+      {/* 🆕 Public Header - мінімальна навігація для landing */}
+      <PublicHeader />
+      
       {/* Модальное окно "Сайт в разработке" */}
       <DevelopmentModal />
       
-      <main className="relative w-full min-h-screen overflow-y-auto">
+      <main className="relative w-full min-h-screen overflow-y-auto pt-16">
         <AcademyHero />
         <AcademyAbout />
         <AcademyChefTokens />

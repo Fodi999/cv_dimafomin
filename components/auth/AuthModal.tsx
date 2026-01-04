@@ -60,18 +60,22 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
     setError(null);
 
     try {
-      await login(loginForm.email, loginForm.password);
+      const redirectUrl = await login(loginForm.email, loginForm.password);
+      console.log("[AuthModal] ✅ Login successful, redirectUrl:", redirectUrl);
+      
       onClose();
       
-      // 🔧 FIX: Используем callback вместо хардкода редиректа
+      // 🔧 FIX: Используем callback или URL из login()
       if (onSuccess) {
+        console.log("[AuthModal] 🔄 Calling onSuccess callback");
         onSuccess();
       } else {
-        // Дефолтное поведение, если callback не передан
-        router.push("/assistant");
+        // 🆕 Полный редирект для перезагрузки всех контекстов
+        console.log("[AuthModal] 🚀 Full redirect to:", redirectUrl);
+        window.location.href = redirectUrl;
       }
     } catch (error: any) {
-      console.error("Login error:", error);
+      console.error("[AuthModal] ❌ Login error:", error);
       
       // 🔧 FIX: Надёжная обработка ошибок для fetch и axios
       const status = error?.response?.status ?? error?.status;
@@ -114,18 +118,22 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
     setIsLoading(true);
 
     try {
-      await register(registerForm.name, registerForm.email, registerForm.password);
+      const redirectUrl = await register(registerForm.name, registerForm.email, registerForm.password);
+      console.log("[AuthModal] ✅ Registration successful, redirectUrl:", redirectUrl);
+      
       onClose();
       
-      // 🔧 FIX: Используем callback вместо хардкода редиректа
+      // 🔧 FIX: Используем callback или URL из register()
       if (onSuccess) {
+        console.log("[AuthModal] 🔄 Calling onSuccess callback");
         onSuccess();
       } else {
-        // Дефолтное поведение, если callback не передан
-        router.push("/assistant");
+        // 🆕 Полный редирект для перезагрузки всех контекстов
+        console.log("[AuthModal] 🚀 Full redirect to:", redirectUrl);
+        window.location.href = redirectUrl;
       }
     } catch (error: any) {
-      console.error("Register error:", error);
+      console.error("[AuthModal] ❌ Register error:", error);
       
       // 🔧 FIX: Надёжная обработка ошибок для fetch и axios
       const status = error?.response?.status ?? error?.status;
