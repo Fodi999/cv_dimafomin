@@ -61,6 +61,11 @@ export default function NavigationBurger() {
     setIsMounted(true);
   }, []);
 
+  // 🚫 Hide NavigationBurger on admin pages
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   // Закрыть меню при клике на ссылку
   const handleLinkClick = (href: string) => {
     console.log("🔵 NavigationBurger: Navigating to:", href);
