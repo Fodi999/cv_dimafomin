@@ -9,17 +9,18 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://yeasty-madel
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check admin access
     const { user, error } = await requireAdmin(request);
     if (error) return error;
 
+    const { id } = await params;
     const body = await request.json();
-    console.log(`[Admin Ingredients API] Updating ingredient ${params.id}:`, body);
+    console.log(`[Admin Ingredients API] Updating ingredient ${id}:`, body);
 
-    const response = await fetch(`${BACKEND_URL}/api/admin/ingredients/${params.id}`, {
+    const response = await fetch(`${BACKEND_URL}/api/admin/ingredients/${id}`, {
       method: 'PUT',
       headers: {
         'Authorization': request.headers.get('Authorization') || '',
@@ -54,16 +55,17 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check admin access
     const { user, error } = await requireAdmin(request);
     if (error) return error;
 
-    console.log(`[Admin Ingredients API] Deleting ingredient ${params.id}`);
+    const { id } = await params;
+    console.log(`[Admin Ingredients API] Deleting ingredient ${id}`);
 
-    const response = await fetch(`${BACKEND_URL}/api/admin/ingredients/${params.id}`, {
+    const response = await fetch(`${BACKEND_URL}/api/admin/ingredients/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': request.headers.get('Authorization') || '',
