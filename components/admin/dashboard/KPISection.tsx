@@ -2,10 +2,13 @@
 
 import { ArrowRight, Users, BookOpen, Brain, Settings } from "lucide-react";
 import Link from "next/link";
+import { useAdminUsersStats } from "@/hooks/useAdminUsers";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /**
  * KPI-блок из 4 карточек (максимум)
  * Это СВОДКА разделов, не отдельная аналитика
+ * 🔥 Интегрировано с реальным API для статистики пользователей
  */
 
 interface KPICardProps {
@@ -14,9 +17,10 @@ interface KPICardProps {
   stats: Array<{ label: string; value: string | number; trend?: string }>;
   href: string;
   color: string;
+  isLoading?: boolean;
 }
 
-function KPICard({ icon, title, stats, href, color }: KPICardProps) {
+function KPICard({ icon, title, stats, href, color, isLoading }: KPICardProps) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow">
       <div className="flex items-center justify-between mb-4">
@@ -33,9 +37,15 @@ function KPICard({ icon, title, stats, href, color }: KPICardProps) {
           <div key={idx} className="flex items-center justify-between text-sm">
             <span className="text-gray-600 dark:text-gray-400">{stat.label}:</span>
             <div className="flex items-center gap-2">
-              <span className="font-medium text-gray-900 dark:text-white">{stat.value}</span>
-              {stat.trend && (
-                <span className="text-xs text-green-600 dark:text-green-400">{stat.trend}</span>
+              {isLoading ? (
+                <Skeleton className="h-5 w-16" />
+              ) : (
+                <>
+                  <span className="font-medium text-gray-900 dark:text-white">{stat.value}</span>
+                  {stat.trend && (
+                    <span className="text-xs text-green-600 dark:text-green-400">{stat.trend}</span>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -56,18 +66,34 @@ function KPICard({ icon, title, stats, href, color }: KPICardProps) {
 }
 
 export function KPISection() {
+  // 🔥 Real data from API
+  const { stats: userStats, isLoading: isUsersLoading } = useAdminUsersStats();
+
+  // Calculate percentage for active today (if we have data)
+  const activeTodayPercentage = userStats?.total && userStats?.active_today
+    ? ((userStats.active_today / userStats.total) * 100).toFixed(1)
+    : "0.0";
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-      {/* 1. Пользователи */}
+      {/* 1. Пользователи - REAL DATA */}
       <KPICard
         icon={<Users className="w-5 h-5 text-blue-600" />}
         title="Пользователи"
         stats={[
-          { label: "Всего", value: "3 847" },
-          { label: "Активные сегодня", value: "+5.1%", trend: "↑" },
+          { 
+            label: "Всего", 
+            value: isUsersLoading ? "..." : (userStats?.total || 0).toLocaleString() 
+          },
+          { 
+            label: "Активные сегодня", 
+            value: isUsersLoading ? "..." : userStats?.active_today || 0,
+            trend: userStats?.active_today ? `${activeTodayPercentage}%` : undefined
+          },
         ]}
         href="/admin/users"
         color="bg-blue-50 dark:bg-blue-900/20"
+        isLoading={isUsersLoading}
       />
 
       {/* 2. Контент */}
