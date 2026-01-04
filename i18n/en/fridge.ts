@@ -140,7 +140,7 @@ export const fridge = {
     selectedProduct: "Selected product",
     unit: "Unit",
     expiryDate: "Expiry date",
-    expiryInDays: "{{days}} days",
+    expiryInDays: "{days} days",
     category: "Category",
     quantity: "Quantity",
     quantityPlaceholder: "e.g. 500 {{unit}}",

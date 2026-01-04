@@ -57,13 +57,17 @@ export async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): P
   const authToken = token || getAuthToken();
   if (authToken) {
     headers["Authorization"] = `Bearer ${authToken}`;
+    console.log(`🔑 Auth token present: ${authToken.substring(0, 20)}...`);
+  } else {
+    console.warn(`⚠️ No auth token available`);
   }
 
   const url = `${API_BASE_URL}${endpoint}`;
   console.log(`📡 API Call: ${fetchOptions.method || 'GET'} ${url}`);
+  console.log(`📋 Headers:`, { ...headers, Authorization: headers.Authorization ? `Bearer ${headers.Authorization.substring(7, 27)}...` : 'none' });
   
   if (fetchOptions.body) {
-    console.log(`� Request body:`, fetchOptions.body);
+    console.log(`📦 Request body:`, fetchOptions.body);
   }
 
   const response = await fetch(url, {
@@ -81,12 +85,25 @@ export async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): P
     
     try {
       responseText = await response.text();
-      error = JSON.parse(responseText);
+      console.log(`📥 Error response text:`, responseText.substring(0, 500));
+      
+      if (responseText.trim()) {
+        error = JSON.parse(responseText);
+      } else {
+        error = {
+          code: "NO_RESPONSE",
+          message: `${response.status} ${response.statusText}`,
+        };
+      }
     } catch (e) {
+      console.error(`⚠️ Failed to parse error response:`, e);
       error = {
         code: "PARSE_ERROR",
-        message: `Failed to parse error response: ${response.statusText}`,
-        details: { responseText: responseText.substring(0, 200) }
+        message: `${response.status} ${response.statusText}`,
+        details: { 
+          responseText: responseText.substring(0, 200),
+          parseError: e instanceof Error ? e.message : String(e)
+        }
       };
     }
 
@@ -98,7 +115,7 @@ export async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): P
       throw new Error(error.message);
     }
     
-    const errorMessage = error.message || error.error || `HTTP ${response.status}`;
+    const errorMessage = error.message || error.error || `HTTP ${response.status}: ${response.statusText}`;
     console.error(`❌ HTTP ${response.status}:`, errorMessage);
     throw new Error(errorMessage);
   }

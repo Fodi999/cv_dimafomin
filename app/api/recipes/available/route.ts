@@ -9,8 +9,8 @@ const BACKEND_URL =
 const ALLOW_TEST_USER_ID = process.env.NODE_ENV === "development";
 
 /**
- * GET /api/recipes/match
- * Find recipes that match user's fridge contents
+ * GET /api/recipes/available
+ * Get recipes categorized by cooking feasibility (canCook, almostCook, needToBuy)
  * 
  * Protected route - requires JWT token
  */
@@ -46,15 +46,20 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    console.log("🔍 [GET /api/recipes/match] Proxying to backend:", `${BACKEND_URL}/api/recipes/match`);
+    console.log("🔍 [GET /api/recipes/available] Proxying to backend:", `${BACKEND_URL}/api/recipes/available`);
     console.log("   Query params:", params.toString());
 
+    // 🌍 Get Accept-Language from request headers
+    const acceptLanguage = req.headers.get("Accept-Language") || "pl";
+    console.log("🌍 Accept-Language:", acceptLanguage);
+
     // Proxy request to Go backend
-    const response = await fetch(`${BACKEND_URL}/api/recipes/match?${params.toString()}`, {
+    const response = await fetch(`${BACKEND_URL}/api/recipes/available?${params.toString()}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        "Accept-Language": acceptLanguage,
       },
     });
 
@@ -71,14 +76,29 @@ export async function GET(req: NextRequest) {
     }
 
     const data = await response.json();
-    console.log("✅ Backend response structure:", JSON.stringify(data, null, 2).substring(0, 500));
-    console.log("   Has 'data' field:", !!data.data);
-    console.log("   Has 'canCook' field:", !!data.canCook);
-    console.log("   Has 'canCookCount' field:", !!data.canCookCount);
+    
+    // 🔍 DEBUG: Check backend response structure
+    console.log("✅ Available recipes returned:", {
+      canCook: data.data?.canCookCount || 0,
+      almostCook: data.data?.almostCookCount || 0,
+      needToBuy: data.data?.needToBuyCount || 0,
+      total: data.data?.totalCount || 0
+    });
+    
+    // 🔍 DEBUG: Check if first recipe has localized title
+    if (data.data?.canCook?.[0]) {
+      const firstRecipe = data.data.canCook[0];
+      console.log("🔍 First recipe structure:", {
+        canonicalName: firstRecipe.canonicalName,
+        localName: firstRecipe.localName,
+        title: firstRecipe.title,
+        hasTitle: !!firstRecipe.title,
+      });
+    }
 
     return NextResponse.json(data);
   } catch (error: any) {
-    console.error("❌ [GET /api/recipes/match] Error:", error);
+    console.error("❌ [GET /api/recipes/available] Error:", error);
     return NextResponse.json(
       { success: false, message: error.message || "Internal server error" },
       { status: 500 }

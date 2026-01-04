@@ -393,11 +393,11 @@ export default function AssistantPage() {
       
       console.log("✅ AI Recommendation received:");
       console.log(`   Recipe: "${recommendation.title}" (ID: ${recommendation.recipeId})`);
-      console.log(`   Coverage: ${recommendation.coverage.toFixed(0)}%`);
-      console.log(`   Score: ${recommendation.score}`);
+      console.log(`   Coverage: ${recommendation.coverage?.toFixed(0) ?? 'N/A'}%`);
+      console.log(`   Score: ${recommendation.score ?? 'N/A'}`);
       console.log(`   Can cook now: ${recommendation.canCookNow}`);
-      console.log(`   Used ingredients: ${recommendation.usedCount}`);
-      console.log(`   Missing ingredients: ${recommendation.missingCount}`);
+      console.log(`   Used ingredients: ${recommendation.usedCount ?? 0}`);
+      console.log(`   Missing ingredients: ${recommendation.missingCount ?? 0}`);
       
       // Сохраняем ID этого рецепта, чтобы не показывать его снова
       setViewedRecipeIds(prev => [...prev, recommendation.recipeId]);
@@ -1000,7 +1000,7 @@ export default function AssistantPage() {
                       recipe={currentRecipe}
                       onCook={(servingsMultiplier) => handleCookRecipe(currentRecipe.recipeId, generateUUID(), servingsMultiplier)}
                       onSave={() => handleSaveRecipe(currentRecipe.recipeId)}
-                      onAddToCart={() => handleAddToShoppingList(currentRecipe.recipeId, currentRecipe.missingIngredients)}
+                      onAddToCart={() => handleAddToShoppingList(currentRecipe.recipeId, currentRecipe.missingIngredients ?? [])}
                       onRefresh={handleReloadRecipes}
                       isCooking={matchesLoading}
                       isSaving={false}

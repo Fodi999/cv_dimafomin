@@ -164,20 +164,23 @@ export default function AIRecommendationCard({
                 Masz w lodówce ({recipe.usedIngredients.length})
               </p>
               <div className="space-y-2">
-                {recipe.usedIngredients.map((ing, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center gap-3 text-sm bg-green-50 dark:bg-green-900/20 rounded-lg p-3"
-                  >
-                    <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-                    <span className="text-gray-900 dark:text-white font-medium flex-1">
-                      {ing.name}
-                    </span>
-                    <span className="text-gray-600 dark:text-gray-400 font-mono text-xs">
-                      {formatQuantity(ing.quantity * servingsMultiplier, ing.unit)}
-                    </span>
-                  </div>
-                ))}
+                {recipe.usedIngredients.map((ing, idx) => {
+                  if (typeof ing === 'string') return null;
+                  return (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-3 text-sm bg-green-50 dark:bg-green-900/20 rounded-lg p-3"
+                    >
+                      <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                      <span className="text-gray-900 dark:text-white font-medium flex-1">
+                        {ing.name}
+                      </span>
+                      <span className="text-gray-600 dark:text-gray-400 font-mono text-xs">
+                        {formatQuantity(ing.quantity * servingsMultiplier, ing.unit)}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -345,7 +348,7 @@ export default function AIRecommendationCard({
       )}
 
       {/* 6️⃣ "DLACZEGO TEN PRZEPIS?" SECTION */}
-      {(recipe.description || recipe.coverage > 0.5) && (
+      {(recipe.description || (recipe.coverage ?? 0) > 0.5) && (
         <div className="px-6 py-4 bg-purple-50 dark:bg-purple-900/10 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-start gap-3">
             <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />

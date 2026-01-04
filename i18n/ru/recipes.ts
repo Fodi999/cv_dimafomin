@@ -64,6 +64,7 @@ export const recipes = {
     new: "Новое",
     featured: "Избранное",
     premium: "Премиум",
+    saved: "Сохранено",
     servings: "порций",
     time: "мин",
     difficulty: "Сложность",
@@ -130,6 +131,43 @@ export const recipes = {
       pinch: "щепотка",
       taste: "по вкусу",
     },
+    
+    // Recipe detail page
+    inFridge: "в холодильнике",
+    missing: "отсутствует",
+    youHave: "у вас",
+    addMissingToFridge: "Добавить недостающее в холодильник",
+    addingToFridge: "Добавление в холодильник...",
+    readyToCook: "Готово к приготовлению!",
+    cookNow: "Приготовить",
+    listEmpty: "Список ингредиентов скоро появится",
+    listEmptyDesc: "Мы работаем над добавлением подробной информации о рецепте",
+  },
+
+  // Recipe Match Cards (for /recipes page)
+  match: {
+    source: "Рецепт из каталога",
+    canCookNow: "Можно приготовить сейчас",
+    missingIngredients: "Отсутствует {count} {ingredientWord}",
+    ingredientSingular: "ингредиент",
+    ingredientPlural: "ингредиентов",
+    notInFridge: "Нет в холодильнике",
+    fromFridge: "Из холодильника",
+    toBuy: "Нужно купить",
+    costToBuy: "Стоимость покупки",
+    economy: "Экономика",
+    valueFromFridge: "Стоимость из холодильника",
+    totalCost: "Общая стоимость",
+    wasteRiskSaved: "Спасено от потерь",
+    cooking: "Готовится...",
+    cook: "Приготовить",
+    addToShoppingList: "Добавить в список покупок",
+    missingWarning: "Отсутствует {count} ингредиентов. Купите их, чтобы приготовить этот рецепт.",
+    servingSingular: "порция",
+    servingPlural: "порций",
+    decreaseServings: "Уменьшить порции",
+    increaseServings: "Увеличить порции",
+    more: "еще",
   },
 
   instructions: {
@@ -143,6 +181,13 @@ export const recipes = {
     previous: "Предыдущий",
     next: "Следующий",
     finish: "Завершить",
+  },
+
+  // Loading & Error states
+  loading: {
+    loadingRecipe: "Загрузка рецепта...",
+    loadingError: "Ошибка загрузки",
+    recipeNotFound: "Рецепт не найден",
   },
 
   nutrition: {
@@ -268,6 +313,45 @@ export const recipes = {
       update: "Обновить",
       cancel: "Отмена",
       delete: "Удалить рецепт",
+    },
+  },
+
+  cooking: {
+    title: "Готовка",
+    loading: "Проверяем твой холодильник...",
+    
+    stats: {
+      canCookNow: "Можно готовить сейчас",
+      almostReady: "Почти готово",
+      needShopping: "Нужны покупки",
+      basedOnFridge: "На основе твоего холодильника показываем, что можно приготовить прямо сейчас",
+    },
+    
+    sections: {
+      canCook: {
+        title: "Можно готовить сейчас",
+        description: "Все ингредиенты есть",
+      },
+      almostCook: {
+        title: "Почти готово",
+        description: "Не хватает 1-2 ингредиентов",
+      },
+      needToBuy: {
+        title: "Нужны покупки",
+        description: "Не хватает больше ингредиентов",
+      },
+    },
+    
+    empty: {
+      title: "Твой холодильник пуст",
+      description: "Добавь продукты в холодильник, чтобы увидеть что можно приготовить",
+      action: "Перейти к холодильнику",
+    },
+    
+    actions: {
+      cookNow: "Готовить сейчас",
+      viewRecipe: "Смотреть рецепт",
+      addToCart: "Добавить недостающее",
     },
   },
 

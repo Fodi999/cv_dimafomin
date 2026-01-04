@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, AlertCircle } from "lucide-react";
+import { Plus, AlertCircle, CheckCircle, Calendar } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { translateIngredient, generateIngredientSlug } from "@/lib/i18n/translateIngredient";
+import { getLocalizedIngredientName } from "@/lib/i18n/translateIngredient";
+import { formatLocalizedDate } from "@/lib/i18n/formatDate";
 import IngredientAutocomplete from "./IngredientAutocomplete";
 import type { CatalogIngredient, AddFridgeItemData } from "@/lib/types";
 
@@ -14,7 +15,7 @@ interface FridgeFormProps {
 }
 
 export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchValue, setSearchValue] = useState("");
   const [selectedIngredient, setSelectedIngredient] = useState<CatalogIngredient | null>(null);
   const [quantity, setQuantity] = useState("");
@@ -80,13 +81,9 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
     }
   };
   
-  // ✅ Переводим название выбранного ингредиента
+  // ✅ Получаем локализованное имя напрямую из объекта
   const translatedIngredientName = selectedIngredient 
-    ? translateIngredient(
-        selectedIngredient.name, 
-        selectedIngredient.i18nKey || generateIngredientSlug(selectedIngredient.name),
-        t
-      )
+    ? getLocalizedIngredientName(selectedIngredient, language)
     : null;
     
   // ✅ Переводим категорию
@@ -114,8 +111,9 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
             animate={{ opacity: 1, y: 0 }}
             className="mt-3 p-4 bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-sky-900/20 dark:to-cyan-900/20 rounded-lg border border-sky-200 dark:border-sky-800/30"
           >
-            <p className="text-sm text-gray-900 dark:text-white font-medium">
-              ✅ {t?.fridge?.form?.selectedProduct || "Selected product"}: {translatedIngredientName}
+            <p className="text-sm text-gray-900 dark:text-white font-medium flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+              {t?.fridge?.form?.selectedProduct || "Selected product"}: {translatedIngredientName}
             </p>
             <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
               {t?.fridge?.form?.unit || "Unit"}: <span className="font-medium">{selectedIngredient.unit}</span> • {t?.fridge?.form?.category || "Category"}: {translatedCategory}
@@ -123,19 +121,18 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
             
             {selectedIngredient.defaultShelfLifeDays && (
               <p className="text-xs text-green-600 dark:text-green-400 mt-2 flex items-center gap-1">
-                📅 {t?.fridge?.form?.expiryDate || "Expiry date"}: 
+                <Calendar className="w-3.5 h-3.5" />
+                {t?.fridge?.form?.expiryDate || "Expiry date"}: 
                 <span className="font-medium">
                   {(() => {
                     const expDate = new Date();
                     expDate.setDate(expDate.getDate() + selectedIngredient.defaultShelfLifeDays);
-                    return expDate.toLocaleDateString('pl-PL', { 
-                      day: 'numeric', 
-                      month: 'long', 
-                      year: 'numeric' 
-                    });
+                    return formatLocalizedDate(expDate, language);
                   })()}
                 </span>
-                ({t?.fridge?.form?.expiryInDays?.replace('{days}', String(selectedIngredient.defaultShelfLifeDays)) || `${selectedIngredient.defaultShelfLifeDays} days`})
+                <span className="text-gray-500 dark:text-gray-400">
+                  ({(t?.fridge?.form?.expiryInDays || '{days} days').replace('{days}', String(selectedIngredient.defaultShelfLifeDays))})
+                </span>
               </p>
             )}
           </motion.div>

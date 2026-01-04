@@ -69,6 +69,7 @@ export const recipes = {
     new: "Nowe",
     featured: "Wyróżnione",
     premium: "Premium",
+    saved: "Zapisany",
     servings: "porcji",
     time: "min",
     difficulty: "Trudność",
@@ -137,6 +138,43 @@ export const recipes = {
       pinch: "szczypta",
       taste: "do smaku",
     },
+    
+    // Recipe detail page
+    inFridge: "w lodówce",
+    missing: "brakuje",
+    youHave: "masz",
+    addMissingToFridge: "Dodaj brakujące do lodówki",
+    addingToFridge: "Dodawanie do lodówki...",
+    readyToCook: "Gotowe do gotowania!",
+    cookNow: "Ugotuj",
+    listEmpty: "Lista składników będzie dostępna wkrótce",
+    listEmptyDesc: "Pracujemy nad uzupełnieniem szczegółowych informacji o przepisie",
+  },
+
+  // Recipe Match Cards (for /recipes page)
+  match: {
+    source: "Przepis z katalogu",
+    canCookNow: "Możesz ugotować teraz",
+    missingIngredients: "Brakuje {count} {ingredientWord}",
+    ingredientSingular: "składnika",
+    ingredientPlural: "składników",
+    notInFridge: "Nie pasuje do lodówki",
+    fromFridge: "Z lodówki",
+    toBuy: "Do dokupienia",
+    costToBuy: "Koszt dokupienia",
+    economy: "Ekonomia",
+    valueFromFridge: "Wartość z lodówki",
+    totalCost: "Koszt całkowity",
+    wasteRiskSaved: "Uratowano przed marnowaniem",
+    cooking: "Gotowanie...",
+    cook: "Gotuj",
+    addToShoppingList: "Dodaj do listy zakupów",
+    missingWarning: "Brakuje {count} składników. Dokup je, aby ugotować ten przepis.",
+    servingSingular: "porcja",
+    servingPlural: "porcji",
+    decreaseServings: "Zmniejsz porcje",
+    increaseServings: "Zwiększ porcje",
+    more: "więcej",
   },
 
   // Instructions
@@ -151,6 +189,13 @@ export const recipes = {
     previous: "Poprzedni",
     next: "Następny",
     finish: "Zakończ",
+  },
+
+  // Loading & Error states
+  loading: {
+    loadingRecipe: "Ładowanie przepisu...",
+    loadingError: "Błąd ładowania",
+    recipeNotFound: "Nie znaleziono przepisu",
   },
 
   // Nutrition
@@ -279,6 +324,46 @@ export const recipes = {
       update: "Zaktualizuj",
       cancel: "Anuluj",
       delete: "Usuń przepis",
+    },
+  },
+
+  // Cooking - Recipe Availability
+  cooking: {
+    title: "Gotowanie",
+    loading: "Sprawdzanie Twojej lodówki...",
+    
+    stats: {
+      canCookNow: "Można ugotować teraz",
+      almostReady: "Prawie gotowe",
+      needShopping: "Wymaga zakupów",
+      basedOnFridge: "Na podstawie Twojej lodówki pokazujemy, co możesz ugotować teraz",
+    },
+    
+    sections: {
+      canCook: {
+        title: "Można ugotować teraz",
+        description: "Masz wszystkie składniki",
+      },
+      almostCook: {
+        title: "Prawie gotowe",
+        description: "Brakuje 1-2 składników",
+      },
+      needToBuy: {
+        title: "Wymaga zakupów",
+        description: "Brakuje więcej składników",
+      },
+    },
+    
+    empty: {
+      title: "Twoja lodówka jest pusta",
+      description: "Dodaj składniki do lodówki, aby zobaczyć co możesz ugotować",
+      action: "Przejdź do lodówki",
+    },
+    
+    actions: {
+      cookNow: "Gotuj teraz",
+      viewRecipe: "Zobacz przepis",
+      addToCart: "Dodaj brakujące",
     },
   },
 

@@ -18,14 +18,12 @@
  * const recipe = savedRecipeToUnified(savedRecipe);
  * 
  * // From AI RecipeMatch
- * const recipe = recipeMatchToUnified(match);
- * 
- * <UnifiedRecipeCard recipe={recipe} context="catalog" />
+ * const recipe = recipeMatchToUnified(aiRecommendation);
  * ```
  */
 
+import type { RecipeMatch, RecipeMatchIngredient } from "./api/recipe-matching";
 import type { UnifiedRecipeData } from "@/components/recipes/UnifiedRecipeCard";
-import type { RecipeMatch } from "@/lib/api";
 
 // ========================================
 // 🔄 FROM API RECIPES
@@ -127,7 +125,8 @@ export function savedRecipeToUnified(savedRecipe: any): UnifiedRecipeData {
 export function recipeMatchToUnified(match: RecipeMatch): UnifiedRecipeData {
   return {
     id: match.recipeId || "",
-    title: match.title,
+    // ✅ Backend returns localized localName based on Accept-Language
+    title: match.localName || match.canonicalName,
     description: match.description,
     imageUrl: match.imageUrl,
 
@@ -136,7 +135,9 @@ export function recipeMatchToUnified(match: RecipeMatch): UnifiedRecipeData {
     servings: match.servings,
     country: match.country,
 
-    ingredientsUsed: match.usedIngredients,
+    ingredientsUsed: Array.isArray(match.usedIngredients) && match.usedIngredients.length > 0 && typeof match.usedIngredients[0] !== 'string' 
+      ? match.usedIngredients as RecipeMatchIngredient[]
+      : undefined,
     ingredientsMissing: match.missingIngredients,
 
     steps: match.steps,

@@ -53,14 +53,13 @@ export const fridgeApi = {
    * GET /api/catalog/ingredients/search?query=ml
    * Поиск ингредиентов для autocomplete
    */
-  searchIngredients: async (query: string, token: string) => {
+  searchIngredients: async (query: string, token: string, language?: string) => {
     if (!query || query.trim().length < 1) {
       return { count: 0, items: [] };
     }
     try {
       const params = new URLSearchParams({ query: query.trim() });
-      const response = await apiFetch<{ count: number; items: any[] }>(`/catalog/ingredients/search?${params}`, { token });
-      console.log('[fridgeApi.searchIngredients] 📥 Response from apiFetch:', response);
+      const response = await apiFetch<{ count: number; items: any[] }>(`/catalog/ingredients/search?${params}`, { token, language });
       
       // Нормализация категорий в результатах поиска
       if (response?.items && Array.isArray(response.items)) {
@@ -68,8 +67,6 @@ export const fridgeApi = {
           ...item,
           category: mapBackendCategoryToFrontend(item.category),
         }));
-        
-        console.log('[fridgeApi.searchIngredients] 🔄 Normalized categories:', normalizedItems.map(i => ({ name: i.name, category: i.category })));
         
         return { count: response.count || normalizedItems.length, items: normalizedItems };
       }
@@ -87,56 +84,42 @@ export const fridgeApi = {
    */
   getItems: async (token: string) => {
     try {
-      console.log('[fridgeApi.getItems] 📡 Calling apiFetch...');
       const response = await apiFetch<any>("/fridge/items", { token });
-      console.log('[fridgeApi.getItems] 📥 Response from apiFetch:', response);
       
-      // Нормализация: Backend возвращает плоскую структуру, UI ожидает вложенную
+      // Нормализация: Backend теперь возвращает полный объект ingredient
       if (response?.items && Array.isArray(response.items)) {
-        console.log('[fridgeApi.getItems] 📋 Raw item sample:', response.items[0]);
-        console.log('[fridgeApi.getItems] 📋 FULL RAW RESPONSE:', JSON.stringify(response, null, 2));
         
         const normalizedItems = response.items.map((item: any) => {
-          console.log('[fridgeApi.getItems] 🔍 Processing item:', {
-            id: item.id,
-            name: item.name,
-            backendCategory: item.category,
-            ingredientId: item.ingredientId || item.ingredient_id,
-            totalPrice: item.totalPrice || item.total_price,
-            pricePerUnit: item.pricePerUnit || item.price_per_unit,
-          });
+          // ✅ NEW: Backend returns full ingredient object with translations
+          const ingredient = item.ingredient || {
+            id: item.ingredientId || item.ingredient_id,
+            name: item.name, // fallback for old format
+            category: item.category,
+          };
           
-          // Приоритет: 1) Backend category (mapped), 2) Ingredient category (mapped), 3) Name-based detection
-          const backendCat = item.category || item.ingredient?.category;
-          const normalizedCategory = backendCat 
-            ? mapBackendCategoryToFrontend(backendCat)
-            : getCategoryFromName(item.name || '');
+          // Map backend category to frontend
+          const normalizedCategory = ingredient.category 
+            ? mapBackendCategoryToFrontend(ingredient.category)
+            : getCategoryFromName(ingredient.name || item.name || '');
           
-          console.log('[fridgeApi.getItems] 📂 Category mapping:', {
-            backend: backendCat,
-            frontend: normalizedCategory,
-          });
-          
-          // Backend should return totalPrice, currency, pricePerUnit
+          // Backend returns totalPrice, currency, pricePerUnit
           const totalPrice = item.totalPrice || item.total_price;
           const pricePerUnit = item.pricePerUnit || item.price_per_unit;
           const currency = item.currency || 'PLN';
           
-          // Вычисляем expiresAt из arrivedAt + daysLeft (если бэкенд не отправил)
-          let expiresAt = item.expiresAt || item.expires_at;
-          if (!expiresAt && (item.arrivedAt || item.arrived_at) && (item.daysLeft !== undefined || item.days_left !== undefined)) {
-            const arrivedDate = new Date(item.arrivedAt || item.arrived_at);
-            const daysLeft = item.daysLeft ?? item.days_left ?? 0;
-            const expiresDate = new Date(arrivedDate);
-            expiresDate.setDate(expiresDate.getDate() + daysLeft);
-            expiresAt = expiresDate.toISOString();
-          }
+          // expiresAt should be provided by backend now
+          const expiresAt = item.expiresAt || item.expires_at;
           
           return {
             id: item.id,
             ingredient: {
-              name: item.name || item.ingredient?.name || 'Unknown',
+              id: ingredient.id,
+              name: ingredient.name,
+              namePl: ingredient.name_pl,
+              nameEn: ingredient.name_en,
+              nameRu: ingredient.name_ru,
               category: normalizedCategory,
+              key: ingredient.key, // NEW: language-independent key
             },
             quantity: item.quantity,
             unit: item.unit,
@@ -150,13 +133,9 @@ export const fridgeApi = {
           };
         });
         
-        console.log('[fridgeApi.getItems] 🔄 Normalized items:', normalizedItems);
-        console.log('[fridgeApi.getItems] 🎯 Returning:', { items: normalizedItems });
-        
         return { items: normalizedItems };
       }
       
-      console.log('[fridgeApi.getItems] 🎯 Returning:', response);
       return response;
     } catch (err: any) {
       if (err.status === 404) {

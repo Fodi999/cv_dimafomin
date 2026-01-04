@@ -82,6 +82,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const profileData = await response.json();
       const userData = profileData.data || profileData;
 
+      // 🔍 DEBUG: Check user role
+      console.log("[UserContext] 🔍 User data from backend:", {
+        email: userData.email,
+        role: userData.role,
+        hasRole: !!userData.role,
+        roleType: typeof userData.role,
+      });
+
       setUser({
         id: userData.id || userData.userId,
         email: userData.email,
@@ -101,7 +109,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       // Cache in localStorage
       localStorage.setItem("user", JSON.stringify(userData));
-      console.log("[UserContext] ✅ Profile loaded successfully");
+      console.log("[UserContext] ✅ Profile loaded successfully with role:", userData.role || "NO ROLE");
     } catch (error) {
       console.error("[UserContext] ❌ Profile fetch error:", error);
       

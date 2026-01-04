@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { translateIngredient, generateIngredientSlug } from "@/lib/i18n/translateIngredient";
+import { getLocalizedIngredientName } from "@/lib/i18n/translateIngredient";
 import { fridgeApi } from "@/lib/api";
 import type { CatalogIngredient, IngredientSearchResponse } from "@/lib/types";
 
@@ -25,7 +25,7 @@ export default function IngredientAutocomplete({
   placeholder = "Search for product...",
   categoryFilter = null,
 }: IngredientAutocompleteProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [suggestions, setSuggestions] = useState<CatalogIngredient[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -46,7 +46,7 @@ export default function IngredientAutocomplete({
         if (process.env.NODE_ENV === "development") {
           console.log('[IngredientAutocomplete] 🔍 Calling fridgeApi.searchIngredients with:', value);
         }
-        const response = await fridgeApi.searchIngredients(value, token) as IngredientSearchResponse;
+        const response = await fridgeApi.searchIngredients(value, token, language) as IngredientSearchResponse;
         
         if (process.env.NODE_ENV === "development") {
           console.log('[IngredientAutocomplete] 📦 RAW response from API:', response);
@@ -82,7 +82,7 @@ export default function IngredientAutocomplete({
 
     const debounce = setTimeout(searchIngredients, 300);
     return () => clearTimeout(debounce);
-  }, [value, token, categoryFilter]);
+  }, [value, token, categoryFilter, language]);
 
   // Закрытие при клике вне компонента
   useEffect(() => {
@@ -125,10 +125,8 @@ export default function IngredientAutocomplete({
 
   const handleSelect = (ingredient: CatalogIngredient) => {
     onSelect(ingredient);
-    // ✅ 2025 Pattern: Не сохраняем ingredient.name в value
-    // Frontend хранит только inputValue, а selectedIngredient передаётся через onSelect
-    // UI отобразит ingredient.name на любом языке через translateIngredient
-    onChange(""); // Очищаем input после выбора
+    // ✅ Clear input after selection
+    onChange("");
     setIsOpen(false);
     setSuggestions([]);
   };
@@ -185,12 +183,8 @@ export default function IngredientAutocomplete({
                 console.log('[IngredientAutocomplete] 🎨 Rendering dropdown with', suggestions.length, 'items');
               }
               
-              // ✅ Переводим название ингредиента
-              const translatedName = translateIngredient(
-                ingredient.name,
-                ingredient.i18nKey || generateIngredientSlug(ingredient.name),
-                t
-              );
+              // ✅ Получаем локализованное имя напрямую из бэкенда
+              const translatedName = getLocalizedIngredientName(ingredient, language);
               
               // ✅ Переводим категорию
               const translatedCategory = t?.fridge?.categories?.[ingredient.category] || ingredient.category;

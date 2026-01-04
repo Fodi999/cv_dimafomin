@@ -104,60 +104,71 @@ export default function FridgeList({ items, onDelete, onPriceClick, onQuantityCl
 
   return (
     <div className="space-y-6">
-      {/* ✅ Профессиональные вкладки категорий */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <Refrigerator className="w-5 h-5 text-sky-500" />
-            {t?.fridge?.title || "Fridge"}
-            <span className="px-2.5 py-0.5 bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 text-sm font-semibold rounded-full">
-              {items.length}
-            </span>
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {t?.fridge?.categories?.title || "Browse products by category"}
-          </p>
-        </div>
-        
-        {/* Tabs Navigation */}
-        <div className="p-4 bg-gray-50 dark:bg-slate-900/50">
-          <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((category) => {
-              const count = category.value === "all" ? items.length : (categoryCounts[category.value] || 0);
-              const isActive = activeCategory === category.value;
-              const Icon = category.Icon;
-              
-              return (
-                <motion.button
-                  key={category.value}
-                  whileHover={{ scale: 1.02, y: -1 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setActiveCategory(category.value)}
-                  className={`
-                    px-4 py-2.5 rounded-lg font-medium text-sm transition-all
-                    flex items-center gap-2.5 relative
-                    ${isActive 
-                      ? 'bg-gradient-to-r from-sky-500 to-cyan-500 text-white shadow-lg shadow-sky-500/30' 
-                      : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 border border-gray-200 dark:border-gray-600 hover:border-sky-300 dark:hover:border-sky-700'
-                    }
-                  `}
-                >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-sky-500'}`} />
-                  <span>{category.label}</span>
-                  {count > 0 && (
-                    <span className={`
-                      px-2 py-0.5 rounded-full text-xs font-bold min-w-[24px] text-center
+      {/* ✅ STICKY Горизонтальная панель категорий */}
+      <div className="sticky top-[64px] z-20 bg-gradient-to-b from-white via-white to-transparent dark:from-gray-950 dark:via-gray-950 dark:to-transparent pb-4">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-sky-900/20 dark:to-cyan-900/20">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <Refrigerator className="w-5 h-5 text-sky-500" />
+                {t?.fridge?.title || "Fridge"}
+              </h3>
+              <div className="flex items-center gap-3">
+                <span className="px-3 py-1 bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 text-sm font-bold rounded-full border border-sky-200 dark:border-sky-700">
+                  {items.length} {t?.fridge?.stats?.products || "products"}
+                </span>
+                {items.reduce((sum, item) => sum + (item.totalPrice || 0), 0) > 0 && (
+                  <span className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 text-sm font-bold rounded-full border border-emerald-200 dark:border-emerald-800">
+                    {items.reduce((sum, item) => sum + (item.totalPrice || 0), 0).toFixed(2)} PLN
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          {/* Tabs Navigation - с горизонтальным скроллом */}
+          <div className="p-3 bg-gray-50 dark:bg-slate-900/50 overflow-x-auto">
+            <div className="flex gap-2 min-w-max">
+              {CATEGORIES.map((category) => {
+                const count = category.value === "all" ? items.length : (categoryCounts[category.value] || 0);
+                const isActive = activeCategory === category.value;
+                const Icon = category.Icon;
+                
+                // Скрываем категории без продуктов (кроме "Все")
+                if (category.value !== "all" && count === 0) return null;
+                
+                return (
+                  <motion.button
+                    key={category.value}
+                    whileHover={{ scale: 1.02, y: -1 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setActiveCategory(category.value)}
+                    className={`
+                      px-4 py-2.5 rounded-lg font-medium text-sm transition-all whitespace-nowrap
+                      flex items-center gap-2 relative
                       ${isActive 
-                        ? 'bg-white/20 text-white' 
-                        : 'bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400'
+                        ? 'bg-gradient-to-r from-sky-500 to-cyan-500 text-white shadow-lg' 
+                        : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-gray-600'
                       }
-                    `}>
-                      {count}
-                    </span>
-                  )}
-                </motion.button>
-              );
-            })}
+                    `}
+                  >
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-sky-500'}`} />
+                    <span>{category.label}</span>
+                    {count > 0 && (
+                      <span className={`
+                        px-2 py-0.5 rounded-full text-xs font-bold
+                        ${isActive 
+                          ? 'bg-white/20 text-white' 
+                          : 'bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400'
+                        }
+                      `}>
+                        {count}
+                      </span>
+                    )}
+                  </motion.button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -174,7 +185,7 @@ export default function FridgeList({ items, onDelete, onPriceClick, onQuantityCl
           </p>
         </motion.div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="space-y-3">
           <AnimatePresence mode="popLayout">
             {sortedItems.map((item, index) => (
               <FridgeItem

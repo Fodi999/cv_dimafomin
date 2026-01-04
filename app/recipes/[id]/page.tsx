@@ -13,15 +13,22 @@ import {
   XCircle,
   ShoppingCart,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Globe,
+  Flame
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { authFetch } from '@/lib/auth-interceptor';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getRecipeTitle } from '@/lib/i18n/getRecipeTitle';
 
 interface RecipeDetails {
   id: string;
   localName: string;
   canonicalName: string;
+  localName_pl?: string;
+  localName_ru?: string;
+  localName_en?: string;
   country: string;
   difficulty: 'easy' | 'medium' | 'hard';
   timeMinutes: number;
@@ -43,15 +50,16 @@ interface RecipeDetails {
 }
 
 const difficultyConfig = {
-  easy: { label: 'Łatwy', color: 'text-green-600', bgColor: 'bg-green-50' },
-  medium: { label: 'Średni', color: 'text-yellow-600', bgColor: 'bg-yellow-50' },
-  hard: { label: 'Trudny', color: 'text-red-600', bgColor: 'bg-red-50' },
+  easy: { labelKey: 'easy' as const, color: 'text-green-600', bgColor: 'bg-green-50' },
+  medium: { labelKey: 'medium' as const, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },
+  hard: { labelKey: 'hard' as const, color: 'text-red-600', bgColor: 'bg-red-50' },
 };
 
 export default function RecipeDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const { isAuthenticated } = useAuth();
+  const { language, t } = useLanguage();
   const recipeId = params.id as string;
 
   const [recipe, setRecipe] = useState<RecipeDetails | null>(null);
@@ -132,11 +140,13 @@ export default function RecipeDetailsPage() {
       // ✅ Fetch from backend API with Authorization header
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
+        'Accept-Language': language,
       };
 
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
         console.log('🔐 Sending request with auth token');
+        console.log('🌍 Language:', language);
       } else {
         console.log('⚠️ No token found - sending public request');
       }
@@ -154,8 +164,12 @@ export default function RecipeDetailsPage() {
 
       const data = await response.json();
       console.log('📥 Recipe data received:', data);
+      console.log('🧊 RAW Ingredients from backend:', data.data?.ingredients);
       console.log('🧊 Ingredients with fridge status:', data.data?.ingredients?.map((ing: any) => ({
-        name: ing.ingredient?.name || ing.name,
+        rawName: ing.name,
+        ingredientObject: ing.ingredient,
+        ingredientName: ing.ingredient?.name,
+        localizedName: ing.ingredient?.localName,
         inFridge: ing.inFridge,
         fridgeQuantity: ing.fridgeQuantity,
       })));
@@ -165,10 +179,25 @@ export default function RecipeDetailsPage() {
         
         // ✅ Backend відправляє inFridge для кожного інгредієнта
         // Frontend сам рахує stats!
+        
+        // 🔍 DEBUG: Log backend localization fields
+        console.log("🌍 Backend localization fields:", {
+          id: backendRecipe.id,
+          canonicalName: backendRecipe.canonicalName,
+          localName: backendRecipe.localName,
+          localName_pl: backendRecipe.localName_pl,
+          localName_ru: backendRecipe.localName_ru,
+          localName_en: backendRecipe.localName_en,
+          uiLanguage: language,
+        });
+        
         const transformedRecipe: RecipeDetails = {
           id: backendRecipe.id,
           localName: backendRecipe.localName || backendRecipe.canonicalName,
           canonicalName: backendRecipe.canonicalName,
+          localName_pl: backendRecipe.localName_pl,
+          localName_ru: backendRecipe.localName_ru,
+          localName_en: backendRecipe.localName_en,
           country: backendRecipe.country || 'Unknown',
           difficulty: backendRecipe.difficulty || 'medium',
           timeMinutes: backendRecipe.timeMinutes || 0,
@@ -224,7 +253,7 @@ export default function RecipeDetailsPage() {
           <div className="flex items-center justify-center py-20">
             <div className="text-center space-y-4">
               <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto" />
-              <p className="text-gray-600 dark:text-gray-400">Ładowanie przepisu...</p>
+              <p className="text-gray-600 dark:text-gray-400">{t.recipes.loading.loadingRecipe}</p>
             </div>
           </div>
         </div>
@@ -245,7 +274,7 @@ export default function RecipeDetailsPage() {
               <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-500 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-medium text-red-900 dark:text-red-200 mb-1">
-                  Błąd ładowania
+                  {t.recipes.loading.loadingError}
                 </p>
                 <p className="text-sm text-red-800 dark:text-red-300">
                   {error}
@@ -254,7 +283,7 @@ export default function RecipeDetailsPage() {
                   onClick={() => router.back()}
                   className="mt-4 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
                 >
-                  Wróć
+                  {t.common.back}
                 </button>
               </div>
             </div>
@@ -277,16 +306,16 @@ export default function RecipeDetailsPage() {
               <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-500 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-medium text-red-900 dark:text-red-200 mb-1">
-                  Błąd ładowania
+                  {t.recipes.loading.loadingError}
                 </p>
                 <p className="text-sm text-red-800 dark:text-red-300">
-                  {error || 'Nie znaleziono przepisu'}
+                  {error || t.recipes.loading.recipeNotFound}
                 </p>
                 <button
                   onClick={() => router.back()}
                   className="mt-4 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
                 >
-                  Wróć
+                  {t.common.back}
                 </button>
               </div>
             </div>
@@ -319,7 +348,7 @@ export default function RecipeDetailsPage() {
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors text-sm"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Wróć</span>
+          <span>{t.common.back}</span>
         </button>
 
         {/* Header */}
@@ -331,14 +360,16 @@ export default function RecipeDetailsPage() {
           <div className="flex items-start justify-between gap-3 mb-3">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                {recipe.localName}
+                {getRecipeTitle(recipe, language)}
               </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{recipe.canonicalName}</p>
+              {recipe.canonicalName && getRecipeTitle(recipe, language) !== recipe.canonicalName && (
+                <p className="text-sm text-gray-600 dark:text-gray-400">{recipe.canonicalName}</p>
+              )}
             </div>
             {recipe.isSaved && (
               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 text-xs font-medium">
                 <Star className="w-3 h-3" />
-                Zapisany
+                {t.recipes.card.saved}
               </span>
             )}
           </div>
@@ -346,7 +377,8 @@ export default function RecipeDetailsPage() {
           {/* Meta info */}
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs">
-              🌍 {recipe.country}
+              <Globe className="w-3 h-3" />
+              {recipe.country}
             </span>
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 text-xs">
               <Clock className="w-3 h-3" />
@@ -354,11 +386,11 @@ export default function RecipeDetailsPage() {
             </span>
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 text-xs">
               <Users className="w-3 h-3" />
-              {recipe.servings} porcje
+              {recipe.servings} {t.recipes.ingredients.servings}
             </span>
             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${difficulty.bgColor} ${difficulty.color} text-xs`}>
               <ChefHat className="w-3 h-3" />
-              {difficulty.label}
+              {t.recipes.filters.difficultyOptions[difficulty.labelKey]}
             </span>
           </div>
         </motion.div>
@@ -372,18 +404,18 @@ export default function RecipeDetailsPage() {
         >
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-              Składniki
+              {t.recipes.ingredients.title}
             </h2>
             {recipe.ingredients.length > 0 && (
               <div className="flex items-center gap-3 text-xs">
                 <span className="flex items-center gap-1 text-green-600">
                   <CheckCircle2 className="w-3 h-3" />
-                  {ingredientsInFridge} w lodówce
+                  {ingredientsInFridge} {t.recipes.ingredients.inFridge}
                 </span>
                 {missingIngredients > 0 && (
                   <span className="flex items-center gap-1 text-orange-600">
                     <XCircle className="w-3 h-3" />
-                    {missingIngredients} brakuje
+                    {missingIngredients} {t.recipes.ingredients.missing}
                   </span>
                 )}
               </div>
@@ -393,8 +425,8 @@ export default function RecipeDetailsPage() {
           {recipe.ingredients.length === 0 ? (
             <div className="text-center py-6 text-gray-500 dark:text-gray-400">
               <AlertCircle className="w-10 h-10 mx-auto mb-2 opacity-50" />
-              <p className="font-medium text-sm">Lista składników będzie dostępna wkrótce</p>
-              <p className="text-xs mt-1">Pracujemy nad uzupełnieniem szczegółowych informacji o przepisie</p>
+              <p className="font-medium text-sm">{t.recipes.ingredients.listEmpty}</p>
+              <p className="text-xs mt-1">{t.recipes.ingredients.listEmptyDesc}</p>
             </div>
           ) : (
             <>
@@ -428,7 +460,7 @@ export default function RecipeDetailsPage() {
                             ? 'text-green-600 dark:text-green-400' 
                             : 'text-orange-600 dark:text-orange-400'
                         }`}>
-                          (masz: {ingredient.fridgeQuantity} {ingredient.unit})
+                          ({t.recipes.ingredients.youHave}: {ingredient.fridgeQuantity} {ingredient.unit})
                         </span>
                       )}
                     </div>
@@ -443,15 +475,15 @@ export default function RecipeDetailsPage() {
                   className="mt-3 w-full px-3 py-1.5 rounded-lg bg-green-100 hover:bg-green-200 dark:bg-green-900/20 dark:hover:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ShoppingCart className="w-4 h-4" />
-                  {addingToCart ? 'Dodawanie do lodówki...' : `Dodaj brakujące do lodówki (${missingIngredients})`}
+                  {addingToCart ? t.recipes.ingredients.addingToFridge : `${t.recipes.ingredients.addMissingToFridge} (${missingIngredients})`}
                 </button>
               ) : (
                 <button
-                  onClick={() => alert('🍳 Możesz ugotować ten przepis! Wszystkie składniki są w lodówce.')}
+                  onClick={() => alert(t.recipes.ingredients.readyToCook)}
                   className="mt-3 w-full px-3 py-1.5 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-sm font-medium transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                 >
-                  <CheckCircle2 className="w-4 h-4" />
-                  Ugotuj 🍳
+                  <Flame className="w-4 h-4" />
+                  {t.recipes.ingredients.cookNow}
                 </button>
               )}
             </>
@@ -466,7 +498,7 @@ export default function RecipeDetailsPage() {
           className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm p-4"
         >
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
-            Sposób przygotowania
+            {t.recipes.instructions.title}
           </h2>
           <ol className="space-y-2.5">
             {recipe.instructions.map((step, index) => (
@@ -497,14 +529,14 @@ export default function RecipeDetailsPage() {
             } text-white font-medium shadow-lg transition-all flex items-center justify-center gap-2`}
           >
             <ChefHat className="w-5 h-5" />
-            {missingIngredients === 0 ? '🍳 Ugotuj' : '⚠️ Brakuje składników'}
+            {missingIngredients === 0 ? t.recipes.ingredients.cookNow : t.recipes.ingredients.missing}
           </button>
           {!recipe.isSaved && (
             <button
               className="px-6 py-4 rounded-lg bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/20 dark:hover:bg-amber-900/30 text-amber-700 dark:text-amber-300 font-medium shadow-lg transition-all flex items-center gap-2"
             >
               <Star className="w-5 h-5" />
-              Zapisz
+              {t.recipes.card.saveRecipe}
             </button>
           )}
         </motion.div>

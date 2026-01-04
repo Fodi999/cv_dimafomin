@@ -2,8 +2,10 @@
 
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Clock, Users, ChefHat, TrendingUp, ShoppingCart, AlertCircle, Plus, Minus } from "lucide-react";
+import { Clock, Users, ChefHat, TrendingUp, ShoppingCart, AlertCircle, Plus, Minus, Globe, CheckCircle, BookOpen, Coins, Flame } from "lucide-react";
 import type { RecipeMatch, RecipeMatchIngredient } from "@/lib/api";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getRecipeTitle } from "@/lib/i18n/getRecipeTitle";
 
 interface RecipeMatchCardProps {
   recipe: RecipeMatch;
@@ -18,11 +20,44 @@ export default function RecipeMatchCard({
   onAddToShoppingList,
   isLoading = false,
 }: RecipeMatchCardProps) {
+  const { language, t } = useLanguage();
   const [isCooking, setIsCooking] = useState(false);
   const [cookingKey, setCookingKey] = useState<string | null>(null);
   
   // 🆕 Servings state (starts at base servings from recipe)
   const [servings, setServings] = useState(recipe.servings);
+  
+  // Helper: Get correct plural form for ingredients (Polish grammar)
+  const getIngredientWord = (count: number) => {
+    if (language === 'pl') {
+      if (count === 1) return 'składnika';
+      if (count >= 2 && count <= 4) return 'składniki';
+      return 'składników';
+    }
+    if (language === 'ru') {
+      if (count === 1) return 'ингредиент';
+      if (count >= 2 && count <= 4) return 'ингредиента';
+      return 'ингредиентов';
+    }
+    // English
+    return count === 1 ? t.recipes.match.ingredientSingular : t.recipes.match.ingredientPlural;
+  };
+
+  // Helper: Get correct plural form for servings
+  const getServingWord = (count: number) => {
+    if (language === 'pl') {
+      if (count === 1) return 'porcja';
+      if (count >= 2 && count <= 4) return 'porcje';
+      return 'porcji';
+    }
+    if (language === 'ru') {
+      if (count === 1) return 'порция';
+      if (count >= 2 && count <= 4) return 'порции';
+      return 'порций';
+    }
+    // English
+    return count === 1 ? t.recipes.match.servingSingular : t.recipes.match.servingPlural;
+  };
   
   // 🆕 Scale coefficient (core logic)
   const scale = useMemo(() => servings / recipe.servings, [servings, recipe.servings]);
@@ -108,7 +143,7 @@ export default function RecipeMatchCard({
         {recipe.imageUrl ? (
           <img
             src={recipe.imageUrl}
-            alt={recipe.title}
+            alt={getRecipeTitle(recipe, language)}
             className="w-full h-full object-cover"
           />
         ) : (
@@ -118,39 +153,43 @@ export default function RecipeMatchCard({
         )}
         
         {/* Score Badge */}
-        <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm">
-          <span className={`text-lg font-bold ${getScoreColor(recipe.score)}`}>
-            {recipe.score}
-          </span>
-          <span className="text-xs text-gray-600 dark:text-gray-400 ml-1">pts</span>
-        </div>
+        {recipe.score !== undefined && (
+          <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm">
+            <span className={`text-lg font-bold ${getScoreColor(recipe.score)}`}>
+              {recipe.score}
+            </span>
+            <span className="text-xs text-gray-600 dark:text-gray-400 ml-1">pts</span>
+          </div>
+        )}
 
         {/* Coverage Badge */}
-        <div className="absolute top-3 left-3 flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm">
-          <div className="flex items-center gap-1.5">
-            <div className={`w-2 h-2 rounded-full ${getCoverageColor(recipe.coverage)}`} />
-            <span className="text-sm font-medium text-gray-900 dark:text-white">
-              {recipe.coverage.toFixed(0)}%
+        {recipe.coverage !== undefined && recipe.usedCount !== undefined && recipe.missingCount !== undefined && (
+          <div className="absolute top-3 left-3 flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm">
+            <div className="flex items-center gap-1.5">
+              <div className={`w-2 h-2 rounded-full ${getCoverageColor(recipe.coverage)}`} />
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                {recipe.coverage.toFixed(0)}%
+              </span>
+            </div>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {recipe.usedCount}/{recipe.usedCount + recipe.missingCount}
             </span>
           </div>
-          <span className="text-xs text-gray-500 dark:text-gray-400">
-            {recipe.usedCount}/{recipe.usedCount + recipe.missingCount}
-          </span>
-        </div>
+        )}
       </div>
 
       {/* Content */}
       <div className="p-5 space-y-4">
         {/* 📘 Source Badge - "Przepis z katalogu" */}
         <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 pb-2 border-b border-gray-100 dark:border-gray-800">
-          <span>📘</span>
-          <span>Przepis z katalogu</span>
+          <BookOpen className="w-3.5 h-3.5" />
+          <span>{t.recipes.match.source}</span>
         </div>
 
         {/* Title & Meta */}
         <div>
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-            {recipe.title}
+            {getRecipeTitle(recipe, language)}
           </h3>
           
           {recipe.description && (
@@ -163,18 +202,22 @@ export default function RecipeMatchCard({
           <div className="mt-2">
             {recipe.canCookNow ? (
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium">
-                <span>✅</span>
-                <span>Możesz ugotować teraz</span>
+                <CheckCircle className="w-3.5 h-3.5" />
+                <span>{t.recipes.match.canCookNow}</span>
               </div>
-            ) : recipe.missingCount > 0 ? (
+            ) : (recipe.missingCount ?? 0) > 0 ? (
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-medium">
-                <span>🛒</span>
-                <span>Brakuje {recipe.missingCount} {recipe.missingCount === 1 ? 'składnika' : recipe.missingCount < 5 ? 'składników' : 'składników'}</span>
+                <ShoppingCart className="w-3.5 h-3.5" />
+                <span>
+                  {t.recipes.match.missingIngredients
+                    .replace('{count}', String(recipe.missingCount))
+                    .replace('{ingredientWord}', getIngredientWord(recipe.missingCount ?? 0))}
+                </span>
               </div>
             ) : (
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs font-medium">
-                <span>❌</span>
-                <span>Nie pasuje do lodówki</span>
+                <AlertCircle className="w-3.5 h-3.5" />
+                <span>{t.recipes.match.notInFridge}</span>
               </div>
             )}
           </div>
@@ -192,7 +235,7 @@ export default function RecipeMatchCard({
                 onClick={() => setServings(Math.max(1, servings - 1))}
                 disabled={servings <= 1}
                 className="w-6 h-6 flex items-center justify-center rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                aria-label="Zmniejsz porcje"
+                aria-label={t.recipes.match.decreaseServings || "Decrease servings"}
               >
                 <Minus className="w-3 h-3" />
               </button>
@@ -203,23 +246,25 @@ export default function RecipeMatchCard({
                 onClick={() => setServings(Math.min(10, servings + 1))}
                 disabled={servings >= 10}
                 className="w-6 h-6 flex items-center justify-center rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                aria-label="Zwiększ porcje"
+                aria-label={t.recipes.match.increaseServings || "Increase servings"}
               >
                 <Plus className="w-3 h-3" />
               </button>
               <span className="text-gray-600 dark:text-gray-400">
-                {servings === 1 ? 'porcja' : servings < 5 ? 'porcje' : 'porcji'}
+                {getServingWord(servings)}
               </span>
               {/* 🆕 Total Yield Indicator */}
               {(() => {
                 // Calculate total weight of all ingredients
                 const totalUsedWeight = recipe.usedIngredients.reduce((sum, ing) => {
+                  if (typeof ing === 'string') return sum;
                   const scaledQty = scaleQuantity(ing.quantity);
                   if (ing.unit === 'g' || ing.unit === 'ml') return sum + scaledQty;
                   if (ing.unit === 'kg' || ing.unit === 'l') return sum + scaledQty * 1000;
                   return sum;
                 }, 0);
-                const totalMissingWeight = recipe.missingIngredients.reduce((sum, ing) => {
+                const totalMissingWeight = (recipe.missingIngredients ?? []).reduce((sum, ing) => {
+                  if (typeof ing === 'string') return sum;
                   const scaledQty = scaleQuantity(ing.quantity);
                   if (ing.unit === 'g' || ing.unit === 'ml') return sum + scaledQty;
                   if (ing.unit === 'kg' || ing.unit === 'l') return sum + scaledQty * 1000;
@@ -240,7 +285,7 @@ export default function RecipeMatchCard({
             
             {recipe.country && (
               <div className="flex items-center gap-1.5">
-                <span>🌍</span>
+                <Globe className="w-4 h-4" />
                 <span>{recipe.country}</span>
               </div>
             )}
@@ -257,19 +302,22 @@ export default function RecipeMatchCard({
         {recipe.usedIngredients.length > 0 && (
           <div className="bg-green-50 dark:bg-green-900/10 rounded-xl p-3 border border-green-200 dark:border-green-800/30">
             <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-              <span className="text-green-600 dark:text-green-400">✅</span>
-              Z lodówki ({recipe.usedCount})
+              <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+              {t.recipes.match.fromFridge} ({recipe.usedCount})
             </h4>
             <ul className="space-y-1.5 text-sm">
-              {recipe.usedIngredients.slice(0, 3).map((ing, i) => (
-                <li key={i} className="flex justify-between text-gray-700 dark:text-gray-300">
-                  <span>• {ing.name}</span>
-                  <span className="font-medium">{formatQuantity(scaleQuantity(ing.quantity), ing.unit)}</span>
-                </li>
-              ))}
+              {recipe.usedIngredients.slice(0, 3).map((ing, i) => {
+                if (typeof ing === 'string') return null;
+                return (
+                  <li key={i} className="flex justify-between text-gray-700 dark:text-gray-300">
+                    <span>• {ing.name}</span>
+                    <span className="font-medium">{formatQuantity(scaleQuantity(ing.quantity), ing.unit)}</span>
+                  </li>
+                );
+              })}
               {recipe.usedIngredients.length > 3 && (
                 <li className="text-xs text-gray-500 dark:text-gray-400">
-                  + {recipe.usedIngredients.length - 3} więcej
+                  + {recipe.usedIngredients.length - 3} {t.recipes.match.more}
                 </li>
               )}
             </ul>
@@ -277,29 +325,32 @@ export default function RecipeMatchCard({
         )}
 
         {/* Missing Ingredients */}
-        {recipe.missingIngredients.length > 0 && (
+        {(recipe.missingIngredients?.length ?? 0) > 0 && (
           <div className="bg-amber-50 dark:bg-amber-900/10 rounded-xl p-3 border border-amber-200 dark:border-amber-800/30">
             <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-              <span className="text-amber-600 dark:text-amber-400">🛒</span>
-              Do dokupienia ({recipe.missingCount})
+              <ShoppingCart className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+              {t.recipes.match.toBuy} ({recipe.missingCount ?? 0})
             </h4>
             <ul className="space-y-1.5 text-sm mb-3">
-              {recipe.missingIngredients.slice(0, 3).map((ing, i) => (
-                <li key={i} className="flex justify-between text-gray-700 dark:text-gray-300">
-                  <span>• {ing.name}</span>
-                  <span className="font-medium">{formatQuantity(scaleQuantity(ing.quantity), ing.unit)}</span>
-                </li>
-              ))}
-              {recipe.missingIngredients.length > 3 && (
+              {recipe.missingIngredients?.slice(0, 3).map((ing, i) => {
+                if (typeof ing === 'string') return null;
+                return (
+                  <li key={i} className="flex justify-between text-gray-700 dark:text-gray-300">
+                    <span>• {ing.name}</span>
+                    <span className="font-medium">{formatQuantity(scaleQuantity(ing.quantity), ing.unit)}</span>
+                  </li>
+                );
+              })}
+              {(recipe.missingIngredients?.length ?? 0) > 3 && (
                 <li className="text-xs text-gray-500 dark:text-gray-400">
-                  + {recipe.missingIngredients.length - 3} więcej
+                  + {(recipe.missingIngredients?.length ?? 0) - 3} {t.recipes.match.more}
                 </li>
               )}
             </ul>
             
             {scaledEconomy.costToComplete > 0 && (
               <div className="text-sm text-amber-700 dark:text-amber-400 font-medium">
-                Koszt dokupienia: ~{scaledEconomy.costToComplete.toFixed(2)} {scaledEconomy.currency}
+                {t.recipes.match.costToBuy}: ~{scaledEconomy.costToComplete.toFixed(2)} {scaledEconomy.currency}
               </div>
             )}
           </div>
@@ -308,21 +359,21 @@ export default function RecipeMatchCard({
         {/* Economy Summary */}
         <div className="bg-purple-50 dark:bg-purple-900/10 rounded-xl p-3 border border-purple-200 dark:border-purple-800/30">
           <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-            <span className="text-purple-600 dark:text-purple-400">💰</span>
-            Ekonomia
+            <Coins className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            {t.recipes.match.economy}
           </h4>
           <div className="space-y-1.5 text-sm">
             <div className="flex justify-between text-gray-700 dark:text-gray-300">
-              <span>Wartość z lodówki:</span>
+              <span>{t.recipes.match.valueFromFridge}:</span>
               <span className="font-medium">{scaledEconomy.usedValue.toFixed(2)} {scaledEconomy.currency}</span>
             </div>
             <div className="flex justify-between text-gray-700 dark:text-gray-300">
-              <span>Koszt całkowity:</span>
+              <span>{t.recipes.match.totalCost}:</span>
               <span className="font-medium">{scaledEconomy.totalRecipeCost.toFixed(2)} {scaledEconomy.currency}</span>
             </div>
             {scaledEconomy.wasteRiskSaved > 0 && (
               <div className="flex justify-between text-green-600 dark:text-green-400 font-semibold pt-1 border-t border-purple-200 dark:border-purple-800/30">
-                <span>Uratowano przed marnowaniem:</span>
+                <span>{t.recipes.match.wasteRiskSaved}:</span>
                 <span>{scaledEconomy.wasteRiskSaved.toFixed(2)} {scaledEconomy.currency}</span>
               </div>
             )}
@@ -333,8 +384,8 @@ export default function RecipeMatchCard({
         {recipe.steps && recipe.steps.length > 0 && (
           <div className="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-3 border border-blue-200 dark:border-blue-800/30">
             <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-              <span className="text-blue-600 dark:text-blue-400">👨‍🍳</span>
-              Sposób przygotowania
+              <Flame className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              {t.recipes.instructions.title}
             </h4>
             <ol className="space-y-2 text-sm">
               {recipe.steps.map((step, i) => (
@@ -360,32 +411,34 @@ export default function RecipeMatchCard({
               {isCooking ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Gotowanie...
+                  {t.recipes.match.cooking}
                 </>
               ) : (
                 <>
                   <ChefHat className="w-5 h-5" />
-                  Gotuj
+                  {t.recipes.match.cook}
                 </>
               )}
             </button>
           ) : (
             <button
-              onClick={() => onAddToShoppingList?.(recipe.recipeId, recipe.missingIngredients)}
+              onClick={() => onAddToShoppingList?.(recipe.recipeId, recipe.missingIngredients ?? [])}
               disabled={isLoading}
               className="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium transition-all flex items-center justify-center gap-2 shadow-sm"
             >
               <ShoppingCart className="w-5 h-5" />
-              Dodaj do listy zakupów
+              {t.recipes.match.addToShoppingList}
             </button>
           )}
         </div>
 
         {/* Warning if can't cook now */}
-        {!recipe.canCookNow && recipe.missingCount > 0 && (
+        {!recipe.canCookNow && (recipe.missingCount ?? 0) > 0 && (
           <div className="flex items-start gap-2 text-xs text-amber-700 dark:text-amber-400 bg-amber-50/50 dark:bg-amber-900/5 rounded p-2">
             <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-            <span>Brakuje {recipe.missingCount} składników. Dokup je, aby ugotować ten przepis.</span>
+            <span>
+              {t.recipes.match.missingWarning.replace('{count}', String(recipe.missingCount))}
+            </span>
           </div>
         )}
       </div>

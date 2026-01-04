@@ -64,6 +64,7 @@ export const recipes = {
     new: "New",
     featured: "Featured",
     premium: "Premium",
+    saved: "Saved",
     servings: "servings",
     time: "min",
     difficulty: "Difficulty",
@@ -130,6 +131,43 @@ export const recipes = {
       pinch: "pinch",
       taste: "to taste",
     },
+    
+    // Recipe detail page
+    inFridge: "in fridge",
+    missing: "missing",
+    youHave: "you have",
+    addMissingToFridge: "Add missing to fridge",
+    addingToFridge: "Adding to fridge...",
+    readyToCook: "Ready to cook!",
+    cookNow: "Cook now",
+    listEmpty: "Ingredient list coming soon",
+    listEmptyDesc: "We're working on adding detailed recipe information",
+  },
+
+  // Recipe Match Cards (for /recipes page)
+  match: {
+    source: "Recipe from catalog",
+    canCookNow: "Can cook now",
+    missingIngredients: "Missing {count} {ingredientWord}",
+    ingredientSingular: "ingredient",
+    ingredientPlural: "ingredients",
+    notInFridge: "Not in fridge",
+    fromFridge: "From fridge",
+    toBuy: "To buy",
+    costToBuy: "Cost to buy",
+    economy: "Economy",
+    valueFromFridge: "Value from fridge",
+    totalCost: "Total cost",
+    wasteRiskSaved: "Saved from waste",
+    cooking: "Cooking...",
+    cook: "Cook",
+    addToShoppingList: "Add to shopping list",
+    missingWarning: "Missing {count} ingredients. Buy them to cook this recipe.",
+    servingSingular: "serving",
+    servingPlural: "servings",
+    decreaseServings: "Decrease servings",
+    increaseServings: "Increase servings",
+    more: "more",
   },
 
   instructions: {
@@ -143,6 +181,13 @@ export const recipes = {
     previous: "Previous",
     next: "Next",
     finish: "Finish",
+  },
+
+  // Loading & Error states
+  loading: {
+    loadingRecipe: "Loading recipe...",
+    loadingError: "Loading error",
+    recipeNotFound: "Recipe not found",
   },
 
   nutrition: {
@@ -268,6 +313,45 @@ export const recipes = {
       update: "Update",
       cancel: "Cancel",
       delete: "Delete recipe",
+    },
+  },
+
+  cooking: {
+    title: "Cooking",
+    loading: "Checking your fridge...",
+    
+    stats: {
+      canCookNow: "Can cook now",
+      almostReady: "Almost ready",
+      needShopping: "Need shopping",
+      basedOnFridge: "Based on your fridge, we show what you can cook right now",
+    },
+    
+    sections: {
+      canCook: {
+        title: "Can cook now",
+        description: "You have all ingredients",
+      },
+      almostCook: {
+        title: "Almost ready",
+        description: "Missing 1-2 ingredients",
+      },
+      needToBuy: {
+        title: "Need shopping",
+        description: "Missing more ingredients",
+      },
+    },
+    
+    empty: {
+      title: "Your fridge is empty",
+      description: "Add ingredients to your fridge to see what you can cook",
+      action: "Go to fridge",
+    },
+    
+    actions: {
+      cookNow: "Cook now",
+      viewRecipe: "View recipe",
+      addToCart: "Add missing",
     },
   },
 

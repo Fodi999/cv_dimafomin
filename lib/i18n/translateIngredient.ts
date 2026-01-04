@@ -7,6 +7,29 @@
  */
 
 import type { Dictionary } from "@/lib/i18n/types";
+import type { CatalogIngredient } from "@/lib/types";
+
+/**
+ * Get localized ingredient name from backend response
+ * Backend now returns full translations in all endpoints
+ * @param ingredient - Ingredient object with namePl, nameEn, nameRu fields
+ * @param language - Current language (pl, en, ru)
+ * @returns Localized name or fallback to default name
+ */
+export function getLocalizedIngredientName(
+  ingredient: CatalogIngredient | { name: string; namePl?: string; nameEn?: string; nameRu?: string },
+  language: string
+): string {
+  switch (language) {
+    case 'ru':
+      return ingredient.nameRu || ingredient.name;
+    case 'en':
+      return ingredient.nameEn || ingredient.name;
+    case 'pl':
+    default:
+      return ingredient.namePl || ingredient.name;
+  }
+}
 
 /**
  * Переводит название ингредиента

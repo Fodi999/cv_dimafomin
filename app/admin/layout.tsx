@@ -18,14 +18,42 @@ export default function AdminLayout({
 
   // Проверка прав доступа администратора
   useEffect(() => {
+    console.log("[AdminLayout] 🔐 Access check:", {
+      isLoading,
+      hasUser: !!user,
+      userEmail: user?.email,
+      userRole: user?.role,
+      roleType: typeof user?.role,
+      isAdmin: user?.role === "admin",
+      pathname,
+    });
+
     if (!isLoading) {
       if (!user) {
+        console.warn("[AdminLayout] ❌ No user - opening auth modal");
         openAuthModal("login"); // 🔧 Открываем модалку вместо редиректа
       } else if (user.role !== "admin") {
+        // 🚧 DEV MODE: Allow specific users in development
+        const isDev = process.env.NODE_ENV === "development";
+        const allowedDevEmails = ["admin@example.com", "dima@example.com"];
+        const isAllowedDevUser = isDev && allowedDevEmails.includes(user.email);
+
+        if (isAllowedDevUser) {
+          console.warn("[AdminLayout] ⚠️ DEV MODE: Allowing non-admin user:", user.email);
+          return; // Allow access in dev mode
+        }
+
+        console.warn("[AdminLayout] ❌ User is not admin:", {
+          email: user.email,
+          role: user.role,
+          expected: "admin",
+        });
         router.push("/");
+      } else {
+        console.log("[AdminLayout] ✅ Admin access granted");
       }
     }
-  }, [user, isLoading, router, openAuthModal]);
+  }, [user, isLoading, router, openAuthModal, pathname]);
 
   if (isLoading) {
     return (
@@ -39,7 +67,14 @@ export default function AdminLayout({
   }
 
   if (!user || user.role !== "admin") {
-    return null;
+    // 🚧 DEV MODE: Allow specific users in development
+    const isDev = process.env.NODE_ENV === "development";
+    const allowedDevEmails = ["admin@example.com", "dima@example.com"];
+    const isAllowedDevUser = isDev && user && allowedDevEmails.includes(user.email);
+
+    if (!isAllowedDevUser) {
+      return null;
+    }
   }
 
   return (

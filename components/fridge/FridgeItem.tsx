@@ -1,9 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Trash2, AlertCircle, CheckCircle2, AlertTriangle, Clock, Edit2 } from "lucide-react";
+import { Trash2, AlertCircle, CheckCircle2, AlertTriangle, Clock, Edit2, DollarSign, Timer } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { translateIngredient, generateIngredientSlug } from "@/lib/i18n/translateIngredient";
+import { getLocalizedIngredientName } from "@/lib/i18n/translateIngredient";
+import { formatLocalizedDate } from "@/lib/i18n/formatDate";
 import type { FridgeItem as FridgeItemType } from "@/lib/types";
 import PriceTrend from "./PriceTrend";
 import { useState, useEffect } from "react";
@@ -17,7 +18,7 @@ interface FridgeItemProps {
 }
 
 export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityClick, index }: FridgeItemProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [token, setToken] = useState<string>("");
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
     return null;
   }
 
-  // ✅ Безопасное форматирование даты
+  // ✅ Безопасное форматирование даты с локализацией
   const formatExpirationDate = (expiresAt?: string | null): string => {
     if (!expiresAt) {
       return t?.fridge?.item?.noExpiryDate || "No date";
@@ -44,7 +45,7 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
       if (isNaN(date.getTime())) {
         return t?.fridge?.item?.invalidDate || "Invalid date";
       }
-      return date.toLocaleDateString("pl-PL");
+      return formatLocalizedDate(date, language);
     } catch (err) {
       console.error('[FridgeItem] Date parsing error:', err);
       return t?.fridge?.item?.dateError || "Date error";
@@ -56,7 +57,6 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
       case "ok":
         return {
           icon: <CheckCircle2 className="w-5 h-5" />,
-          emoji: "🟢",
           color: "text-green-600 dark:text-green-400",
           bgColor: "bg-green-50 dark:bg-green-900/20",
           borderColor: "border-green-200 dark:border-green-800/30",
@@ -68,7 +68,6 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
       case "warning":
         return {
           icon: <Clock className="w-5 h-5" />,
-          emoji: "🟡",
           color: "text-orange-600 dark:text-orange-400",
           bgColor: "bg-orange-50 dark:bg-orange-900/20",
           borderColor: "border-orange-200 dark:border-orange-800/30",
@@ -78,7 +77,6 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
       case "critical":
         return {
           icon: <AlertTriangle className="w-5 h-5" />,
-          emoji: "🟠",
           color: "text-red-600 dark:text-red-400",
           bgColor: "bg-red-50 dark:bg-red-900/20",
           borderColor: "border-red-200 dark:border-red-800/30",
@@ -90,7 +88,6 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
       case "expired":
         return {
           icon: <AlertCircle className="w-5 h-5" />,
-          emoji: "🔴",
           color: "text-gray-600 dark:text-gray-400",
           bgColor: "bg-gray-50 dark:bg-gray-900/20",
           borderColor: "border-gray-200 dark:border-gray-800/30",
@@ -100,7 +97,6 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
       default:
         return {
           icon: <CheckCircle2 className="w-5 h-5" />,
-          emoji: "⚪",
           color: "text-gray-600 dark:text-gray-400",
           bgColor: "bg-gray-50 dark:bg-gray-900/20",
           borderColor: "border-gray-200 dark:border-gray-800/30",
@@ -112,9 +108,8 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
 
   const statusConfig = getStatusConfig(item.status, item.daysLeft || 0);
   
-  // ✅ Переводим название ингредиента
-  const ingredientSlug = item.ingredient.i18nKey || generateIngredientSlug(item.ingredient.name);
-  const translatedName = translateIngredient(item.ingredient.name, ingredientSlug, t);
+  // ✅ Получаем локализованное имя напрямую из объекта ингредиента
+  const translatedName = getLocalizedIngredientName(item.ingredient as any, language);
   
   // ✅ Переводим категорию
   const translatedCategory = t?.fridge?.categories?.[item.ingredient.category] || item.ingredient.category;
@@ -124,143 +119,100 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      transition={{ delay: index * 0.05 }}
-      whileHover={{ scale: 1.01 }}
-      className={`relative p-5 rounded-xl border-2 ${statusConfig.borderColor} ${statusConfig.bgColor} dark:bg-slate-800/50 transition-all shadow-sm hover:shadow-md`}
+      transition={{ delay: index * 0.03 }}
+      className={`
+        relative p-4 rounded-xl border-l-4 
+        ${statusConfig.borderColor}
+        bg-white dark:bg-slate-800 
+        hover:shadow-md transition-all
+        flex items-center gap-4
+      `}
     >
-      {/* Header с названием и кнопкой удаления */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-start gap-3 flex-1">
-          <div className="text-3xl mt-0.5">{statusConfig.emoji}</div>
-          <div className="flex-1">
-            <h4 className="font-bold text-gray-900 dark:text-white text-lg leading-tight">
-              {translatedName}
-            </h4>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              {translatedCategory}
-            </p>
-          </div>
-        </div>
-
-        <motion.button
-          whileHover={{ scale: 1.1, rotate: 90 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => onDelete(item.id)}
-          className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg transition-colors text-red-500 dark:text-red-400 ml-2"
-          title={t?.fridge?.actions?.deleteProduct || "Delete product"}
-        >
-          <Trash2 className="w-4 h-4" />
-        </motion.button>
+      {/* Иконка статуса */}
+      <div className={`flex-shrink-0 ${statusConfig.color}`}>
+        {statusConfig.icon}
       </div>
 
-      {/* Grid с информацией */}
-      <div className="grid grid-cols-2 gap-3 mb-3">
-        {/* Количество */}
-        <div className="flex items-start justify-between p-2 bg-white/50 dark:bg-slate-900/30 rounded-lg overflow-hidden">
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{t?.fridge?.item?.quantity || "Quantity"}</span>
-            <div className="flex items-center gap-1.5">
-              <span className="font-semibold text-sm text-gray-900 dark:text-white whitespace-nowrap">
-                {item.quantity} {item.unit}
-              </span>
-              <button
-                onClick={() => onQuantityClick?.(item)}
-                className="p-0.5 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-400 hover:text-blue-600"
-                title={t?.fridge?.actions?.updateQuantity || "Change quantity"}
-              >
-                <Edit2 className="w-3 h-3" />
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* Название и категория */}
+      <div className="flex-1 min-w-0">
+        <h4 className="font-bold text-gray-900 dark:text-white text-base leading-tight truncate">
+          {translatedName}
+        </h4>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+          {translatedCategory}
+        </p>
+      </div>
 
-        {/* Цена или кнопка добавления */}
-        {item.totalPrice !== undefined && item.totalPrice !== null && item.pricePerUnit !== undefined ? (
-          <div className="flex items-start justify-between p-2 bg-white/50 dark:bg-slate-900/30 rounded-lg overflow-hidden">
-            <div className="flex flex-col gap-1 min-w-0 flex-1">
-              <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                {t?.fridge?.item?.pricePerKg || "Price"}/{item.unit === 'g' ? 'kg' : item.unit === 'ml' ? 'l' : 'szt'}
-              </span>
-              <div className="flex items-center gap-1.5">
-                <span className="font-semibold text-sm text-gray-900 dark:text-white whitespace-nowrap">
-                  {(item.pricePerUnit * (item.unit === 'g' || item.unit === 'ml' ? 1000 : 1)).toFixed(2)}{' '}
-                  <span className="text-xs font-normal">{item.currency === 'PLN' ? 'pln' : item.currency}</span>
-                </span>
-                <button
-                  onClick={() => onPriceClick?.(item)}
-                  className="p-0.5 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-400 hover:text-blue-600"
-                  title="Zmień cenę"
-                >
-                  <Edit2 className="w-3 h-3" />
-                </button>
-              </div>
-              {/* Индикатор тренда под ценой */}
-              {token && (
-                <div className="flex-shrink-0">
-                  <PriceTrend 
-                    itemId={item.id} 
-                    currentPrice={item.pricePerUnit} 
-                    unit={item.unit}
-                    token={token}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="col-span-1">
+      {/* Количество */}
+      <div className="flex-shrink-0 text-right">
+        <div className="flex items-center gap-1.5">
+          <span className="font-bold text-lg text-gray-900 dark:text-white whitespace-nowrap">
+            {item.quantity} {item.unit}
+          </span>
+          <button
+            onClick={() => onQuantityClick?.(item)}
+            className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-400 hover:text-blue-600"
+            title={t?.fridge?.actions?.updateQuantity || "Change quantity"}
+          >
+            <Edit2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Цена (если есть) */}
+      {item.totalPrice !== undefined && item.totalPrice !== null && item.pricePerUnit ? (
+        <div className="flex-shrink-0 text-right">
+          <div className="flex items-center gap-1.5">
+            <DollarSign className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span className="font-bold text-lg text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
+              {item.totalPrice.toFixed(2)} {item.currency === 'PLN' ? 'PLN' : item.currency}
+            </span>
             <button
               onClick={() => onPriceClick?.(item)}
-              className="w-full px-3 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-semibold rounded-lg transition-all shadow-sm hover:shadow-md"
+              className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-400 hover:text-blue-600"
+              title="Zmień cenę"
             >
-              {t?.fridge?.actions?.updatePrice || "Add price"}
+              <Edit2 className="w-3.5 h-3.5" />
             </button>
           </div>
-        )}
-      </div>
-
-      {/* Общая стоимость - если есть цена */}
-      {item.totalPrice !== undefined && item.totalPrice !== null && (
-        <div className="mb-3 p-2.5 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800/30 overflow-hidden">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-green-700 dark:text-green-400 whitespace-nowrap">{t?.fridge?.item?.totalCost || "Total cost"}</span>
-            <span className="text-base font-bold text-green-600 dark:text-green-400 whitespace-nowrap">
-              💰 {item.totalPrice.toFixed(2)}{' '}
-              <span className="text-xs font-normal">{item.currency === 'PLN' ? 'pln' : item.currency}</span>
-            </span>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            {(item.pricePerUnit * (item.unit === 'g' || item.unit === 'ml' ? 1000 : 1)).toFixed(2)}{' '}
+            PLN/{item.unit === 'g' ? 'kg' : item.unit === 'ml' ? 'l' : 'pc'}
           </div>
         </div>
+      ) : (
+        <button
+          onClick={() => onPriceClick?.(item)}
+          className="flex-shrink-0 px-3 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-semibold rounded-lg transition-all"
+        >
+          {t?.fridge?.actions?.updatePrice || "Add price"}
+        </button>
       )}
 
-      {/* Даты */}
-      <div className="grid grid-cols-2 gap-3 mb-3">
-        <div className="text-xs overflow-hidden">
-          <span className="text-gray-500 dark:text-gray-400 block mb-0.5">{t?.fridge?.item?.expiryDate || "Expiry date"}</span>
-          <span className="font-semibold text-gray-900 dark:text-white block truncate">
-            {formatExpirationDate(item.expiresAt)}
-          </span>
+      {/* Срок годности */}
+      <div className="flex-shrink-0 text-right min-w-[100px]">
+        <div className={`text-xs font-medium ${statusConfig.color}`}>
+          {statusConfig.label}
         </div>
-        {item.arrivedAt && (
-          <div className="text-xs text-right overflow-hidden">
-            <span className="text-gray-500 dark:text-gray-400 block mb-0.5">{t?.fridge?.item?.addedDate || "Added"}</span>
-            <span className="font-semibold text-gray-900 dark:text-white block truncate">
-              {formatExpirationDate(item.arrivedAt)}
-            </span>
-          </div>
-        )}
+        <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+          {formatExpirationDate(item.expiresAt)}
+        </div>
+        <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 flex items-center gap-1">
+          <Timer className="w-3.5 h-3.5" />
+          {statusConfig.description}
+        </div>
       </div>
 
-      {/* Статус */}
-      <div className={`flex items-center justify-between p-2.5 rounded-lg ${statusConfig.bgColor} border ${statusConfig.borderColor} overflow-hidden`}>
-        <p className={`font-semibold text-sm ${statusConfig.color} truncate`}>
-          {statusConfig.label}
-        </p>
-        {statusConfig.description && (
-          <p className="text-xs text-gray-600 dark:text-gray-400 truncate ml-2">
-            {statusConfig.description}
-          </p>
-        )}
-      </div>
+      {/* Кнопка удаления */}
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => onDelete(item.id)}
+        className="flex-shrink-0 p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg transition-colors text-red-500 dark:text-red-400"
+        title={t?.fridge?.actions?.deleteProduct || "Delete product"}
+      >
+        <Trash2 className="w-4 h-4" />
+      </motion.button>
     </motion.div>
   );
 }

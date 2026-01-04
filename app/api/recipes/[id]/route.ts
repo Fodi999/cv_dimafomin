@@ -25,9 +25,14 @@ export async function GET(
     console.log('   Token:', token ? `${token.substring(0, 20)}... (${token.length} chars)` : 'NO TOKEN');
     console.log('   Proxying to backend:', `${BACKEND_URL}/api/recipes/${recipeId}`);
 
+    // 🌍 Get Accept-Language from request headers
+    const acceptLanguage = req.headers.get('Accept-Language') || 'pl';
+    console.log('   🌍 Accept-Language:', acceptLanguage);
+
     // Prepare headers for backend request
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'Accept-Language': acceptLanguage,
     };
 
     // Add Authorization header if token is present
@@ -61,6 +66,18 @@ export async function GET(
     }
 
     const data = await response.json();
+    
+    // 🔍 DEBUG: Check what backend actually returns
+    console.log('🔍 Backend recipe fields:', {
+      id: data.data?.id,
+      title: data.data?.title,
+      localName: data.data?.localName,
+      canonicalName: data.data?.canonicalName,
+      hasTitle: !!data.data?.title,
+      hasLocalName: !!data.data?.localName,
+      hasCanonicalName: !!data.data?.canonicalName,
+    });
+    
     console.log('✅ Recipe details received:', data.data?.localName || 'Unknown');
 
     return NextResponse.json(data);

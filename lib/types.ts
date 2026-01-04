@@ -202,9 +202,14 @@ export interface CreateRecipePostData {
 export interface CatalogIngredient {
   id: string;
   name: string;
+  namePl?: string;  // Polish translation
+  nameEn?: string;  // English translation
+  nameRu?: string;  // Russian translation
   unit: string;
   category: string;
   defaultShelfLifeDays: number;
+  defaultPricePerUnit?: number;
+  createdAt?: string;
   i18nKey?: string; // ✅ Ключ для перевода (например, "ingredient.cucumber")
 }
 
@@ -220,9 +225,14 @@ export const ACTIVE_STATUSES: readonly FridgeItemStatus[] = ['ok', 'warning', 'c
 export interface FridgeItem {
   id: string;
   ingredient: {
-    name: string;
+    id?: string;           // Ingredient UUID from backend
+    name: string;          // Default display name (fallback)
+    namePl?: string;       // Polish translation
+    nameEn?: string;       // English translation
+    nameRu?: string;       // Russian translation
     category: string;
-    i18nKey?: string; // ✅ Ключ для перевода (например, "ingredient.cucumber")
+    key?: string;          // Language-independent key (e.g., "beef")
+    i18nKey?: string;      // Legacy: Ключ для перевода (например, "ingredient.cucumber")
   };
   quantity: number;
   unit: string;

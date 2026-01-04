@@ -30,22 +30,33 @@ export interface RecipeMatchEconomy {
 
 export interface RecipeMatch {
   recipeId: string;
-  title: string;
+  canonicalName: string;      // English name from backend
+  localName: string;           // Localized name (legacy, always PL)
+  localName_pl?: string;       // Polish name
+  localName_ru?: string;       // Russian name  
+  localName_en?: string;       // English name
+  title?: string;              // Legacy field (for backward compatibility)
   description?: string;
   imageUrl?: string;
   country?: string;
+  category?: string;           // Backend returns category
   difficulty?: string;
   cookingTime: number;
+  timeMinutes?: number;        // Backend may return timeMinutes
   servings: number;
   steps?: string[];
-  score: number;
-  coverage: number;
-  usedIngredients: RecipeMatchIngredient[];
-  missingIngredients: RecipeMatchIngredient[];
+  score?: number;
+  match?: number;              // Backend returns match score
+  coverage?: number;
+  usedIngredients: string[] | RecipeMatchIngredient[];  // Can be simple strings or detailed objects
+  missingIngredients?: RecipeMatchIngredient[];
+  missing?: string[];          // Backend returns simple string array
   economy?: RecipeMatchEconomy;
-  canCookNow: boolean;
+  canCookNow?: boolean;
+  canCook?: boolean;           // Backend returns canCook
   missingCount: number;
-  usedCount: number;
+  usedCount?: number;
+  costToComplete?: number;     // Backend returns cost estimate
 }
 
 export interface CookRecipeParams {
@@ -76,13 +87,16 @@ export interface RecipeMatchResponse {
 
 /**
  * Available Recipes - categorized by cooking feasibility
- * Used on /recipes page for cooking-first UX
+ * Backend already returns this structure from /recipes/match
  */
 export interface AvailableRecipesResponse {
-  canCook: RecipeMatch[];      // ✅ Can cook NOW (missingCount === 0)
-  almostCook: RecipeMatch[];   // 🟡 Missing 1-2 ingredients
-  needToBuy: RecipeMatch[];    // 🔴 Missing 3+ ingredients
-  total: number;
+  canCook: RecipeMatch[];         // ✅ Can cook NOW (missingCount === 0)
+  almostCook: RecipeMatch[];      // 🟡 Missing 1-2 ingredients
+  needToBuy: RecipeMatch[];       // 🔴 Missing 3+ ingredients
+  canCookCount: number;           // Count from backend
+  almostCookCount: number;        // Count from backend
+  needToBuyCount: number;         // Count from backend
+  totalCount: number;             // Total recipes count
 }
 
 export type AIRecommendationResult =
@@ -139,7 +153,9 @@ export const recipeMatchingApi = {
         status: 'ok',
         recipe: {
           recipeId: recipe.id,
-          title: recipe.localName,
+          canonicalName: recipe.canonicalName,
+          localName: recipe.localName,
+          title: recipe.title || recipe.canonicalName,
           description: '',
           imageUrl: '',
           cookingTime: recipe.timeMinutes,
@@ -174,33 +190,25 @@ export const recipeMatchingApi = {
 
   /**
    * Get available recipes categorized by cooking feasibility
-   * For /recipes page cooking-first UX
+   * Backend returns pre-categorized recipes from /recipes/available
    */
-  getAvailableRecipes: async (params: RecipeMatchParams = {}, token: string): Promise<AvailableRecipesResponse> => {
-    // Fetch all recipe matches
-    const response = await recipeMatchingApi.getRecipeMatches(params, token);
+  getAvailableRecipes: async (params: RecipeMatchParams = {}, token: string, language?: string): Promise<AvailableRecipesResponse> => {
+    const queryParams = new URLSearchParams();
     
-    // Categorize recipes based on missingCount
-    const canCook: RecipeMatch[] = [];
-    const almostCook: RecipeMatch[] = [];
-    const needToBuy: RecipeMatch[] = [];
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.minCoverage) queryParams.append('minCoverage', params.minCoverage.toString());
+    if (params.maxMissingCost) queryParams.append('maxMissingCost', params.maxMissingCost.toString());
+    if (params.maxTimeMinutes) queryParams.append('maxTimeMinutes', params.maxTimeMinutes.toString());
+    if (params.countries?.length) queryParams.append('countries', params.countries.join(','));
+    if (params.sort) queryParams.append('sort', params.sort);
+    if (params.order) queryParams.append('order', params.order);
+
+    const url = `/recipes/available${queryParams.toString() ? `?${queryParams}` : ''}`;
+    console.log('🔍 Fetching available recipes:', url);
+    console.log('🌍 Language:', language || 'auto-detect from Accept-Language');
     
-    response.recipes.forEach(recipe => {
-      if (recipe.missingCount === 0) {
-        canCook.push(recipe);
-      } else if (recipe.missingCount <= 2) {
-        almostCook.push(recipe);
-      } else {
-        needToBuy.push(recipe);
-      }
-    });
-    
-    return {
-      canCook,
-      almostCook,
-      needToBuy,
-      total: response.recipes.length
-    };
+    // Backend returns AvailableRecipesResponse with categorized recipes
+    return apiFetch<AvailableRecipesResponse>(url, { token, language });
   },
 
   cookRecipe: async (recipeId: string, params: CookRecipeParams, token: string): Promise<CookRecipeResult> => {

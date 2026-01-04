@@ -143,7 +143,8 @@ export function recipeToAICard(
   return {
     type: "recipe",
     header: {
-      title: recipe.title,
+      // ✅ Backend returns localized localName based on Accept-Language
+      title: recipe.localName || recipe.canonicalName,
       description: recipe.description,
       status,
     },

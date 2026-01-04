@@ -31,6 +31,20 @@ export default function TokenValidator() {
       logout(); // Используем logout из AuthContext для чистки
     } else {
       console.log('✅ [TokenValidator] Token is valid');
+      
+      // 🔍 DEBUG: Decode JWT to check role
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log("🔍 [TokenValidator] JWT Payload:", {
+          sub: payload.sub,
+          email: payload.email,
+          role: payload.role,
+          hasRole: !!payload.role,
+          exp: new Date(payload.exp * 1000).toISOString(),
+        });
+      } catch (e) {
+        console.error("⚠️ [TokenValidator] Failed to decode JWT:", e);
+      }
     }
   }, [logout]);
 
