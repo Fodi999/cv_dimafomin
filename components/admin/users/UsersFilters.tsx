@@ -45,7 +45,7 @@ export function UsersFilters({
           />
         </div>
 
-        {/* Status Filter */}
+        {/* Status Filter - только реальные статусы из БД */}
         <Select value={statusFilter} onValueChange={onStatusChange}>
           <SelectTrigger className="w-full lg:w-[180px]">
             <Filter className="w-4 h-4 mr-2" />
@@ -53,13 +53,13 @@ export function UsersFilters({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Усі статуси</SelectItem>
-            <SelectItem value="active">Активний</SelectItem>
-            <SelectItem value="inactive">Неактивний</SelectItem>
-            <SelectItem value="blocked">Заблокований</SelectItem>
+            <SelectItem value="active">🟢 Активний</SelectItem>
+            <SelectItem value="blocked">🔴 Заблокований</SelectItem>
+            <SelectItem value="pending">🟡 Очікує</SelectItem>
           </SelectContent>
         </Select>
 
-        {/* Role Filter */}
+        {/* Role Filter - реальные роли из БД */}
         <Select value={roleFilter} onValueChange={onRoleChange}>
           <SelectTrigger className="w-full lg:w-[200px]">
             <SelectValue placeholder="Усі ролі" />
@@ -67,8 +67,8 @@ export function UsersFilters({
           <SelectContent>
             <SelectItem value="all">Усі ролі</SelectItem>
             <SelectItem value="user">👤 Користувач</SelectItem>
-            <SelectItem value="premium">✨ Преміум</SelectItem>
             <SelectItem value="admin">🛡️ Адміністратор</SelectItem>
+            <SelectItem value="superadmin">⭐ Суперадмін</SelectItem>
           </SelectContent>
         </Select>
 

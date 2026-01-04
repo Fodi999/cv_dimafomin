@@ -138,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // 🆕 Helper function: определяет URL редиректа в зависимости от роли
   const getRedirectUrl = (userRole: string): string => {
     // Admin и Superadmin → admin panel
-    if (userRole === "admin" || userRole === "superadmin") {
+    if (userRole === "admin" || userRole === "super_admin" || userRole === "superadmin") {
       console.log("[AuthContext] 🔐 Admin detected, redirecting to /admin/dashboard");
       return "/admin/dashboard";
     }

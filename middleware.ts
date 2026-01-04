@@ -95,8 +95,8 @@ export function middleware(req: NextRequest) {
     return res;
   }
 
-  // 🛡 Админ (role === "admin" или "superadmin")
-  if (role === "admin" || role === "superadmin") {
+  // 🛡 Админ (role === "admin" или "super_admin")
+  if (role === "admin" || role === "super_admin" || role === "superadmin") {
     // Админ пытается попасть в USER routes → редирект в /admin
     if (isProtectedUserRoute(pathname)) {
       console.log(`🛡 [Middleware] Admin tried to access user route: ${pathname} → redirecting to /admin`);
@@ -124,7 +124,7 @@ export function middleware(req: NextRequest) {
   }
 
   // 👤 Обычный пользователь (USER)
-  if (token && role !== "admin" && role !== "superadmin") {
+  if (token && role !== "admin" && role !== "super_admin" && role !== "superadmin") {
     // Пользователь пытается попасть в /admin → редирект в /academy
     if (pathname.startsWith("/admin")) {
       console.log(`👤 [Middleware] User tried to access /admin: ${pathname} → redirecting to /academy`);

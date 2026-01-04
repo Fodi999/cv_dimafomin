@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, Edit, Shield, Ban, Unlock, MoreVertical } from "lucide-react";
+import { Eye, Edit, Shield, Ban, Unlock, MoreVertical, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,9 +25,9 @@ export interface User {
   name: string;
   email: string;
   role: "user" | "premium" | "admin";
-  status: "active" | "inactive" | "blocked";
+  status: "active" | "blocked" | "pending"; // 🔥 Права пользователя
   joinedAt: string;
-  lastActiveAt: string;
+  lastActiveAt: string; // 🔥 Поведение (активность)
   phone?: string;
   ordersCount: number;
   totalSpent: number;
@@ -38,9 +38,10 @@ interface UserRowProps {
   onView: (user: User) => void;
   onEdit: (user: User) => void;
   onToggleBlock: (user: User) => void;
+  onDelete: (user: User) => void;
 }
 
-function UserRow({ user, onView, onEdit, onToggleBlock }: UserRowProps) {
+function UserRow({ user, onView, onEdit, onToggleBlock, onDelete }: UserRowProps) {
   const getRoleBadge = (role: string) => {
     const variants = {
       user: { label: "Користувач", variant: "secondary" as const },
@@ -51,12 +52,42 @@ function UserRow({ user, onView, onEdit, onToggleBlock }: UserRowProps) {
   };
 
   const getStatusBadge = (status: string) => {
+    // 🔥 Status = права пользователя (один источник истины)
     const variants = {
-      active: { label: "Активний", variant: "default" as const },
-      inactive: { label: "Неактивний", variant: "secondary" as const },
-      blocked: { label: "Заблокований", variant: "destructive" as const },
+      active: { 
+        label: "🟢 Активний", 
+        variant: "default" as const,
+        className: "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+      },
+      blocked: { 
+        label: "🔴 Заблокований", 
+        variant: "destructive" as const,
+        className: "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
+      },
+      pending: { 
+        label: "🟡 Очікує", 
+        variant: "secondary" as const,
+        className: "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400"
+      },
     };
     return variants[status as keyof typeof variants] || variants.active;
+  };
+
+  // 🔥 Форматирование времени активности (НЕ статус!)
+  const formatLastActive = (lastActiveAt: string) => {
+    if (!lastActiveAt) return "Ніколи не входив";
+    
+    const now = new Date();
+    const lastActive = new Date(lastActiveAt);
+    const diffMs = now.getTime() - lastActive.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 60) return `${diffMins} хв тому`;
+    if (diffHours < 24) return `${diffHours} год тому`;
+    if (diffDays < 7) return `${diffDays} дн тому`;
+    return lastActive.toLocaleDateString('uk-UA');
   };
 
   const roleBadge = getRoleBadge(user.role);
@@ -84,9 +115,21 @@ function UserRow({ user, onView, onEdit, onToggleBlock }: UserRowProps) {
         <Badge variant={roleBadge.variant}>{roleBadge.label}</Badge>
       </TableCell>
 
-      {/* Status */}
+      {/* Status - права пользователя */}
       <TableCell>
-        <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
+        <Badge 
+          variant={statusBadge.variant}
+          className={statusBadge.className}
+        >
+          {statusBadge.label}
+        </Badge>
+      </TableCell>
+
+      {/* Last Activity - поведение (НЕ статус!) */}
+      <TableCell>
+        <div className="text-sm text-muted-foreground">
+          {formatLastActive(user.lastActiveAt)}
+        </div>
       </TableCell>
 
       {/* Stats */}
@@ -139,6 +182,14 @@ function UserRow({ user, onView, onEdit, onToggleBlock }: UserRowProps) {
                 </>
               )}
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => onDelete(user)}
+              className="text-red-600 dark:text-red-400"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Видалити
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </TableCell>
@@ -152,6 +203,7 @@ interface UsersTableProps {
   onView: (user: User) => void;
   onEdit: (user: User) => void;
   onToggleBlock: (user: User) => void;
+  onDelete: (user: User) => void;
 }
 
 /**
@@ -165,6 +217,7 @@ export function UsersTable({
   onView,
   onEdit,
   onToggleBlock,
+  onDelete,
 }: UsersTableProps) {
   if (isLoading) {
     return (
@@ -203,6 +256,7 @@ export function UsersTable({
             <TableHead>Користувач</TableHead>
             <TableHead>Роль</TableHead>
             <TableHead>Статус</TableHead>
+            <TableHead>Остання активність</TableHead>
             <TableHead>Статистика</TableHead>
             <TableHead className="text-right">Дії</TableHead>
           </TableRow>
@@ -215,6 +269,7 @@ export function UsersTable({
               onView={onView}
               onEdit={onEdit}
               onToggleBlock={onToggleBlock}
+              onDelete={onDelete}
             />
           ))}
         </TableBody>

@@ -6,188 +6,208 @@ import { UsersFilters } from "@/components/admin/users/UsersFilters";
 import { UsersTable, User } from "@/components/admin/users/UsersTable";
 import { UserViewModal } from "@/components/admin/users/UserViewModal";
 import { UserEditModal } from "@/components/admin/users/UserEditModal";
-
-// Mock data (TODO: Replace with API)
-const mockUsers: User[] = [
-  {
-    id: "1",
-    name: "Олександр Коваленко",
-    email: "alex.kovalenko@example.com",
-    role: "admin",
-    status: "active",
-    joinedAt: "2024-01-15T10:00:00Z",
-    lastActiveAt: "2024-06-20T14:30:00Z",
-    phone: "+380501234567",
-    ordersCount: 45,
-    totalSpent: 1250,
-  },
-  {
-    id: "2",
-    name: "Марія Шевченко",
-    email: "maria.shevchenko@example.com",
-    role: "premium",
-    status: "active",
-    joinedAt: "2024-02-20T12:00:00Z",
-    lastActiveAt: "2024-06-21T09:15:00Z",
-    phone: "+380502345678",
-    ordersCount: 32,
-    totalSpent: 890,
-  },
-  {
-    id: "3",
-    name: "Іван Петренко",
-    email: "ivan.petrenko@example.com",
-    role: "user",
-    status: "active",
-    joinedAt: "2024-03-10T08:00:00Z",
-    lastActiveAt: "2024-06-15T16:45:00Z",
-    ordersCount: 12,
-    totalSpent: 340,
-  },
-  {
-    id: "4",
-    name: "Анна Мельник",
-    email: "anna.melnyk@example.com",
-    role: "premium",
-    status: "inactive",
-    joinedAt: "2024-01-05T14:00:00Z",
-    lastActiveAt: "2024-05-30T11:20:00Z",
-    phone: "+380503456789",
-    ordersCount: 28,
-    totalSpent: 720,
-  },
-  {
-    id: "5",
-    name: "Дмитро Бойко",
-    email: "dmitro.boyko@example.com",
-    role: "user",
-    status: "blocked",
-    joinedAt: "2024-04-12T09:00:00Z",
-    lastActiveAt: "2024-06-01T13:00:00Z",
-    ordersCount: 3,
-    totalSpent: 85,
-  },
-];
+import { UserDeleteDialog } from "@/components/admin/users/UserDeleteDialog";
+import {
+  useAdminUsers,
+  useAdminUserDetails,
+  useAdminUserActions,
+  useAdminUsersStats,
+  useAdminDeleteUser,
+} from "@/hooks/useAdminUsers";
+import { toast } from "sonner";
 
 export default function AdminUsersPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [users, setUsers] = useState<User[]>(mockUsers);
-
-  // Filters
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [roleFilter, setRoleFilter] = useState("all");
+  // API Integration
+  const { users, meta, isLoading, filters, updateFilters, refetch } =
+    useAdminUsers();
+  const { stats, isLoading: isStatsLoading, refetch: refetchStats } = useAdminUsersStats();
+  const { changeRole, changeStatus } = useAdminUserActions();
+  const { deleteUser } = useAdminDeleteUser();
 
   // Modals
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
-  // Filter users
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch =
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase());
+  const { user: selectedUserDetails, isLoading: isUserLoading } =
+    useAdminUserDetails(selectedUserId);
 
-    const matchesStatus = statusFilter === "all" || user.status === statusFilter;
-    const matchesRole = roleFilter === "all" || user.role === roleFilter;
-
-    return matchesSearch && matchesStatus && matchesRole;
-  });
+  // Convert AdminUserDetails to User for modal compatibility
+  const selectedUser: User | null = selectedUserDetails
+    ? {
+        id: selectedUserDetails.id,
+        name: selectedUserDetails.name,
+        email: selectedUserDetails.email,
+        role: selectedUserDetails.role,
+        status: selectedUserDetails.status,
+        joinedAt: selectedUserDetails.joinedAt,
+        lastActiveAt: selectedUserDetails.lastActiveAt,
+        phone: selectedUserDetails.phone,
+        ordersCount: selectedUserDetails.stats.ordersCount,
+        totalSpent: selectedUserDetails.stats.totalSpent,
+      }
+    : null;
 
   // Handlers
   const handleView = (user: User) => {
-    setSelectedUser(user);
+    setSelectedUserId(user.id);
     setIsViewModalOpen(true);
   };
 
   const handleEdit = (user: User) => {
-    setSelectedUser(user);
+    setSelectedUserId(user.id);
     setIsEditModalOpen(true);
   };
 
-  const handleSave = (userId: string, updates: Partial<User>) => {
-    setUsers((prev) =>
-      prev.map((user) =>
-        user.id === userId ? { ...user, ...updates } : user
-      )
-    );
-    // TODO: Call API to save changes
-    console.log("Saving user updates:", userId, updates);
+  const handleSave = async (userId: string, updates: Partial<User>) => {
+    // Find original user to compare changes
+    const originalUser = users.find((u) => u.id === userId);
+
+    if (!originalUser) {
+      toast.error("Користувача не знайдено");
+      return;
+    }
+
+    let success = false;
+
+    // Check if role changed
+    if (updates.role && originalUser.role !== updates.role) {
+      success = await changeRole(userId, updates.role);
+    }
+
+    // Check if status changed
+    if (updates.status && originalUser.status !== updates.status) {
+      success = await changeStatus(userId, updates.status);
+    }
+
+    if (success) {
+      setIsEditModalOpen(false);
+      setSelectedUserId(null);
+      refetch(); // Refresh users list
+    }
   };
 
-  const handleToggleBlock = (user: User) => {
+  const handleToggleBlock = async (user: User) => {
     const newStatus = user.status === "blocked" ? "active" : "blocked";
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.id === user.id ? { ...u, status: newStatus } : u
-      )
-    );
-    // TODO: Call API
-    console.log(`User ${user.id} status changed to ${newStatus}`);
+    const success = await changeStatus(user.id, newStatus);
+
+    if (success) {
+      refetch(); // Refresh to get server state
+    }
+  };
+
+  const handleDelete = (user: User) => {
+    setUserToDelete(user);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return;
+
+    const success = await deleteUser(userToDelete.id);
+    
+    if (success) {
+      setIsDeleteDialogOpen(false);
+      setUserToDelete(null);
+      refetch(); // Обновить список пользователей
+      refetchStats(); // 🔥 Обновить статистику (KPI)
+    }
   };
 
   const handleExport = () => {
-    // TODO: Export to CSV
-    console.log("Exporting users to CSV...");
+    toast.info("Експорт користувачів (TODO: реалізація)");
   };
 
+  // Convert AdminUser[] to User[] for table compatibility
+  const displayUsers: User[] = users.map((user) => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    status: user.status,
+    joinedAt: user.joinedAt,
+    lastActiveAt: user.lastActiveAt,
+    phone: user.phone,
+    ordersCount: user.stats?.ordersCount || 0,
+    totalSpent: user.stats?.totalSpent || 0,
+  }));
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Управління користувачами
-          </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Перегляд, редагування та модерація користувачів системи
-          </p>
-        </div>
-
-        {/* KPI Cards */}
-        <UsersKPI />
-
-        {/* Filters */}
-        <UsersFilters
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          statusFilter={statusFilter}
-          onStatusChange={setStatusFilter}
-          roleFilter={roleFilter}
-          onRoleChange={setRoleFilter}
-          onExport={handleExport}
-        />
-
-        {/* Table */}
-        <UsersTable
-          users={filteredUsers}
-          isLoading={isLoading}
-          onView={handleView}
-          onEdit={handleEdit}
-          onToggleBlock={handleToggleBlock}
-        />
-
-        {/* Modals */}
-        <UserViewModal
-          user={selectedUser}
-          isOpen={isViewModalOpen}
-          onClose={() => {
-            setIsViewModalOpen(false);
-            setSelectedUser(null);
-          }}
-        />
-
-        <UserEditModal
-          user={selectedUser}
-          isOpen={isEditModalOpen}
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setSelectedUser(null);
-          }}
-          onSave={handleSave}
-        />
+    <div className="p-6 space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Управління користувачами
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">
+          Dashboard → що відбувається, Users → ким керуємо
+        </p>
       </div>
+
+      {/* KPI */}
+      <UsersKPI stats={stats} isLoading={isStatsLoading} />
+
+      {/* Filters */}
+      <UsersFilters
+        searchQuery={filters.search}
+        onSearchChange={(value) => updateFilters({ search: value })}
+        statusFilter={filters.status === "all" ? "all" : filters.status}
+        onStatusChange={(value) =>
+          updateFilters({
+            status: value as "all" | "active" | "blocked" | "pending",
+          })
+        }
+        roleFilter={filters.role === "all" ? "all" : filters.role}
+        onRoleChange={(value) =>
+          updateFilters({
+            role: value as "all" | "user" | "admin" | "superadmin",
+          })
+        }
+        onExport={handleExport}
+      />
+
+      {/* Table */}
+      <UsersTable
+        users={displayUsers}
+        isLoading={isLoading}
+        onView={handleView}
+        onEdit={handleEdit}
+        onToggleBlock={handleToggleBlock}
+        onDelete={handleDelete}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      {userToDelete && (
+        <UserDeleteDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+          onConfirm={handleConfirmDelete}
+          userName={userToDelete.name}
+          userEmail={userToDelete.email}
+        />
+      )}
+
+      {/* View Modal */}
+      <UserViewModal
+        user={selectedUser}
+        isOpen={isViewModalOpen}
+        onClose={() => {
+          setIsViewModalOpen(false);
+          setSelectedUserId(null);
+        }}
+      />
+
+      {/* Edit Modal */}
+      <UserEditModal
+        user={selectedUser}
+        isOpen={isEditModalOpen}
+        onSave={handleSave}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedUserId(null);
+        }}
+      />
     </div>
   );
 }
