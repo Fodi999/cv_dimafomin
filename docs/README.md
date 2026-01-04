@@ -41,6 +41,27 @@ Expired продукты отображаются в списке холодил
 
 ---
 
+## 🆕 Admin Panel (Jan 4, 2026)
+
+### Admin Users Management
+**Статус**: ✅ Frontend готов | ⏳ Ожидает backend API
+
+**Компоненты**:
+- Dashboard: 4-component architecture (AdminHeader, KPISection, ActionHub, SystemNotifications)
+- Users: Table + Filters + KPI + View/Edit modals (shadcn/ui)
+- Profile: Personal admin settings (Basic Info + Security)
+
+**Документация**:
+- [`API_ADMIN_USERS.md`](./API_ADMIN_USERS.md) - **📋 API Contract для бэкенда**
+  - Все endpoints: GET /api/admin/users, PATCH /role, PATCH /status
+  - Response schemas, Query params, Error handling
+  - Security, RBAC, Logging requirements
+  - Frontend integration checklist
+
+**Philosophy**: Dashboard → що відбувається. Users → ким керуємо. Без шуму. Без лишнього.
+
+---
+
 ## Structure
 
 ### `/active` - Aktualna dokumentacja
