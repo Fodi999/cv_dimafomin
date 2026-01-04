@@ -57,7 +57,7 @@ function KPICard({ icon, title, stats, href, color, isLoading }: KPICardProps) {
         className="flex items-center justify-between w-full px-4 py-2 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group"
       >
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          Открыть {title}
+          Відкрити {title}
         </span>
         <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-200 transition-colors" />
       </Link>
@@ -101,11 +101,11 @@ export function KPISection() {
         icon={<BookOpen className="w-5 h-5 text-purple-600" />}
         title="Контент"
         stats={[
-          { label: "Рецепты", value: "500+" },
-          { label: "Ингредиенты", value: 320 },
-          { label: "Курсы", value: 12 },
+          { label: "Рецепти", value: "500+" },
+          { label: "Інгредієнти", value: 320 },
+          { label: "Курси", value: 12 },
         ]}
-        href="/admin/recipes"
+        href="/admin/catalog"
         color="bg-purple-50 dark:bg-purple-900/20"
       />
 

@@ -1,417 +1,380 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import Link from "next/link";
+import { ArrowLeft, Save, Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { IngredientSelector } from "@/components/admin/catalog/recipes/IngredientSelector";
 
-interface RecipeFormData {
+interface RecipeIngredient {
+  ingredient_id: string;
   name: string;
-  description: string;
-  cuisine: string;
-  difficulty: "easy" | "medium" | "hard";
-  prepTime: number;
-  cookTime: number;
-  servings: number;
-  price: number;
-  youtubeUrl: string;
-  images: string[];
-  tags: string[];
+  amount: number;
+  unit: string;
 }
 
-export default function RecipeCreatePage() {
-  const router = useRouter();
-  const steps = ["Назва", "Фото", "Відео"];
+interface RecipeFormData {
+  title: string;
+  description: string;
+  cuisine_id: string;
+  status: "draft" | "published";
+  ingredients: RecipeIngredient[];
+}
 
-  const [currentStep, setCurrentStep] = useState(0);
-  const [recipeData, setRecipeData] = useState<RecipeFormData>({
-    name: "",
+const CUISINES = [
+  { id: "japanese", name: "Японська кухня" },
+  { id: "italian", name: "Італійська кухня" },
+  { id: "ukrainian", name: "Українська кухня" },
+  { id: "french", name: "Французька кухня" },
+  { id: "chinese", name: "Китайська кухня" },
+  { id: "american", name: "Американська кухня" },
+  { id: "thai", name: "Тайська кухня" },
+  { id: "mexican", name: "Мексиканська кухня" },
+];
+
+/**
+ * 🍱 Professional Recipe Creation Form
+ * 
+ * Основні можливості:
+ * - Basic info: title, description, cuisine, status
+ * - Ingredient autocomplete from /admin/ingredients catalog
+ * - Validation: required title, min 1 ingredient, no duplicates
+ * - Save options: draft or publish
+ * - Single source of truth for ingredients (no free text)
+ */
+export default function RecipeCreatePage() {
+  const [formData, setFormData] = useState<RecipeFormData>({
+    title: "",
     description: "",
-    cuisine: "japanese",
-    difficulty: "easy",
-    prepTime: 30,
-    cookTime: 30,
-    servings: 2,
-    price: 199,
-    youtubeUrl: "",
-    images: [],
-    tags: [],
+    cuisine_id: "",
+    status: "draft",
+    ingredients: [],
   });
 
-  // Функция для извлечения YouTube ID из URL
-  const getYouTubeVideoId = (url: string): string | null => {
-    if (!url) return null;
-    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[7].length === 11) ? match[7] : null;
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleAddIngredient = (ingredient: RecipeIngredient) => {
+    setFormData((prev) => ({
+      ...prev,
+      ingredients: [...prev.ingredients, ingredient],
+    }));
+    setErrors((prev) => ({ ...prev, ingredients: "" }));
   };
 
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+  const handleRemoveIngredient = (id: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      ingredients: prev.ingredients.filter((i) => i.ingredient_id !== id),
+    }));
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.title.trim()) {
+      newErrors.title = "Назва обов'язкова";
+    }
+
+    if (!formData.cuisine_id) {
+      newErrors.cuisine_id = "Оберіть кухню";
+    }
+
+    if (formData.ingredients.length === 0) {
+      newErrors.ingredients = "Додайте хоча б один інгредієнт";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (status: "draft" | "published") => {
+    setFormData((prev) => ({ ...prev, status }));
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // TODO: API Integration
+      // const response = await fetch("/api/admin/recipes", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({
+      //     ...formData,
+      //     status,
+      //   }),
+      // });
+      //
+      // if (!response.ok) throw new Error("Failed to create recipe");
+      //
+      // const data = await response.json();
+      // router.push(`/admin/recipes/${data.id}`);
+
+      console.log("Creating recipe:", { ...formData, status });
+      
+      alert(
+        status === "draft"
+          ? "Рецепт збережено як чернетку"
+          : "Рецепт опубліковано"
+      );
+    } catch (error) {
+      console.error("Error creating recipe:", error);
+      alert("Помилка створення рецепту");
+    } finally {
+      setIsSubmitting(false);
     }
   };
-
-  const handlePrev = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const handleSubmit = () => {
-    console.log("Recipe submitted:", recipeData);
-    router.push("/admin/recipes");
-  };
-
-  const progressPercentage = ((currentStep + 1) / steps.length) * 100;
 
   return (
-    <div className="fixed inset-0 overflow-y-auto bg-[#f3f3f3] dark:bg-slate-950 pt-16 sm:pt-20">
-      <div className="mx-auto w-full max-w-full px-3 sm:px-4 lg:px-8 py-3 sm:py-4 md:py-6">
-        <div className="mb-2 sm:mb-3 flex items-center gap-2 text-xs text-slate-500">
-          <Link href="/admin/recipes" className="inline-flex items-center gap-1.5 font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
-            <ArrowLeft size={12} />
-            Назад
-          </Link>
-          <span className="h-1 w-1 rounded-full bg-slate-300" />
-          <p>Крок {currentStep + 1}/{steps.length}</p>
-        </div>
-
-        <div className="rounded-xl border border-slate-200/80 bg-white/90 p-3 sm:p-6 md:p-8 shadow-lg backdrop-blur dark:border-slate-800/50 dark:bg-slate-900/80">
-          <div className="mb-4 sm:mb-6 space-y-1">
-            <p className="text-[8px] sm:text-[9px] font-semibold uppercase tracking-[0.3em] text-slate-600 dark:text-slate-300">Recipe Builder</p>
-            <h1 className="text-lg sm:text-xl md:text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
-              Створення рецепту
-            </h1>
-            <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-300">
-              Три кроки, плавні переходи, live preview.
-            </p>
-          </div>
-
-          {/* Form + preview */}
-          <div className="grid gap-4 sm:gap-6 lg:grid-cols-[2fr_1fr]">
-            {/* Left column: Stepper + Form */}
-            <div className="space-y-3 sm:space-y-4 lg:pr-4">
-              {/* Stepper */}
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      {/* Header */}
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link href="/admin/catalog">
+                <Button variant="ghost" size="sm">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Назад
+                </Button>
+              </Link>
               <div>
-                <div className="flex items-center justify-between">
-                  {steps.map((step, idx) => {
-                    const isActive = idx === currentStep;
-                    const isDone = idx < currentStep;
-
-                    return (
-                      <div key={step} className="flex flex-1 flex-col items-center">
-                        <button
-                          onClick={() => setCurrentStep(idx)}
-                          className={`flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full text-xs font-semibold transition-all ${
-                            isDone
-                              ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
-                              : isActive
-                              ? "border border-slate-900 text-slate-900 dark:border-white dark:text-white"
-                              : "border border-slate-200 text-slate-400 dark:border-slate-600 dark:text-slate-500"
-                          }`}
-                        >
-                          {isDone ? <Check size={12} /> : idx + 1}
-                        </button>
-                        <p className={`mt-0.5 text-[9px] sm:text-[10px] font-semibold ${isActive ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-slate-500"}`}>
-                          {step}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="mt-2 h-0.5 rounded-full bg-slate-200 dark:bg-slate-700">
-                  <motion.div
-                    className="h-full rounded-full bg-slate-900 dark:bg-white"
-                    animate={{ width: `${progressPercentage}%` }}
-                    transition={{ duration: 0.4, ease: "easeInOut" }}
-                  />
-                </div>
-              </div>
-
-              {/* Form content */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentStep}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.25 }}
-                  className="space-y-3"
-                >
-                {currentStep === 0 && (
-                  <div className="space-y-3">
-                    <div className="space-y-0.5">
-                      <h2 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white">Назва та опис</h2>
-                      <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-300">Коротко розкажи що готуємо.</p>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="space-y-1">
-                        <label className="text-[9px] font-semibold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300">
-                          Назва рецепту
-                        </label>
-                        <input
-                          value={recipeData.name}
-                          onChange={(e) => setRecipeData({ ...recipeData, name: e.target.value })}
-                          placeholder="Суші-ролл Спайсі"
-                          className="w-full rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm outline-none transition focus:border-slate-900 dark:focus:border-white"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[9px] font-semibold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300">
-                          Опис рецепту
-                        </label>
-                        <textarea
-                          value={recipeData.description}
-                          onChange={(e) => {
-                            setRecipeData({ ...recipeData, description: e.target.value });
-                            // Автоматическое расширение textarea
-                            e.target.style.height = 'auto';
-                            e.target.style.height = e.target.scrollHeight + 'px';
-                          }}
-                          onFocus={(e) => {
-                            // При фокусе тоже пересчитываем высоту
-                            e.target.style.height = 'auto';
-                            e.target.style.height = e.target.scrollHeight + 'px';
-                          }}
-                          placeholder="Збалансований та смачний..."
-                          className="w-full resize-none rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm outline-none transition focus:border-slate-900 dark:focus:border-white overflow-y-auto"
-                          style={{ minHeight: '60px', maxHeight: '400px' }}
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-semibold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300">
-                            Порції
-                          </label>
-                          <input
-                            type="number"
-                            value={recipeData.servings}
-                            onChange={(e) => setRecipeData({ ...recipeData, servings: parseInt(e.target.value) || 0 })}
-                            placeholder="2"
-                            min="1"
-                            className="w-full rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm outline-none transition focus:border-slate-900 dark:focus:border-white"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-semibold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300">
-                            Ціна (₴)
-                          </label>
-                          <input
-                            type="number"
-                            value={recipeData.price}
-                            onChange={(e) => setRecipeData({ ...recipeData, price: parseInt(e.target.value) || 0 })}
-                            placeholder="199"
-                            min="0"
-                            className="w-full rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm outline-none transition focus:border-slate-900 dark:focus:border-white"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {currentStep === 1 && (
-                  <div className="space-y-2">
-                    <div className="space-y-0.5">
-                      <h2 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white">Додай фото</h2>
-                      <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-300">Завантажте кілька фото (PNG / JPG до 5 МБ).</p>
-                    </div>
-                    <label className="flex h-24 sm:h-32 flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-[10px] sm:text-xs font-medium text-slate-600 dark:text-slate-300 transition hover:border-slate-900 dark:hover:border-white cursor-pointer">
-                      <span className="text-xl sm:text-2xl">📸</span>
-                      Клацніть або перетягніть фото
-                      <input
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const files = Array.from(e.target.files || []);
-                          if (!files.length) return;
-                          const previews = files.map((file) => URL.createObjectURL(file));
-                          setRecipeData({ ...recipeData, images: [...recipeData.images, ...previews] });
-                        }}
-                      />
-                    </label>
-                    {!!recipeData.images.length && (
-                      <div className="grid grid-cols-2 gap-1.5">
-                        {recipeData.images.map((img, idx) => (
-                          <div key={idx} className="relative overflow-hidden rounded-md border border-slate-200 dark:border-slate-600 group">
-                            <img src={img} alt={`preview ${idx + 1}`} className="h-20 sm:h-24 w-full object-cover" />
-                            <button
-                              onClick={() => {
-                                const newImages = recipeData.images.filter((_, i) => i !== idx);
-                                setRecipeData({ ...recipeData, images: newImages });
-                              }}
-                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                              title="Видалити"
-                            >
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {currentStep === 2 && (
-                  <div className="space-y-2">
-                    <div className="space-y-0.5">
-                      <h2 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white">YouTube відео</h2>
-                      <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-300">Вставте посилання на YouTube відео.</p>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-semibold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300">
-                        Посилання
-                      </label>
-                      <input
-                        value={recipeData.youtubeUrl}
-                        onChange={(e) => setRecipeData({ ...recipeData, youtubeUrl: e.target.value })}
-                        placeholder="https://www.youtube.com/watch?v=..."
-                        className="w-full rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm outline-none transition focus:border-slate-900 dark:focus:border-white"
-                      />
-                    </div>
-                    {recipeData.youtubeUrl && getYouTubeVideoId(recipeData.youtubeUrl) && (
-                      <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-600">
-                        <iframe
-                          width="100%"
-                          height="200"
-                          src={`https://www.youtube.com/embed/${getYouTubeVideoId(recipeData.youtubeUrl)}`}
-                          title="YouTube video preview"
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                          className="w-full"
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Actions */}
-            <div className="mt-4 flex items-center justify-between border-t border-slate-100 dark:border-slate-700 pt-3">
-              <button
-                onClick={handlePrev}
-                disabled={currentStep === 0}
-                className="flex items-center gap-1 rounded-full border border-slate-200 dark:border-slate-600 px-2.5 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 transition disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800"
-              >
-                <ArrowLeft size={12} /> Назад
-              </button>
-              {currentStep < steps.length - 1 ? (
-                <button
-                  onClick={handleNext}
-                  className="flex items-center gap-1 rounded-full bg-slate-900 dark:bg-white px-3 py-1.5 text-xs font-semibold text-white dark:text-slate-900 transition hover:bg-slate-800 dark:hover:bg-slate-100"
-                >
-                  Далі <ArrowRight size={12} />
-                </button>
-              ) : (
-                <button
-                  onClick={handleSubmit}
-                  className="flex items-center gap-1 rounded-full bg-green-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-green-700"
-                >
-                  <Check size={12} /> Опублікувати
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Right column: Preview */}
-          <div className="space-y-4 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50/80 dark:bg-slate-800/80 p-4 sm:p-5 lg:sticky lg:top-20 lg:self-start">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-600 dark:text-slate-300">
-              Превью
-            </p>
-            <div className="space-y-4">
-              <div className="rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 p-3 sm:p-4">
-                {(recipeData.images.length > 0 || recipeData.youtubeUrl) ? (
-                  <Carousel className="w-full">
-                    <CarouselContent>
-                      {recipeData.images.map((image, index) => (
-                        <CarouselItem key={`img-${index}`}>
-                          <div className="aspect-video rounded-md bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                            <img 
-                              src={image} 
-                              alt={`Recipe preview ${index + 1}`} 
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        </CarouselItem>
-                      ))}
-                      {recipeData.youtubeUrl && getYouTubeVideoId(recipeData.youtubeUrl) && (
-                        <CarouselItem key="youtube">
-                          <div className="aspect-video rounded-md bg-slate-900 overflow-hidden">
-                            <iframe
-                              width="100%"
-                              height="100%"
-                              src={`https://www.youtube.com/embed/${getYouTubeVideoId(recipeData.youtubeUrl)}`}
-                              title="YouTube video preview"
-                              frameBorder="0"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                              className="w-full h-full"
-                            />
-                          </div>
-                        </CarouselItem>
-                      )}
-                    </CarouselContent>
-                    {(recipeData.images.length + (recipeData.youtubeUrl && getYouTubeVideoId(recipeData.youtubeUrl) ? 1 : 0)) > 1 && (
-                      <>
-                        <CarouselPrevious className="left-2" />
-                        <CarouselNext className="right-2" />
-                      </>
-                    )}
-                  </Carousel>
-                ) : (
-                  <div className="aspect-video rounded-md bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800" />
-                )}
-                <h3 className="mt-3 text-base sm:text-lg font-semibold text-slate-900 dark:text-white line-clamp-2">
-                  {recipeData.name || "Введіть назву..."}
-                </h3>
-                <p className="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300 line-clamp-3">
-                  {recipeData.description || "Опис появиться тут..."}
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Новий рецепт
+                </h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Створіть професійний рецепт з інгредієнтами з каталогу
                 </p>
               </div>
-              <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                {[{
-                  label: "⏱️ Приготування",
-                  value: `${recipeData.prepTime}м`,
-                }, {
-                  label: "🔥 Варка",
-                  value: `${recipeData.cookTime}м`,
-                }, {
-                  label: "👥 Порції",
-                  value: `${recipeData.servings}`,
-                }, {
-                  label: "💰 Ціна",
-                  value: `${recipeData.price}₴`,
-                }].map((stat) => (
-                  <div key={stat.label} className="rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 p-3 sm:p-4">
-                    <p className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">
-                      {stat.label}
-                    </p>
-                    <p className="mt-1 text-sm sm:text-base font-bold text-slate-900 dark:text-white">{stat.value}</p>
-                  </div>
-                ))}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => handleSubmit("draft")}
+                disabled={isSubmitting}
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Зберегти чернетку
+              </Button>
+              <Button
+                onClick={() => handleSubmit("published")}
+                disabled={isSubmitting}
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Опублікувати
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Form Content */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-8">
+          {/* Basic Information Section */}
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Основна інформація
+            </h2>
+
+            <div className="space-y-4">
+              {/* Title */}
+              <div>
+                <Label htmlFor="title">
+                  Назва рецепту <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, title: e.target.value }))
+                  }
+                  placeholder="Наприклад: Суші Райнбоу"
+                  className="mt-1"
+                />
+                {errors.title && (
+                  <p className="text-sm text-red-500 mt-1">{errors.title}</p>
+                )}
               </div>
-              <div className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 flex items-center gap-2">
-                <span>📸 {recipeData.images.length} фото</span>
-                <span>•</span>
-                <span>🎬 {recipeData.youtubeUrl ? "відео" : "без відео"}</span>
+
+              {/* Description */}
+              <div>
+                <Label htmlFor="description">Опис</Label>
+                <textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                  placeholder="Короткий опис рецепту..."
+                  rows={4}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Cuisine */}
+              <div>
+                <Label htmlFor="cuisine">
+                  Кухня <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={formData.cuisine_id}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, cuisine_id: value }))
+                  }
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Оберіть кухню" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CUISINES.map((cuisine) => (
+                      <SelectItem key={cuisine.id} value={cuisine.id}>
+                        {cuisine.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.cuisine_id && (
+                  <p className="text-sm text-red-500 mt-1">{errors.cuisine_id}</p>
+                )}
+              </div>
+
+              {/* Status */}
+              <div>
+                <Label>Статус</Label>
+                <div className="flex items-center gap-4 mt-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="status"
+                      value="draft"
+                      checked={formData.status === "draft"}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          status: e.target.value as "draft",
+                        }))
+                      }
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      Чернетка
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="status"
+                      value="published"
+                      checked={formData.status === "published"}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          status: e.target.value as "published",
+                        }))
+                      }
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      Опубліковано
+                    </span>
+                  </label>
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Ingredients Section */}
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
+            <div className="mb-4 flex items-start justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Інгредієнти <span className="text-red-500">*</span>
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Інгредієнти беруться з єдиного каталогу. Якщо інгредієнта немає — спочатку додайте його у каталог.
+                </p>
+              </div>
+              <Link href="/admin/catalog" target="_blank">
+                <Button variant="outline" size="sm" className="flex-shrink-0">
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                  </svg>
+                  Відкрити каталог інгредієнтів
+                </Button>
+              </Link>
+            </div>
+
+            <IngredientSelector
+              selectedIngredients={formData.ingredients}
+              onAdd={handleAddIngredient}
+              onRemove={handleRemoveIngredient}
+            />
+
+            {errors.ingredients && (
+              <p className="text-sm text-red-500 mt-2">{errors.ingredients}</p>
+            )}
+          </div>
+
+          {/* Summary */}
+          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold mt-0.5">
+                ℹ
+              </div>
+              <div className="text-sm text-blue-900 dark:text-blue-100">
+                <p className="font-medium mb-1">Підсумок:</p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li>
+                    Назва:{" "}
+                    {formData.title || (
+                      <span className="text-blue-600 dark:text-blue-400">не вказано</span>
+                    )}
+                  </li>
+                  <li>
+                    Кухня:{" "}
+                    {formData.cuisine_id
+                      ? CUISINES.find((c) => c.id === formData.cuisine_id)?.name
+                      : (
+                        <span className="text-blue-600 dark:text-blue-400">не обрано</span>
+                      )}
+                  </li>
+                  <li>
+                    Інгредієнтів додано: {formData.ingredients.length}
+                  </li>
+                  <li>
+                    Статус:{" "}
+                    {formData.status === "draft" ? "Чернетка" : "Опубліковано"}
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>

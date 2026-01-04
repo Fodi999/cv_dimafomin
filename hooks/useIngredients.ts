@@ -62,7 +62,8 @@ export function useIngredients() {
       }
 
       const data = await response.json();
-      setIngredients(data.ingredients || []);
+      console.log('[useIngredients] API response:', data);
+      setIngredients(data.data || data.ingredients || []);
       setMeta(data.meta || null);
     } catch (error) {
       console.error("[useIngredients] Error:", error);

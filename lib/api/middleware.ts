@@ -24,12 +24,27 @@ interface JWTPayload {
 function decodeJWT(token: string): JWTPayload | null {
   try {
     const parts = token.split('.');
-    if (parts.length !== 3) return null;
+    if (parts.length !== 3) {
+      console.error('[decodeJWT] Invalid token format: expected 3 parts, got', parts.length);
+      return null;
+    }
 
-    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+    // Decode base64url to JSON
+    let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const pad = base64.length % 4;
+    if (pad) {
+      if (pad === 1) {
+        console.error('[decodeJWT] Invalid base64 string');
+        return null;
+      }
+      base64 += new Array(5 - pad).join('=');
+    }
+
+    const jsonPayload = Buffer.from(base64, 'base64').toString('utf-8');
+    const payload = JSON.parse(jsonPayload);
     return payload as JWTPayload;
   } catch (error) {
-    console.error('[middleware] JWT decode error:', error);
+    console.error('[decodeJWT] JWT decode error:', error);
     return null;
   }
 }
@@ -112,9 +127,6 @@ export async function authMiddleware(request: NextRequest): Promise<{
   }
 
   const user = decodeJWT(token);
-  
-  // 🐛 Debug: Log JWT payload structure
-  console.log('[authMiddleware] JWT payload:', JSON.stringify(user, null, 2));
   
   if (!user) {
     return {

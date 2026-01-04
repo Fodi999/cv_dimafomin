@@ -63,8 +63,7 @@ export function ActionHub() {
       icon: <BookOpen className="w-5 h-5 text-purple-600" />,
       color: "bg-purple-50 dark:bg-purple-900/20",
       links: [
-        { label: "Рецепты", href: "/admin/recipes" },
-        { label: "Ингредиенты", href: "/admin/ingredients" },
+        { label: "Каталог", href: "/admin/catalog" },
         { label: "Курсы", href: "/admin/courses" },
         { label: "Локализация", href: "/admin/localization" },
       ],
