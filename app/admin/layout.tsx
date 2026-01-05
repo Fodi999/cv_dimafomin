@@ -65,23 +65,25 @@ export default function AdminLayout({
   return (
     <>
       <AdminNavigation />
-      <div className="min-h-screen w-full relative bg-gradient-to-b from-white/50 to-white dark:from-gray-950/50 dark:to-gray-950 flex flex-col pt-16">
-        {/* Background gradient elements */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-red-500/5 to-orange-500/5 dark:via-red-500/10 dark:to-orange-500/10 pointer-events-none -z-10" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-red-400/10 dark:bg-red-500/20 rounded-full blur-3xl -translate-y-1/2 pointer-events-none -z-10" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-400/10 dark:bg-orange-500/20 rounded-full blur-3xl translate-y-1/2 pointer-events-none -z-10" />
-        
+      <div className="min-h-screen w-full relative bg-gray-50 dark:bg-gray-950 flex flex-col pt-16">
         {/* Content Area */}
-        {pathname.includes('/create') ? (
-          // Full screen mode for create pages
-          <div className="flex-1 w-full overflow-y-auto p-6">
+        {pathname.includes('/create') || pathname.includes('/edit') ? (
+          // Full screen mode for create/edit pages
+          <div className="flex-1 w-full overflow-y-auto">
             {children}
           </div>
         ) : (
-          // Standard mode for list pages
-          <div className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-auto">
-            {children}
-          </div>
+          // Standard mode for list pages with gradient backgrounds
+          <>
+            {/* Background gradient elements for list pages */}
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-red-500/5 to-orange-500/5 dark:via-red-500/10 dark:to-orange-500/10 pointer-events-none -z-10" />
+            <div className="absolute top-0 right-0 w-96 h-96 bg-red-400/10 dark:bg-red-500/20 rounded-full blur-3xl -translate-y-1/2 pointer-events-none -z-10" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-400/10 dark:bg-orange-500/20 rounded-full blur-3xl translate-y-1/2 pointer-events-none -z-10" />
+            
+            <div className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-auto">
+              {children}
+            </div>
+          </>
         )}
       </div>
     </>
