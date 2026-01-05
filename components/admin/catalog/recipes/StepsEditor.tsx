@@ -16,12 +16,13 @@ interface RecipeStep {
 }
 
 interface StepsEditorProps {
-  recipeId: string;
-  initialSteps?: RecipeStep[];
+  value: RecipeStep[];
+  onChange: (steps: RecipeStep[]) => void;
+  recipeId?: string; // Optional: only needed if backend API calls require it
 }
 
-export function StepsEditor({ recipeId, initialSteps = [] }: StepsEditorProps) {
-  const [steps, setSteps] = useState<RecipeStep[]>(initialSteps);
+export function StepsEditor({ value, onChange, recipeId }: StepsEditorProps) {
+  // Local state only for UI (add form)
   const [showAddForm, setShowAddForm] = useState(false);
   const [newStep, setNewStep] = useState({
     instructionPl: '',
@@ -36,19 +37,29 @@ export function StepsEditor({ recipeId, initialSteps = [] }: StepsEditorProps) {
     }
 
     try {
-      const response = await fetch(`/api/admin/recipes/${recipeId}/steps`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          stepNumber: steps.length + 1,
+      // If recipeId exists, save to backend
+      if (recipeId) {
+        const response = await fetch(`/api/admin/recipes/${recipeId}/steps`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            stepNumber: value.length + 1,
+            ...newStep,
+          }),
+        });
+
+        if (!response.ok) throw new Error('Failed to add step');
+
+        const addedStep = await response.json();
+        onChange([...value, addedStep]);
+      } else {
+        // Create mode: just add to local state
+        const newStepData: RecipeStep = {
+          stepNumber: value.length + 1,
           ...newStep,
-        }),
-      });
-
-      if (!response.ok) throw new Error('Failed to add step');
-
-      const addedStep = await response.json();
-      setSteps([...steps, addedStep]);
+        };
+        onChange([...value, newStepData]);
+      }
       
       // Reset form
       setNewStep({ instructionPl: '', instructionEn: '', instructionRu: '' });
@@ -63,13 +74,17 @@ export function StepsEditor({ recipeId, initialSteps = [] }: StepsEditorProps) {
 
   const handleRemoveStep = async (stepId: string) => {
     try {
-      const response = await fetch(`/api/admin/recipes/${recipeId}/steps/${stepId}`, {
-        method: 'DELETE',
-      });
+      // If recipeId exists and step has ID, delete from backend
+      if (recipeId && stepId) {
+        const response = await fetch(`/api/admin/recipes/${recipeId}/steps/${stepId}`, {
+          method: 'DELETE',
+        });
 
-      if (!response.ok) throw new Error('Failed to remove step');
+        if (!response.ok) throw new Error('Failed to remove step');
+      }
 
-      setSteps(steps.filter(s => s.id !== stepId));
+      // Update local state
+      onChange(value.filter((s: RecipeStep) => s.id !== stepId));
       toast.success('Крок видалено');
     } catch (error) {
       console.error('Error removing step:', error);
@@ -86,7 +101,7 @@ export function StepsEditor({ recipeId, initialSteps = [] }: StepsEditorProps) {
             Кроки приготування
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {steps.length} кроків додано
+            {value.length} кроків додано
           </p>
         </div>
         <Button
@@ -164,7 +179,7 @@ export function StepsEditor({ recipeId, initialSteps = [] }: StepsEditorProps) {
       )}
 
       {/* Steps List */}
-      {steps.length === 0 ? (
+      {value.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-lg border-2 border-dashed">
           <p className="text-gray-500 dark:text-gray-400 mb-2">
             Кроків ще немає
@@ -175,7 +190,7 @@ export function StepsEditor({ recipeId, initialSteps = [] }: StepsEditorProps) {
         </div>
       ) : (
         <div className="space-y-3">
-          {steps.map((step, index) => (
+          {value.map((step: RecipeStep, index: number) => (
             <div
               key={step.id || index}
               className="flex gap-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"

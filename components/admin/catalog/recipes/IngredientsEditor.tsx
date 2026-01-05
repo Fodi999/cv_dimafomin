@@ -25,8 +25,9 @@ interface RecipeIngredient {
 }
 
 interface IngredientsEditorProps {
-  recipeId: string;
-  initialIngredients?: RecipeIngredient[];
+  value: RecipeIngredient[];
+  onChange: (ingredients: RecipeIngredient[]) => void;
+  recipeId?: string; // Optional: only needed if backend API calls require it
 }
 
 const UNITS = [
@@ -40,8 +41,8 @@ const UNITS = [
   { value: 'cup', label: 'склянка' },
 ];
 
-export function IngredientsEditor({ recipeId, initialIngredients = [] }: IngredientsEditorProps) {
-  const [ingredients, setIngredients] = useState<RecipeIngredient[]>(initialIngredients);
+export function IngredientsEditor({ value, onChange, recipeId }: IngredientsEditorProps) {
+  // Local state only for UI (search, form)
   const [searchTerm, setSearchTerm] = useState('');
   const [catalogIngredients, setCatalogIngredients] = useState<Ingredient[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -84,33 +85,46 @@ export function IngredientsEditor({ recipeId, initialIngredients = [] }: Ingredi
     }
 
     // Check for duplicates
-    if (ingredients.some(i => i.ingredientId === selectedIngredient.id)) {
+    if (value.some((i: RecipeIngredient) => i.ingredientId === selectedIngredient.id)) {
       toast.error('Цей інгредієнт вже додано');
       return;
     }
 
     try {
-      const response = await fetch(`/api/admin/recipes/${recipeId}/ingredients`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      // If recipeId exists, save to backend
+      if (recipeId) {
+        const response = await fetch(`/api/admin/recipes/${recipeId}/ingredients`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ingredientId: selectedIngredient.id,
+            amount,
+            unit,
+          }),
+        });
+
+        if (!response.ok) throw new Error('Failed to add ingredient');
+
+        const responseData = await response.json();
+        const newIngredient: RecipeIngredient = {
+          id: responseData.id,
           ingredientId: selectedIngredient.id,
+          ingredientName: selectedIngredient.namePl || selectedIngredient.name,
           amount,
           unit,
-        }),
-      });
+        };
 
-      if (!response.ok) throw new Error('Failed to add ingredient');
-
-      const newIngredient: RecipeIngredient = {
-        id: (await response.json()).id,
-        ingredientId: selectedIngredient.id,
-        ingredientName: selectedIngredient.namePl || selectedIngredient.name,
-        amount,
-        unit,
-      };
-
-      setIngredients([...ingredients, newIngredient]);
+        onChange([...value, newIngredient]);
+      } else {
+        // Create mode: just add to local state
+        const newIngredient: RecipeIngredient = {
+          ingredientId: selectedIngredient.id,
+          ingredientName: selectedIngredient.namePl || selectedIngredient.name,
+          amount,
+          unit,
+        };
+        onChange([...value, newIngredient]);
+      }
       
       // Reset form
       setSelectedIngredient(null);
@@ -128,13 +142,17 @@ export function IngredientsEditor({ recipeId, initialIngredients = [] }: Ingredi
 
   const handleRemoveIngredient = async (ingredientId: string) => {
     try {
-      const response = await fetch(`/api/admin/recipes/${recipeId}/ingredients/${ingredientId}`, {
-        method: 'DELETE',
-      });
+      // If recipeId exists and ingredient has ID, delete from backend
+      if (recipeId && ingredientId) {
+        const response = await fetch(`/api/admin/recipes/${recipeId}/ingredients/${ingredientId}`, {
+          method: 'DELETE',
+        });
 
-      if (!response.ok) throw new Error('Failed to remove ingredient');
+        if (!response.ok) throw new Error('Failed to remove ingredient');
+      }
 
-      setIngredients(ingredients.filter(i => i.id !== ingredientId));
+      // Update local state
+      onChange(value.filter((i: RecipeIngredient) => i.id !== ingredientId));
       toast.success('Інгредієнт видалено');
     } catch (error) {
       console.error('Error removing ingredient:', error);
@@ -151,7 +169,7 @@ export function IngredientsEditor({ recipeId, initialIngredients = [] }: Ingredi
             Інгредієнти
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {ingredients.length} інгредієнтів додано
+            {value.length} інгредієнтів додано
           </p>
         </div>
         <Button
@@ -269,7 +287,7 @@ export function IngredientsEditor({ recipeId, initialIngredients = [] }: Ingredi
       )}
 
       {/* Ingredients List */}
-      {ingredients.length === 0 ? (
+      {value.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-lg border-2 border-dashed">
           <p className="text-gray-500 dark:text-gray-400 mb-2">
             Інгредієнтів ще немає
@@ -280,7 +298,7 @@ export function IngredientsEditor({ recipeId, initialIngredients = [] }: Ingredi
         </div>
       ) : (
         <div className="space-y-2">
-          {ingredients.map((ing, index) => (
+          {value.map((ing: RecipeIngredient, index: number) => (
             <div
               key={ing.id || index}
               className="flex items-center gap-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3 hover:shadow-md transition-shadow"

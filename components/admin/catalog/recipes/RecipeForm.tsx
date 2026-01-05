@@ -398,19 +398,36 @@ export function RecipeForm({ mode, initialData, recipeId }: RecipeFormProps) {
               // Edit mode: Show editors
               <div className="space-y-8">
                 <IngredientsEditor 
-                  recipeId={recipeId!} 
-                  initialIngredients={formData.ingredients.map(i => ({
+                  value={formData.ingredients.map(i => ({
                     ingredientId: i.ingredientId,
                     ingredientName: i.name,
                     amount: i.quantity,
                     unit: i.unit,
                   }))}
+                  onChange={(ingredients) => {
+                    handleChange('ingredients', ingredients.map(i => ({
+                      ingredientId: i.ingredientId,
+                      name: i.ingredientName,
+                      quantity: i.amount,
+                      unit: i.unit,
+                    })));
+                  }}
+                  recipeId={recipeId}
                 />
                 
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-8">
                   <StepsEditor 
-                    recipeId={recipeId!}
-                    initialSteps={formData.steps}
+                    value={formData.steps.map(s => ({
+                      stepNumber: s.stepNumber,
+                      instructionPl: s.description,
+                    }))}
+                    onChange={(steps) => {
+                      handleChange('steps', steps.map(s => ({
+                        stepNumber: s.stepNumber,
+                        description: s.instructionPl || '',
+                      })));
+                    }}
+                    recipeId={recipeId}
                   />
                 </div>
               </div>
