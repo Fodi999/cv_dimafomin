@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Sparkles, Loader2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { RecipeFormData, mapFormToApi, validateRecipeForm } from "@/lib/recipes/types";
 
 /**
- * ✨ Минималистичная форма создания рецепта
+ * Минималистичная форма создания рецепта
  * 
  * Принцип: только базовая информация
  * Ingredients + Steps добавляются после создания
@@ -107,7 +108,7 @@ export function CreateRecipeCard() {
         return;
       }
 
-      toast.success('✨ Рецепт створено! Переходимо до редагування...');
+      toast.success('Рецепт створено! Переходимо до редагування...');
 
       setTimeout(() => {
         router.push(`/admin/catalog/recipes/${newRecipeId}/edit?tab=content`);
@@ -250,7 +251,17 @@ export function CreateRecipeCard() {
             Скасувати
           </Button>
           <Button type="submit" disabled={isSaving}>
-            {isSaving ? '✨ Створення...' : 'Створити рецепт'}
+            {isSaving ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Створення...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4 mr-2" />
+                Створити рецепт
+              </>
+            )}
           </Button>
         </CardFooter>
       </Card>

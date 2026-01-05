@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { Save, X, FileText, Globe, ChefHat, Beaker } from "lucide-react";
+import { Save, X, FileText, Globe, ChefHat, Beaker, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -148,7 +148,7 @@ export function RecipeForm({ mode, initialData, recipeId }: RecipeFormProps) {
         }
         
         console.log(`✅ Redirecting to edit page with ID: ${newRecipeId}`);
-        toast.success('✨ Рецепт створено! Переходимо до редагування...');
+        toast.success('Рецепт створено! Переходимо до редагування...');
         
         // Small delay for UX (let user see success message)
         setTimeout(() => {
@@ -209,11 +209,23 @@ export function RecipeForm({ mode, initialData, recipeId }: RecipeFormProps) {
             Скасувати
           </Button>
           <Button type="submit" disabled={isSaving || !isDirty}>
-            <Save className="w-4 h-4 mr-2" />
-            {isSaving 
-              ? (mode === 'create' ? '✨ Створення...' : '💾 Збереження...') 
-              : (mode === 'create' ? 'Створити рецепт' : 'Зберегти зміни')
-            }
+            {isSaving ? (
+              <>
+                {mode === 'create' ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Створення...</>
+                ) : (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Збереження...</>
+                )}
+              </>
+            ) : (
+              <>
+                {mode === 'create' ? (
+                  <><Sparkles className="w-4 h-4 mr-2" />Створити рецепт</>
+                ) : (
+                  <><Save className="w-4 h-4 mr-2" />Зберегти зміни</>
+                )}
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -399,7 +411,7 @@ export function RecipeForm({ mode, initialData, recipeId }: RecipeFormProps) {
                   Заповніть базову інформацію у вкладці "Основне" та натисніть <strong>"Створити рецепт"</strong>
                 </p>
                 <p className="text-xs text-blue-500 dark:text-blue-500">
-                  ✨ Після створення ви автоматично перейдете до редагування інгредієнтів та кроків
+                  Після створення ви автоматично перейдете до редагування інгредієнтів та кроків
                 </p>
               </div>
             ) : (
@@ -457,7 +469,8 @@ export function RecipeForm({ mode, initialData, recipeId }: RecipeFormProps) {
             {/* Polish Translation */}
             <div className="space-y-4 pb-6 border-b border-gray-200 dark:border-gray-700">
               <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                🇵🇱 Polski (базова мова)
+                <Globe className="w-5 h-5" />
+                Polski (базова мова)
               </h4>
               
               <div className="space-y-2">
@@ -474,7 +487,8 @@ export function RecipeForm({ mode, initialData, recipeId }: RecipeFormProps) {
             {/* English Translation */}
             <div className="space-y-4 py-6 border-b border-gray-200 dark:border-gray-700">
               <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                🇬🇧 English
+                <Globe className="w-5 h-5" />
+                English
               </h4>
               
               <div className="space-y-2">
@@ -519,7 +533,8 @@ export function RecipeForm({ mode, initialData, recipeId }: RecipeFormProps) {
             {/* Russian Translation */}
             <div className="space-y-4 pt-6">
               <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                🇷🇺 Русский
+                <Globe className="w-5 h-5" />
+                Русский
               </h4>
               
               <div className="space-y-2">

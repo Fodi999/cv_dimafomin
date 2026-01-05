@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Plus, Trash2, GripVertical } from "lucide-react";
+import { Search, Plus, Trash2, GripVertical, Package, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -189,7 +189,10 @@ export function IngredientsEditor({ value, onChange, recipeId }: IngredientsEdit
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             {/* Search */}
             <div className="md:col-span-5 space-y-2">
-              <Label htmlFor="ingredient-search">🔍 Інгредієнт з каталогу</Label>
+              <Label htmlFor="ingredient-search" className="flex items-center gap-2">
+                <Search className="w-4 h-4" />
+                Інгредієнт з каталогу
+              </Label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
@@ -236,7 +239,10 @@ export function IngredientsEditor({ value, onChange, recipeId }: IngredientsEdit
 
             {/* Amount */}
             <div className="md:col-span-3 space-y-2">
-              <Label htmlFor="amount">🔢 Кількість</Label>
+              <Label htmlFor="amount" className="flex items-center gap-2">
+                <Package className="w-4 h-4" />
+                Кількість
+              </Label>
               <Input
                 id="amount"
                 type="number"
@@ -250,7 +256,10 @@ export function IngredientsEditor({ value, onChange, recipeId }: IngredientsEdit
 
             {/* Unit */}
             <div className="md:col-span-3 space-y-2">
-              <Label htmlFor="unit">📏 Одиниця</Label>
+              <Label htmlFor="unit" className="flex items-center gap-2">
+                <Scale className="w-4 h-4" />
+                Одиниця
+              </Label>
               <Select value={unit} onValueChange={setUnit}>
                 <SelectTrigger id="unit">
                   <SelectValue />
@@ -279,8 +288,9 @@ export function IngredientsEditor({ value, onChange, recipeId }: IngredientsEdit
           </div>
 
           {selectedIngredient && (
-            <div className="text-sm text-blue-700 dark:text-blue-300">
-              ✓ Обрано: <strong>{selectedIngredient.namePl || selectedIngredient.name}</strong>
+            <div className="text-sm text-blue-700 dark:text-blue-300 flex items-center gap-2">
+              <Package className="w-4 h-4" />
+              Обрано: <strong>{selectedIngredient.namePl || selectedIngredient.name}</strong>
             </div>
           )}
         </div>

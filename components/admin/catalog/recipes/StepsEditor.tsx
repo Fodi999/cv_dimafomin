@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2, GripVertical } from "lucide-react";
+import { Plus, Trash2, GripVertical, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -121,7 +121,10 @@ export function StepsEditor({ value, onChange, recipeId }: StepsEditorProps) {
           <div className="space-y-4">
             {/* Instruction PL */}
             <div className="space-y-2">
-              <Label htmlFor="instruction-pl">🇵🇱 Опис кроку (Польська) *</Label>
+              <Label htmlFor="instruction-pl" className="flex items-center gap-2">
+                <Globe className="w-4 h-4" />
+                Опис кроку (Польська) *
+              </Label>
               <Textarea
                 id="instruction-pl"
                 value={newStep.instructionPl}
@@ -133,7 +136,10 @@ export function StepsEditor({ value, onChange, recipeId }: StepsEditorProps) {
 
             {/* Instruction EN */}
             <div className="space-y-2">
-              <Label htmlFor="instruction-en">🇬🇧 Опис кроку (Англійська)</Label>
+              <Label htmlFor="instruction-en" className="flex items-center gap-2">
+                <Globe className="w-4 h-4" />
+                Опис кроку (Англійська)
+              </Label>
               <Textarea
                 id="instruction-en"
                 value={newStep.instructionEn}
@@ -145,7 +151,10 @@ export function StepsEditor({ value, onChange, recipeId }: StepsEditorProps) {
 
             {/* Instruction RU */}
             <div className="space-y-2">
-              <Label htmlFor="instruction-ru">🇷🇺 Опис кроку (Російська)</Label>
+              <Label htmlFor="instruction-ru" className="flex items-center gap-2">
+                <Globe className="w-4 h-4" />
+                Опис кроку (Російська)
+              </Label>
               <Textarea
                 id="instruction-ru"
                 value={newStep.instructionRu}
@@ -207,17 +216,17 @@ export function StepsEditor({ value, onChange, recipeId }: StepsEditorProps) {
               <div className="flex-1 space-y-2">
                 {step.instructionPl && (
                   <p className="text-gray-900 dark:text-gray-100">
-                    🇵🇱 {step.instructionPl}
+                    {step.instructionPl}
                   </p>
                 )}
                 {step.instructionEn && (
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    🇬🇧 {step.instructionEn}
+                    {step.instructionEn}
                   </p>
                 )}
                 {step.instructionRu && (
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    🇷🇺 {step.instructionRu}
+                    {step.instructionRu}
                   </p>
                 )}
               </div>
