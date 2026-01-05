@@ -1,69 +1,50 @@
 "use client";
 
-import { useState } from "react";
 import { Package, ChefHat } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductsTab } from "@/components/admin/catalog/ProductsTab";
 import { RecipesTab } from "@/components/admin/catalog/RecipesTab";
 
-type Tab = "products" | "recipes";
-
 /**
- * 📚 Каталог данных (Admin)
+ * Каталог данных (Admin)
  * Единая точка входа для управления базой продуктов и рецептов
  * 
  * Архитектура: каждая вкладка - отдельный компонент с собственным состоянием
- * Это предотвращает render-loops и излишнюю загрузку данных
  */
 export default function AdminCatalogPage() {
-  const [activeTab, setActiveTab] = useState<Tab>("products");
-
   return (
-    <div className="p-6 space-y-6">
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Каталог данных
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Управління базою продуктів та рецептів
-        </p>
-      </div>
-
-      {/* Tabs */}
-      <div className="border-b border-gray-200 dark:border-gray-700">
-        <div className="flex gap-4">
-          <button
-            onClick={() => setActiveTab("products")}
-            className={`
-              flex items-center gap-2 px-4 py-2 border-b-2 transition-colors
-              ${activeTab === "products"
-                ? "border-primary text-primary font-medium"
-                : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              }
-            `}
-          >
-            <Package className="w-4 h-4" />
-            Продукти
-          </button>
-          <button
-            onClick={() => setActiveTab("recipes")}
-            className={`
-              flex items-center gap-2 px-4 py-2 border-b-2 transition-colors
-              ${activeTab === "recipes"
-                ? "border-primary text-primary font-medium"
-                : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              }
-            `}
-          >
-            <ChefHat className="w-4 h-4" />
-            Рецепти
-          </button>
+      <div className="flex items-center justify-between space-y-2">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Каталог данных</h2>
+          <p className="text-muted-foreground">
+            Управління базою продуктів та рецептів
+          </p>
         </div>
       </div>
 
-      {/* Tab Content - Only render active tab component */}
-      {activeTab === "products" && <ProductsTab />}
-      {activeTab === "recipes" && <RecipesTab />}
+      {/* Tabs */}
+      <Tabs defaultValue="products" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="products" className="gap-2">
+            <Package className="h-4 w-4" />
+            Продукти
+          </TabsTrigger>
+          <TabsTrigger value="recipes" className="gap-2">
+            <ChefHat className="h-4 w-4" />
+            Рецепти
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="products" className="space-y-4">
+          <ProductsTab />
+        </TabsContent>
+        
+        <TabsContent value="recipes" className="space-y-4">
+          <RecipesTab />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
