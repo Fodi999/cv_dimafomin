@@ -52,6 +52,17 @@ export function CreateRecipeCard() {
     value: RecipeFormData[K]
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    
+    // Auto-generate canonical name from localName
+    if (field === 'localName' && typeof value === 'string') {
+      const canonical = value
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim();
+      setFormData((prev) => ({ ...prev, canonicalName: canonical }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -134,7 +145,7 @@ export function CreateRecipeCard() {
         <CardContent className="grid gap-6">
           {/* Назва рецепта */}
           <div className="grid gap-2">
-            <Label htmlFor="localName">Назва рецепта *</Label>
+            <Label htmlFor="localName">Назва рецепта</Label>
             <Input
               id="localName"
               value={formData.localName}
@@ -142,41 +153,47 @@ export function CreateRecipeCard() {
               placeholder="Pierogi ruskie"
               required
             />
+            <p className="text-xs text-muted-foreground">
+              Обов'язкове поле. Canonical name згенерується автоматично.
+            </p>
           </div>
 
           {/* Canonical Name */}
           <div className="grid gap-2">
-            <Label htmlFor="canonicalName">Canonical Name *</Label>
+            <Label htmlFor="canonicalName">Canonical Name</Label>
             <Input
               id="canonicalName"
               value={formData.canonicalName}
               onChange={(e) => handleChange('canonicalName', e.target.value)}
               placeholder="pierogi-ruskie"
               required
+              className="font-mono text-sm"
             />
-            <p className="text-xs text-gray-500">
-              URL-friendly назва (латиниця, дефіси)
+            <p className="text-xs text-muted-foreground">
+              URL-friendly назва. Генерується автоматично, але можна редагувати.
             </p>
           </div>
 
           {/* Country + Cuisine */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label>Країна *</Label>
+              <Label>Країна</Label>
               <CountryAutocomplete
                 value={formData.countryCode || ''}
                 onChange={(code) => handleChange('countryCode', code)}
               />
+              <p className="text-xs text-muted-foreground">Обов'язкове</p>
             </div>
 
             <div className="grid gap-2">
-              <Label>Кухня *</Label>
+              <Label>Кухня</Label>
               <CuisineAutocomplete
                 value={formData.cuisineId || ''}
                 onChange={(cuisineId) => handleChange('cuisineId', cuisineId)}
                 countryCode={formData.countryCode}
                 required
               />
+              <p className="text-xs text-muted-foreground">Обов'язкове</p>
             </div>
           </div>
 
@@ -188,22 +205,24 @@ export function CreateRecipeCard() {
                 value={formData.categoryId || ''}
                 onChange={(categoryId) => handleChange('categoryId', categoryId)}
               />
+              <p className="text-xs text-muted-foreground">Опціонально</p>
             </div>
 
             <div className="grid gap-2">
-              <Label>Складність *</Label>
+              <Label>Складність</Label>
               <DifficultySelect
                 value={formData.difficulty}
                 onChange={(value: any) => handleChange('difficulty', value)}
                 required
               />
+              <p className="text-xs text-muted-foreground">Обов'язкове</p>
             </div>
           </div>
 
           {/* Time + Servings */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="timeMinutes">Час приготування (хв) *</Label>
+              <Label htmlFor="timeMinutes">Час приготування (хв)</Label>
               <Input
                 id="timeMinutes"
                 type="number"
@@ -212,10 +231,11 @@ export function CreateRecipeCard() {
                 min="1"
                 required
               />
+              <p className="text-xs text-muted-foreground">Обов'язкове</p>
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="servings">Порцій *</Label>
+              <Label htmlFor="servings">Порцій</Label>
               <Input
                 id="servings"
                 type="number"
@@ -224,12 +244,13 @@ export function CreateRecipeCard() {
                 min="1"
                 required
               />
+              <p className="text-xs text-muted-foreground">Обов'язкове</p>
             </div>
           </div>
 
           {/* Description */}
           <div className="grid gap-2">
-            <Label htmlFor="description">Опис *</Label>
+            <Label htmlFor="description">Опис</Label>
             <Textarea
               id="description"
               value={formData.descriptionPl || ''}
@@ -238,10 +259,11 @@ export function CreateRecipeCard() {
               rows={4}
               required
             />
+            <p className="text-xs text-muted-foreground">Обов'язкове. Опишіть рецепт польською мовою.</p>
           </div>
         </CardContent>
 
-        <CardFooter className="flex justify-between">
+        <CardFooter className="flex justify-end gap-3">
           <Button
             type="button"
             variant="ghost"
@@ -250,7 +272,7 @@ export function CreateRecipeCard() {
           >
             Скасувати
           </Button>
-          <Button type="submit" disabled={isSaving}>
+          <Button type="submit" disabled={isSaving} size="default">
             {isSaving ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
