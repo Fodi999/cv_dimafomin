@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAdminRecipes, useAdminRecipeActions, Recipe } from "@/hooks/useAdminRecipes";
@@ -13,6 +14,7 @@ import Link from "next/link";
  * Only loads data when tab is active
  */
 export function RecipesTab() {
+  const router = useRouter();
   const { 
     recipes, 
     meta, 
@@ -31,7 +33,7 @@ export function RecipesTab() {
   };
 
   const handleEditRecipe = (recipe: Recipe) => {
-    window.location.href = `/admin/recipes/${recipe.id}/edit`;
+    router.push(`/admin/catalog/recipes/${recipe.id}/edit`);
   };
 
   const handleDeleteRecipe = async (recipe: Recipe) => {

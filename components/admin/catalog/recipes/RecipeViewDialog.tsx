@@ -1,9 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Clock, Users, ChefHat, Eye, MapPin, Flame, Weight } from "lucide-react";
+import { Clock, Users, ChefHat, Eye, MapPin, Flame, Weight, Pencil } from "lucide-react";
 import { Recipe } from "@/hooks/useAdminRecipes";
 
 interface RecipeViewDialogProps {
@@ -75,10 +77,17 @@ function MetaRow({ label, value }: { label: string; value: string | number | und
 // ============= Main Component =============
 
 export function RecipeViewDialog({ recipe, open, onOpenChange }: RecipeViewDialogProps) {
+  const router = useRouter();
+  
   if (!recipe) return null;
 
   const title = recipe.localName || recipe.canonicalName || recipe.title || 'Без назви';
   const description = recipe.descriptionPl || recipe.descriptionEn || recipe.description || '';
+
+  const handleEdit = () => {
+    onOpenChange(false);
+    router.push(`/admin/catalog/recipes/${recipe.id}/edit`);
+  };
 
   // Translations (title)
   const titleTranslations = [
@@ -101,12 +110,25 @@ export function RecipeViewDialog({ recipe, open, onOpenChange }: RecipeViewDialo
         
         {/* ========== HEADER (компактный) ========== */}
         <DialogHeader className="space-y-2 pb-2">
-          <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
-            {title}
-          </DialogTitle>
-          <DialogDescription id="recipe-description" className="text-sm text-gray-600 dark:text-gray-400">
-            {description}
-          </DialogDescription>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                {title}
+              </DialogTitle>
+              <DialogDescription id="recipe-description" className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                {description}
+              </DialogDescription>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleEdit}
+              className="gap-2 shrink-0"
+            >
+              <Pencil className="w-4 h-4" />
+              Редагувати
+            </Button>
+          </div>
           
           {/* Badges (компактно в одну строку) */}
           <div className="flex flex-wrap gap-1.5 pt-1">

@@ -6,6 +6,7 @@ import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader } from "lucide-react";
 import AdminNavigation from "@/components/layout/AdminNavigation";
+import { isAdminRole } from "@/lib/auth/roles";
 
 export default function AdminLayout({
   children,
@@ -25,29 +26,19 @@ export default function AdminLayout({
       userEmail: user?.email,
       userRole: user?.role,
       roleType: typeof user?.role,
-      isAdmin: user?.role === "admin",
+      isAdmin: isAdminRole(user?.role),
       pathname,
     });
 
     if (!isLoading) {
       if (!user) {
         console.warn("[AdminLayout] ❌ No user - opening auth modal");
-        openAuthModal("login"); // 🔧 Открываем модалку вместо редиректа
-      } else if (user.role !== "admin" && user.role !== "superadmin") { // 🆕 Проверяем обе роли
-        // 🚧 DEV MODE: Allow specific users in development
-        const isDev = process.env.NODE_ENV === "development";
-        const allowedDevEmails = ["admin@example.com", "dima@example.com"];
-        const isAllowedDevUser = isDev && allowedDevEmails.includes(user.email);
-
-        if (isAllowedDevUser) {
-          console.warn("[AdminLayout] ⚠️ DEV MODE: Allowing non-admin user:", user.email);
-          return; // Allow access in dev mode
-        }
-
+        openAuthModal("login");
+      } else if (!isAdminRole(user.role)) {
         console.warn("[AdminLayout] ❌ User is not admin:", {
           email: user.email,
           role: user.role,
-          expected: "admin or superadmin",
+          expected: "admin or super_admin",
         });
         router.push("/");
       } else {
@@ -67,15 +58,8 @@ export default function AdminLayout({
     );
   }
 
-  if (!user || user.role !== "admin") {
-    // 🚧 DEV MODE: Allow specific users in development
-    const isDev = process.env.NODE_ENV === "development";
-    const allowedDevEmails = ["admin@example.com", "dima@example.com"];
-    const isAllowedDevUser = isDev && user && allowedDevEmails.includes(user.email);
-
-    if (!isAllowedDevUser) {
-      return null;
-    }
+  if (!user || !isAdminRole(user.role)) {
+    return null;
   }
 
   return (
