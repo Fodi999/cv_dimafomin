@@ -50,7 +50,10 @@ export function useIngredients() {
       queryParams.append("page", filters.page.toString());
       queryParams.append("limit", filters.limit.toString());
 
-      const response = await fetch(`/api/admin/ingredients?${queryParams.toString()}`, {
+      const url = `/api/admin/ingredients?${queryParams.toString()}`;
+      console.log('[useIngredients] Fetching from:', url, 'with filters:', filters);
+
+      const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -63,7 +66,10 @@ export function useIngredients() {
 
       const data = await response.json();
       console.log('[useIngredients] API response:', data);
-      setIngredients(data.data || data.ingredients || []);
+      
+      // Ensure we always set an array
+      const ingredientsList = data.data || data.ingredients || [];
+      setIngredients(Array.isArray(ingredientsList) ? ingredientsList : []);
       setMeta(data.meta || null);
     } catch (error) {
       console.error("[useIngredients] Error:", error);

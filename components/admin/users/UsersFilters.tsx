@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface UsersFiltersProps {
   searchQuery: string;
@@ -30,6 +31,8 @@ export function UsersFilters({
   onRoleChange,
   onExport,
 }: UsersFiltersProps) {
+  const { t } = useLanguage();
+  
   return (
     <div className="rounded-lg border bg-card p-4">
       <div className="flex flex-col lg:flex-row gap-4">
@@ -40,7 +43,7 @@ export function UsersFilters({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Пошук по імені чи email..."
+            placeholder={t.admin.users.search}
             className="pl-9"
           />
         </div>
@@ -49,33 +52,33 @@ export function UsersFilters({
         <Select value={statusFilter} onValueChange={onStatusChange}>
           <SelectTrigger className="w-full lg:w-[180px]">
             <Filter className="w-4 h-4 mr-2" />
-            <SelectValue placeholder="Усі статуси" />
+            <SelectValue placeholder={t.admin.users.status.all} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Усі статуси</SelectItem>
-            <SelectItem value="active">🟢 Активний</SelectItem>
-            <SelectItem value="blocked">🔴 Заблокований</SelectItem>
-            <SelectItem value="pending">🟡 Очікує</SelectItem>
+            <SelectItem value="all">{t.admin.users.status.all}</SelectItem>
+            <SelectItem value="active">🟢 {t.admin.users.status.active}</SelectItem>
+            <SelectItem value="blocked">🔴 {t.admin.users.status.blocked}</SelectItem>
+            <SelectItem value="pending">🟡 {t.admin.users.status.pending}</SelectItem>
           </SelectContent>
         </Select>
 
         {/* Role Filter - реальные роли из БД */}
         <Select value={roleFilter} onValueChange={onRoleChange}>
           <SelectTrigger className="w-full lg:w-[200px]">
-            <SelectValue placeholder="Усі ролі" />
+            <SelectValue placeholder={t.admin.users.status.all} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Усі ролі</SelectItem>
-            <SelectItem value="user">👤 Користувач</SelectItem>
-            <SelectItem value="admin">🛡️ Адміністратор</SelectItem>
-            <SelectItem value="superadmin">⭐ Суперадмін</SelectItem>
+            <SelectItem value="all">{t.admin.users.status.all}</SelectItem>
+            <SelectItem value="user">{t.admin.users.roles.user}</SelectItem>
+            <SelectItem value="admin">{t.admin.users.roles.admin}</SelectItem>
+            <SelectItem value="superadmin">⭐ Superadmin</SelectItem>
           </SelectContent>
         </Select>
 
         {/* Export Button */}
         <Button onClick={onExport} variant="outline" className="lg:w-auto">
           <Download className="w-4 h-4 mr-2" />
-          <span className="hidden lg:inline">Експорт</span>
+          <span className="hidden lg:inline">{t.admin.users.filter}</span>
         </Button>
       </div>
     </div>

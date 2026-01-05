@@ -51,33 +51,46 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
     
+    // Log FULL response to debug
+    console.log('[Admin Ingredients API] FULL backend response:', JSON.stringify(data, null, 2));
+    
     console.log('[Admin Ingredients API] Raw backend response:', {
       dataKeys: Object.keys(data),
       hasIngredients: !!data.ingredients,
       hasItems: !!data.items,
       hasData: !!data.data,
+      ingredientsType: typeof data.ingredients,
+      ingredientsIsArray: Array.isArray(data.ingredients),
       ingredientsLength: data.ingredients?.length,
       itemsLength: data.items?.length,
       dataLength: data.data?.length,
       count: data.count,
       total: data.total,
+      firstKey: Object.keys(data)[0],
+      firstValue: Object.keys(data).length > 0 ? data[Object.keys(data)[0]] : null,
     });
     
     // Transform response to match expected format
-    // Backend returns: { ingredients: [...], count: number } (from /api/admin/ingredients)
+    // Backend returns: { data: { items: [...], count: number }, success: true }
     // Frontend expects: { data: [...], meta: { total, page, limit, totalPages } }
-    const items = data.ingredients || data.items || data.data || [];
-    const totalCount = data.count || data.total || items.length;
+    
+    // Handle nested structure: data.data.items or data.items or data directly
+    const backendData = data.data || data;
+    const items = backendData.items || backendData.ingredients || data.ingredients || [];
+    
+    // CRITICAL: Ensure items is always an array
+    const itemsArray = Array.isArray(items) ? items : [];
+    const totalCount = backendData.count || data.count || data.total || itemsArray.length;
     const currentPage = parseInt(page);
     const pageLimit = parseInt(limit);
     
     console.log('[Admin Ingredients API] Transformed response:', {
-      itemsCount: items.length,
+      itemsCount: itemsArray.length,
       totalCount,
     });
     
     return NextResponse.json({
-      data: items,
+      data: itemsArray,
       meta: {
         total: totalCount,
         page: currentPage,

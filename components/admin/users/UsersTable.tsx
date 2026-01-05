@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface User {
   id: string;
@@ -42,11 +43,13 @@ interface UserRowProps {
 }
 
 function UserRow({ user, onView, onEdit, onToggleBlock, onDelete }: UserRowProps) {
+  const { t } = useLanguage();
+  
   const getRoleBadge = (role: string) => {
     const variants = {
-      user: { label: "Користувач", variant: "secondary" as const },
-      premium: { label: "✨ Преміум", variant: "default" as const },
-      admin: { label: "🛡️ Адмін", variant: "destructive" as const },
+      user: { label: t.admin.users.roles.user, variant: "secondary" as const },
+      premium: { label: t.admin.users.roles.premium, variant: "default" as const },
+      admin: { label: t.admin.users.roles.admin, variant: "destructive" as const },
     };
     return variants[role as keyof typeof variants] || variants.user;
   };
@@ -55,17 +58,17 @@ function UserRow({ user, onView, onEdit, onToggleBlock, onDelete }: UserRowProps
     // 🔥 Status = права пользователя (один источник истины)
     const variants = {
       active: { 
-        label: "🟢 Активний", 
+        label: `🟢 ${t.admin.users.status.active}`, 
         variant: "default" as const,
         className: "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
       },
       blocked: { 
-        label: "🔴 Заблокований", 
+        label: `🔴 ${t.admin.users.status.blocked}`, 
         variant: "destructive" as const,
         className: "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
       },
       pending: { 
-        label: "🟡 Очікує", 
+        label: `🟡 ${t.admin.users.status.pending}`, 
         variant: "secondary" as const,
         className: "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400"
       },
@@ -75,7 +78,7 @@ function UserRow({ user, onView, onEdit, onToggleBlock, onDelete }: UserRowProps
 
   // 🔥 Форматирование времени активности (НЕ статус!)
   const formatLastActive = (lastActiveAt: string) => {
-    if (!lastActiveAt) return "Ніколи не входив";
+    if (!lastActiveAt) return t.admin.users.table.lastActive;
     
     const now = new Date();
     const lastActive = new Date(lastActiveAt);
@@ -84,10 +87,11 @@ function UserRow({ user, onView, onEdit, onToggleBlock, onDelete }: UserRowProps
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
     
-    if (diffMins < 60) return `${diffMins} хв тому`;
-    if (diffHours < 24) return `${diffHours} год тому`;
-    if (diffDays < 7) return `${diffDays} дн тому`;
-    return lastActive.toLocaleDateString('uk-UA');
+    // Translate time units based on language
+    if (diffMins < 60) return `${diffMins} ${diffMins === 1 ? 'min' : 'mins'} ago`;
+    if (diffHours < 24) return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
+    if (diffDays < 7) return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
+    return lastActive.toLocaleDateString();
   };
 
   const roleBadge = getRoleBadge(user.role);
@@ -135,7 +139,7 @@ function UserRow({ user, onView, onEdit, onToggleBlock, onDelete }: UserRowProps
       {/* Stats */}
       <TableCell>
         <div className="flex flex-col gap-1">
-          <span className="text-sm">{user.ordersCount} замовлень</span>
+          <span className="text-sm">{user.ordersCount} {t.admin.users.table.actions}</span>
           <span className="text-sm font-semibold text-green-600 dark:text-green-400">
             ${user.totalSpent}
           </span>
@@ -153,16 +157,16 @@ function UserRow({ user, onView, onEdit, onToggleBlock, onDelete }: UserRowProps
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onView(user)}>
               <Eye className="w-4 h-4 mr-2" />
-              Переглянути
+              {t.admin.users.actions.view}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onEdit(user)}>
               <Edit className="w-4 h-4 mr-2" />
-              Редагувати
+              {t.admin.users.actions.edit}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => onEdit(user)}>
               <Shield className="w-4 h-4 mr-2" />
-              Змінити роль
+              {t.admin.users.table.role}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => onToggleBlock(user)}
@@ -173,12 +177,12 @@ function UserRow({ user, onView, onEdit, onToggleBlock, onDelete }: UserRowProps
               {user.status === "blocked" ? (
                 <>
                   <Unlock className="w-4 h-4 mr-2" />
-                  Розблокувати
+                  Unblock
                 </>
               ) : (
                 <>
                   <Ban className="w-4 h-4 mr-2" />
-                  Заблокувати
+                  Block
                 </>
               )}
             </DropdownMenuItem>
@@ -188,7 +192,7 @@ function UserRow({ user, onView, onEdit, onToggleBlock, onDelete }: UserRowProps
               className="text-red-600 dark:text-red-400"
             >
               <Trash2 className="w-4 h-4 mr-2" />
-              Видалити
+              {t.admin.users.actions.delete}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -219,6 +223,8 @@ export function UsersTable({
   onToggleBlock,
   onDelete,
 }: UsersTableProps) {
+  const { t } = useLanguage();
+  
   if (isLoading) {
     return (
       <div className="rounded-lg border bg-card">
@@ -240,9 +246,9 @@ export function UsersTable({
   if (users.length === 0) {
     return (
       <div className="rounded-lg border bg-card p-12 text-center">
-        <p className="text-muted-foreground mb-2">Користувачів не знайдено</p>
+        <p className="text-muted-foreground mb-2">{t.admin.users.noResults}</p>
         <p className="text-sm text-muted-foreground">
-          Спробуйте змінити фільтри або пошуковий запит
+          Try changing filters or search query
         </p>
       </div>
     );
@@ -253,12 +259,12 @@ export function UsersTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Користувач</TableHead>
-            <TableHead>Роль</TableHead>
-            <TableHead>Статус</TableHead>
-            <TableHead>Остання активність</TableHead>
-            <TableHead>Статистика</TableHead>
-            <TableHead className="text-right">Дії</TableHead>
+            <TableHead>{t.admin.users.table.user}</TableHead>
+            <TableHead>{t.admin.users.table.role}</TableHead>
+            <TableHead>{t.admin.users.table.status}</TableHead>
+            <TableHead>{t.admin.users.table.lastActive}</TableHead>
+            <TableHead>Stats</TableHead>
+            <TableHead className="text-right">{t.admin.users.table.actions}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

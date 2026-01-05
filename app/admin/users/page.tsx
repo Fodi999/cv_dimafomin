@@ -15,8 +15,10 @@ import {
   useAdminDeleteUser,
 } from "@/hooks/useAdminUsers";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function AdminUsersPage() {
+  const { t } = useLanguage();
   // API Integration
   const { users, meta, isLoading, filters, updateFilters, refetch } =
     useAdminUsers();
@@ -66,7 +68,7 @@ export default function AdminUsersPage() {
     const originalUser = users.find((u) => u.id === userId);
 
     if (!originalUser) {
-      toast.error("Користувача не знайдено");
+      toast.error(t.admin.users.notFound);
       return;
     }
 
@@ -117,7 +119,7 @@ export default function AdminUsersPage() {
   };
 
   const handleExport = () => {
-    toast.info("Експорт користувачів (TODO: реалізація)");
+    toast.info(t.admin.users.export);
   };
 
   // Convert AdminUser[] to User[] for table compatibility
@@ -138,10 +140,10 @@ export default function AdminUsersPage() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Управління користувачами
+          {t.admin.users.title}
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Dashboard → що відбувається, Users → ким керуємо
+          {t.admin.users.subtitle}
         </p>
       </div>
 

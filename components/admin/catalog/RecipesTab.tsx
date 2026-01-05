@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Plus, Search, ChefHat } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAdminRecipes, useAdminRecipeActions, Recipe } from "@/hooks/useAdminRecipes";
 import { RecipesTable } from "@/components/admin/catalog/recipes/RecipesTable";
 import { RecipeViewDialog } from "@/components/admin/catalog/recipes/RecipeViewDialog";
@@ -47,79 +50,106 @@ export function RecipesTab() {
 
   return (
     <div className="space-y-4">
-      {/* Header Actions */}
-      <div className="flex justify-between items-center">
-        <div className="flex gap-4 items-center">
-          <Link href="/admin/recipes/create">
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              Додати рецепт
-            </Button>
-          </Link>
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <ChefHat className="h-5 w-5" />
+                Рецепти
+              </CardTitle>
+              <CardDescription>
+                Управління каталогом рецептів ({meta?.total || 0} рецептів)
+              </CardDescription>
+            </div>
+            <Link href="/admin/recipes/create">
+              <Button size="sm">
+                <Plus className="mr-2 h-4 w-4" />
+                Додати рецепт
+              </Button>
+            </Link>
+          </div>
+        </CardHeader>
 
-      {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <input
-          type="text"
-          placeholder="🔍 Пошук рецепту..."
-          className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-          value={filters.search}
-          onChange={(e) => updateFilters({ search: e.target.value, page: 1 })}
-        />
+        
+        <CardContent className="space-y-4">
+          {/* Filters */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Пошук рецепту..."
+                className="pl-9"
+                value={filters.search}
+                onChange={(e) => updateFilters({ search: e.target.value, page: 1 })}
+              />
+            </div>
 
-        <select
-          className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-          value={filters.cuisine}
-          onChange={(e) => updateFilters({ cuisine: e.target.value, page: 1 })}
-        >
-          <option value="">Всі кухні</option>
-          <option value="main">🍽️ Основні страви</option>
-          <option value="salad">🥗 Салати</option>
-          <option value="soup">🍲 Супи</option>
-          <option value="dessert">🍰 Десерти</option>
-          <option value="snack">🍿 Закуски</option>
-        </select>
+            <Select
+              value={filters.cuisine || "all"}
+              onValueChange={(value) => updateFilters({ cuisine: value === "all" ? "" : value, page: 1 })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Всі кухні" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Всі кухні</SelectItem>
+                <SelectItem value="main">Основні страви</SelectItem>
+                <SelectItem value="salad">Салати</SelectItem>
+                <SelectItem value="soup">Супи</SelectItem>
+                <SelectItem value="dessert">Десерти</SelectItem>
+                <SelectItem value="snack">Закуски</SelectItem>
+              </SelectContent>
+            </Select>
 
-        <select
-          className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-          value={filters.difficulty}
-          onChange={(e) => updateFilters({ difficulty: e.target.value, page: 1 })}
-        >
-          <option value="">Всі складності</option>
-          <option value="easy">✅ Легкий</option>
-          <option value="medium">⚠️ Середній</option>
-          <option value="hard">🔥 Складний</option>
-        </select>
+            <Select
+              value={filters.difficulty || "all"}
+              onValueChange={(value) => updateFilters({ difficulty: value === "all" ? "" : value, page: 1 })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Всі складності" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Всі складності</SelectItem>
+                <SelectItem value="easy">Легкий</SelectItem>
+                <SelectItem value="medium">Середній</SelectItem>
+                <SelectItem value="hard">Складний</SelectItem>
+              </SelectContent>
+            </Select>
 
-        <select
-          className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-          value={filters.status}
-          onChange={(e) => updateFilters({ status: e.target.value, page: 1 })}
-        >
-          <option value="">Всі статуси</option>
-          <option value="draft">📝 Чернетка</option>
-          <option value="published">✅ Опубліковано</option>
-          <option value="archived">📦 Архів</option>
-        </select>
-      </div>
+            <Select
+              value={filters.status || "all"}
+              onValueChange={(value) => updateFilters({ status: value === "all" ? "" : value, page: 1 })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Всі статуси" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Всі статуси</SelectItem>
+                <SelectItem value="draft">Чернетка</SelectItem>
+                <SelectItem value="published">Опубліковано</SelectItem>
+                <SelectItem value="archived">Архів</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-      {/* Recipes Table */}
-      <RecipesTable
-        recipes={Array.isArray(recipes) ? recipes : []}
-        isLoading={isLoading}
-        onView={handleViewRecipe}
-        onEdit={handleEditRecipe}
-        onDelete={handleDeleteRecipe}
-      />
+          {/* Recipes Table */}
+          <RecipesTable
+            recipes={Array.isArray(recipes) ? recipes : []}
+            isLoading={isLoading}
+            onView={handleViewRecipe}
+            onEdit={handleEditRecipe}
+            onDelete={handleDeleteRecipe}
+          />
 
-      {/* Count */}
-      {meta && (
-        <div className="text-sm text-gray-600 dark:text-gray-400 text-center">
-          Показано: {Array.isArray(recipes) ? recipes.length : 0} з {meta.total}
-        </div>
-      )}
+          {/* Count */}
+          {meta && (
+            <div className="text-sm text-muted-foreground text-center">
+              Показано: {Array.isArray(recipes) ? recipes.length : 0} з {meta.total}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Recipe View Dialog */}
       <RecipeViewDialog

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, Users, Shield, Activity, ChefHat, Carrot, BookOpen, Languages, Brain, Zap, Settings, Lock } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * Action Hub - быстрые переходы
@@ -47,43 +48,46 @@ function ActionGroupCard({ title, icon, color, links }: ActionGroup) {
 }
 
 export function ActionHub() {
+  const { t } = useLanguage();
+  
   const groups: ActionGroup[] = [
     {
-      title: "👥 Пользователи",
+      title: t.admin.dashboard.actionHub.users.title,
       icon: <Users className="w-5 h-5 text-blue-600" />,
       color: "bg-blue-50 dark:bg-blue-900/20",
       links: [
-        { label: "Пользователи", href: "/admin/users" },
-        { label: "Роли и доступы", href: "/admin/users/roles" },
-        { label: "Журнал активности", href: "/admin/activity-log" },
+        { label: t.admin.dashboard.actionHub.users.viewAll, href: "/admin/users" },
+        { label: t.admin.dashboard.actionHub.users.roles, href: "/admin/users/roles" },
+        { label: t.admin.dashboard.actionHub.users.activity, href: "/admin/activity-log" },
       ],
     },
     {
-      title: "🍽️ Контент",
+      title: t.admin.dashboard.actionHub.content.title,
       icon: <BookOpen className="w-5 h-5 text-purple-600" />,
       color: "bg-purple-50 dark:bg-purple-900/20",
       links: [
-        { label: "Каталог", href: "/admin/catalog" },
-        { label: "Курсы", href: "/admin/courses" },
-        { label: "Локализация", href: "/admin/localization" },
+        { label: t.admin.dashboard.actionHub.content.recipes, href: "/admin/catalog" },
+        { label: t.admin.dashboard.actionHub.content.ingredients, href: "/admin/catalog" },
+        { label: t.admin.dashboard.actionHub.content.courses, href: "/admin/courses" },
       ],
     },
     {
-      title: "🤖 AI",
+      title: t.admin.dashboard.actionHub.ai.title,
       icon: <Brain className="w-5 h-5 text-cyan-600" />,
       color: "bg-cyan-50 dark:bg-cyan-900/20",
       links: [
-        { label: "Сценарии", href: "/admin/ai-scenarios" },
-        { label: "Промпты", href: "/admin/prompts" },
+        { label: t.admin.dashboard.actionHub.ai.translations, href: "/admin/localization" },
+        { label: t.admin.dashboard.actionHub.ai.mentor, href: "/admin/ai-scenarios" },
+        { label: t.admin.dashboard.actionHub.ai.automation, href: "/admin/prompts" },
       ],
     },
     {
-      title: "⚙️ Настройки",
+      title: t.admin.dashboard.actionHub.system.title,
       icon: <Settings className="w-5 h-5 text-gray-600" />,
       color: "bg-gray-50 dark:bg-gray-700/20",
       links: [
-        { label: "Общие", href: "/admin/settings" },
-        { label: "Безопасность", href: "/admin/settings/security" },
+        { label: t.admin.dashboard.actionHub.system.settings, href: "/admin/settings" },
+        { label: t.admin.dashboard.actionHub.system.security, href: "/admin/settings/security" },
       ],
     },
   ];
@@ -91,7 +95,7 @@ export function ActionHub() {
   return (
     <div>
       <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-        🧭 Быстрые переходы
+        {t.admin.dashboard.actionHub.title}
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {groups.map((group, idx) => (

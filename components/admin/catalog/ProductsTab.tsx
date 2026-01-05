@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Package } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useIngredients, useIngredientActions, Ingredient } from "@/hooks/useIngredients";
 import { IngredientsTable } from "@/components/admin/catalog/ingredients/IngredientsTable";
 import { IngredientFormModal } from "@/components/admin/catalog/ingredients/IngredientFormModal";
@@ -19,6 +22,16 @@ export function ProductsTab() {
   const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [ingredientToDelete, setIngredientToDelete] = useState<Ingredient | null>(null);
+
+  // Ensure ingredients is always an array
+  const safeIngredients = Array.isArray(ingredients) ? ingredients : [];
+
+  console.log('[ProductsTab] Debug:', {
+    ingredients: safeIngredients,
+    ingredientsLength: safeIngredients.length,
+    isLoading,
+    meta,
+  });
 
   const handleCreateProduct = () => {
     setEditingIngredient(null);
@@ -63,46 +76,59 @@ export function ProductsTab() {
 
   return (
     <div className="space-y-4">
-      {/* Header Actions */}
-      <div className="flex justify-between items-center">
-        <div className="flex gap-4 items-center">
-          <Button onClick={handleCreateProduct} className="gap-2">
-            <Plus className="w-4 h-4" />
-            Додати продукт
-          </Button>
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Продукти</CardTitle>
+              <CardDescription>
+                Управління каталогом інгредієнтів ({meta?.total || 0} продуктів)
+              </CardDescription>
+            </div>
+            <Button onClick={handleCreateProduct} size="sm">
+              <Plus className="mr-2 h-4 w-4" />
+              Додати продукт
+            </Button>
+          </div>
+        </CardHeader>
+      
+      <CardContent className="space-y-4">
+        {/* Filters */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Пошук продукту..."
+              className="pl-9"
+              value={filters.search}
+              onChange={(e) => updateFilters({ search: e.target.value, page: 1 })}
+            />
+          </div>
 
-      {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input
-          type="text"
-          placeholder="🔍 Пошук продукту..."
-          className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-          value={filters.search}
-          onChange={(e) => updateFilters({ search: e.target.value, page: 1 })}
-        />
-
-        <select
-          className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-          value={filters.category}
-          onChange={(e) => updateFilters({ category: e.target.value, page: 1 })}
-        >
-          <option value="">Всі категорії</option>
-          <option value="vegetables">🥕 Овочі</option>
-          <option value="fruits">🍎 Фрукти</option>
-          <option value="meat">🥩 М'ясо</option>
-          <option value="fish">🐟 Риба</option>
-          <option value="dairy">🥛 Молочні</option>
-          <option value="grains">🌾 Зернові</option>
-          <option value="spices">🌶️ Спеції</option>
-          <option value="other">📦 Інше</option>
-        </select>
+          <Select
+            value={filters.category || "all"}
+            onValueChange={(value) => updateFilters({ category: value === "all" ? "" : value, page: 1 })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Всі категорії" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Всі категорії</SelectItem>
+              <SelectItem value="vegetables">Овочі</SelectItem>
+              <SelectItem value="fruits">Фрукти</SelectItem>
+              <SelectItem value="meat">М'ясо</SelectItem>
+              <SelectItem value="fish">Риба</SelectItem>
+              <SelectItem value="dairy">Молочні</SelectItem>
+              <SelectItem value="grains">Зернові</SelectItem>
+              <SelectItem value="spices">Спеції</SelectItem>
+              <SelectItem value="other">Інше</SelectItem>
+            </SelectContent>
+          </Select>
       </div>
 
       {/* Table */}
       <IngredientsTable
-        ingredients={ingredients}
+        ingredients={Array.isArray(ingredients) ? ingredients : []}
         isLoading={isLoading}
         onEdit={handleEditProduct}
         onDelete={handleDeleteProduct}
@@ -110,10 +136,12 @@ export function ProductsTab() {
 
       {/* Count */}
       {meta && (
-        <div className="text-sm text-gray-600 dark:text-gray-400 text-center">
+        <div className="text-sm text-muted-foreground text-center">
           Показано: {ingredients.length} з {meta.total}
         </div>
       )}
+      </CardContent>
+    </Card>
 
       {/* Modals */}
       <IngredientFormModal

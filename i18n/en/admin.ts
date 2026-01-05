@@ -9,6 +9,37 @@ export const admin = {
     overview: "Overview",
     analytics: "Analytics",
     
+    kpi: {
+      users: {
+        title: "Users",
+        total: "Total",
+        activeToday: "Active today",
+        growth: "Growth",
+        viewAll: "View all users",
+      },
+      content: {
+        title: "Content",
+        recipes: "Recipes",
+        products: "Products",
+        courses: "Courses",
+        viewAll: "View catalog",
+      },
+      ai: {
+        title: "AI",
+        queries: "Queries",
+        accuracy: "Accuracy",
+        tokens: "Tokens",
+        viewAll: "AI Stats",
+      },
+      system: {
+        title: "System",
+        uptime: "Uptime",
+        errors: "Errors",
+        users: "Users",
+        viewAll: "Monitoring",
+      },
+    },
+    
     stats: {
       totalUsers: "Total users",
       activeUsers: "Active users",
@@ -16,6 +47,41 @@ export const admin = {
       totalCourses: "Total courses",
       tokensInCirculation: "Tokens in circulation",
       revenue: "Revenue",
+    },
+    
+    actionHub: {
+      title: "Quick Actions",
+      users: {
+        title: "Users",
+        viewAll: "All users",
+        roles: "Role management",
+        activity: "Activity",
+      },
+      content: {
+        title: "Content",
+        recipes: "Recipes",
+        ingredients: "Ingredients",
+        courses: "Courses",
+      },
+      ai: {
+        title: "AI",
+        translations: "Translations",
+        mentor: "Mentor",
+        automation: "Automation",
+      },
+      system: {
+        title: "System",
+        settings: "Settings",
+        security: "Security",
+      },
+    },
+    
+    systemNotifications: {
+      title: "System Notifications",
+      rolesChanged: "Roles changed",
+      localizationUpdated: "Localization updated",
+      hoursAgo: "hours ago",
+      hourAgo: "hour ago",
     },
     
     quickActions: {
@@ -34,6 +100,17 @@ export const admin = {
     search: "Search users...",
     filter: "Filter",
     sort: "Sort",
+    export: "Export users (TODO: implementation)",
+    notFound: "User not found",
+    noResults: "No users found",
+    
+    kpi: {
+      totalUsers: "Total users",
+      activeUsers: "Active users",
+      premiumUsers: "Premium users",
+      growth: "Growth",
+      noPremium: "No premium users yet",
+    },
     
     table: {
       id: "ID",
@@ -44,32 +121,47 @@ export const admin = {
       registered: "Registered",
       lastActive: "Last active",
       actions: "Actions",
+      user: "User",
     },
     
     roles: {
-      admin: "Administrator",
+      admin: "🔑 Administrator",
       moderator: "Moderator",
+      premium: "⭐ Premium",
       chef: "Chef",
-      user: "User",
+      user: "👤 User",
       guest: "Guest",
     },
     
     status: {
+      all: "All",
       active: "Active",
       inactive: "Inactive",
       suspended: "Suspended",
       banned: "Banned",
+      blocked: "Blocked",
+      pending: "Pending",
     },
     
     actions: {
       view: "View",
       edit: "Edit",
+      editUser: "Edit user",
+      viewUser: "View user",
       suspend: "Suspend",
       ban: "Ban",
       delete: "Delete",
+      deleteUser: "Delete user?",
+      confirmDelete: "Are you sure you want to delete user",
+      deleteWarning: "This action is irreversible. Delete only if absolutely necessary.",
+      deleteConsequences: "All user data will be deleted",
       sendEmail: "Send email",
       resetPassword: "Reset password",
       viewActivity: "View activity",
+      cancel: "Cancel",
+      save: "Save",
+      adminWarning: "⚠️ Warning: You are granting administrator rights",
+      blockWarning: "⚠️ Warning: User will not be able to log in to the system",
     },
   },
 
@@ -164,15 +256,26 @@ export const admin = {
   },
 
   settings: {
-    title: "System settings",
-    subtitle: "Configure the platform",
+    title: "Settings",
+    subtitle: "Manage your system parameters",
+    
+    tabs: {
+      general: "General",
+      email: "Email",
+      notifications: "Notifications",
+      api: "API",
+      security: "Security",
+    },
     
     general: {
       title: "General",
+      appName: "App name",
+      appDescription: "App description",
       siteName: "Site name",
       siteDescription: "Site description",
-      language: "Default language",
+      language: "Language",
       timezone: "Timezone",
+      theme: "Theme",
       maintenance: "Maintenance mode",
     },
     

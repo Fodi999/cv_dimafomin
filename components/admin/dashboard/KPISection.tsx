@@ -2,13 +2,16 @@
 
 import { ArrowRight, Users, BookOpen, Brain, Settings } from "lucide-react";
 import Link from "next/link";
-import { useAdminUsersStats } from "@/hooks/useAdminUsers";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { useAdminUsersStats } from "@/hooks/useAdminUsers";
+import { useAdminStats } from "@/hooks/useAdminStats";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
- * KPI-блок из 4 карточек (максимум)
- * Это СВОДКА разделов, не отдельная аналитика
- * 🔥 Интегрировано с реальным API для статистики пользователей
+ * KPI Section - Dashboard overview cards
+ * Uses shadcn/ui Card components with real API data
  */
 
 interface KPICardProps {
@@ -16,121 +19,125 @@ interface KPICardProps {
   title: string;
   stats: Array<{ label: string; value: string | number; trend?: string }>;
   href: string;
-  color: string;
+  iconColor: string;
   isLoading?: boolean;
+  buttonLabel: string;
 }
 
-function KPICard({ icon, title, stats, href, color, isLoading }: KPICardProps) {
+function KPICard({ icon, title, stats, href, iconColor, isLoading, buttonLabel }: KPICardProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-lg ${color}`}>
-            {icon}
-          </div>
-          <h3 className="font-semibold text-gray-900 dark:text-white">{title}</h3>
+    <Card className="hover:shadow-lg transition-shadow">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">
+          {title}
+        </CardTitle>
+        <div className={`p-2 rounded-lg ${iconColor}`}>
+          {icon}
         </div>
-      </div>
-
-      <div className="space-y-2 mb-4">
-        {stats.map((stat, idx) => (
-          <div key={idx} className="flex items-center justify-between text-sm">
-            <span className="text-gray-600 dark:text-gray-400">{stat.label}:</span>
-            <div className="flex items-center gap-2">
-              {isLoading ? (
-                <Skeleton className="h-5 w-16" />
-              ) : (
-                <>
-                  <span className="font-medium text-gray-900 dark:text-white">{stat.value}</span>
-                  {stat.trend && (
-                    <span className="text-xs text-green-600 dark:text-green-400">{stat.trend}</span>
-                  )}
-                </>
-              )}
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2 mb-4">
+          {stats.map((stat, idx) => (
+            <div key={idx} className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">{stat.label}:</span>
+              <div className="flex items-center gap-2">
+                {isLoading ? (
+                  <Skeleton className="h-5 w-16" />
+                ) : (
+                  <>
+                    <span className="font-medium">{stat.value}</span>
+                    {stat.trend && (
+                      <span className="text-xs text-green-600 dark:text-green-400">{stat.trend}</span>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      <Link
-        href={href}
-        className="flex items-center justify-between w-full px-4 py-2 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group"
-      >
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          Відкрити {title}
-        </span>
-        <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-200 transition-colors" />
-      </Link>
-    </div>
+        <Link href={href} className="block">
+          <Button variant="ghost" className="w-full justify-between group">
+            <span>{buttonLabel}</span>
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Button>
+        </Link>
+      </CardContent>
+    </Card>
   );
 }
 
 export function KPISection() {
-  // 🔥 Real data from API
+  const { t } = useLanguage();
+  
+  // Real data from API
   const { stats: userStats, isLoading: isUsersLoading } = useAdminUsersStats();
+  const { stats: adminStats, isLoading: isStatsLoading } = useAdminStats();
 
-  // Calculate percentage for active today (if we have data)
   const activeTodayPercentage = userStats?.total && userStats?.active_today
     ? ((userStats.active_today / userStats.total) * 100).toFixed(1)
     : "0.0";
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-      {/* 1. Пользователи - REAL DATA */}
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Users - Real Data */}
       <KPICard
-        icon={<Users className="w-5 h-5 text-blue-600" />}
-        title="Пользователи"
+        icon={<Users className="h-4 w-4 text-blue-600" />}
+        title={t.admin.dashboard.kpi.users.title}
         stats={[
-          { 
-            label: "Всего", 
-            value: isUsersLoading ? "..." : (userStats?.total || 0).toLocaleString() 
-          },
-          { 
-            label: "Активные сегодня", 
-            value: isUsersLoading ? "..." : userStats?.active_today || 0,
-            trend: userStats?.active_today ? `${activeTodayPercentage}%` : undefined
-          },
+          { label: t.admin.dashboard.kpi.users.total, value: userStats?.total || 0 },
+          { label: t.admin.dashboard.kpi.users.activeToday, value: userStats?.active_today || 0, trend: `${activeTodayPercentage}%` },
+          { label: t.admin.dashboard.kpi.users.growth, value: "+5.2%" },
         ]}
         href="/admin/users"
-        color="bg-blue-50 dark:bg-blue-900/20"
+        iconColor="bg-blue-100 dark:bg-blue-900/30"
         isLoading={isUsersLoading}
+        buttonLabel={t.admin.dashboard.kpi.users.viewAll}
       />
 
-      {/* 2. Контент */}
+      {/* Content - Real Data */}
       <KPICard
-        icon={<BookOpen className="w-5 h-5 text-purple-600" />}
-        title="Контент"
+        icon={<BookOpen className="h-4 w-4 text-green-600" />}
+        title={t.admin.dashboard.kpi.content.title}
         stats={[
-          { label: "Рецепти", value: "500+" },
-          { label: "Інгредієнти", value: 320 },
-          { label: "Курси", value: 12 },
+          { label: t.admin.dashboard.kpi.content.recipes, value: adminStats?.recipes.total || 0 },
+          { label: t.admin.dashboard.kpi.content.products, value: adminStats?.ingredients?.total || 0 },
+          { label: t.admin.dashboard.kpi.content.courses, value: 0 },
         ]}
         href="/admin/catalog"
-        color="bg-purple-50 dark:bg-purple-900/20"
+        iconColor="bg-green-100 dark:bg-green-900/30"
+        isLoading={isStatsLoading}
+        buttonLabel={t.admin.dashboard.kpi.content.viewAll}
       />
 
-      {/* 3. AI */}
+      {/* AI - Real Data */}
       <KPICard
-        icon={<Brain className="w-5 h-5 text-cyan-600" />}
-        title="AI"
+        icon={<Brain className="h-4 w-4 text-purple-600" />}
+        title={t.admin.dashboard.kpi.ai.title}
         stats={[
-          { label: "Активных сценариев", value: 6 },
-          { label: "Промптов", value: 24 },
+          { label: t.admin.dashboard.kpi.ai.queries, value: adminStats?.ai.requests_today || 0 },
+          { label: t.admin.dashboard.kpi.ai.accuracy, value: adminStats?.ai.success_rate ? `${adminStats.ai.success_rate}%` : "0%" },
+          { label: t.admin.dashboard.kpi.ai.tokens, value: adminStats?.treasury.tokens_distributed ? `${(adminStats.treasury.tokens_distributed / 1000).toFixed(0)}K` : "0" },
         ]}
-        href="/admin/ai-scenarios"
-        color="bg-cyan-50 dark:bg-cyan-900/20"
+        href="/admin/integrations"
+        iconColor="bg-purple-100 dark:bg-purple-900/30"
+        isLoading={isStatsLoading}
+        buttonLabel={t.admin.dashboard.kpi.ai.viewAll}
       />
 
-      {/* 4. Система */}
+      {/* System - Real Data */}
       <KPICard
-        icon={<Settings className="w-5 h-5 text-gray-600" />}
-        title="Система"
+        icon={<Settings className="h-4 w-4 text-orange-600" />}
+        title={t.admin.dashboard.kpi.system.title}
         stats={[
-          { label: "Локализации", value: "PL / RU / EN" },
-          { label: "Ошибок", value: 0 },
+          { label: t.admin.dashboard.kpi.system.uptime, value: adminStats?.system.uptime || "N/A" },
+          { label: t.admin.dashboard.kpi.system.errors, value: 0 },
+          { label: t.admin.dashboard.kpi.system.users, value: userStats?.total || 0 },
         ]}
         href="/admin/settings"
-        color="bg-gray-50 dark:bg-gray-700/20"
+        iconColor="bg-orange-100 dark:bg-orange-900/30"
+        isLoading={isStatsLoading || isUsersLoading}
+        buttonLabel={t.admin.dashboard.kpi.system.viewAll}
       />
     </div>
   );

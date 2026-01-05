@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CreateRecipeCard } from "@/components/admin/catalog/recipes/CreateRecipeCard";
+import { RecipeForm } from "@/components/admin/catalog/recipes/RecipeForm";
+import { EMPTY_RECIPE } from "@/lib/recipes/types";
 
 /**
- * Professional Recipe Creation Page
+ * Modern Recipe Creation Page
  * 
- * Minimalist card-based form
- * Follows Strapi/Sanity/Notion pattern
+ * Beautiful card-based form with shadcn components
+ * Современный дизайн с пошаговым вводом данных
  */
 export default function CreateRecipePage() {
   return (
@@ -23,15 +24,15 @@ export default function CreateRecipePage() {
               Каталог
             </Button>
           </Link>
-          <h2 className="text-3xl font-bold tracking-tight mt-2">Новий рецепт</h2>
+          <h2 className="text-3xl font-bold tracking-tight mt-2">Новый рецепт</h2>
           <p className="text-muted-foreground">
-            Створіть новий рецепт із базовою інформацією
+            Создайте новый рецепт с подробными инструкциями
           </p>
         </div>
       </div>
 
-      {/* Form Card */}
-      <CreateRecipeCard />
+      {/* Modern Form Card */}
+      <RecipeForm mode="create" initialData={EMPTY_RECIPE} />
     </div>
   );
 }

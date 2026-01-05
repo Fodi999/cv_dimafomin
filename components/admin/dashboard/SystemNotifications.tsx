@@ -1,6 +1,7 @@
 "use client";
 
 import { Shield, Globe, AlertTriangle } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * Системные уведомления
@@ -15,18 +16,20 @@ interface SystemNotification {
 }
 
 export function SystemNotifications() {
+  const { t } = useLanguage();
+  
   // В реальности это будет приходить из API
   const notifications: SystemNotification[] = [
     {
       icon: <Shield className="w-4 h-4" />,
-      message: "Изменены роли",
-      time: "2 часа назад",
+      message: t.admin.dashboard.systemNotifications.rolesChanged,
+      time: `2 ${t.admin.dashboard.systemNotifications.hoursAgo}`,
       type: "info",
     },
     {
       icon: <Globe className="w-4 h-4" />,
-      message: "Обновлена локализация (PL)",
-      time: "1 час назад",
+      message: `${t.admin.dashboard.systemNotifications.localizationUpdated} (PL)`,
+      time: `1 ${t.admin.dashboard.systemNotifications.hourAgo}`,
       type: "info",
     },
   ];
@@ -47,7 +50,7 @@ export function SystemNotifications() {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
       <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-        📢 Системные уведомления
+        {t.admin.dashboard.systemNotifications.title}
       </h3>
       <div className="space-y-2">
         {notifications.map((notification, idx) => (

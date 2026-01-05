@@ -11,6 +11,37 @@ export const admin = {
     overview: "Przegląd",
     analytics: "Analityka",
     
+    kpi: {
+      users: {
+        title: "Użytkownicy",
+        total: "Łącznie",
+        activeToday: "Aktywni dziś",
+        growth: "Wzrost",
+        viewAll: "Zobacz wszystkich",
+      },
+      content: {
+        title: "Treść",
+        recipes: "Przepisy",
+        products: "Produkty",
+        courses: "Kursy",
+        viewAll: "Zobacz katalog",
+      },
+      ai: {
+        title: "AI",
+        queries: "Zapytania",
+        accuracy: "Dokładność",
+        tokens: "Tokeny",
+        viewAll: "Statystyki AI",
+      },
+      system: {
+        title: "System",
+        uptime: "Uptime",
+        errors: "Błędy",
+        users: "Użytkownicy",
+        viewAll: "Monitoring",
+      },
+    },
+    
     stats: {
       totalUsers: "Łącznie użytkowników",
       activeUsers: "Aktywnych użytkowników",
@@ -18,6 +49,41 @@ export const admin = {
       totalCourses: "Łącznie kursów",
       tokensInCirculation: "Tokenów w obiegu",
       revenue: "Przychód",
+    },
+    
+    actionHub: {
+      title: "Szybkie działania",
+      users: {
+        title: "Użytkownicy",
+        viewAll: "Wszyscy użytkownicy",
+        roles: "Zarządzanie rolami",
+        activity: "Aktywność",
+      },
+      content: {
+        title: "Treść",
+        recipes: "Przepisy",
+        ingredients: "Składniki",
+        courses: "Kursy",
+      },
+      ai: {
+        title: "AI",
+        translations: "Tłumaczenia",
+        mentor: "Mentor",
+        automation: "Automatyzacja",
+      },
+      system: {
+        title: "System",
+        settings: "Ustawienia",
+        security: "Bezpieczeństwo",
+      },
+    },
+    
+    systemNotifications: {
+      title: "Powiadomienia systemowe",
+      rolesChanged: "Zmieniono role",
+      localizationUpdated: "Zaktualizowano lokalizację",
+      hoursAgo: "godzin temu",
+      hourAgo: "godzinę temu",
     },
     
     quickActions: {
@@ -37,6 +103,17 @@ export const admin = {
     search: "Szukaj użytkowników...",
     filter: "Filtruj",
     sort: "Sortuj",
+    export: "Eksport użytkowników (TODO: implementacja)",
+    notFound: "Użytkownik nie został znaleziony",
+    noResults: "Nie znaleziono użytkowników",
+    
+    kpi: {
+      totalUsers: "Łącznie użytkowników",
+      activeUsers: "Aktywni użytkownicy",
+      premiumUsers: "Premium użytkownicy",
+      growth: "Wzrost",
+      noPremium: "Brak użytkowników premium",
+    },
     
     table: {
       id: "ID",
@@ -47,32 +124,47 @@ export const admin = {
       registered: "Zarejestrowany",
       lastActive: "Ostatnia aktywność",
       actions: "Akcje",
+      user: "Użytkownik",
     },
     
     roles: {
-      admin: "Administrator",
+      admin: "🔑 Administrator",
       moderator: "Moderator",
+      premium: "⭐ Premium",
       chef: "Szef kuchni",
-      user: "Użytkownik",
+      user: "👤 Użytkownik",
       guest: "Gość",
     },
     
     status: {
+      all: "Wszystkie",
       active: "Aktywny",
       inactive: "Nieaktywny",
       suspended: "Zawieszony",
       banned: "Zbanowany",
+      blocked: "Zablokowany",
+      pending: "Oczekujący",
     },
     
     actions: {
       view: "Zobacz",
       edit: "Edytuj",
+      editUser: "Edytuj użytkownika",
+      viewUser: "Podgląd użytkownika",
       suspend: "Zawieś",
       ban: "Zbanuj",
       delete: "Usuń",
+      deleteUser: "Usuń użytkownika?",
+      confirmDelete: "Czy na pewno chcesz usunąć użytkownika",
+      deleteWarning: "Ta akcja jest nieodwracalna. Usuń tylko jeśli absolutnie konieczne.",
+      deleteConsequences: "Wszystkie dane użytkownika zostaną usunięte",
       sendEmail: "Wyślij email",
       resetPassword: "Zresetuj hasło",
       viewActivity: "Zobacz aktywność",
+      cancel: "Anuluj",
+      save: "Zapisz",
+      adminWarning: "⚠️ Uwaga: Nadajesz uprawnienia administratora",
+      blockWarning: "⚠️ Uwaga: Użytkownik nie będzie mógł zalogować się do systemu",
     },
   },
 
@@ -172,15 +264,26 @@ export const admin = {
 
   // Settings
   settings: {
-    title: "Ustawienia systemu",
-    subtitle: "Konfiguruj platformę",
+    title: "Ustawienia",
+    subtitle: "Zarządzaj parametrami systemu",
+    
+    tabs: {
+      general: "Ogólne",
+      email: "Email",
+      notifications: "Powiadomienia",
+      api: "API",
+      security: "Bezpieczeństwo",
+    },
     
     general: {
       title: "Ogólne",
+      appName: "Nazwa aplikacji",
+      appDescription: "Opis aplikacji",
       siteName: "Nazwa strony",
       siteDescription: "Opis strony",
-      language: "Język domyślny",
+      language: "Język",
       timezone: "Strefa czasowa",
+      theme: "Motyw",
       maintenance: "Tryb konserwacji",
     },
     
