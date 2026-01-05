@@ -148,10 +148,12 @@ export function RecipeForm({ mode, initialData, recipeId }: RecipeFormProps) {
         }
         
         console.log(`✅ Redirecting to edit page with ID: ${newRecipeId}`);
-        toast.success('Рецепт успішно створено! Додайте інгредієнти та кроки');
+        toast.success('✨ Рецепт створено! Переходимо до редагування...');
         
-        // Redirect to edit mode with content tab
-        router.push(`/admin/catalog/recipes/${newRecipeId}/edit?tab=content`);
+        // Small delay for UX (let user see success message)
+        setTimeout(() => {
+          router.push(`/admin/catalog/recipes/${newRecipeId}/edit?tab=content`);
+        }, 800);
       } else {
         if (!recipeId) throw new Error('Recipe ID required for edit mode');
         
@@ -208,7 +210,10 @@ export function RecipeForm({ mode, initialData, recipeId }: RecipeFormProps) {
           </Button>
           <Button type="submit" disabled={isSaving || !isDirty}>
             <Save className="w-4 h-4 mr-2" />
-            {isSaving ? 'Збереження...' : mode === 'create' ? 'Створити рецепт' : 'Зберегти зміни'}
+            {isSaving 
+              ? (mode === 'create' ? '✨ Створення...' : '💾 Збереження...') 
+              : (mode === 'create' ? 'Створити рецепт' : 'Зберегти зміни')
+            }
           </Button>
         </div>
       </div>
@@ -385,13 +390,16 @@ export function RecipeForm({ mode, initialData, recipeId }: RecipeFormProps) {
           <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
             {mode === 'create' ? (
               // Create mode: Show message
-              <div className="text-center py-12 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-2 border-dashed border-blue-200 dark:border-blue-800">
-                <ChefHat className="w-12 h-12 mx-auto mb-3 text-blue-500" />
-                <p className="text-blue-700 dark:text-blue-300 font-medium mb-2">
+              <div className="text-center py-16 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border-2 border-dashed border-blue-300 dark:border-blue-700">
+                <ChefHat className="w-16 h-16 mx-auto mb-4 text-blue-500" />
+                <h3 className="text-xl font-semibold text-blue-700 dark:text-blue-300 mb-2">
                   Спочатку створіть рецепт
+                </h3>
+                <p className="text-sm text-blue-600 dark:text-blue-400 mb-4 max-w-md mx-auto">
+                  Заповніть базову інформацію у вкладці "Основне" та натисніть <strong>"Створити рецепт"</strong>
                 </p>
-                <p className="text-sm text-blue-600 dark:text-blue-400">
-                  Після збереження базової інформації ви зможете додати інгредієнти та кроки
+                <p className="text-xs text-blue-500 dark:text-blue-500">
+                  ✨ Після створення ви автоматично перейдете до редагування інгредієнтів та кроків
                 </p>
               </div>
             ) : (
