@@ -20,6 +20,15 @@ export async function GET(request: NextRequest) {
     const page = searchParams.get('page') || '1';
     const limit = searchParams.get('limit') || '50';
 
+    console.log('[Admin Ingredients API] Query params received:', {
+      search,
+      searchLength: search.length,
+      category,
+      page,
+      limit,
+      rawURL: request.url,
+    });
+
     // Build query string for admin endpoint
     const queryParams = new URLSearchParams();
     if (search) queryParams.append('search', search);
@@ -29,14 +38,17 @@ export async function GET(request: NextRequest) {
 
     // Use admin endpoint (returns all ingredients with full details)
     const url = `${BACKEND_URL}/api/admin/ingredients?${queryParams.toString()}`;
-    console.log('[Admin Ingredients API] Fetching from admin endpoint:', url);
+    console.log('[Admin Ingredients API] Fetching from backend:', url);
+    console.log('[Admin Ingredients API] Query string:', queryParams.toString());
 
     const token = request.headers.get('Authorization')?.replace('Bearer ', '') || '';
+    const acceptLanguage = request.headers.get('Accept-Language') || 'pl';
     
     const response = await fetch(url, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
+        'Accept-Language': acceptLanguage,
       },
     });
 
@@ -51,42 +63,49 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
     
-    // Log FULL response to debug
-    console.log('[Admin Ingredients API] FULL backend response:', JSON.stringify(data, null, 2));
-    
-    console.log('[Admin Ingredients API] Raw backend response:', {
-      dataKeys: Object.keys(data),
-      hasIngredients: !!data.ingredients,
-      hasItems: !!data.items,
+    console.log('[Admin Ingredients API] Backend response summary:', {
+      dataType: typeof data,
+      isArray: Array.isArray(data),
+      dataLength: Array.isArray(data) ? data.length : 'N/A',
       hasData: !!data.data,
-      ingredientsType: typeof data.ingredients,
-      ingredientsIsArray: Array.isArray(data.ingredients),
-      ingredientsLength: data.ingredients?.length,
-      itemsLength: data.items?.length,
-      dataLength: data.data?.length,
-      count: data.count,
-      total: data.total,
-      firstKey: Object.keys(data)[0],
-      firstValue: Object.keys(data).length > 0 ? data[Object.keys(data)[0]] : null,
+      dataDataLength: data.data?.length,
+      hasMeta: !!data.meta,
+      metaTotal: data.meta?.total,
+      firstItemName: (Array.isArray(data) ? data[0]?.name : data.data?.[0]?.name) || 'N/A',
     });
     
     // Transform response to match expected format
     // Backend returns: { data: { items: [...], count: number }, success: true }
+    // OR just an array directly: [...]
     // Frontend expects: { data: [...], meta: { total, page, limit, totalPages } }
     
-    // Handle nested structure: data.data.items or data.items or data directly
-    const backendData = data.data || data;
-    const items = backendData.items || backendData.ingredients || data.ingredients || [];
+    // Handle multiple possible response formats:
+    // 1. Direct array: [...]
+    // 2. Wrapped in data: { data: [...] }
+    // 3. Nested structure: { data: { items: [...] } }
+    let itemsArray: any[] = [];
     
-    // CRITICAL: Ensure items is always an array
-    const itemsArray = Array.isArray(items) ? items : [];
-    const totalCount = backendData.count || data.count || data.total || itemsArray.length;
+    if (Array.isArray(data)) {
+      // Case 1: Backend returns array directly
+      itemsArray = data;
+      console.log('[Admin Ingredients API] Backend returned direct array:', itemsArray.length);
+    } else {
+      // Case 2 & 3: Backend returns object
+      const backendData = data.data || data;
+      const items = backendData.items || backendData.ingredients || data.ingredients || backendData;
+      itemsArray = Array.isArray(items) ? items : [];
+      console.log('[Admin Ingredients API] Backend returned object, extracted items:', itemsArray.length);
+    }
+    
+    const totalCount = data.count || data.total || data.data?.count || itemsArray.length;
     const currentPage = parseInt(page);
     const pageLimit = parseInt(limit);
     
     console.log('[Admin Ingredients API] Transformed response:', {
       itemsCount: itemsArray.length,
       totalCount,
+      firstItem: itemsArray[0],
+      firstItemKeys: itemsArray[0] ? Object.keys(itemsArray[0]) : [],
     });
     
     return NextResponse.json({
@@ -121,9 +140,11 @@ export async function POST(request: NextRequest) {
     console.log('[Admin Ingredients API] Creating ingredient:', body);
 
     // Validate required fields
-    if (!body.name || !body.category || !body.unit) {
+    // Frontend sends: { inputName, inputLang, category, unit }
+    // inputLang is auto-detected from UI language, but backend still requires it
+    if (!body.inputName || !body.inputLang || !body.category || !body.unit) {
       return NextResponse.json(
-        { error: 'Name, category, and unit are required' },
+        { error: 'inputName, inputLang, category, and unit are required' },
         { status: 400 }
       );
     }
@@ -137,16 +158,19 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body),
     });
 
+    console.log('[Admin Ingredients API] Backend response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[Admin Ingredients API] Backend error:', errorText);
+      console.error('[Admin Ingredients API] Backend error:', response.status, errorText);
       return NextResponse.json(
-        { error: 'Failed to create ingredient' },
+        { error: 'Failed to create ingredient', details: errorText },
         { status: response.status }
       );
     }
 
     const data = await response.json();
+    console.log('[Admin Ingredients API] Backend response data:', data);
     return NextResponse.json(data, { status: 201 });
   } catch (error) {
     console.error('[Admin Ingredients API] Error:', error);

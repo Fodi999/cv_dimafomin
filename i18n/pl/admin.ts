@@ -205,6 +205,61 @@ export const admin = {
     },
   },
 
+  // Catalog Management
+  catalog: {
+    title: "Katalog",
+    subtitle: "Zarządzaj produktami i przepisami",
+    
+    products: {
+      title: "Produkty",
+      subtitle: "Zarządzaj katalogiem składników",
+      addProduct: "Dodaj produkt",
+      editProduct: "Edytuj produkt",
+      deleteProduct: "Usuń produkt",
+      noProducts: "Nie znaleziono produktów",
+      
+      table: {
+        name: "Nazwa",
+        category: "Kategoria",
+        unit: "Jednostka",
+        usedIn: "Wykorzystywane",
+        actions: "Akcje",
+        recipes: "przepisów",
+      },
+      
+      categories: {
+        all: "Wszystkie",
+        meat: "Mięso",
+        fish: "Ryby",
+        vegetables: "Warzywa",
+        fruits: "Owoce",
+        dairy: "Nabiał",
+        grains: "Zboża",
+        condiment: "Przyprawy",
+        spices: "Przyprawy",
+        other: "Inne",
+      },
+      
+      form: {
+        name: "Nazwa produktu",
+        namePlaceholder: "np. Arbuz, Watermelon, Арбуз",
+        nameRequired: "Nazwa produktu jest wymagana",
+        category: "Kategoria",
+        unit: "Jednostka miary",
+        description: "Wprowadź nazwę w dowolnym języku. AI automatycznie przetłumaczy.",
+        successMessage: "Produkt dodany i przetłumaczony przez AI",
+        errorMessage: "Błąd podczas tworzenia produktu",
+        save: "Zapisz",
+        cancel: "Anuluj",
+      },
+    },
+    
+    recipes: {
+      title: "Przepisy",
+      subtitle: "Zarządzaj katalogiem przepisów",
+    },
+  },
+
   // Content Moderation
   moderation: {
     title: "Moderacja",

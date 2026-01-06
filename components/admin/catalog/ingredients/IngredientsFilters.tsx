@@ -2,6 +2,7 @@
 
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -9,25 +10,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+export type CategoryFilter = "all" | "protein" | "vegetable" | "dairy" | "grain" | "condiment" | "other";
 
 interface IngredientsFiltersProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
-  categoryFilter: string;
-  onCategoryChange: (value: string) => void;
+  categoryFilter: CategoryFilter;
+  onCategoryChange: (value: CategoryFilter) => void;
 }
-
-const CATEGORIES = [
-  { value: "all", label: "Всі категорії" },
-  { value: "meat", label: "М'ясо" },
-  { value: "fish", label: "Риба" },
-  { value: "vegetables", label: "Овочі" },
-  { value: "fruits", label: "Фрукти" },
-  { value: "dairy", label: "Молочні продукти" },
-  { value: "grains", label: "Крупи" },
-  { value: "spices", label: "Спеції" },
-  { value: "other", label: "Інше" },
-];
 
 export function IngredientsFilters({
   searchQuery,
@@ -35,32 +27,43 @@ export function IngredientsFilters({
   categoryFilter,
   onCategoryChange,
 }: IngredientsFiltersProps) {
+  const { t } = useLanguage();
+
   return (
-    <div className="flex flex-col sm:flex-row gap-4">
-      {/* Search */}
-      <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <Input
-          placeholder="Пошук інгредієнтів..."
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10"
-        />
+    <div className="flex flex-col gap-4 md:flex-row md:items-end">
+      {/* Search Input */}
+      <div className="flex-1 space-y-2">
+        <Label htmlFor="search">{t.admin.catalog.products.search || "Search"}</Label>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            id="search"
+            placeholder={t.admin.catalog.products.searchPlaceholder || "Search by name (any language)..."}
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="pl-9"
+          />
+        </div>
       </div>
 
       {/* Category Filter */}
-      <Select value={categoryFilter} onValueChange={onCategoryChange}>
-        <SelectTrigger className="w-full sm:w-[200px]">
-          <SelectValue placeholder="Категорія" />
-        </SelectTrigger>
-        <SelectContent>
-          {CATEGORIES.map((category) => (
-            <SelectItem key={category.value} value={category.value}>
-              {category.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="w-full space-y-2 md:w-[200px]">
+        <Label htmlFor="category">{t.admin.catalog.products.table.category || "Category"}</Label>
+        <Select value={categoryFilter} onValueChange={(value) => onCategoryChange(value as CategoryFilter)}>
+          <SelectTrigger id="category">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t.admin.catalog.products.categories.all || "All categories"}</SelectItem>
+            <SelectItem value="vegetable">🥦 {t.admin.catalog.products.categories.vegetables}</SelectItem>
+            <SelectItem value="protein">🥩 {t.admin.catalog.products.categories.meat}</SelectItem>
+            <SelectItem value="dairy">🥛 {t.admin.catalog.products.categories.dairy}</SelectItem>
+            <SelectItem value="grain">🌾 {t.admin.catalog.products.categories.grains}</SelectItem>
+            <SelectItem value="condiment">🧂 {t.admin.catalog.products.categories.condiment}</SelectItem>
+            <SelectItem value="other">📦 {t.admin.catalog.products.categories.other}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }

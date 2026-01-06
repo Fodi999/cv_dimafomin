@@ -1,27 +1,44 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useIngredients, useIngredientActions, Ingredient } from "@/hooks/useIngredients";
 import { IngredientsTable } from "@/components/admin/catalog/ingredients/IngredientsTable";
+import { IngredientsFilters, type CategoryFilter } from "@/components/admin/catalog/ingredients/IngredientsFilters";
 import { IngredientFormModal } from "@/components/admin/catalog/ingredients/IngredientFormModal";
 import { IngredientDeleteDialog } from "@/components/admin/catalog/ingredients/IngredientDeleteDialog";
+import { AddIngredientDialog } from "@/components/admin/catalog/ingredients/AddIngredientDialog";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * Products Tab - Manages ingredients catalog
- * Only loads data when tab is active
+ * Features:
+ * - Search by name (any language) with 300ms debounce
+ * - Filter by category
+ * - Pagination
+ * - Create/Edit/Delete ingredients with AI translation
  */
 export function ProductsTab() {
+  const { t } = useLanguage();
+  const [localSearch, setLocalSearch] = useState("");
+  const [localCategory, setLocalCategory] = useState<CategoryFilter>("all");
+  const debouncedSearch = useDebounce(localSearch, 300);
+  
   const { ingredients, meta, isLoading, filters, updateFilters, refetch } = useIngredients();
-  const { createIngredient, updateIngredient, deleteIngredient } = useIngredientActions();
+  const { updateIngredient, deleteIngredient } = useIngredientActions();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [ingredientToDelete, setIngredientToDelete] = useState<Ingredient | null>(null);
+
+  // Apply debounced search to filters
+  useEffect(() => {
+    updateFilters({ 
+      search: debouncedSearch,
+      page: 1 
+    });
+  }, [debouncedSearch]);
 
   // Ensure ingredients is always an array
   const safeIngredients = Array.isArray(ingredients) ? ingredients : [];
@@ -50,13 +67,8 @@ export function ProductsTab() {
         setIsFormOpen(false);
         refetch();
       }
-    } else {
-      const success = await createIngredient(data as Omit<Ingredient, "id">);
-      if (success) {
-        setIsFormOpen(false);
-        refetch();
-      }
     }
+    // Note: Create is handled by AddIngredientDialog component
   };
 
   const handleDeleteProduct = (ingredient: Ingredient) => {
@@ -80,64 +92,45 @@ export function ProductsTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Продукти</CardTitle>
+              <CardTitle>{t.admin.catalog.products.title}</CardTitle>
               <CardDescription>
-                Управління каталогом інгредієнтів ({meta?.total || 0} продуктів)
+                {t.admin.catalog.products.subtitle} ({meta?.total || 0} {t.admin.catalog.products.table.recipes})
               </CardDescription>
             </div>
-            <Button onClick={handleCreateProduct} size="sm">
-              <Plus className="mr-2 h-4 w-4" />
-              Додати продукт
-            </Button>
+            <AddIngredientDialog onCreated={refetch} />
           </div>
         </CardHeader>
       
       <CardContent className="space-y-4">
         {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Пошук продукту..."
-              className="pl-9"
-              value={filters.search}
-              onChange={(e) => updateFilters({ search: e.target.value, page: 1 })}
-            />
-          </div>
+        <IngredientsFilters
+          searchQuery={localSearch}
+          onSearchChange={(value) => {
+            setLocalSearch(value);
+            updateFilters({ page: 1 }); // Reset to page 1 on search
+          }}
+          categoryFilter={localCategory}
+          onCategoryChange={(value) => {
+            setLocalCategory(value);
+            updateFilters({ 
+              category: value === "all" ? "all" : value,
+              page: 1 
+            });
+          }}
+        />
 
-          <Select
-            value={filters.category || "all"}
-            onValueChange={(value) => updateFilters({ category: value === "all" ? "" : value, page: 1 })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Всі категорії" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Всі категорії</SelectItem>
-              <SelectItem value="vegetables">Овочі</SelectItem>
-              <SelectItem value="fruits">Фрукти</SelectItem>
-              <SelectItem value="meat">М'ясо</SelectItem>
-              <SelectItem value="fish">Риба</SelectItem>
-              <SelectItem value="dairy">Молочні</SelectItem>
-              <SelectItem value="grains">Зернові</SelectItem>
-              <SelectItem value="spices">Спеції</SelectItem>
-              <SelectItem value="other">Інше</SelectItem>
-            </SelectContent>
-          </Select>
-      </div>
-
-      {/* Table */}
-      <IngredientsTable
-        ingredients={Array.isArray(ingredients) ? ingredients : []}
-        isLoading={isLoading}
-        onEdit={handleEditProduct}
-        onDelete={handleDeleteProduct}
-      />
+        {/* Table */}
+        <IngredientsTable
+          ingredients={safeIngredients}
+          isLoading={isLoading}
+          onEdit={handleEditProduct}
+          onDelete={handleDeleteProduct}
+        />
 
       {/* Count */}
       {meta && (
         <div className="text-sm text-muted-foreground text-center">
-          Показано: {ingredients.length} з {meta.total}
+          {t.common.showing}: {ingredients.length} {t.common.of} {meta.total}
         </div>
       )}
       </CardContent>

@@ -200,6 +200,62 @@ export const admin = {
     },
   },
 
+  catalog: {
+    title: "Catalog",
+    subtitle: "Manage products and recipes",
+    
+    products: {
+      title: "Products",
+      subtitle: "Manage ingredient catalog",
+      addProduct: "Add product",
+      editProduct: "Edit product",
+      deleteProduct: "Delete product",
+      noProducts: "No products found",
+      search: "Search",
+      searchPlaceholder: "Search by name (any language)...",
+      
+      table: {
+        name: "Name",
+        category: "Category",
+        unit: "Unit",
+        usedIn: "Used in",
+        actions: "Actions",
+        recipes: "products",
+      },
+      
+      categories: {
+        all: "All categories",
+        meat: "Meat",
+        fish: "Fish",
+        vegetables: "Vegetables",
+        fruits: "Fruits",
+        dairy: "Dairy products",
+        grains: "Grains",
+        condiment: "Condiments",
+        spices: "Spices",
+        other: "Other",
+      },
+      
+      form: {
+        name: "Product name",
+        namePlaceholder: "e.g. Watermelon, Arbuz, Арбуз",
+        nameRequired: "Product name is required",
+        category: "Category",
+        unit: "Unit of measurement",
+        description: "Enter product name in any language. AI will translate automatically.",
+        successMessage: "Product added and translated by AI",
+        errorMessage: "Failed to create product",
+        save: "Save",
+        cancel: "Cancel",
+      },
+    },
+    
+    recipes: {
+      title: "Recipes",
+      subtitle: "Manage recipe catalog",
+    },
+  },
+
   moderation: {
     title: "Moderation",
     subtitle: "Review reported content",

@@ -3,7 +3,15 @@ import { toast } from "sonner";
 
 export interface Ingredient {
   id: string;
-  name: string;
+  name: string; // Fallback name (usually Polish)
+  // Snake_case format (from backend)
+  name_pl?: string; // Polish name
+  name_en?: string; // English name
+  name_ru?: string; // Russian name
+  // CamelCase format (alternative)
+  namePl?: string;
+  nameEn?: string;
+  nameRu?: string;
   category: string;
   unit: string;
   usageCount?: number; // Сколько рецептов используют
@@ -43,6 +51,7 @@ export function useIngredients() {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
+      const language = localStorage.getItem("language") || "pl";
       const queryParams = new URLSearchParams();
       
       if (filters.search) queryParams.append("search", filters.search);
@@ -57,6 +66,7 @@ export function useIngredients() {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
+          "Accept-Language": language,
         },
       });
 
@@ -66,6 +76,7 @@ export function useIngredients() {
 
       const data = await response.json();
       console.log('[useIngredients] API response:', data);
+      console.log('[useIngredients] First ingredient sample:', data.data?.[0]);
       
       // Ensure we always set an array
       const ingredientsList = data.data || data.ingredients || [];

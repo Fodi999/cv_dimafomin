@@ -200,6 +200,60 @@ export const admin = {
     },
   },
 
+  catalog: {
+    title: "Каталог",
+    subtitle: "Управление продуктами и рецептами",
+    
+    products: {
+      title: "Продукты",
+      subtitle: "Управление каталогом ингредиентов",
+      addProduct: "Добавить продукт",
+      editProduct: "Редактировать продукт",
+      deleteProduct: "Удалить продукт",
+      noProducts: "Продукты не найдены",
+      
+      table: {
+        name: "Название",
+        category: "Категория",
+        unit: "Ед. измерения",
+        usedIn: "Используется",
+        actions: "Действия",
+        recipes: "рецептов",
+      },
+      
+      categories: {
+        all: "Все",
+        meat: "Мясо",
+        fish: "Рыба",
+        vegetables: "Овощи",
+        fruits: "Фрукты",
+        dairy: "Молочные продукты",
+        grains: "Крупы",
+        condiment: "Приправы",
+        spices: "Специи",
+        other: "Другое",
+      },
+      
+      form: {
+        name: "Название продукта",
+        namePlaceholder: "например: Арбуз, Watermelon, Arbuz",
+        nameRequired: "Название продукта обязательно",
+        category: "Категория",
+        unit: "Единица измерения",
+        description: "Введите название на любом языке. ИИ автоматически переведет.",
+        successMessage: "Продукт добавлен и переведен ИИ",
+        errorMessage: "Ошибка при создании продукта",
+        save: "Сохранить",
+        cancel: "Отмена",
+      },
+    },
+    
+    recipes: {
+      title: "Рецепты",
+      subtitle: "Управление каталогом рецептов",
+    },
+  },
+
   moderation: {
     title: "Модерация",
     subtitle: "Проверка жалоб на контент",
