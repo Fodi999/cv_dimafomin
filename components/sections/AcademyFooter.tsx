@@ -19,7 +19,7 @@ export default function AcademyFooter() {
   ];
 
   return (
-    <footer className="bg-gray-950 text-white py-12 px-4 border-t border-sky-500">
+    <footer className="bg-gray-950 text-white py-8 sm:py-12 px-3 sm:px-4 border-t border-sky-500">
       <div className="max-w-6xl mx-auto">
         {/* Main Grid */}
         <motion.div
@@ -30,27 +30,27 @@ export default function AcademyFooter() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid md:grid-cols-4 gap-8 mb-12"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8 sm:mb-12"
         >
           {/* Brand */}
           <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="space-y-2">
-            <h3 className="text-lg font-bold text-sky-400">
+            <h3 className="text-base sm:text-lg font-bold text-sky-400">
               {t.academy.footer.title}
             </h3>
-            <p className="text-sm text-sky-300/80">
+            <p className="text-xs sm:text-sm text-sky-300/80">
               {t.academy.footer.byAuthor}
             </p>
-            <p className="text-sm text-neutral-400 leading-relaxed">
+            <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
               {t.academy.footer.description}
             </p>
           </motion.div>
 
           {/* Navigation */}
-          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="space-y-3">
-            <h4 className="font-semibold text-sky-400 text-sm uppercase tracking-wide">
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="space-y-2 sm:space-y-3">
+            <h4 className="font-semibold text-sky-400 text-xs sm:text-sm uppercase tracking-wide">
               {t.academy.footer.navigation.title}
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-1.5 sm:space-y-2">
               {[
                 { label: t.academy.footer.navigation.home, href: "/" },
                 { label: t.academy.footer.navigation.academy, href: "/academy" },
@@ -58,7 +58,7 @@ export default function AcademyFooter() {
                 { label: t.academy.footer.navigation.profile, href: "/profile" },
               ].map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-neutral-400 hover:text-cyan-400 transition-colors">
+                  <Link href={link.href} className="text-xs sm:text-sm text-neutral-400 hover:text-cyan-400 transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -67,11 +67,11 @@ export default function AcademyFooter() {
           </motion.div>
 
           {/* Resources */}
-          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="space-y-3">
-            <h4 className="font-semibold text-sky-400 text-sm uppercase tracking-wide">
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="space-y-2 sm:space-y-3">
+            <h4 className="font-semibold text-sky-400 text-xs sm:text-sm uppercase tracking-wide">
               {t.academy.footer.resources.title}
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-1.5 sm:space-y-2">
               {[
                 { label: t.academy.footer.resources.documentation, href: "#docs" },
                 { label: t.academy.footer.resources.guides, href: "#guides" },
@@ -79,7 +79,7 @@ export default function AcademyFooter() {
                 { label: t.academy.footer.resources.support, href: "#support" },
               ].map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-neutral-400 hover:text-cyan-400 transition-colors">
+                  <Link href={link.href} className="text-xs sm:text-sm text-neutral-400 hover:text-cyan-400 transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -88,19 +88,19 @@ export default function AcademyFooter() {
           </motion.div>
 
           {/* Contact */}
-          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="space-y-3">
-            <h4 className="font-semibold text-sky-400 text-sm uppercase tracking-wide">
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="space-y-2 sm:space-y-3">
+            <h4 className="font-semibold text-sky-400 text-xs sm:text-sm uppercase tracking-wide">
               {t.academy.footer.contact.title}
             </h4>
-            <div className="space-y-2">
+            <div className="space-y-1.5 sm:space-y-2">
               <a
                 href="mailto:fodi85999@gmail.com"
-                className="flex items-center gap-2 text-sm text-neutral-400 hover:text-cyan-400 transition-colors"
+                className="flex items-center gap-2 text-xs sm:text-sm text-neutral-400 hover:text-cyan-400 transition-colors break-all"
               >
                 <Mail className="w-4 h-4" />
                 fodi85999@gmail.com
               </a>
-              <div className="flex items-center gap-2 text-sm text-neutral-400">
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-neutral-400">
                 <MapPin className="w-4 h-4" />
                 {t.academy.footer.contact.location}
               </div>
@@ -114,7 +114,7 @@ export default function AcademyFooter() {
           whileInView={{ scaleX: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="h-px bg-sky-500/40 mb-8"
+          className="h-px bg-sky-500/40 mb-6 sm:mb-8"
         />
 
         {/* Bottom Section */}
@@ -123,12 +123,12 @@ export default function AcademyFooter() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="flex flex-col md:flex-row items-center justify-between gap-4"
+          className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4"
         >
-          <p className="text-sm text-neutral-500 text-center md:text-left">
+          <p className="text-xs sm:text-sm text-neutral-500 text-center sm:text-left">
             {t.academy.footer.copyright}
           </p>
-          <div className="flex gap-4">
+          <div className="flex gap-3 sm:gap-4">
             {socialLinks.map(({ icon: Icon, href, label }) => (
               <a
                 key={label}
@@ -138,7 +138,7 @@ export default function AcademyFooter() {
                 aria-label={label}
                 className="p-2 text-sky-400 hover:text-cyan-300 hover:bg-sky-400/10 rounded-lg transition-all"
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
               </a>
             ))}
           </div>
