@@ -205,8 +205,12 @@ export interface CatalogIngredient {
   namePl?: string;  // Polish translation
   nameEn?: string;  // English translation
   nameRu?: string;  // Russian translation
+  name_pl?: string; // Snake case variant
+  name_en?: string; // Snake case variant
+  name_ru?: string; // Snake case variant
   unit: string;
-  category: string;
+  category: string; // Кулинарная категория (fish, meat, vegetable, etc.)
+  nutritionGroup?: string; // Нутриентная группа (protein, carbohydrate, fat, etc.)
   defaultShelfLifeDays: number;
   defaultPricePerUnit?: number;
   createdAt?: string;
@@ -230,7 +234,8 @@ export interface FridgeItem {
     namePl?: string;       // Polish translation
     nameEn?: string;       // English translation
     nameRu?: string;       // Russian translation
-    category: string;
+    category: string;      // Кулинарная категория (fish, meat, vegetable, etc.)
+    nutritionGroup?: string; // Нутриентная группа (protein, carbohydrate, fat, etc.)
     key?: string;          // Language-independent key (e.g., "beef")
     i18nKey?: string;      // Legacy: Ключ для перевода (например, "ingredient.cucumber")
   };

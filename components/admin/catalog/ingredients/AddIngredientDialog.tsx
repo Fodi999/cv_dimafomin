@@ -18,10 +18,16 @@ import { Label } from "@/components/ui/label";
 import { createIngredient } from "@/lib/api/ingredients.api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useIngredients } from "@/hooks/useIngredients";
+import { 
+  getCategoryLabel, 
+  getNutritionLabel, 
+  getCategoryIcon, 
+  getNutritionIcon 
+} from "@/lib/constants/ingredientCategories";
 
 interface AddIngredientDialogProps {
   onCreated?: () => void;
-  onSelected?: (ingredientId: string) => void; // Новый callback для выбора существующего
+  onSelected?: (ingredientId: string) => void;
 }
 
 /**
@@ -33,37 +39,6 @@ function normalizeIngredientName(value: string): string {
     .toLowerCase()
     .replace(/\s+/g, '')
     .replace(/[^a-zа-яё]/gi, '');
-}
-
-/**
- * Перевод категорий на русский
- */
-function getCategoryNameRu(category: string): string {
-  const categories: Record<string, string> = {
-    'vegetable': 'овощ',
-    'fruit': 'фрукт',
-    'meat': 'мясо',
-    'fish': 'рыба',
-    'seafood': 'морепродукты',
-    'dairy': 'молочное',
-    'grain': 'крупа',
-    'pasta': 'макароны',
-    'bread': 'хлеб',
-    'condiment': 'приправа',
-    'spice': 'специя',
-    'herb': 'зелень',
-    'nut': 'орех',
-    'seed': 'семена',
-    'oil': 'масло',
-    'sauce': 'соус',
-    'beverage': 'напиток',
-    'sweet': 'сладкое',
-    'legume': 'бобовые',
-    'egg': 'яйца',
-    'cheese': 'сыр',
-    'other': 'другое'
-  };
-  return categories[category.toLowerCase()] || category;
 }
 
 /**
@@ -245,15 +220,33 @@ export function AddIngredientDialog({ onCreated, onSelected }: AddIngredientDial
                 <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                 <div className="flex-1 w-full">
                   <p className="font-medium">Такой продукт уже существует:</p>
-                  <div className="mt-1.5 sm:mt-2 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 flex-wrap">
-                    <span className="font-semibold text-sm sm:text-base">
+                  <div className="mt-1.5 sm:mt-2 space-y-1">
+                    {/* Название продукта */}
+                    <div className="font-semibold text-sm sm:text-base">
                       {existingIngredient.name_ru ?? existingIngredient.nameRu ?? existingIngredient.name}
-                    </span>
-                    <div className="flex gap-1.5">
-                      <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                        {getCategoryNameRu(existingIngredient.category)}
+                    </div>
+                    
+                    {/* Кулинарная категория (category) - ОСНОВНАЯ */}
+                    <div className="flex items-center gap-1.5 text-sm">
+                      <span>{getCategoryIcon(existingIngredient.category)}</span>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                        {getCategoryLabel(existingIngredient.category)}
                       </span>
-                      <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
+                    </div>
+                    
+                    {/* Нутриентная группа (nutritionGroup) - ДОПОЛНИТЕЛЬНАЯ */}
+                    {existingIngredient.nutritionGroup && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <span>{getNutritionIcon(existingIngredient.nutritionGroup)}</span>
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                          {getNutritionLabel(existingIngredient.nutritionGroup)}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* Единица измерения */}
+                    <div className="flex items-center gap-1.5">
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
                         {getUnitNameRu(existingIngredient.unit)}
                       </span>
                     </div>

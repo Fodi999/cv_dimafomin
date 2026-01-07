@@ -12,7 +12,8 @@ export interface Ingredient {
   namePl?: string;
   nameEn?: string;
   nameRu?: string;
-  category: string;
+  category: string; // Кулинарная категория (fish, meat, vegetable, etc.)
+  nutritionGroup?: string; // Нутриентная группа (protein, carbohydrate, fat, etc.)
   unit: string;
   usageCount?: number; // Сколько рецептов используют
   createdAt?: string;
