@@ -1,4 +1,7 @@
 /**
+ * @deprecated LEGACY CODE - Use @/lib/api/admin instead
+ * TODO: Migrate app/admin/token-bank/page.tsx to use @/lib/api/admin
+ * 
  * Admin API Client
  * Клиент для работы с админ-панелью
  */
