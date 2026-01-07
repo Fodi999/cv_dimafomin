@@ -129,6 +129,7 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/admin/ingredients
  * Создать новый ингредиент
+ * Backend сам определяет category, unit и переводит на все языки через AI
  */
 export async function POST(request: NextRequest) {
   try {
@@ -139,23 +140,22 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log('[Admin Ingredients API] Creating ingredient:', body);
 
-    // Validate required fields
-    // Frontend sends: { inputName, inputLang, category, unit }
-    // inputLang is auto-detected from UI language, but backend still requires it
-    if (!body.inputName || !body.inputLang || !body.category || !body.unit) {
+    // Validate ТОЛЬКО inputName - остальное делает backend + AI
+    if (!body.inputName?.trim()) {
       return NextResponse.json(
-        { error: 'inputName, inputLang, category, and unit are required' },
+        { error: 'inputName is required' },
         { status: 400 }
       );
     }
 
+    // Просто проксируем запрос в backend - он сам всё определит через AI
     const response = await fetch(`${BACKEND_URL}/api/admin/ingredients`, {
       method: 'POST',
       headers: {
         'Authorization': request.headers.get('Authorization') || '',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ inputName: body.inputName.trim() }),
     });
 
     console.log('[Admin Ingredients API] Backend response status:', response.status);

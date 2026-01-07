@@ -16,6 +16,8 @@ import { market } from "@/i18n/pl/market";
 import { fridge } from "@/i18n/pl/fridge";
 import { losses } from "@/i18n/pl/losses";
 import { ingredients } from "@/i18n/pl/ingredients";
+import { home } from "@/i18n/pl/home";
+import journey, { nextButtonTexts as journeyNextButtonTexts } from "@/i18n/pl/journey";
 
 export const pl = {
   common,
@@ -31,6 +33,9 @@ export const pl = {
   fridge,
   losses,
   ingredients,
+  home,
+  journey,
+  journeyNextButtonTexts,
 } as const;
 
 export type Dictionary = typeof pl;

@@ -5,6 +5,7 @@
 
 export const auth = {
   // Top-level keys for tabs and common elements
+  loginButton: "Zaloguj się",
   loginTab: "Logowanie",
   registerTab: "Rejestracja",
   email: "Email",

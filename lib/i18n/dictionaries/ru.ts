@@ -16,6 +16,8 @@ import { market } from "@/i18n/ru/market";
 import { fridge } from "@/i18n/ru/fridge";
 import { losses } from "@/i18n/ru/losses";
 import { ingredients } from "@/i18n/ru/ingredients";
+import { home } from "@/i18n/ru/home";
+import journey, { nextButtonTexts as journeyNextButtonTexts } from "@/i18n/ru/journey";
 
 export const ru = {
   common,
@@ -31,5 +33,7 @@ export const ru = {
   fridge,
   losses,
   ingredients,
+  home,
+  journey,
+  journeyNextButtonTexts,
 } as const;
-

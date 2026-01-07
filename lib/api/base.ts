@@ -112,21 +112,32 @@ export async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): P
       if (error.fields) {
         console.error(`📋 Field errors:`, error.fields);
       }
-      throw new Error(error.message);
+      // Создаём объект ошибки с сохранением статуса и кода
+      const apiError: any = new Error(error.message);
+      apiError.status = response.status;
+      apiError.statusCode = response.status;
+      apiError.code = error.code;
+      apiError.fields = error.fields;
+      throw apiError;
     }
     
     const errorMessage = error.message || error.error || `HTTP ${response.status}: ${response.statusText}`;
     console.error(`❌ HTTP ${response.status}:`, errorMessage);
-    throw new Error(errorMessage);
+    // Создаём объект ошибки с сохранением статуса
+    const httpError: any = new Error(errorMessage);
+    httpError.status = response.status;
+    httpError.statusCode = response.status;
+    throw httpError;
   }
 
   const data = await response.json();
+  console.log(`📦 Raw response data:`, data);
 
   if (isApiResponse<T>(data)) {
-    console.log(`✅ API Success (new format):`, data.meta);
+    console.log(`✅ API Success (new format) - returning data:`, data.data);
     return data.data;
   }
 
-  console.log(`✅ API Success (legacy format)`);
+  console.log(`✅ API Success (legacy format) - returning whole response`);
   return data as T;
 }

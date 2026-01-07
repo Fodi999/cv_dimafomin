@@ -1,161 +1,33 @@
 "use client";
 
-import { motion } from "framer-motion";
-import Link from "next/link";
-import { Coins, TrendingUp, Gift, Gem, Award, Users, Zap, Wallet } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useUser } from "@/contexts/UserContext";
-import { useAuth } from "@/contexts/AuthContext";
 
 export default function AcademyChefTokens() {
   const { t } = useLanguage();
-  const { user } = useUser();
-  const { isAuthenticated } = useAuth();
   
-  // 🐛 Debug: проверяем данные пользователя
-  console.log('[AcademyChefTokens] User data:', { 
-    isAuthenticated, 
-    user, 
-    chefTokens: user?.chefTokens,
-    hasUser: !!user 
-  });
-  
-  const benefits = [
-    {
-      icon: <Coins className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-      title: t.academy.tokens.earn.title,
-      description: t.academy.tokens.earn.description,
-    },
-    {
-      icon: <TrendingUp className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-      title: t.academy.tokens.spend.title,
-      description: t.academy.tokens.spend.description,
-    },
-    {
-      icon: <Gem className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-      title: t.academy.tokens.aiPayment.title,
-      description: t.academy.tokens.aiPayment.description,
-    },
-    {
-      icon: <Gift className="w-6 h-6 text-sky-600 dark:text-sky-400" />,
-      title: t.academy.tokens.exchange.title,
-      description: t.academy.tokens.exchange.description,
-    },
-  ];
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6 },
-    },
-  };
-
   return (
-    <section className="py-24 relative overflow-hidden bg-gradient-to-b from-white/50 to-white dark:from-gray-950/50 dark:to-gray-950">
-      {/* Background elements */}
-      <div className="absolute inset-0 bg-gradient-to-b from-sky-500/5 via-transparent to-cyan-500/5 dark:from-sky-500/10 dark:to-cyan-500/10 pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-sky-500/10 dark:bg-sky-500/20 rounded-full blur-3xl" />
-
-      <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="max-w-6xl mx-auto">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="space-y-8"
-        >
-          <motion.div variants={itemVariants} className="text-center">
-            <div className="flex items-center justify-center gap-3 flex-wrap mb-4">
-              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white leading-tight">
-                {t.academy.tokens.title}
-              </h2>
-              
-              {/* 💰 User Balance Badge - Visible only for authenticated users */}
-              {isAuthenticated && (
-                <motion.div
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-sky-500 via-cyan-500 to-blue-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 cursor-default"
-                  whileHover={{ scale: 1.05 }}
-                  title={`Twoje ChefTokens: ${user?.chefTokens ?? 0}`}
-                >
-                  <Wallet className="w-5 h-5" />
-                  <span className="font-bold text-lg">{user?.chefTokens ?? 0}</span>
-                  <span className="text-xs sm:text-sm opacity-90">ChefTokens</span>
-                </motion.div>
-              )}
-            </div>
-            <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-              {t.academy.tokens.description}
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-amber-950 dark:via-orange-900 dark:to-yellow-950">
+      {/* Content - Centered */}
+      <div className="container max-w-3xl mx-auto px-4 text-center space-y-12">
+        {/* Main Message */}
+        <div className="space-y-6">
+          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-gray-900 dark:text-white">
+            {t.journey.screen3.title}
+          </h1>
+          
+          <div className="pt-8 space-y-4">
+            <p className="text-2xl md:text-3xl font-medium text-gray-700 dark:text-gray-300">
+              {t.journey.screen3.subtitle1}
+              <br />
+              <span className="text-amber-600 dark:text-amber-400 font-bold">{t.journey.screen3.subtitleHighlight}</span>
             </p>
-          </motion.div>
-
-          {/* Benefits */}
-          <motion.div variants={containerVariants} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {benefits.map((benefit, idx) => (
-              <motion.div
-                key={idx}
-                variants={itemVariants}
-                whileHover={{ y: -4 }}
-                className="p-6 rounded-xl bg-gradient-to-br from-sky-50/50 to-cyan-50/50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-100 dark:border-sky-900/50 shadow-md dark:shadow-sky-500/5 hover:shadow-lg dark:hover:shadow-sky-500/10 transition-all duration-200"
-              >
-                <div className="text-sky-600 dark:text-sky-400 mb-3">{benefit.icon}</div>
-                <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">{benefit.title}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{benefit.description}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div
-            variants={containerVariants}
-            className="grid sm:grid-cols-3 gap-6"
-          >
-            {[
-              { icon: <TrendingUp className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "50,000+", label: t.academy.tokens.stats.inCirculation },
-              { icon: <Users className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "1000+", label: t.academy.tokens.stats.activeUsers },
-              { icon: <Zap className="w-6 h-6 text-sky-600 dark:text-sky-400" />, stat: "24/7", label: t.academy.tokens.stats.aiAvailability },
-            ].map((item, idx) => (
-              <motion.div
-                key={idx}
-                variants={itemVariants}
-                className="p-6 rounded-xl bg-white/40 dark:bg-white/5 border border-sky-100 dark:border-sky-900/50 shadow-md dark:shadow-sky-500/5 text-center hover:shadow-lg dark:hover:shadow-sky-500/10 transition-all"
-              >
-                <div className="text-sky-600 dark:text-sky-400 flex justify-center mb-3">{item.icon}</div>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{item.stat}</p>
-                <p className="text-base text-gray-600 dark:text-gray-400 font-medium">{item.label}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          {/* CTA */}
-          <motion.div
-            variants={itemVariants}
-            className="text-center pt-4"
-          >
-            <Link href="/profile">
-              <Button className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 dark:from-sky-600 dark:to-cyan-600 dark:hover:from-sky-700 dark:hover:to-cyan-700 text-white font-medium px-8 py-3 text-base rounded-lg shadow-md hover:shadow-lg dark:shadow-sky-500/20 dark:hover:shadow-sky-500/30 transition-all active:scale-95 group w-full md:w-auto flex items-center justify-center gap-2">
-                <Coins className="w-5 h-5" />
-                {t.academy.tokens.checkBalance}
-              </Button>
-            </Link>
-          </motion.div>
-        </motion.div>
+            
+            <div className="pt-6 space-y-2 text-lg text-gray-600 dark:text-gray-400">
+              <p className="italic">{t.journey.screen3.question1}</p>
+              <p className="italic">{t.journey.screen3.question2}</p>
+              <p className="italic">{t.journey.screen3.question3}</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>

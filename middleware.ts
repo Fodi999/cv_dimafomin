@@ -5,8 +5,8 @@
  * 2. Защищает маршруты на основе роли пользователя
  * 
  * 3 зоны доступа:
- * - `/` - Публичная (доступна всем)
- * - Пользовательские маршруты (только для USER): /fridge, /recipes, /assistant, /tokens, /academy, /market, /losses, /profile
+ * - Публичные (доступны всем): `/`, `/academy`, `/assistant`, `/pricing`, `/about`, `/auth`
+ * - Пользовательские (только для USER): `/fridge`, `/recipes`, `/tokens`, `/market`, `/losses`, `/profile`
  * - `/admin` - Админ-панель (только для ADMIN/SUPERADMIN)
  * 
  * @see https://nextjs.org/docs/app/building-your-application/routing/middleware
@@ -25,9 +25,7 @@ import {
 const PROTECTED_USER_ROUTES = [
   "/fridge",
   "/recipes",
-  "/assistant",
   "/tokens",
-  "/academy",
   "/market",
   "/losses",
   "/profile",
@@ -57,6 +55,7 @@ export function middleware(req: NextRequest) {
   const publicPaths = [
     "/",
     "/academy",
+    "/assistant",
     "/pricing",
     "/about",
     "/auth",

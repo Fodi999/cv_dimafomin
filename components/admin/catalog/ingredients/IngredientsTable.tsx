@@ -2,9 +2,16 @@
 
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Ingredient } from "@/hooks/useIngredients";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { 
+  getProductAge, 
+  getProductAgeBadgeText, 
+  getProductAgeRowClass,
+  formatProductDate 
+} from "@/lib/utils/getProductAge";
 
 interface IngredientsTableProps {
   ingredients: Ingredient[];
@@ -85,7 +92,8 @@ export function IngredientsTable({
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div className="overflow-x-auto">
+      {/* Desktop: Таблица */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
             <tr>
@@ -101,61 +109,158 @@ export function IngredientsTable({
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 {t.admin.catalog.products.table.usedIn}
               </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Dodano
+              </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 {t.admin.catalog.products.table.actions}
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-            {ingredients.map((ingredient) => (
-              <tr
-                key={ingredient.id}
-                className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-              >
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="font-medium text-gray-900 dark:text-white">
-                    {getIngredientName(ingredient)}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {getCategoryName(ingredient.category)}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {ingredient.unit}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {ingredient.usageCount || 0} {t.admin.catalog.products.table.recipes}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onEdit(ingredient)}
-                      className="hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onDelete(ingredient)}
-                      className="hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {ingredients.map((ingredient) => {
+              const age = ingredient.createdAt ? getProductAge(ingredient.createdAt) : "old";
+              const rowClass = getProductAgeRowClass(age);
+              
+              return (
+                <tr
+                  key={ingredient.id}
+                  className={`hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${rowClass}`}
+                >
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {getIngredientName(ingredient)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {getCategoryName(ingredient.category)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {ingredient.unit}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {ingredient.usageCount || 0} {t.admin.catalog.products.table.recipes}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {ingredient.createdAt ? (
+                      age === "today" ? (
+                        <Badge className="bg-emerald-600 hover:bg-emerald-700">
+                          {getProductAgeBadgeText("today", language)}
+                        </Badge>
+                      ) : age === "new" ? (
+                        <Badge variant="secondary">
+                          {getProductAgeBadgeText("new", language)}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">
+                          {formatProductDate(ingredient.createdAt, `${language}-${language.toUpperCase()}`)}
+                        </span>
+                      )
+                    ) : (
+                      <span className="text-muted-foreground text-sm">—</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onEdit(ingredient)}
+                        className="hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onDelete(ingredient)}
+                        className="hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile: Карточки */}
+      <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
+        {ingredients.map((ingredient) => {
+          const age = ingredient.createdAt ? getProductAge(ingredient.createdAt) : "old";
+          const rowClass = getProductAgeRowClass(age);
+          
+          return (
+            <div
+              key={ingredient.id}
+              className={`p-4 ${rowClass}`}
+            >
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <div className="flex-1">
+                  <h3 className="font-medium text-gray-900 dark:text-white mb-1">
+                    {getIngredientName(ingredient)}
+                  </h3>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      {getCategoryName(ingredient.category)}
+                    </span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
+                      {ingredient.unit}
+                    </span>
+                    {ingredient.createdAt && (
+                      age === "today" ? (
+                        <Badge className="bg-emerald-600 hover:bg-emerald-700 text-xs">
+                          {getProductAgeBadgeText("today", language)}
+                        </Badge>
+                      ) : age === "new" ? (
+                        <Badge variant="secondary" className="text-xs">
+                          {getProductAgeBadgeText("new", language)}
+                        </Badge>
+                      ) : null
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
+                    <span>
+                      {ingredient.usageCount || 0} {t.admin.catalog.products.table.recipes}
+                    </span>
+                    {ingredient.createdAt && age === "old" && (
+                      <span className="text-muted-foreground">
+                        {formatProductDate(ingredient.createdAt, `${language}-${language.toUpperCase()}`)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onEdit(ingredient)}
+                    className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDelete(ingredient)}
+                    className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

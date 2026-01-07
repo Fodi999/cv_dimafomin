@@ -29,6 +29,9 @@ export interface Dictionary {
   fridge: Record<string, any>;
   losses: Record<string, any>;
   ingredients: Record<string, any>;
+  home: Record<string, any>;
+  journey: Record<string, any>;
+  journeyNextButtonTexts: Record<string, string>;
 }
 
 /**

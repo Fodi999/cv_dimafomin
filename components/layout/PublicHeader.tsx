@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { BrainCircuit, LogIn } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * Public Header - Minimal navigation for landing pages
@@ -17,6 +18,7 @@ import { useAuth } from "@/contexts/AuthContext";
  */
 export default function PublicHeader() {
   const { openAuthModal } = useAuth();
+  const { t } = useLanguage();
 
   return (
     <header className="fixed top-0 left-0 w-full h-16 z-40 bg-white/60 dark:bg-gray-900/40 backdrop-blur-md shadow-sm border-b border-white/20 dark:border-gray-800/20">
@@ -35,34 +37,17 @@ export default function PublicHeader() {
           </motion.div>
           <div className="flex flex-col leading-tight">
             <span className="text-gray-900 dark:text-white text-sm font-bold">
-              Modern
+              ChefOS
             </span>
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              Food Academy
+              Learning Mode
             </span>
           </div>
         </Link>
 
         {/* Navigation */}
         <nav className="hidden sm:flex items-center gap-6">
-          <Link
-            href="/academy"
-            className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
-          >
-            Академія
-          </Link>
-          <Link
-            href="/assistant"
-            className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
-          >
-            AI Асистент
-          </Link>
-          <Link
-            href="/pricing"
-            className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
-          >
-            Ціни
-          </Link>
+          {/* Removed navigation items */}
         </nav>
 
         {/* Login Button */}
@@ -73,7 +58,7 @@ export default function PublicHeader() {
           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-sky-500 to-cyan-500 text-white text-sm font-medium rounded-lg hover:shadow-lg transition-all"
         >
           <LogIn className="w-4 h-4" />
-          <span className="hidden sm:inline">Увійти</span>
+          <span className="hidden sm:inline">{t.auth?.loginButton || "Войти"}</span>
         </motion.button>
       </div>
     </header>

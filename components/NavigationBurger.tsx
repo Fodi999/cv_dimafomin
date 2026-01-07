@@ -239,7 +239,7 @@ export default function NavigationBurger() {
             </motion.div>
             <div className="flex flex-col leading-tight">
               <span className="text-gray-900 dark:text-white text-sm font-bold">
-                Modern
+                ChefOS
               </span>
               <span className="text-xs text-gray-500 dark:text-gray-400">Food Academy</span>
             </div>
