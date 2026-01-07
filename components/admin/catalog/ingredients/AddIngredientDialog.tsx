@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
-import { Plus, AlertCircle, Check } from "lucide-react";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { Plus, AlertCircle, Check, AlertTriangle, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createIngredient } from "@/lib/api/ingredients.api";
+import { createIngredient, getIngredientSuggestions } from "@/lib/api/ingredients.api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useIngredients } from "@/hooks/useIngredients";
 import { 
@@ -26,7 +26,7 @@ import {
 } from "@/lib/constants/ingredientCategories";
 
 interface AddIngredientDialogProps {
-  onCreated?: () => void;
+  onCreated?: (ingredientId: string) => void;
   onSelected?: (ingredientId: string) => void;
 }
 
@@ -39,6 +39,16 @@ function normalizeIngredientName(value: string): string {
     .toLowerCase()
     .replace(/\s+/g, '')
     .replace(/[^a-zа-яё]/gi, '');
+}
+
+/**
+ * Получить название продукта по языку
+ */
+function getIngredientName(ingredient: any, lang: string): string {
+  if (lang === 'ru') return ingredient.nameRu || ingredient.namePl || ingredient.nameEn || ingredient.name;
+  if (lang === 'pl') return ingredient.namePl || ingredient.nameRu || ingredient.nameEn || ingredient.name;
+  if (lang === 'en') return ingredient.nameEn || ingredient.namePl || ingredient.nameRu || ingredient.name;
+  return ingredient.name || ingredient.nameRu || ingredient.namePl || ingredient.nameEn;
 }
 
 /**
@@ -60,11 +70,36 @@ function getUnitNameRu(unit: string): string {
 }
 
 export function AddIngredientDialog({ onCreated, onSelected }: AddIngredientDialogProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { ingredients, isLoading: ingredientsLoading } = useIngredients();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+
+  // Debounced fetch suggestions
+  useEffect(() => {
+    if (!name.trim() || name.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        setLoadingSuggestions(true);
+        const result = await getIngredientSuggestions(name, 5, language);
+        setSuggestions(result.suggestions || []);
+      } catch (error) {
+        console.error('[AddIngredientDialog] Failed to fetch suggestions:', error);
+        setSuggestions([]);
+      } finally {
+        setLoadingSuggestions(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [name, language]); // Added language dependency
 
   // Предиктивная проверка дубликата (без запроса к API)
   const existingIngredient = useMemo(() => {
@@ -74,11 +109,11 @@ export function AddIngredientDialog({ onCreated, onSelected }: AddIngredientDial
     if (!normalizedInput) return null;
 
     return ingredients.find(ing => {
-      // Проверяем все варианты названий
+      // Проверяем все варианты названий (только camelCase)
       const variants = [
-        ing.name_en ?? ing.nameEn,
-        ing.name_pl ?? ing.namePl,
-        ing.name_ru ?? ing.nameRu,
+        ing.nameEn,
+        ing.namePl,
+        ing.nameRu,
         ing.name
       ].filter(Boolean) as string[];
 
@@ -88,16 +123,59 @@ export function AddIngredientDialog({ onCreated, onSelected }: AddIngredientDial
     });
   }, [name, ingredients]);
 
+  // Определение типа совпадения для подсказок
+  const getSuggestionMatchType = useCallback((suggestion: any): 'exact' | 'similar' | 'weak' => {
+    const normalizedInput = normalizeIngredientName(name.trim());
+    const normalizedSuggestion = normalizeIngredientName(
+      suggestion.nameRu || suggestion.namePl || suggestion.nameEn || suggestion.name
+    );
+
+    if (normalizedInput === normalizedSuggestion) return 'exact';
+    if (normalizedSuggestion.startsWith(normalizedInput)) return 'similar';
+    return 'weak';
+  }, [name]);
+
+  // Группировка подсказок по типу совпадения
+  const groupedSuggestions = useMemo(() => {
+    const exact: any[] = [];
+    const similar: any[] = [];
+    const weak: any[] = [];
+
+    suggestions.forEach(sug => {
+      const matchType = getSuggestionMatchType(sug);
+      if (matchType === 'exact') exact.push(sug);
+      else if (matchType === 'similar') similar.push(sug);
+      else weak.push(sug);
+    });
+
+    return { exact, similar, weak };
+  }, [suggestions, getSuggestionMatchType]);
+
   const resetForm = () => {
     setName("");
+    setSuggestions([]);
   };
+
+  // Выбрать подсказку из списка
+  const handleSelectSuggestion = useCallback((suggestion: any) => {
+    toast.success("Продукт выбран из каталога", {
+      description: getIngredientName(suggestion, language)
+    });
+    
+    if (onSelected) {
+      onSelected(suggestion.id);
+    }
+    
+    setOpen(false);
+    resetForm();
+  }, [onSelected, language]);
 
   // Использовать существующий продукт
   const handleUseExisting = useCallback(() => {
     if (!existingIngredient) return;
     
     toast.success("Продукт выбран из каталога", {
-      description: existingIngredient.name_ru ?? existingIngredient.nameRu ?? existingIngredient.name
+      description: getIngredientName(existingIngredient, language)
     });
     
     if (onSelected) {
@@ -106,7 +184,7 @@ export function AddIngredientDialog({ onCreated, onSelected }: AddIngredientDial
     
     setOpen(false);
     resetForm();
-  }, [existingIngredient, onSelected]);
+  }, [existingIngredient, onSelected, language]);
 
   const handleSubmit = async () => {
     const trimmedName = name.trim();
@@ -125,7 +203,7 @@ export function AddIngredientDialog({ onCreated, onSelected }: AddIngredientDial
     // Предиктивная проверка дубликата (не отправляем запрос)
     if (existingIngredient) {
       toast.info("Этот продукт уже есть в каталоге", {
-        description: `${existingIngredient.name_ru ?? existingIngredient.nameRu ?? existingIngredient.name}`
+        description: getIngredientName(existingIngredient, language)
       });
       return;
     }
@@ -152,7 +230,7 @@ export function AddIngredientDialog({ onCreated, onSelected }: AddIngredientDial
       
       // Обновить список
       if (onCreated) {
-        onCreated();
+        onCreated(res.id);
       }
     } catch (error: any) {
       // 409 Conflict = ингредиент уже существует (это НЕ ошибка, а информация)
@@ -162,9 +240,9 @@ export function AddIngredientDialog({ onCreated, onSelected }: AddIngredientDial
         });
         setOpen(false);
         resetForm();
-        // Обновить список чтобы пользователь увидел существующий
+        // Не передаем ID т.к. неизвестен из 409 ответа
         if (onCreated) {
-          onCreated();
+          onCreated("");
         }
         return;
       }
@@ -214,58 +292,138 @@ export function AddIngredientDialog({ onCreated, onSelected }: AddIngredientDial
               }}
             />
             
-            {/* Предупреждение о дубликате */}
+            {/* Exact match - продукт уже существует */}
             {existingIngredient ? (
-              <div className="flex flex-col sm:flex-row items-start gap-2 text-xs sm:text-sm text-yellow-600 dark:text-yellow-500 bg-yellow-50 dark:bg-yellow-950/20 p-2 sm:p-3 rounded-md border border-yellow-200 dark:border-yellow-800">
-                <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                <div className="flex-1 w-full">
-                  <p className="font-medium">Такой продукт уже существует:</p>
-                  <div className="mt-1.5 sm:mt-2 space-y-1">
-                    {/* Название продукта */}
-                    <div className="font-semibold text-sm sm:text-base">
-                      {existingIngredient.name_ru ?? existingIngredient.nameRu ?? existingIngredient.name}
-                    </div>
+              <div className="flex flex-col items-start gap-3 text-xs sm:text-sm bg-red-50 dark:bg-red-950/20 p-3 sm:p-4 rounded-lg border-2 border-red-200 dark:border-red-800">
+                <div className="flex items-start gap-2 w-full">
+                  <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-500 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-semibold text-red-900 dark:text-red-200 mb-2">
+                      Такой продукт уже существует
+                    </p>
                     
-                    {/* Кулинарная категория (category) - ОСНОВНАЯ */}
-                    <div className="flex items-center gap-1.5 text-sm">
-                      <span>{getCategoryIcon(existingIngredient.category)}</span>
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                        {getCategoryLabel(existingIngredient.category)}
-                      </span>
-                    </div>
-                    
-                    {/* Нутриентная группа (nutritionGroup) - ДОПОЛНИТЕЛЬНАЯ */}
-                    {existingIngredient.nutritionGroup && (
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <span>{getNutritionIcon(existingIngredient.nutritionGroup)}</span>
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                          {getNutritionLabel(existingIngredient.nutritionGroup)}
-                        </span>
+                    {/* Карточка продукта */}
+                    <div className="bg-white dark:bg-gray-900 rounded-md p-3 space-y-2 border border-red-100 dark:border-red-900">
+                      {/* Название продукта */}
+                      <div className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100">
+                        {getIngredientName(existingIngredient, language)}
                       </div>
-                    )}
-                    
-                    {/* Единица измерения */}
-                    <div className="flex items-center gap-1.5">
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
-                        {getUnitNameRu(existingIngredient.unit)}
-                      </span>
+                      
+                      {/* Категории в строку */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        {/* Кулинарная категория */}
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100">
+                          <span className="text-sm">{getCategoryIcon(existingIngredient.category)}</span>
+                          <span className="text-xs font-medium">{getCategoryLabel(existingIngredient.category)}</span>
+                        </div>
+                        
+                        {/* Нутриентная группа */}
+                        {existingIngredient.nutritionGroup && (
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-purple-100 dark:bg-purple-900 text-purple-900 dark:text-purple-100">
+                            <span className="text-sm">{getNutritionIcon(existingIngredient.nutritionGroup)}</span>
+                            <span className="text-xs font-medium">{getNutritionLabel(existingIngredient.nutritionGroup)}</span>
+                          </div>
+                        )}
+                        
+                        {/* Единица измерения */}
+                        <div className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                          <span className="text-xs font-medium">{getUnitNameRu(existingIngredient.unit)}</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="mt-2 sm:mt-3 flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={handleUseExisting}
-                      className="h-8 sm:h-7 text-xs w-full sm:w-auto"
-                    >
-                      <Check className="mr-1 h-3 w-3" />
-                      Использовать
-                    </Button>
-                    <span className="text-xs text-muted-foreground">или введите другое название</span>
                   </div>
                 </div>
+                
+                {/* Действия */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full pt-2 border-t border-red-200 dark:border-red-800">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleUseExisting}
+                    className="flex-1 sm:flex-initial h-9 text-sm font-medium border-red-300 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-900/40"
+                  >
+                    <Check className="mr-1.5 h-4 w-4" />
+                    Использовать этот продукт
+                  </Button>
+                  <span className="text-xs text-center sm:text-left text-red-700 dark:text-red-400">
+                    или введите другое название
+                  </span>
+                </div>
               </div>
-            ) : (
+            ) : null}
+
+            {/* Similar/Weak match - похожие продукты (autocomplete) */}
+            {!existingIngredient && (groupedSuggestions.similar.length > 0 || groupedSuggestions.weak.length > 0) ? (
+              <div className="space-y-2">
+                {/* Similar matches */}
+                {groupedSuggestions.similar.length > 0 && (
+                  <div className="bg-yellow-50 dark:bg-yellow-950/20 p-3 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                    <p className="text-xs font-semibold text-yellow-900 dark:text-yellow-300 mb-2 flex items-center gap-1.5">
+                      <AlertTriangle className="w-4 h-4" />
+                      Похожие продукты
+                    </p>
+                    <div className="space-y-1.5">
+                      {groupedSuggestions.similar.map((sug) => (
+                        <button
+                          key={sug.id}
+                          onClick={() => handleSelectSuggestion(sug)}
+                          className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-yellow-100 dark:hover:bg-yellow-900/40 transition-colors flex items-center justify-between gap-3 bg-white dark:bg-gray-900 border border-yellow-100 dark:border-yellow-900"
+                        >
+                          <span className="font-medium text-gray-900 dark:text-gray-100">
+                            {getIngredientName(sug, language)}
+                          </span>
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <span className="text-sm">{getCategoryIcon(sug.category)}</span>
+                            <span className="text-xs text-gray-600 dark:text-gray-400">
+                              {getCategoryLabel(sug.category)}
+                            </span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Weak matches */}
+                {groupedSuggestions.weak.length > 0 && (
+                  <div className="bg-gray-50 dark:bg-gray-900/20 p-3 rounded-lg border border-gray-200 dark:border-gray-800">
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5">
+                      <Sparkles className="w-4 h-4" />
+                      Другие варианты
+                    </p>
+                    <div className="space-y-1.5">
+                      {groupedSuggestions.weak.map((sug) => (
+                        <button
+                          key={sug.id}
+                          onClick={() => handleSelectSuggestion(sug)}
+                          className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-gray-100 dark:hover:bg-gray-800/40 transition-colors flex items-center justify-between gap-3 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800"
+                        >
+                          <span className="font-medium text-gray-700 dark:text-gray-300">
+                            {getIngredientName(sug, language)}
+                          </span>
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <span className="text-sm">{getCategoryIcon(sug.category)}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-500">
+                              {getCategoryLabel(sug.category)}
+                            </span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : null}
+
+            {/* Loading suggestions */}
+            {loadingSuggestions && (
+              <div className="text-xs text-muted-foreground animate-pulse">
+                Поиск похожих продуктов...
+              </div>
+            )}
+
+            {/* No suggestions - show hint */}
+            {!existingIngredient && !loadingSuggestions && suggestions.length === 0 && name.length >= 2 && (
               <p className="text-xs text-muted-foreground">
                 AI автоматически определит категорию, единицу измерения и переведёт название.
               </p>

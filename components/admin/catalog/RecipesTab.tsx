@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, ChefHat } from "lucide-react";
+import { Search, ChefHat, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -63,9 +63,9 @@ export function RecipesTab() {
               </CardDescription>
             </div>
             <Link href="/admin/recipes/create">
-              <Button size="sm">
-                <Plus className="mr-2 h-4 w-4" />
-                Додати рецепт
+              <Button size="sm" className="gap-2">
+                <Sparkles className="h-4 w-4" />
+                Створити рецепт
               </Button>
             </Link>
           </div>

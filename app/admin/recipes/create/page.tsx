@@ -1,22 +1,18 @@
-"use client";
+/**
+ * AI-assisted recipe creation page
+ * Replaced old manual form with AI-powered creation
+ */
 
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { RecipeForm } from "@/components/admin/catalog/recipes/RecipeForm";
-import { EMPTY_RECIPE } from "@/lib/recipes/types";
+import { CreateRecipeWithAI } from "@/components/admin/recipes/CreateRecipeWithAI";
 
-/**
- * Modern Recipe Creation Page
- * 
- * Beautiful card-based form with shadcn components
- * Современный дизайн с пошаговым вводом данных
- */
 export default function CreateRecipePage() {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      {/* Breadcrumb Header */}
-      <div className="flex items-center justify-between space-y-2">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
           <Link href="/admin/catalog">
             <Button variant="ghost" size="sm" className="gap-1">
@@ -24,15 +20,15 @@ export default function CreateRecipePage() {
               Каталог
             </Button>
           </Link>
-          <h2 className="text-3xl font-bold tracking-tight mt-2">Новый рецепт</h2>
+          <h2 className="text-3xl font-bold tracking-tight mt-2">Создать рецепт с AI</h2>
           <p className="text-muted-foreground">
-            Создайте новый рецепт с подробными инструкциями
+            Минимум данных — AI создаст полный рецепт
           </p>
         </div>
       </div>
 
-      {/* Modern Form Card */}
-      <RecipeForm mode="create" initialData={EMPTY_RECIPE} />
+      {/* AI Form */}
+      <CreateRecipeWithAI />
     </div>
   );
 }
