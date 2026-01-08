@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = process.env.NODE_ENV === 'development'
+  ? 'http://localhost:8080/api'
+  : 'https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app/api';
 
 /**
  * GET /api/admin/ingredients/suggest
@@ -14,13 +16,13 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get("q");
-    const limit = searchParams.get("limit") || "5";
+    const limit = searchParams.get("limit") || "10";
 
-    if (!query) {
-      return NextResponse.json(
-        { error: "Query parameter 'q' is required" },
-        { status: 400 }
-      );
+    if (!query || query.length < 2) {
+      return NextResponse.json({
+        data: [],
+        success: true
+      });
     }
 
     // Get auth token from cookie
@@ -32,16 +34,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Get language from header
+    const language = request.headers.get('Accept-Language') || 'pl';
+
     console.log(`[Suggest API] Fetching suggestions for: "${query}", limit: ${limit}`);
 
     // Forward request to backend
-    const backendUrl = `${BACKEND_API_URL}/admin/ingredients/suggest?q=${encodeURIComponent(query)}&limit=${limit}`;
+    const backendUrl = `${BACKEND_URL}/admin/ingredients/suggest?q=${encodeURIComponent(query)}&limit=${limit}`;
     
     const response = await fetch(backendUrl, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
+        "Accept-Language": language,
       },
     });
 
@@ -55,7 +61,7 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json();
-    console.log(`[Suggest API] Found ${data.suggestions?.length || 0} suggestions`);
+    console.log(`[Suggest API] Response:`, data);
 
     return NextResponse.json(data);
   } catch (error: any) {

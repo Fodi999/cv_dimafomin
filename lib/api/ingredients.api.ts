@@ -60,43 +60,67 @@ export async function getIngredients(params?: {
  * @param limit - Max results (default: 5)
  * @param language - Language code (ru/pl/en) for Accept-Language header
  */
-export async function getIngredientSuggestions(query: string, limit: number = 5, language?: string) {
+export async function getIngredientSuggestions(query: string, limit: number = 10, language?: string) {
   if (query.length < 2) {
     return { suggestions: [] };
   }
   
+  // Use Next.js API route instead of direct backend call
   const params = new URLSearchParams();
   params.append('q', query);
   params.append('limit', limit.toString());
 
-  const response = await apiFetch<any>(`/admin/ingredients/suggest?${params.toString()}`, {
-    language: language // Pass language to API for proper Accept-Language header
-  });
-  
-  console.log('[ingredients.api] Raw response:', response);
-  console.log('[ingredients.api] response type:', Array.isArray(response) ? 'array' : typeof response);
-  
-  // Case 1: apiFetch already unwrapped {data: [...]} → response is Array
-  if (Array.isArray(response)) {
-    console.log('[ingredients.api] Response is array → using directly');
-    return { suggestions: response };
+  try {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (language) {
+      headers["Accept-Language"] = language;
+    }
+
+    const response = await fetch(`/api/admin/ingredients/suggest?${params.toString()}`, {
+      method: 'GET',
+      headers,
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[getIngredientSuggestions] Error:', response.status, errorText);
+      throw new Error(`Failed to fetch suggestions: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    console.log('[ingredients.api] Raw response:', data);
+    console.log('[ingredients.api] response type:', Array.isArray(data) ? 'array' : typeof data);
+    
+    // Case 1: Response is array directly
+    if (Array.isArray(data)) {
+      console.log('[ingredients.api] Response is array → using directly');
+      return { suggestions: data };
+    }
+    
+    // Case 2: Old format {suggestions: [...]}
+    if (data.suggestions) {
+      console.log('[ingredients.api] Using data.suggestions');
+      return data;
+    }
+    
+    // Case 3: New format {data: [...]}
+    if (data.data) {
+      console.log('[ingredients.api] Using data.data → converting to suggestions');
+      return { suggestions: data.data };
+    }
+    
+    // Fallback
+    console.warn('[ingredients.api] No data or suggestions found, returning empty array');
+    return { suggestions: [] };
+  } catch (error: any) {
+    console.error('[getIngredientSuggestions] Error:', error);
+    throw error;
   }
-  
-  // Case 2: Old format {suggestions: [...]}
-  if (response.suggestions) {
-    console.log('[ingredients.api] Using response.suggestions');
-    return response;
-  }
-  
-  // Case 3: New format {data: [...]}
-  if (response.data) {
-    console.log('[ingredients.api] Using response.data → converting to suggestions');
-    return { suggestions: response.data };
-  }
-  
-  // Fallback
-  console.warn('[ingredients.api] No data or suggestions found, returning empty array');
-  return { suggestions: [] };
 }
 
 /**
