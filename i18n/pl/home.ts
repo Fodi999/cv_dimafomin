@@ -14,6 +14,8 @@ export const home = {
     stats: {
       recipes: "przepisów",
       ingredients: "składników",
+      products: "produktów",
+      chefTokens: "ChefTokens",
       aiOnline: "AI online 24/7",
     },
   },

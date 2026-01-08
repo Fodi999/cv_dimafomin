@@ -72,7 +72,7 @@
     { ingredientId: "uuid-123", amount: 200, unit: "g" },
     { ingredientId: "uuid-456", amount: 150, unit: "g" }
   ],
-  instructions: "Marinate salmon in teriyaki sauce, grill it, boil rice, serve together"
+  rawCookingText: "Marinate salmon in teriyaki sauce, grill it, boil rice, serve together"
 }
 ```
 

@@ -22,9 +22,9 @@ export async function POST(req: NextRequest) {
     // Get body
     const body = await req.json();
     
-    if (!body.title || !body.ingredients || !body.instructions) {
+    if (!body.title || !body.ingredients || !body.rawCookingText) {
       return NextResponse.json({ 
-        error: 'Missing required fields: title, ingredients, instructions' 
+        error: 'Missing required fields: title, ingredients, rawCookingText' 
       }, { status: 400 });
     }
 

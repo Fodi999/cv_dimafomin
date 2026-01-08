@@ -7,31 +7,39 @@ import { apiFetch } from './base';
 
 export interface AIRecipeIngredient {
   ingredientId: string;
-  amount: number;
+  quantity: number; // Main field expected by backend
   unit: string;
 }
 
 export interface AIRecipeInput {
   title: string;
   ingredients: AIRecipeIngredient[];
-  instructions: string; // Single text block, no steps
+  rawCookingText: string; // Single text block - AI will parse into steps
+}
+
+export interface AIRecipeStep {
+  order: number;
+  text: string;
+  time?: number; // minutes for this step
 }
 
 export interface AIRecipePreview {
   title: string;
-  canonicalName: string;
-  summary: string;
-  steps: string[];
+  canonicalName?: string; // Optional - may not always be returned
+  summary?: string; // Optional
+  description?: string; // Alternative field name
+  steps: AIRecipeStep[]; // Array of step objects with text and time
   servings: number;
-  time: number; // minutes
-  difficulty: string;
-  nutrition: {
+  time_minutes?: number; // Backend uses snake_case
+  time?: number; // Fallback
+  difficulty?: string; // Optional
+  nutrition?: { // Made optional - backend may not always return it
     calories: number;
     protein: number;
     carbs: number;
     fat: number;
   };
-  ingredients: Array<{
+  ingredients?: Array<{ // Optional
     ingredientId: string;
     name: string;
     amount: number;

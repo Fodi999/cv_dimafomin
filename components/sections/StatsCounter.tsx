@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ChefHat, Package, Coins } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Stats {
   recipesCount: number;
@@ -14,6 +15,7 @@ interface StatsCounterProps {
 }
 
 export default function StatsCounter({ variant = 'light' }: StatsCounterProps) {
+  const { t } = useLanguage();
   const [stats, setStats] = useState<Stats>({
     recipesCount: 0,
     ingredientsCount: 0,
@@ -89,17 +91,17 @@ export default function StatsCounter({ variant = 'light' }: StatsCounterProps) {
     <div className={`inline-flex items-center gap-2 sm:gap-4 md:gap-6 ${variant === 'light' ? 'bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-full py-1.5 sm:py-2 md:py-3 px-3 sm:px-4 md:px-6 shadow-sm border border-gray-200/50 dark:border-gray-700/50' : 'px-2 sm:px-4'}`}>
       <span className={`inline-flex items-center gap-1 sm:gap-1.5 md:gap-2 ${textColor} text-xs sm:text-sm font-medium`}>
         <ChefHat className={`w-3 h-3 sm:w-4 sm:h-4 ${iconColor}`} />
-        <span className="hidden sm:inline">{stats.recipesCount} рецептов</span>
+        <span className="hidden sm:inline">{stats.recipesCount} {t.home.hero.stats.recipes}</span>
         <span className="sm:hidden">{stats.recipesCount}</span>
       </span>
       <span className={`inline-flex items-center gap-1 sm:gap-1.5 md:gap-2 ${textColor} text-xs sm:text-sm font-medium`}>
         <Package className={`w-3 h-3 sm:w-4 sm:h-4 ${iconColor}`} />
-        <span className="hidden sm:inline">{stats.ingredientsCount} продуктов</span>
+        <span className="hidden sm:inline">{stats.ingredientsCount} {t.home.hero.stats.products}</span>
         <span className="sm:hidden">{stats.ingredientsCount}</span>
       </span>
       <span className={`inline-flex items-center gap-1 sm:gap-1.5 md:gap-2 ${textColor} text-xs sm:text-sm font-medium`}>
         <Coins className={`w-3 h-3 sm:w-4 sm:h-4 ${iconColor}`} />
-        <span className="hidden sm:inline">{formatNumber(stats.tokensCirculating)} ChefTokens</span>
+        <span className="hidden sm:inline">{formatNumber(stats.tokensCirculating)} {t.home.hero.stats.chefTokens}</span>
         <span className="sm:hidden">{formatNumber(stats.tokensCirculating)}</span>
       </span>
     </div>
