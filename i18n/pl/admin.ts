@@ -252,11 +252,37 @@ export const admin = {
         save: "Zapisz",
         cancel: "Anuluj",
       },
+      
+      deleteDialog: {
+        title: "Usunąć składnik?",
+        titleBlocked: "Nie można usunąć składnika",
+        description: "Czy na pewno chcesz usunąć składnik",
+        descriptionBlocked: "Składnik {name} jest używany w przepisach i nie może zostać usunięty.",
+        warning: "Uwaga!",
+        warningMessage: "Ta akcja nie może być cofnięta. Składnik zostanie trwale usunięty.",
+        blockedTitle: "Usuwanie zablokowane",
+        blockedMessage: "Ten składnik jest używany w <strong>{count} przepisach</strong>. Najpierw usuń go ze wszystkich przepisów lub zaktualizuj przepisy, aby używały innego składnika.",
+        cancel: "Anuluj",
+        cancelBlocked: "Rozumiem",
+        confirm: "Tak, usuń",
+      },
     },
     
     recipes: {
       title: "Przepisy",
       subtitle: "Zarządzaj katalogiem przepisów",
+      
+      deleteDialog: {
+        title: "Usunąć przepis?",
+        description: "Czy na pewno chcesz usunąć przepis",
+        createdAt: "Utworzono:",
+        viewsWarning: "Uwaga!",
+        viewsMessage: "Ten przepis został wyświetlony {count} razy. Użytkownicy mogą mieć go zapisanego. Po usunięciu przywrócenie przepisu będzie niemożliwe.",
+        irreversibleTitle: "Nieodwracalna akcja",
+        irreversibleMessage: "Przepis zostanie usunięty na zawsze. Wszystkie dane, w tym składniki, kroki przygotowania i zdjęcia zostaną utracone.",
+        cancel: "Anuluj",
+        confirm: "Tak, usuń na zawsze",
+      },
     },
   },
 

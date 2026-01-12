@@ -1,20 +1,9 @@
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE || "https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app";
+import { NextRequest } from 'next/server';
+import { proxyToBackend } from '@/lib/api/proxy';
 
-export async function GET(req: Request) {
-  // Извлекаем query параметры из URL
-  const url = new URL(req.url);
-  const searchParams = url.searchParams.toString();
-  
-  const backendUrl = `${BACKEND_URL}/api/tasks${searchParams ? `?${searchParams}` : ""}`;
-
-  const res = await fetch(backendUrl, {
-    method: "GET",
-    headers: {
-      Authorization: req.headers.get("authorization") || "",
-      Cookie: req.headers.get("cookie") || "",
-    },
+export async function GET(req: NextRequest) {
+  return proxyToBackend(req, {
+    endpoint: '/api/tasks',
+    method: 'GET'
   });
-
-  const data = await res.text();
-  return new Response(data, { status: res.status });
 }

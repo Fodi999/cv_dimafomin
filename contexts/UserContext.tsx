@@ -70,13 +70,17 @@ export function UserProvider({ children }: { children: ReactNode }) {
         },
       });
 
+      // ✅ Check error.code instead of HTTP status
       if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          console.warn("[UserContext] ⚠️ Token expired (401/403), logging out");
+        const errorData = await response.json().catch(() => ({}));
+        
+        if (errorData.error?.code === 'UNAUTHORIZED' || errorData.error?.code === 'FORBIDDEN') {
+          console.warn("[UserContext] ⚠️ Authentication failed, logging out");
           auth.logout();
           return;
         }
-        throw new Error(`Profile fetch failed: ${response.status}`);
+        
+        throw new Error(`Profile fetch failed: ${errorData.error?.message || response.status}`);
       }
 
       const profileData = await response.json();

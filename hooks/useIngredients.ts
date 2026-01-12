@@ -61,7 +61,6 @@ export function useIngredients() {
       queryParams.append("limit", filters.limit.toString());
 
       const url = `/api/admin/ingredients?${queryParams.toString()}`;
-      console.log('[useIngredients] Fetching from:', url, 'with filters:', filters);
 
       const response = await fetch(url, {
         headers: {
@@ -76,8 +75,17 @@ export function useIngredients() {
       }
 
       const data = await response.json();
-      console.log('[useIngredients] API response:', data);
-      console.log('[useIngredients] First ingredient sample:', data.data?.[0]);
+      
+      // Temporary debug for pagination issue
+      if (data.data?.length !== filters.limit && data.data?.length > filters.limit) {
+        console.warn('[useIngredients] ⚠️ Pagination not working:', {
+          expected: filters.limit,
+          received: data.data?.length,
+          metaTotal: data.meta?.total,
+          metaCount: data.meta?.count,
+          url
+        });
+      }
       
       // Ensure we always set an array
       const ingredientsList = data.data || data.ingredients || [];
@@ -89,7 +97,7 @@ export function useIngredients() {
     } finally {
       setIsLoading(false);
     }
-  }, [filters]);
+  }, [filters.search, filters.category, filters.page, filters.limit]);
 
   useEffect(() => {
     fetchIngredients();
@@ -224,10 +232,39 @@ export function useIngredientActions() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to delete ingredient");
+        const data = await response.json();
+        
+        // Handle 409 Conflict - ingredient used in recipes
+        if (response.status === 409) {
+          const errorMsg = data.error || data.message || "Неможливо видалити інгредієнт";
+          
+          // Extract recipe count if available
+          const match = errorMsg.match(/used in (\d+) recipes?/i);
+          const recipeCount = match ? match[1] : null;
+          
+          if (recipeCount) {
+            toast.error(`Неможливо видалити: використовується в ${recipeCount} рецептах`, {
+              duration: 5000,
+            });
+          } else {
+            toast.error("Інгредієнт використовується в рецептах і не може бути видалений", {
+              duration: 5000,
+            });
+          }
+          return false;
+        }
+        
+        // Handle 404 Not Found
+        if (response.status === 404) {
+          toast.error("Інгредієнт не знайдено");
+          return false;
+        }
+        
+        // Generic error
+        throw new Error(data.error || "Failed to delete ingredient");
       }
 
-      toast.success("Інгредієнт видалено");
+      toast.success("Інгредієнт видалено успішно");
       return true;
     } catch (error) {
       console.error("[deleteIngredient] Error:", error);

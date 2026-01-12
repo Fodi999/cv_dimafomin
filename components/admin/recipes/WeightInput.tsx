@@ -28,7 +28,7 @@ export function WeightInput({
   value,
   onChange,
   unit = "g",
-  placeholder = "0,000",
+  placeholder = "150",  // Changed: show whole number example
   className = "w-24",
   min = 0,
   disabled = false
@@ -46,8 +46,9 @@ export function WeightInput({
 
   /**
    * Parse user input to number
-   * "0,230" → 0.23
+   * "150" → 150
    * "1,5" → 1.5
+   * "0,230" → 0.23
    * "25" → 25
    * "" → 0
    */
@@ -70,12 +71,21 @@ export function WeightInput({
   }
 
   /**
-   * Format for display with fixed decimals
-   * 0.23 → "0,230"
+   * Format for display with appropriate decimals
+   * 150 → "150"
+   * 1.5 → "1,5"
+   * 0.23 → "0,23"
    */
   function formatWithDecimals(num: number): string {
     if (num === 0) return "";
-    return num.toFixed(3).replace(".", ",");
+    
+    // For whole numbers, don't show decimals
+    if (Number.isInteger(num)) {
+      return num.toString();
+    }
+    
+    // For decimals, show up to 2 decimal places (remove trailing zeros)
+    return num.toFixed(2).replace(/\.?0+$/, '').replace(".", ",");
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,7 +116,7 @@ export function WeightInput({
       return;
     }
 
-    // Auto-format with 3 decimals
+    // Auto-format with appropriate decimals
     setInputText(formatWithDecimals(numeric));
   };
 

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-
+import { getBackendUrl } from "@/lib/api/backend-url";
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },

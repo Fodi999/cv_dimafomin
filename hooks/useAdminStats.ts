@@ -84,7 +84,8 @@ export function useAdminStats() {
         if (!responseData.totalRecipes && !responseData.data?.recipes) {
           try {
             console.log("[useAdminStats] 🔍 Fetching recipes count...");
-            const recipesResponse = await fetch("/api/admin/recipes?limit=1", {
+            // Request WITHOUT limit to get all recipes count
+            const recipesResponse = await fetch("/api/admin/recipes", {
               headers: {
                 'Authorization': token ? `Bearer ${token}` : '',
                 'Content-Type': 'application/json',
@@ -93,8 +94,31 @@ export function useAdminStats() {
             
             if (recipesResponse.ok) {
               const recipesData = await recipesResponse.json();
+              
+              // DEBUG: Log full response structure
+              console.log("[useAdminStats] 🔍 RAW recipes response:", {
+                fullData: recipesData,
+                hasData: !!recipesData.data,
+                hasMeta: !!recipesData.meta,
+                hasTotal: !!recipesData.total,
+                metaTotal: recipesData.meta?.total,
+                dataTotal: recipesData.data?.total,
+                topLevelTotal: recipesData.total,
+                dataLength: Array.isArray(recipesData.data) ? recipesData.data.length : 'N/A',
+                keys: Object.keys(recipesData),
+              });
+              
+              // MORE DEBUG: Log as JSON
+              console.log("[useAdminStats] 📄 JSON stringify:", JSON.stringify(recipesData, null, 2));
+              
               // Check multiple possible locations for total count
-              recipesCount = recipesData.meta?.total || recipesData.total || recipesData.data?.total || 0;
+              // FIXED: Add check for success wrapper with data array length
+              recipesCount = 
+                recipesData.meta?.total || 
+                recipesData.total || 
+                recipesData.data?.total ||
+                (recipesData.success && Array.isArray(recipesData.data) ? recipesData.data.length : 0) ||
+                0;
               console.log("[useAdminStats] 📚 Recipes count:", recipesCount);
             }
           } catch (err) {

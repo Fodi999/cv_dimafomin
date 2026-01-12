@@ -2,14 +2,25 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, ChefHat, Sparkles } from "lucide-react";
+import { 
+  Search, 
+  ChefHat, 
+  Sparkles, 
+  X, 
+  SlidersHorizontal, 
+  Filter, 
+  ArrowUpDown 
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useAdminRecipes, useAdminRecipeActions, Recipe } from "@/hooks/useAdminRecipes";
+import { useRecipesFilterMeta } from "@/hooks/useRecipesFilterMeta";
 import { RecipesTable } from "@/components/admin/catalog/recipes/RecipesTable";
 import { RecipeViewDialog } from "@/components/admin/catalog/recipes/RecipeViewDialog";
+import { RecipeDeleteDialog } from "@/components/admin/catalog/recipes/RecipeDeleteDialog";
 import Link from "next/link";
 
 /**
@@ -26,9 +37,20 @@ export function RecipesTab() {
     updateFilters,
     refetch 
   } = useAdminRecipes();
+  const { filterMeta, isLoading: isLoadingMeta } = useRecipesFilterMeta();
   const { deleteRecipe } = useAdminRecipeActions();
   const [recipeToView, setRecipeToView] = useState<Recipe | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [recipeToDelete, setRecipeToDelete] = useState<Recipe | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  // Count active filters
+  const activeFiltersCount = [
+    filters.search,
+    filters.cuisine && filters.cuisine !== 'all',
+    filters.difficulty && filters.difficulty !== 'all',
+    filters.status && filters.status !== 'all'
+  ].filter(Boolean).length;
 
   const handleViewRecipe = (recipe: Recipe) => {
     setRecipeToView(recipe);
@@ -40,12 +62,31 @@ export function RecipesTab() {
   };
 
   const handleDeleteRecipe = async (recipe: Recipe) => {
-    if (confirm(`Видалити рецепт "${recipe.title}"?`)) {
-      const success = await deleteRecipe(recipe.id);
-      if (success) {
-        refetch();
-      }
+    setRecipeToDelete(recipe);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteRecipe = async () => {
+    if (!recipeToDelete) return;
+    
+    const success = await deleteRecipe(recipeToDelete.id);
+    if (success) {
+      setIsDeleteDialogOpen(false);
+      setRecipeToDelete(null);
+      refetch();
     }
+  };
+
+  const handleResetFilters = () => {
+    updateFilters({
+      search: '',
+      cuisine: 'all',
+      difficulty: 'all',
+      status: 'all',
+      sortBy: 'created_at',
+      sortOrder: 'desc',
+      page: 1
+    });
   };
 
   return (
@@ -73,65 +114,198 @@ export function RecipesTab() {
 
         
         <CardContent className="space-y-4">
-          {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Header: Filters + Reset Button */}
+          <div className="flex items-center justify-between pb-2 border-b">
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal className="h-5 w-5 text-muted-foreground" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Фільтри та сортування
+              </h3>
+              {activeFiltersCount > 0 && (
+                <Badge variant="secondary" className="ml-2">
+                  {activeFiltersCount} активних
+                </Badge>
+              )}
+            </div>
+            {activeFiltersCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleResetFilters}
+                className="h-8 gap-2"
+              >
+                <X className="h-4 w-4" />
+                Скинути все
+              </Button>
+            )}
+          </div>
+
+          {/* Section 1: Search */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <Search className="h-4 w-4" />
+              Пошук
+            </label>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Пошук рецепту..."
+                placeholder="Введіть назву рецепту..."
                 className="pl-9"
                 value={filters.search}
                 onChange={(e) => updateFilters({ search: e.target.value, page: 1 })}
               />
             </div>
-
-            <Select
-              value={filters.cuisine || "all"}
-              onValueChange={(value) => updateFilters({ cuisine: value === "all" ? "" : value, page: 1 })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Всі кухні" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Всі кухні</SelectItem>
-                <SelectItem value="main">Основні страви</SelectItem>
-                <SelectItem value="salad">Салати</SelectItem>
-                <SelectItem value="soup">Супи</SelectItem>
-                <SelectItem value="dessert">Десерти</SelectItem>
-                <SelectItem value="snack">Закуски</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={filters.difficulty || "all"}
-              onValueChange={(value) => updateFilters({ difficulty: value === "all" ? "" : value, page: 1 })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Всі складності" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Всі складності</SelectItem>
-                <SelectItem value="easy">Легкий</SelectItem>
-                <SelectItem value="medium">Середній</SelectItem>
-                <SelectItem value="hard">Складний</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={filters.status || "all"}
-              onValueChange={(value) => updateFilters({ status: value === "all" ? "" : value, page: 1 })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Всі статуси" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Всі статуси</SelectItem>
-                <SelectItem value="draft">Чернетка</SelectItem>
-                <SelectItem value="published">Опубліковано</SelectItem>
-                <SelectItem value="archived">Архів</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
+
+          {/* Section 2: Filters & Sorting (Compact 2-row layout) */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              Фільтри та сортування
+            </label>
+            
+            {/* Row 1: Category Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {/* Cuisine/Category */}
+              <Select
+                value={filters.cuisine || "all"}
+                onValueChange={(value) => updateFilters({ cuisine: value === "all" ? "" : value, page: 1 })}
+                disabled={isLoadingMeta}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Всі кухні" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">🌍 Всі кухні</SelectItem>
+                  {filterMeta?.cuisines.map(cuisine => (
+                    <SelectItem key={cuisine.value} value={cuisine.value}>
+                      {cuisine.icon} {cuisine.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Difficulty */}
+              <Select
+                value={filters.difficulty || "all"}
+                onValueChange={(value) => updateFilters({ difficulty: value === "all" ? "" : value, page: 1 })}
+                disabled={isLoadingMeta}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Всі складності" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">⭐ Всі складності</SelectItem>
+                  {filterMeta?.difficulties.map(diff => (
+                    <SelectItem key={diff.value} value={diff.value}>
+                      {diff.icon} {diff.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Status */}
+              <Select
+                value={filters.status || "all"}
+                onValueChange={(value) => updateFilters({ status: value === "all" ? "" : value, page: 1 })}
+                disabled={isLoadingMeta}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Всі статуси" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">📊 Всі статуси</SelectItem>
+                  {filterMeta?.statuses.map(status => (
+                    <SelectItem key={status.value} value={status.value}>
+                      {status.icon} {status.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Row 2: Sort Controls */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <Select
+                value={filters.sortBy || 'created_at'}
+                onValueChange={(value) => updateFilters({ sortBy: value, page: 1 })}
+                disabled={isLoadingMeta}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Сортувати за..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {filterMeta?.sortOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.icon} {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Select
+                value={filters.sortOrder || 'desc'}
+                onValueChange={(value: 'asc' | 'desc') => updateFilters({ sortOrder: value, page: 1 })}
+                disabled={isLoadingMeta}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Порядок..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {filterMeta?.sortOrders.map(order => (
+                    <SelectItem key={order.value} value={order.value}>
+                      {order.icon} {order.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Empty space for alignment */}
+              <div className="hidden md:block"></div>
+            </div>
+          </div>
+
+          {/* Active Filters Tags */}
+          {activeFiltersCount > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {filters.search && (
+                <Badge variant="secondary" className="gap-1">
+                  Пошук: "{filters.search}"
+                  <X 
+                    className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                    onClick={() => updateFilters({ search: '', page: 1 })}
+                  />
+                </Badge>
+              )}
+              {filters.cuisine && filters.cuisine !== 'all' && (
+                <Badge variant="secondary" className="gap-1">
+                  Кухня: {filters.cuisine}
+                  <X 
+                    className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                    onClick={() => updateFilters({ cuisine: 'all', page: 1 })}
+                  />
+                </Badge>
+              )}
+              {filters.difficulty && filters.difficulty !== 'all' && (
+                <Badge variant="secondary" className="gap-1">
+                  Складність: {filters.difficulty}
+                  <X 
+                    className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                    onClick={() => updateFilters({ difficulty: 'all', page: 1 })}
+                  />
+                </Badge>
+              )}
+              {filters.status && filters.status !== 'all' && (
+                <Badge variant="secondary" className="gap-1">
+                  Статус: {filters.status}
+                  <X 
+                    className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                    onClick={() => updateFilters({ status: 'all', page: 1 })}
+                  />
+                </Badge>
+              )}
+            </div>
+          )}
 
           {/* Recipes Table */}
           <RecipesTable
@@ -156,6 +330,16 @@ export function RecipesTab() {
         recipe={recipeToView}
         open={isViewDialogOpen}
         onOpenChange={setIsViewDialogOpen}
+      />
+
+      {/* Recipe Delete Dialog */}
+      <RecipeDeleteDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={confirmDeleteRecipe}
+        recipeTitle={recipeToDelete?.title || ""}
+        viewsCount={recipeToDelete?.views || recipeToDelete?.viewsCount || 0}
+        createdAt={recipeToDelete?.created_at || recipeToDelete?.createdAt}
       />
     </div>
   );

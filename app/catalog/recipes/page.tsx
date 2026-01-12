@@ -1,16 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChefHat, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { getAllRecipes } from "@/lib/api/recipes-ai.api";
+import { toast } from "sonner";
 
 interface Recipe {
   id: string;
   title: string;
-  cuisine: string;
-  status: string;
-  createdAt: string;
+  cuisine?: string;
+  status?: string;
+  created_at?: string;
+  createdAt?: string;
 }
 
 /**
@@ -18,38 +22,40 @@ interface Recipe {
  * Все рецепты из базы данных
  */
 export default function RecipesCatalogPage() {
+  const router = useRouter();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    // TODO: Fetch from API
-    // Временные данные
-    setRecipes([
-      {
-        id: "1",
-        title: "Суші Райнбоу",
-        cuisine: "Японська",
-        status: "Опубліковано",
-        createdAt: "2024-01-15",
-      },
-      {
-        id: "2",
-        title: "Паста Карбонара",
-        cuisine: "Італійська",
-        status: "Опубліковано",
-        createdAt: "2024-01-10",
-      },
-      {
-        id: "3",
-        title: "Борщ класичний",
-        cuisine: "Українська",
-        status: "Чернетка",
-        createdAt: "2024-01-05",
-      },
-    ]);
-    setIsLoading(false);
+    loadRecipes();
+    
+    // Listen for URL changes to detect refresh parameter
+    const handleRefresh = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('refresh')) {
+        loadRecipes();
+        // Clean URL without refresh param
+        window.history.replaceState({}, '', '/catalog/recipes');
+      }
+    };
+    
+    handleRefresh();
   }, []);
+
+  const loadRecipes = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getAllRecipes();
+      console.log('[RecipesCatalog] Loaded recipes:', data);
+      setRecipes(data);
+    } catch (error: any) {
+      console.error('[RecipesCatalog] Failed to load recipes:', error);
+      toast.error('Не удалось загрузить рецепты');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const filteredRecipes = recipes.filter((recipe) =>
     recipe.title.toLowerCase().includes(search.toLowerCase())
@@ -128,21 +134,24 @@ export default function RecipesCatalogPage() {
                       </Link>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                      {recipe.cuisine}
+                      {recipe.cuisine || '-'}
                     </td>
                     <td className="px-6 py-4">
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                          recipe.status === "Опубліковано"
+                          recipe.status === "Опубліковано" || recipe.status === "published"
                             ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
                             : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400"
                         }`}
                       >
-                        {recipe.status}
+                        {recipe.status || 'Чернетка'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                      {new Date(recipe.createdAt).toLocaleDateString("uk-UA")}
+                      {recipe.created_at || recipe.createdAt 
+                        ? new Date(recipe.created_at || recipe.createdAt!).toLocaleDateString("uk-UA")
+                        : '-'
+                      }
                     </td>
                   </tr>
                 ))}

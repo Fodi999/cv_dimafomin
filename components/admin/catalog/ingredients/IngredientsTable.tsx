@@ -35,23 +35,6 @@ export function IngredientsTable({
     const nameEn = ingredient.name_en || (ingredient as any).nameEn;
     const nameRu = ingredient.name_ru || (ingredient as any).nameRu;
     
-    // Debug: показываем первый ингредиент для отладки
-    if (ingredients.indexOf(ingredient) === 0) {
-      console.log('[IngredientsTable] First ingredient debug:', {
-        name: ingredient.name,
-        name_pl: ingredient.name_pl,
-        name_en: ingredient.name_en,
-        name_ru: ingredient.name_ru,
-        namePl: (ingredient as any).namePl,
-        nameEn: (ingredient as any).nameEn,
-        nameRu: (ingredient as any).nameRu,
-        resolved_pl: namePl,
-        resolved_en: nameEn,
-        resolved_ru: nameRu,
-        currentLanguage: language,
-      });
-    }
-    
     // Выбираем название в зависимости от текущего языка
     switch (language) {
       case 'en':

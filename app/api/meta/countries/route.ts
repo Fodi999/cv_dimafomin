@@ -5,7 +5,7 @@
 
 import { NextResponse } from 'next/server';
 import type { MetaCountry } from '@/lib/meta/types';
-
+import { getBackendUrl } from "@/lib/api/backend-url";
 // Mock data - замінити на реальну БД
 const COUNTRIES: MetaCountry[] = [
   {

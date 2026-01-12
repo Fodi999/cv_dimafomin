@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getFridgeAnalysisPrompt, isValidLocale, type Locale } from "@/lib/ai-prompts";
 import { getMessageForGoal, getReasonForGoal } from "@/lib/decision-engine-messages";
+import { getBackendUrl } from "@/lib/api/backend-url";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE ||
-  "https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app";
+const BACKEND_URL = getBackendUrl();
 
 type AIGoal =
   | "cook_now"

@@ -115,7 +115,7 @@ export function CreateRecipeCard() {
 
       if (!newRecipeId) {
         toast.error('Рецепт створено, але не отримано ID');
-        router.push('/admin/catalog');
+        router.push('/admin/catalog/recipes-list');
         return;
       }
 
@@ -267,7 +267,7 @@ export function CreateRecipeCard() {
           <Button
             type="button"
             variant="ghost"
-            onClick={() => router.push('/admin/catalog')}
+            onClick={() => router.push('/admin/catalog/recipes-list')}
             disabled={isSaving}
           >
             Скасувати

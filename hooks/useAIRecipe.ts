@@ -6,9 +6,11 @@ import { useState, useCallback } from 'react';
 import { 
   previewRecipeWithAI, 
   createRecipeWithAI,
+  saveRecipe as saveRecipeAPI,
   AIRecipeInput,
   AIRecipePreview,
-  AIRecipeCreated
+  AIRecipeCreated,
+  SaveRecipeRequest
 } from '@/lib/api/recipes-ai.api';
 
 export function useAIRecipe() {
@@ -59,6 +61,26 @@ export function useAIRecipe() {
   }, []);
 
   /**
+   * Save recipe (after preview/edit)
+   */
+  const saveRecipe = useCallback(async (recipe: SaveRecipeRequest) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const result = await saveRecipeAPI(recipe);
+      
+      return result;
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to save recipe';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
    * Clear preview
    */
   const clearPreview = useCallback(() => {
@@ -73,6 +95,7 @@ export function useAIRecipe() {
     error,
     previewRecipe,
     createRecipe,
+    saveRecipe,
     clearPreview,
   };
 }

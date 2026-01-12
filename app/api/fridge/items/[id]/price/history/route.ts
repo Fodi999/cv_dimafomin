@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app';
+import { getBackendUrl } from "@/lib/api/backend-url";
+const BACKEND_URL = getBackendUrl();
 
 /**
  * GET /api/fridge/items/{id}/price/history
@@ -23,7 +23,7 @@ export async function GET(
       );
     }
 
-    const backendUrl = `${API_BASE}/api/fridge/items/${id}/price/history`;
+    const backendUrl = `${BACKEND_URL}/fridge/items/${id}/price/history`;
     console.log("[Price History API] GET from backend:", backendUrl);
 
     const response = await fetch(backendUrl, {

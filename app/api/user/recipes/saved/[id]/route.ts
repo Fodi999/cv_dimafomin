@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+import { getBackendUrl } from "@/lib/api/backend-url";
+const BACKEND_URL = getBackendUrl();
 
 /**
  * DELETE /api/user/recipes/saved/[id]

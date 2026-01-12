@@ -5,7 +5,6 @@
  * Single source of truth: backend
  */
 
-import { apiFetch } from "./base";
 import type { UserSettings, PartialSettings } from "@/lib/types/settings";
 
 /**
@@ -15,11 +14,27 @@ import type { UserSettings, PartialSettings } from "@/lib/types/settings";
  * @throws Error if request fails
  */
 export async function getSettings(): Promise<UserSettings> {
-  const response = await apiFetch<UserSettings>("/settings", {
-    method: "GET"
+  // Use Next.js API route to avoid CORS
+  const response = await fetch("/api/settings", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
   });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch settings: ${response.status}`);
+  }
+
+  const data = await response.json();
   
-  return response;
+  // Handle new ApiResponse<SettingsResponse> format
+  if (data.data) {
+    return data.data as UserSettings;
+  }
+  
+  return data as UserSettings;
 }
 
 /**
@@ -34,11 +49,27 @@ export async function getSettings(): Promise<UserSettings> {
 export async function updateSettings(
   settings: PartialSettings
 ): Promise<UserSettings> {
-  const response = await apiFetch<UserSettings>("/settings", {
+  // Use Next.js API route to avoid CORS
+  const response = await fetch("/api/settings", {
     method: "PATCH",
-    body: JSON.stringify(settings)
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify(settings),
   });
+
+  if (!response.ok) {
+    throw new Error(`Failed to update settings: ${response.status}`);
+  }
+
+  const data = await response.json();
   
-  return response;
+  // Handle new ApiResponse<SettingsResponse> format
+  if (data.data) {
+    return data.data as UserSettings;
+  }
+  
+  return data as UserSettings;
 }
 

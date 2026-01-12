@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getBackendUrl } from "@/lib/api/backend-url";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE ||
-  "https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app";
+const BACKEND_URL = getBackendUrl();
 
 /**
  * GET /api/market/recipes
@@ -36,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     console.log("[Market API] Fetching recipes from backend");
 
-    const response = await fetch(`${API_BASE}/api/market/recipes`, {
+    const response = await fetch(`${BACKEND_URL}/market/recipes`, {
       method: "GET",
       headers: {
         Authorization: token,

@@ -47,11 +47,15 @@ export async function authFetch(
       headers,
     });
     
-    // Handle 401 automatically
-    if (response.status === 401) {
-      console.error('❌ [authFetch] 401 Unauthorized - session expired');
-      clearAuthAndRedirect();
-      throw new Error('Session expired');
+    // ✅ Check error.code instead of HTTP status
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      
+      if (errorData.error?.code === 'UNAUTHORIZED' || errorData.error?.code === 'TOKEN_EXPIRED') {
+        console.error('❌ [authFetch] Authentication required - clearing session');
+        clearAuthAndRedirect();
+        throw new Error('Session expired');
+      }
     }
     
     return response;

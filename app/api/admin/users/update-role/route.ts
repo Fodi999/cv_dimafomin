@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, logAdminAction } from "@/lib/api/middleware";
-
+import { getBackendUrl } from "@/lib/api/backend-url";
 /**
  * PATCH /api/admin/users/update-role
  * Обновить роль пользователя

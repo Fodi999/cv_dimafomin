@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-
+import { getBackendUrl } from "@/lib/api/backend-url";
 // Используем NEXT_PUBLIC_API_BASE из .env.local
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE || 'https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app';
+const BACKEND_URL = getBackendUrl();
 
 /**
  * GET /api/fridge/items

@@ -43,13 +43,6 @@ export function ProductsTab() {
   // Ensure ingredients is always an array
   const safeIngredients = Array.isArray(ingredients) ? ingredients : [];
 
-  console.log('[ProductsTab] Debug:', {
-    ingredients: safeIngredients,
-    ingredientsLength: safeIngredients.length,
-    isLoading,
-    meta,
-  });
-
   const handleCreateProduct = () => {
     setEditingIngredient(null);
     setIsFormOpen(true);
@@ -144,15 +137,12 @@ export function ProductsTab() {
         onSave={handleSaveProduct}
       />
 
-      {ingredientToDelete && (
-        <IngredientDeleteDialog
-          open={isDeleteDialogOpen}
-          onOpenChange={setIsDeleteDialogOpen}
-          onConfirm={handleConfirmDeleteProduct}
-          ingredientName={ingredientToDelete.name}
-          usageCount={ingredientToDelete.usageCount}
-        />
-      )}
+      <IngredientDeleteDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleConfirmDeleteProduct}
+        ingredient={ingredientToDelete}
+      />
     </div>
   );
 }

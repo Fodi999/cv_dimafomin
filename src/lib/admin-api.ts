@@ -75,19 +75,23 @@ async function adminFetch<T>(
       headers,
     });
 
-    if (response.status === 401 || response.status === 403) {
-      console.error('[AdminAPI] Unauthorized');
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('token');
-        localStorage.removeItem('role');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
-      }
-      throw new Error('Unauthorized');
-    }
-
+    // ✅ Check error.code instead of HTTP status
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
+      
+      if (error.error?.code === 'UNAUTHORIZED' || error.error?.code === 'FORBIDDEN') {
+        console.error('[AdminAPI] Authentication/Authorization failed');
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('token');
+          localStorage.removeItem('role');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        }
+        throw new Error('Unauthorized');
+      }
+
+      // Continue with other error handling
+      const errorMessage = error.error?.message || error.message || 'Request failed';
       console.error('[AdminAPI] Error:', error);
       throw new Error(error.error || error.message || `HTTP ${response.status}`);
     }

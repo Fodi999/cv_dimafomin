@@ -248,11 +248,37 @@ export const admin = {
         save: "Save",
         cancel: "Cancel",
       },
+      
+      deleteDialog: {
+        title: "Delete ingredient?",
+        titleBlocked: "Cannot delete ingredient",
+        description: "Are you sure you want to delete ingredient",
+        descriptionBlocked: "Ingredient {name} is used in recipes and cannot be deleted.",
+        warning: "Warning!",
+        warningMessage: "This action cannot be undone. The ingredient will be permanently deleted.",
+        blockedTitle: "Deletion blocked",
+        blockedMessage: "This ingredient is used in <strong>{count} recipes</strong>. First remove it from all recipes or update recipes to use a different ingredient.",
+        cancel: "Cancel",
+        cancelBlocked: "Understood",
+        confirm: "Yes, delete",
+      },
     },
     
     recipes: {
       title: "Recipes",
       subtitle: "Manage recipe catalog",
+      
+      deleteDialog: {
+        title: "Delete recipe?",
+        description: "Are you sure you want to delete recipe",
+        createdAt: "Created:",
+        viewsWarning: "Warning!",
+        viewsMessage: "This recipe has been viewed {count} times. Users may have it saved. After deletion, it will be impossible to restore the recipe.",
+        irreversibleTitle: "Irreversible action",
+        irreversibleMessage: "The recipe will be deleted forever. All data, including ingredients, cooking steps, and images will be lost.",
+        cancel: "Cancel",
+        confirm: "Yes, delete forever",
+      },
     },
   },
 

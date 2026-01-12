@@ -155,7 +155,7 @@ export const adminNavigationSchema: NavigationSection[] = [
   },
 
   // ───────────────────────────────────────────────────────
-  // 🍽️ 3. CONTENT (Единый каталог: рецепты, ингредиенты, категории)
+  // 🍽️ 3. CONTENT (Каталог: продукты и рецепты раздельно)
   // ───────────────────────────────────────────────────────
   {
     id: "content",
@@ -166,14 +166,24 @@ export const adminNavigationSchema: NavigationSection[] = [
     },
     items: [
       {
-        id: "catalog",
+        id: "catalog-products",
         label: {
-          en: "Catalog",
-          ru: "Каталог",
-          pl: "Katalog",
+          en: "Products Catalog",
+          ru: "Каталог продуктов",
+          pl: "Katalog produktów",
         },
-        icon: BookOpen,
-        href: "/admin/catalog",
+        icon: Carrot,
+        href: "/admin/catalog/products",
+      },
+      {
+        id: "catalog-recipes",
+        label: {
+          en: "Recipes Catalog",
+          ru: "Каталог рецептов",
+          pl: "Katalog przepisów",
+        },
+        icon: ChefHat,
+        href: "/admin/catalog/recipes-list",
       },
       {
         id: "courses",

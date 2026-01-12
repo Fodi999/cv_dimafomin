@@ -1,7 +1,9 @@
-import { Pencil, Trash2, Eye, Clock, Users, Weight } from "lucide-react";
+import { Pencil, Trash2, Eye, Clock, Users, Weight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Recipe } from "@/hooks/useAdminRecipes";
+import { getRecipeName, isNewRecipe, formatRecipeDate } from "@/lib/utils/recipe-helpers";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface RecipesTableProps {
   recipes: Recipe[];
@@ -36,6 +38,7 @@ const statusLabels = {
 };
 
 export function RecipesTable({ recipes, isLoading, onView, onEdit, onDelete }: RecipesTableProps) {
+  const { language } = useLanguage();
   // Safety check: ensure recipes is always an array
   const safeRecipes = Array.isArray(recipes) ? recipes : [];
 
@@ -94,6 +97,9 @@ export function RecipesTable({ recipes, isLoading, onView, onEdit, onDelete }: R
             <th className="text-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
               <Eye className="w-4 h-4 inline" />
             </th>
+            <th className="text-left p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+              Дата створення
+            </th>
             <th className="text-right p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
               Дії
             </th>
@@ -106,15 +112,25 @@ export function RecipesTable({ recipes, isLoading, onView, onEdit, onDelete }: R
               className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors"
             >
               <td className="p-3">
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-white">
-                    {recipe.title}
-                  </p>
-                  {recipe.description && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">
-                      {recipe.description}
-                    </p>
-                  )}
+                <div className="flex items-start gap-2">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {getRecipeName(recipe, language as 'ru' | 'en' | 'pl' | 'uk')}
+                      </p>
+                      {isNewRecipe(recipe.created_at || recipe.createdAt) && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+                          <Sparkles className="w-3 h-3" />
+                          NEW
+                        </span>
+                      )}
+                    </div>
+                    {recipe.description && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">
+                        {recipe.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </td>
               <td className="p-3">
@@ -155,6 +171,11 @@ export function RecipesTable({ recipes, isLoading, onView, onEdit, onDelete }: R
               <td className="p-3 text-center">
                 <span className="text-sm text-gray-600 dark:text-gray-400">
                   {recipe.views || 0}
+                </span>
+              </td>
+              <td className="p-3">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {formatRecipeDate(recipe.created_at || recipe.createdAt)}
                 </span>
               </td>
               <td className="p-3">

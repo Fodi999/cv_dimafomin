@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, logAdminAction } from "@/lib/api/middleware";
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app';
+import { getBackendUrl } from "@/lib/api/backend-url";
+const BACKEND_URL = getBackendUrl();
 
 /**
  * GET /api/admin/stats

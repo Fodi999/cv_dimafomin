@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app';
+import { getBackendUrl } from "@/lib/api/backend-url";
+const BACKEND_URL = getBackendUrl();
 
 /**
  * POST /api/fridge/items/{id}/price
@@ -60,7 +60,7 @@ export async function POST(
       source: body.source,
     };
 
-    const backendUrl = `${API_BASE}/api/fridge/items/${id}/price`;
+    const backendUrl = `${BACKEND_URL}/fridge/items/${id}/price`;
     console.log("[Price API] POST to backend:", backendUrl);
     console.log("[Price API] Request body:", requestBody);
 

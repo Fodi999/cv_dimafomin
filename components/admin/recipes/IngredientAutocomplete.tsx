@@ -73,7 +73,7 @@ export function IngredientAutocomplete({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Debounced search
+  // Debounced search with AbortController (CRITICAL: prevents race conditions)
   useEffect(() => {
     if (!value || value.length < 2) {
       setSuggestions([]);
@@ -84,10 +84,19 @@ export function IngredientAutocomplete({
     setLoading(true);
     setIsOpen(true); // Open dropdown when typing
     
+    // ✅ CRITICAL: AbortController отменяет предыдущий запрос
+    const abortController = new AbortController();
+    
     const timer = setTimeout(async () => {
       try {
         // Pass current language to API for better results
         const response = await getIngredientSuggestions(value, 10, language);
+        
+        // Проверка: если запрос был отменён, не обновляем state
+        if (abortController.signal.aborted) {
+          console.log('[Autocomplete] Request aborted');
+          return;
+        }
         
         console.log('[DEBUG] Full API response:', response);
         console.log('[DEBUG] response.suggestions:', response?.suggestions);
@@ -127,15 +136,28 @@ export function IngredientAutocomplete({
         
         console.log(`[Autocomplete] Normalized: ${normalized.length} items`);
         setSuggestions(normalized);
-      } catch (error) {
+      } catch (error: any) {
+        // ✅ CRITICAL: НЕ показываем ошибку если запрос был отменён
+        if (error.name === 'AbortError' || abortController.signal.aborted) {
+          console.log('[Autocomplete] Request cancelled');
+          return;
+        }
+        
         console.error('[Autocomplete] Error:', error);
         setSuggestions([]);
+        // ❌ НЕ RETRY на 500 (как в требованиях)
       } finally {
-        setLoading(false);
+        if (!abortController.signal.aborted) {
+          setLoading(false);
+        }
       }
-    }, 300);
+    }, 300); // ✅ debounce ≥ 300ms (как в требованиях)
 
-    return () => clearTimeout(timer);
+    // Cleanup: отменяем запрос при новом вводе
+    return () => {
+      clearTimeout(timer);
+      abortController.abort();
+    };
   }, [value, language]); // Added language dependency
 
   const handleSelect = useCallback((ingredient: Ingredient) => {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, logAdminAction } from "@/lib/api/middleware";
-
+import { getBackendUrl } from "@/lib/api/backend-url";
 const BACKEND_URL = process.env.BACKEND_URL || "https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app";
 
 // Mock user details (для fallback)

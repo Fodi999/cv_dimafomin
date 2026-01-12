@@ -80,6 +80,8 @@ export interface RecipesFilters {
   cuisine: string; // 'all' | 'italian' | 'japanese' | 'ukrainian' | etc.
   difficulty: string; // 'all' | 'easy' | 'medium' | 'hard'
   status: string; // 'all' | 'draft' | 'published' | 'archived'
+  sortBy?: string; // 'created_at' | 'title' | 'cooking_time' | 'views'
+  sortOrder?: 'asc' | 'desc'; // ascending or descending
   page: number;
   limit: number;
 }
@@ -103,9 +105,23 @@ export function useAdminRecipes() {
     cuisine: "all",
     difficulty: "all",
     status: "all",
+    sortBy: "created_at",
+    sortOrder: "desc",
     page: 1,
     limit: 50,
   });
+  
+  // Separate state for debounced search
+  const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(filters.search);
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [filters.search]);
 
   const fetchRecipes = useCallback(async () => {
     setIsLoading(true);
@@ -113,10 +129,13 @@ export function useAdminRecipes() {
       const token = localStorage.getItem("token");
       const queryParams = new URLSearchParams();
       
-      if (filters.search) queryParams.append("search", filters.search);
+      // Use debounced search value
+      if (debouncedSearch) queryParams.append("search", debouncedSearch);
       if (filters.cuisine !== "all") queryParams.append("cuisine", filters.cuisine);
       if (filters.difficulty !== "all") queryParams.append("difficulty", filters.difficulty);
       if (filters.status !== "all") queryParams.append("status", filters.status);
+      if (filters.sortBy) queryParams.append("sortBy", filters.sortBy);
+      if (filters.sortOrder) queryParams.append("sortOrder", filters.sortOrder);
       queryParams.append("page", filters.page.toString());
       queryParams.append("limit", filters.limit.toString());
 
@@ -153,7 +172,7 @@ export function useAdminRecipes() {
     } finally {
       setIsLoading(false);
     }
-  }, [filters]);
+  }, [debouncedSearch, filters.cuisine, filters.difficulty, filters.status, filters.sortBy, filters.sortOrder, filters.page, filters.limit]);
 
   useEffect(() => {
     fetchRecipes();

@@ -1,4 +1,6 @@
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE || "https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app";
+import { getBackendUrl } from "@/lib/api/backend-url";
+
+const BACKEND_URL = getBackendUrl();
 
 export async function GET(req: Request) {
   // 🔑 Получаем токен из query параметра (EventSource не поддерживает кастомные заголовки)

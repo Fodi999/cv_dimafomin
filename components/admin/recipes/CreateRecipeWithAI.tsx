@@ -32,10 +32,19 @@ interface RecipeIngredientRow {
 
 type RecipeAIMode = 'edit' | 'preview' | 'saving';
 
+interface RecipeConflict {
+  message: string;
+  suggestions: {
+    ru: string[];
+    en: string[];
+    pl: string[];
+  };
+}
+
 export function CreateRecipeWithAI() {
   const router = useRouter();
   const { language } = useLanguage();
-  const { loading, previewing, preview, previewRecipe, createRecipe, clearPreview } = useAIRecipe();
+  const { loading, previewing, preview, previewRecipe, saveRecipe, clearPreview } = useAIRecipe();
 
   const [mode, setMode] = useState<RecipeAIMode>('edit');
   const [title, setTitle] = useState("");
@@ -44,6 +53,8 @@ export function CreateRecipeWithAI() {
     { id: crypto.randomUUID(), ingredientId: "", name: "", quantity: 0, unit: "g", searchValue: "" }
   ]);
   const [creatingIngredient, setCreatingIngredient] = useState(false);
+  const [conflict, setConflict] = useState<RecipeConflict | null>(null);
+  const [conflictLang, setConflictLang] = useState<'ru' | 'en' | 'pl'>('ru');
 
   // Add ingredient row
   const addIngredientRow = useCallback(() => {
@@ -60,6 +71,11 @@ export function CreateRecipeWithAI() {
 
   // Update ingredient
   const updateIngredient = useCallback((id: string, field: keyof RecipeIngredientRow, value: any) => {
+    // DEBUG: Log quantity updates
+    if (field === 'quantity') {
+      console.log(`[DEBUG] updateIngredient quantity: ${value} (type: ${typeof value})`);
+    }
+    
     setIngredients(prev => prev.map(ing => 
       ing.id === id ? { ...ing, [field]: value } : ing
     ));
@@ -144,7 +160,8 @@ export function CreateRecipeWithAI() {
       await previewRecipe({
         title: title.trim(),
         ingredients: validIngredients,
-        rawCookingText: cookingText.trim()
+        rawCookingText: cookingText.trim(),
+        language: language  // Add user's language preference
       });
 
       setMode('preview'); // Switch to preview mode
@@ -161,7 +178,7 @@ export function CreateRecipeWithAI() {
   }, [clearPreview]);
 
   // Create recipe (only after preview)
-  const handleCreate = useCallback(async () => {
+  const handleCreate = useCallback(async (customTitle?: string) => {
     // If no preview, must preview first
     if (!preview) {
       toast.error("Сначала создайте превью с AI");
@@ -171,31 +188,54 @@ export function CreateRecipeWithAI() {
     setMode('saving');
 
     try {
-      const validIngredients: AIRecipeIngredient[] = ingredients
-        .filter(ing => ing.ingredientId && ing.quantity > 0)
-        .map(ing => ({
-          ingredientId: ing.ingredientId,
-          quantity: ing.quantity,
-          unit: ing.unit
-        }));
-
-      const result = await createRecipe({
-        title: title.trim(),
-        ingredients: validIngredients,
-        rawCookingText: cookingText.trim()
+      // Use preview data to save recipe (with optional custom title)
+      const result = await saveRecipe({
+        title: customTitle || preview.title,
+        language: preview.language || language,
+        description: preview.description || preview.summary || '',
+        servings: preview.servings,
+        time_minutes: preview.time_minutes || preview.time || 0,
+        difficulty: (preview.difficulty as 'easy' | 'medium' | 'hard') || 'easy',
+        calories: preview.nutrition?.calories || preview.calories || 0,
+        ingredients: preview.ingredients || [],
+        steps: (preview.steps || []).map(step => ({
+          order: step.order,
+          text: step.text,
+          time: step.time || 0 // Ensure time is always a number
+        }))
       });
 
-      toast.success("Рецепт создан! Переход в каталог...");
+      toast.success(`✅ Рецепт "${result.title || customTitle || preview.title}" успешно создан!`);
       
-      // Redirect to catalog (recipes list) after successful creation
+      // Clear conflict if any
+      setConflict(null);
+      
+      // Redirect to recipes catalog page
       setTimeout(() => {
-        router.push('/admin/catalog');
-      }, 1000);
+        router.push('/admin/catalog/recipes-list?refresh=' + Date.now());
+      }, 1500);
     } catch (error: any) {
+      // DEBUG: Log full error to see structure
+      console.log('[handleCreate] ❌ Error caught:', error);
+      console.log('[handleCreate] Error code:', error.code);
+      console.log('[handleCreate] Error suggestions:', error.suggestions);
+      
+      // Handle 409 conflict (with or without suggestions)
+      if (error.code === 'RECIPE_NAME_EXISTS' || error.message?.includes('already exists')) {
+        setConflict({
+          message: error.message || 'Рецепт с таким названием уже существует',
+          suggestions: error.suggestions || {} // Empty object if no suggestions
+        });
+        setConflictLang(language as 'ru' | 'en' | 'pl');
+        setMode('preview'); // Return to preview to show conflict dialog
+        toast.error("Название уже существует. Измените название вручную.");
+        return;
+      }
+      
       toast.error(error.message || "Не удалось создать рецепт");
       setMode('preview'); // Return to preview on error
     }
-  }, [preview, ingredients, title, cookingText, createRecipe, router]);
+  }, [preview, language, saveRecipe, router]);
 
   return (
     <div className="space-y-6">
@@ -324,7 +364,7 @@ export function CreateRecipeWithAI() {
             </Button>
 
             <Button
-              onClick={handleCreate}
+              onClick={() => handleCreate()}
               disabled={loading || previewing || !preview}
               title={!preview ? "Сначала создайте превью с AI" : ""}
             >
@@ -345,8 +385,72 @@ export function CreateRecipeWithAI() {
       </Card>
       )}
 
+      {/* Conflict Dialog - show when name already exists */}
+      {conflict && mode === 'preview' && (
+        <Card className="border-2 border-amber-500 bg-amber-50 dark:bg-amber-950/20">
+          <CardHeader>
+            <CardTitle className="text-amber-700 dark:text-amber-400">
+              ⚠️ Название уже существует
+            </CardTitle>
+            <CardDescription>
+              {conflict.message}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Show suggestions if available */}
+            {conflict.suggestions && Object.keys(conflict.suggestions).length > 0 && 
+             conflict.suggestions[conflictLang] && conflict.suggestions[conflictLang].length > 0 ? (
+              <div className="space-y-2">
+                <Label>Выберите альтернативное название:</Label>
+                <div className="space-y-2">
+                  {conflict.suggestions[conflictLang].map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleCreate(suggestion)}
+                      className="w-full text-left px-4 py-3 rounded-lg border-2 border-gray-200 dark:border-gray-700 
+                               hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20
+                               transition-all transform hover:translate-x-1"
+                    >
+                      <span className="font-medium">{suggestion}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              /* No suggestions available - show manual edit message */
+              <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <p className="text-sm text-blue-900 dark:text-blue-100">
+                  💡 Измените название рецепта и попробуйте снова, или отмените создание.
+                </p>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-4 border-t">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setConflict(null);
+                  setMode('edit');
+                }}
+                className="flex-1"
+              >
+                Отмена
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setConflict(null)}
+                className="flex-1"
+              >
+                Изменить вручную
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Preview - visible in preview and saving modes */}
-      {(mode === 'preview' || mode === 'saving') && preview && (
+      {(mode === 'preview' || mode === 'saving') && preview && !conflict && (
         <Card className="border-2 border-blue-500">
           <CardHeader>
             <CardTitle>Превью рецепта</CardTitle>
@@ -383,6 +487,12 @@ export function CreateRecipeWithAI() {
                   <p className="font-medium">{preview.nutrition.calories} ккал</p>
                 </div>
               )}
+              {preview.totalWeight && (
+                <div>
+                  <span className="text-muted-foreground">Общий вес:</span>
+                  <p className="font-medium">{preview.totalWeight} г</p>
+                </div>
+              )}
             </div>
 
             {(preview.summary || preview.description) && (
@@ -391,6 +501,21 @@ export function CreateRecipeWithAI() {
                 <p className="text-sm text-muted-foreground">
                   {preview.summary || preview.description}
                 </p>
+              </div>
+            )}
+
+            {preview.ingredients && preview.ingredients.length > 0 && (
+              <div>
+                <h4 className="font-semibold mb-2">Ингредиенты ({preview.ingredients.length})</h4>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  {preview.ingredients.map((ing, index) => (
+                    <li key={index}>
+                      <span className="font-medium">{ing.name}</span>
+                      {' — '}
+                      <span>{ing.amount} {ing.unit}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 
@@ -422,7 +547,7 @@ export function CreateRecipeWithAI() {
               
               <Button
                 size="sm"
-                onClick={handleCreate}
+                onClick={() => handleCreate()}
                 disabled={mode === 'saving'}
               >
                 {mode === 'saving' ? (

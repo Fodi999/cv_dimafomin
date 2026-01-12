@@ -6,7 +6,7 @@
 
 import { NextResponse } from 'next/server';
 import type { MetaDifficulty } from '@/lib/meta/types';
-
+import { getBackendUrl } from "@/lib/api/backend-url";
 // Mock data - замінити на реальну БД
 const DIFFICULTIES: MetaDifficulty[] = [
   {

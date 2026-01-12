@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserIdFromToken } from "@/lib/uuid";
-
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL ||
-  "https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app";
+import { getBackendUrl } from "@/lib/api/backend-url";
+const BACKEND_URL = getBackendUrl();
 
 // 🚧 TEMPORARY: Allow testUserID in development
 const ALLOW_TEST_USER_ID = process.env.NODE_ENV === "development";

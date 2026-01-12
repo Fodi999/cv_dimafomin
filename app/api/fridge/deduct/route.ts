@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getBackendUrl } from "@/lib/api/backend-url";
+
+const BACKEND_URL = getBackendUrl();
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,8 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Proxy request to backend
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app";
-    const response = await fetch(`${backendUrl}/api/fridge/deduct`, {
+    const response = await fetch(`${BACKEND_URL}/fridge/deduct`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

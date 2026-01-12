@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-
+import { getBackendUrl } from "@/lib/api/backend-url";
 const BACKEND_URL = process.env.NODE_ENV === 'development'
   ? 'http://localhost:8080/api'
   : 'https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app/api';

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
+import { getBackendUrl } from "@/lib/api/backend-url";
 interface GenerateRequest {
   prompt: string;
   cuisine?: string;
