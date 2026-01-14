@@ -68,17 +68,6 @@ export function ActionHub() {
       links: [
         { label: t.admin.dashboard.actionHub.content.recipes, href: "/admin/catalog" },
         { label: t.admin.dashboard.actionHub.content.ingredients, href: "/admin/catalog" },
-        { label: t.admin.dashboard.actionHub.content.courses, href: "/admin/courses" },
-      ],
-    },
-    {
-      title: t.admin.dashboard.actionHub.ai.title,
-      icon: <Brain className="w-5 h-5 text-cyan-600" />,
-      color: "bg-cyan-50 dark:bg-cyan-900/20",
-      links: [
-        { label: t.admin.dashboard.actionHub.ai.translations, href: "/admin/localization" },
-        { label: t.admin.dashboard.actionHub.ai.mentor, href: "/admin/ai-scenarios" },
-        { label: t.admin.dashboard.actionHub.ai.automation, href: "/admin/prompts" },
       ],
     },
     {

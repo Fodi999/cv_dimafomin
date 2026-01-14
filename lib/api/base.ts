@@ -11,11 +11,9 @@ import type {
   ApiError,
 } from "./types";
 
-// Use backend API URL from environment variable, fallback to Next.js routes
-// IMPORTANT: Always use backend API for data endpoints
-export const API_BASE_URL = process.env.NODE_ENV === 'development'
-  ? 'http://localhost:8080/api'
-  : 'https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app/api';
+// Use Next.js proxy routes instead of direct backend calls
+// All API calls go through /api/* routes which proxy to backend
+export const API_BASE_URL = '/api';
 
 export interface ApiOptions extends RequestInit {
   token?: string;

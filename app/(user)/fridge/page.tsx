@@ -34,7 +34,7 @@ export default function FridgePage() {
   const [isQuantitySheetOpen, setIsQuantitySheetOpen] = useState(false);
   const [quantitySheetItem, setQuantitySheetItem] = useState<FridgeItem | null>(null);
 
-  // 🔥 Фильтрация: разделяем active (ok/warning/critical) vs expired
+  // 🔥 Фильтрация: разделяем active (fresh/ok/warning/critical) vs expired
   const activeItems = items.filter((i) => ACTIVE_STATUSES.includes(i.status));
   // ❌ expiredItems УДАЛЕНЫ - источник истины только /api/history/losses
   const criticalItems = activeItems.filter((i) => i.status === "critical");

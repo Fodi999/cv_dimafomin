@@ -11,9 +11,7 @@ import {
   LogOut,
   Refrigerator,
   Star,
-  GraduationCap,
   ChefHat,
-  Coins,
   BrainCircuit,
   User as UserIcon,
   Settings,
@@ -41,8 +39,7 @@ interface NavLink {
  * 
  * Разделы:
  * - Кухня: Холодильник, Рецепти, AI Асистент, Мої рецепти
- * - Розвиток: Академія
- * - Економіка: Токени
+ * - Профіль: Налаштування та статистика
  */
 export default function UserNavigation() {
   const pathname = usePathname();
@@ -116,26 +113,6 @@ export default function UserNavigation() {
       icon: <Star className="w-5 h-5" />,
       description: t?.navigation?.menu?.myRecipes?.description || "Your favorite collection",
       category: t?.navigation?.categories?.kitchen || "Kitchen",
-    },
-
-    // ===== РОЗВИТОК =====
-    {
-      label: t?.navigation?.menu?.academy?.label || "Academy",
-      href: "/academy",
-      icon: <GraduationCap className="w-5 h-5" />,
-      description: t?.navigation?.menu?.academy?.description || "Courses and learning",
-      category: t?.navigation?.categories?.development || "Development",
-      categoryLabel: `📚 ${t?.navigation?.categories?.development || "Development"}`,
-    },
-
-    // ===== ЕКОНОМІКА =====
-    {
-      label: t?.navigation?.menu?.tokens?.label || "Tokens",
-      href: "/tokens",
-      icon: <Coins className="w-5 h-5" />,
-      description: t?.navigation?.menu?.tokens?.description || "Your conscious kitchen currency",
-      category: t?.navigation?.categories?.economy || "Economy",
-      categoryLabel: `💰 ${t?.navigation?.categories?.economy || "Economy"}`,
     },
 
     // ===== ПРОФІЛЬ =====

@@ -4,8 +4,8 @@
  * Clean, business-focused admin navigation (7 core sections):
  * 1. Dashboard - System overview, KPIs
  * 2. Users - User management, roles, activity log
- * 3. Content - Recipes, ingredients, courses, localization
- * 4. AI - Scenarios, prompts, cost limits
+ * 3. Content - Recipes catalog, ingredients catalog
+ * 4. AI - Limits & cost management
  * 5. Economy - Token treasury, transactions, bonuses/penalties
  * 6. Integrations - API keys, webhooks, external services
  * 7. Settings - General config, feature flags, security
@@ -21,14 +21,11 @@
 import {
   LayoutDashboard,
   Users,
-  BookOpen,
-  Brain,
   Wallet,
   Plug,
   Settings,
   ChefHat,
   Carrot,
-  Languages,
   Shield,
   Activity,
   TrendingUp,
@@ -38,7 +35,6 @@ import {
   Cloud,
   Flag,
   Lock,
-  Zap,
   type LucideIcon,
 } from "lucide-react";
 
@@ -185,26 +181,6 @@ export const adminNavigationSchema: NavigationSection[] = [
         icon: ChefHat,
         href: "/admin/catalog/recipes-list",
       },
-      {
-        id: "courses",
-        label: {
-          en: "Courses",
-          ru: "Курсы",
-          pl: "Kursy",
-        },
-        icon: BookOpen,
-        href: "/admin/courses",
-      },
-      {
-        id: "localization",
-        label: {
-          en: "Localization",
-          ru: "Локализация",
-          pl: "Lokalizacja",
-        },
-        icon: Languages,
-        href: "/admin/localization",
-      },
     ],
   },
 
@@ -219,26 +195,6 @@ export const adminNavigationSchema: NavigationSection[] = [
       pl: "AI",
     },
     items: [
-      {
-        id: "ai-scenarios",
-        label: {
-          en: "Scenarios",
-          ru: "Сценарии",
-          pl: "Scenariusze",
-        },
-        icon: Brain,
-        href: "/admin/ai-scenarios",
-      },
-      {
-        id: "prompts",
-        label: {
-          en: "Prompts",
-          ru: "Промпты",
-          pl: "Prompty",
-        },
-        icon: Zap,
-        href: "/admin/prompts",
-      },
       {
         id: "ai-limits",
         label: {

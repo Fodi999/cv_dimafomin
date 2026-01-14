@@ -223,8 +223,8 @@ export interface IngredientSearchResponse {
 }
 
 // 🔥 Централизованные статусы для FridgeItem
-export type FridgeItemStatus = 'ok' | 'warning' | 'critical' | 'expired';
-export const ACTIVE_STATUSES: readonly FridgeItemStatus[] = ['ok', 'warning', 'critical'] as const;
+export type FridgeItemStatus = 'fresh' | 'ok' | 'warning' | 'critical' | 'expired';
+export const ACTIVE_STATUSES: readonly FridgeItemStatus[] = ['fresh', 'ok', 'warning', 'critical'] as const;
 
 export interface FridgeItem {
   id: string;

@@ -31,13 +31,8 @@ function generateRequestId(): string {
  */
 export function getBackendUrl(): string {
   // ЕДИНЫЙ ИСТОЧНИК ПРАВДЫ - БЕЗ /api на конце
-  // В production всегда используем Koyeb
-  if (process.env.NODE_ENV === 'production') {
-    return 'https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app';
-  }
-  
-  // В development пробуем локальный бэкенд, но с fallback на Koyeb
-  return process.env.NEXT_PUBLIC_API_BASE?.replace(/\/api$/, '') || 'http://localhost:8080';
+  // Всегда используем Koyeb для стабильности
+  return 'https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app';
 }
 
 export interface ProxyOptions {

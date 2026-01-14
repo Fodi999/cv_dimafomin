@@ -24,11 +24,9 @@ import {
   LogIn,
   Refrigerator,
   Star,
-  GraduationCap,
   Library,
   Store,
   ChefHat,
-  Coins,
 } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -95,7 +93,7 @@ export default function NavigationBurger() {
   }, [isOpen]);
 
   // 🚫 Hide NavigationBurger on admin and protected user routes - AFTER all hooks
-  const protectedUserRoutes = ['/fridge', '/recipes', '/assistant', '/tokens', '/academy', '/market', '/losses', '/profile'];
+  const protectedUserRoutes = ['/fridge', '/recipes', '/assistant', '/market', '/losses', '/profile'];
   const isProtectedRoute = pathname?.startsWith('/admin') || protectedUserRoutes.some(route => pathname?.startsWith(route));
   
   if (isProtectedRoute) {
@@ -151,33 +149,11 @@ export default function NavigationBurger() {
       description: t?.navigation?.menu?.myRecipes?.description || "Your favorite recipes collection",
       category: "Kuchnia",
     },
-    
-    // ===== ROZWÓJ =====
-    {
-      label: t?.navigation?.menu?.academy?.label || "Academy",
-      href: "/academy",
-      icon: <GraduationCap className="w-5 h-5" />,
-      description: t?.navigation?.menu?.academy?.description || "Courses, learning and skill development",
-      category: "Rozwój",
-      categoryLabel: t?.navigation?.categories?.development || "Development",
-    },
-    
-    // ===== ЕКОНОМИЯ =====
-    {
-      label: t?.navigation?.menu?.tokens?.label || "Tokens",
-      href: "/tokens",
-      icon: <Coins className="w-5 h-5" />,
-      description: t?.navigation?.menu?.tokens?.description || "Your conscious kitchen currency",
-      category: "Ekonomia",
-      categoryLabel: t?.navigation?.categories?.economy || "Economy",
-    },
   ];
 
   const isActive = (href: string): boolean => {
     if (href === "/" && pathname === "/") return true;
-    if (href === "/academy" && pathname.startsWith("/academy")) return true;
     if (href === "/assistant" && pathname.startsWith("/assistant")) return true;
-    if (href === "/tokens" && pathname === "/tokens") return true;
     if (href === "/market" && pathname === "/market") return true;
     if (href === "/fridge" && pathname === "/fridge") return true;
     if (href === "/recipes" && pathname === "/recipes" && !pathname.startsWith("/recipes/saved")) return true;

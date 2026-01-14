@@ -65,11 +65,11 @@ export default function AdminLayout({
   return (
     <>
       <AdminNavigation />
-      <div className="min-h-screen w-full relative bg-gray-50 dark:bg-gray-950 flex flex-col pt-16">
+      <div className="min-h-screen w-full relative bg-gray-50 dark:bg-gray-950 flex flex-col">
         {/* Content Area */}
         {pathname.includes('/create') || pathname.includes('/edit') ? (
           // Full screen mode for create/edit pages
-          <div className="flex-1 w-full overflow-y-auto">
+          <div className="flex-1 w-full pt-16 overflow-hidden">
             {children}
           </div>
         ) : (
@@ -80,7 +80,7 @@ export default function AdminLayout({
             <div className="absolute top-0 right-0 w-96 h-96 bg-red-400/10 dark:bg-red-500/20 rounded-full blur-3xl -translate-y-1/2 pointer-events-none -z-10" />
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-400/10 dark:bg-orange-500/20 rounded-full blur-3xl translate-y-1/2 pointer-events-none -z-10" />
             
-            <div className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-auto">
+            <div className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 py-8 overflow-auto">
               {children}
             </div>
           </>

@@ -68,20 +68,6 @@ export default function AppDashboard() {
       color: "from-rose-500 to-pink-500",
     },
     {
-      title: "Академія",
-      description: "Курси та навчання",
-      icon: GraduationCap,
-      href: "/academy",
-      color: "from-green-500 to-emerald-500",
-    },
-    {
-      title: "Токени",
-      description: "Валюта свідомої кухні",
-      icon: Coins,
-      href: "/tokens",
-      color: "from-indigo-500 to-purple-500",
-    },
-    {
       title: "Втрати",
       description: "Аналіз витрат продуктів",
       icon: AlertTriangle,

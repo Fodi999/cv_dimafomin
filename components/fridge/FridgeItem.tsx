@@ -54,6 +54,17 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
 
   const getStatusConfig = (status: string, daysLeft: number) => {
     switch (status) {
+      case "fresh":
+        return {
+          icon: <CheckCircle2 className="w-5 h-5" />,
+          color: "text-emerald-600 dark:text-emerald-400",
+          bgColor: "bg-emerald-50 dark:bg-emerald-900/20",
+          borderColor: "border-emerald-200 dark:border-emerald-800/30",
+          label: t?.fridge?.status?.fresh || "Fresh",
+          description: daysLeft > 30 
+            ? (t?.fridge?.status?.stillDaysPlural?.replace('{days}', String(daysLeft)) || `Still ${daysLeft} days`)
+            : (t?.fridge?.status?.daysLeftPlural?.replace('{days}', String(daysLeft)) || `${daysLeft} days left`),
+        };
       case "ok":
         return {
           icon: <CheckCircle2 className="w-5 h-5" />,

@@ -142,15 +142,19 @@ export function useAdminUsers() {
         throw new Error("Failed to fetch users");
       }
 
-      const data: UsersResponse = await response.json();
+      const responseData = await response.json();
       
       // 🔍 DEBUG: Логируем полный ответ
-      console.log("🔍 [useAdminUsers] Full response data:", data);
-      console.log("🔍 [useAdminUsers] data.users exists:", !!data.users);
+      console.log("🔍 [useAdminUsers] Full response data:", responseData);
       
-      // ✅ Используем правильное поле (users)
-      const users = data.users || [];
-      const meta = data.meta || {};
+      // 🔥 FIX: Бэкенд возвращает {success: true, data: {...}, meta: {...}}
+      // Нужно извлечь данные из responseData.data
+      const backendData = responseData.data || responseData;
+      console.log("🔍 [useAdminUsers] Backend data:", backendData);
+      
+      // ✅ Используем правильное поле (users из data)
+      const users = backendData.users || [];
+      const meta = responseData.meta || backendData.meta || {};
       
       console.log("✅ [useAdminUsers] Data received:", {
         usersCount: users.length,
@@ -219,8 +223,11 @@ export function useAdminUserDetails(userId: string | null) {
           throw new Error("Failed to fetch user details");
         }
 
-        const data: AdminUserDetails = await response.json();
-        setUser(data);
+        const responseData = await response.json();
+        
+        // 🔥 FIX: Извлекаем данные из обертки прокси
+        const userData = responseData.data || responseData;
+        setUser(userData);
       } catch (error) {
         console.error("Error fetching user details:", error);
         toast.error("Помилка завантаження деталей користувача");
