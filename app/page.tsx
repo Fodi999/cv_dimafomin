@@ -8,7 +8,6 @@ import StructuredData from "@/components/StructuredData";
 import DevelopmentModal from "@/components/DevelopmentModal";
 import AcademyHero from "@/components/sections/AcademyHero";
 import AcademyAbout from "@/components/sections/AcademyAbout";
-import AcademyChefTokens from "@/components/sections/AcademyChefTokens";
 import AcademyCourses from "@/components/sections/AcademyCourses";
 import AcademyCoursesPreview from "@/components/sections/AcademyCoursesPreview";
 import AcademyEntry from "@/components/sections/AcademyEntry";
@@ -36,14 +35,6 @@ export default function Home() {
       description: "Почему, когда и зачем",
       color: "from-blue-500 to-cyan-500",
       component: <AcademyAbout />,
-    },
-    {
-      id: "tokens",
-      icon: Target,
-      title: "Принимай решения",
-      description: "Выбирай подход, а не шаги",
-      color: "from-amber-500 to-orange-500",
-      component: <AcademyChefTokens />,
     },
     {
       id: "courses",
