@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { StatsCard } from "../StatsCard";
-import { WalletCard } from "../WalletCard";
 import type { UserProfile } from "@/lib/profile-types";
 import { Award, Zap, BarChart3, TrendingUp, ShoppingBag, Package, Check, Loader2, Trash2 } from "lucide-react";
 import { composite } from "@/lib/design-tokens";
@@ -23,7 +22,6 @@ interface OverviewSectionProps {
   onBuyClick: () => void;
   onRefreshClick: () => void;
   retryCount: number;
-  onPurchaseTokensOpen?: () => void;
 }
 
 export function OverviewSection({
@@ -34,7 +32,6 @@ export function OverviewSection({
   onBuyClick,
   onRefreshClick,
   retryCount,
-  onPurchaseTokensOpen,
 }: OverviewSectionProps) {
   const { cartItems, removeFromCart, totalPrice } = useCart();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
@@ -48,25 +45,9 @@ export function OverviewSection({
 
   return (
     <div>
-      {/* WALLET + STATS + PROGRESS */}
-      <div className="grid grid-cols-1 lg:grid-cols-[0.8fr_1.5fr] gap-6 lg:gap-8">
-        {/* LEFT COLUMN - WALLET */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="flex flex-col gap-6"
-        >
-          <WalletCard
-            balance={balance}
-            earned={15000}
-            spent={10000}
-            pending={500}
-            onPurchaseClick={onPurchaseTokensOpen}
-          />
-        </motion.div>
-
-        {/* RIGHT COLUMN - STATS + PROGRESS */}
+      {/* STATS + PROGRESS */}
+      <div className="grid grid-cols-1 gap-6 lg:gap-8">
+        {/* STATISTICS + PROGRESS */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -7,7 +7,6 @@ import { ProfileHeader } from "./ProfileHeader";
 import { OverviewSection } from "./sections/OverviewSection";
 import { StatsSection } from "./sections/StatsSection";
 import { ContentSection } from "./sections/ContentSection";
-import { PurchaseTokenSheet } from "@/components/wallet/PurchaseTokenSheet";
 import type { TabType, UserProfile, Post, Transaction } from "@/lib/profile-types";
 import type { FormData } from "@/lib/profile-types";
 import { colors } from "@/lib/design-tokens";
@@ -66,7 +65,6 @@ export function ProfileView({
   onRefreshClick,
 }: ProfileViewProps) {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
-  const [isPurchaseOpen, setIsPurchaseOpen] = useState(false);
 
   return (
     <div className={`min-h-screen w-screen ${colors.primary.dark.gradient} flex flex-col`}>
@@ -76,19 +74,6 @@ export function ProfileView({
         <div className="absolute bottom-20 right-20 w-72 h-72 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000" />
         <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-sky-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000" />
       </div>
-
-      {/* PurchaseTokenSheet */}
-      <PurchaseTokenSheet
-        isOpen={isPurchaseOpen}
-        onClose={() => setIsPurchaseOpen(false)}
-        currentBalance={user?.chefTokens || 0}
-        onPurchase={async (packageId, tokens, price) => {
-          // Simulate purchase (real implementation would call API)
-          console.log(`Purchasing package: ${packageId} for $${price} (${tokens} tokens)`);
-          await new Promise((resolve) => setTimeout(resolve, 1500));
-          console.log("Purchase completed!");
-        }}
-      />
 
       {/* Main Profile Container - Scrollable */}
       <div className="relative z-10 flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-24 pb-20 overflow-y-auto">
@@ -184,7 +169,6 @@ export function ProfileView({
                   onBuyClick={onBuyClick}
                   onRefreshClick={onRefreshClick}
                   retryCount={retryCount}
-                  onPurchaseTokensOpen={() => setIsPurchaseOpen(true)}
                 />
               </motion.div>
             )}

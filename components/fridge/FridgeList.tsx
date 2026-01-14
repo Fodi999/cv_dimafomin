@@ -59,9 +59,9 @@ export default function FridgeList({ items, onDelete, onPriceClick, onQuantityCl
     ? items 
     : items.filter(item => (item.ingredient?.category || 'Inne') === activeCategory);
   
-  // Сортировка: expired → critical → warning → ok
+  // Сортировка: fresh → ok → warning → critical → expired
   const sortedItems = [...filteredItems].sort((a, b) => {
-    const order = { expired: 0, critical: 1, warning: 2, ok: 3 };
+    const order = { fresh: 0, ok: 1, warning: 2, critical: 3, expired: 4 };
     return order[a.status] - order[b.status];
   });
   
