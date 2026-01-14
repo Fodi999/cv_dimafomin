@@ -55,8 +55,6 @@ export type {
 
 // Re-export all API modules
 export { authApi } from './api/auth';
-export { academyApi } from './api/academy';
-export { marketplaceApi } from './api/marketplace';
 export { aiApi, aiChatApi } from './api/ai';
 export { uploadApi } from './api/upload';
 export { walletApi } from './api/wallet';
@@ -82,8 +80,6 @@ export type {
 
 // Import all APIs for default export
 import { authApi } from './api/auth';
-import { academyApi } from './api/academy';
-import { marketplaceApi } from './api/marketplace';
 import { aiApi, aiChatApi } from './api/ai';
 import { uploadApi } from './api/upload';
 import { walletApi } from './api/wallet';
@@ -101,9 +97,6 @@ import { recipeMatchingApi } from './api/recipe-matching';
  */
 export default {
   auth: authApi,
-  academy: academyApi,
-  marketplace: marketplaceApi,
-  market: marketplaceApi, // Backward compatibility alias
   ai: aiApi,
   aiChat: aiChatApi,
   upload: uploadApi,

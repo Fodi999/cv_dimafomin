@@ -15,16 +15,13 @@
 /**
  * Get unified backend URL
  * 
- * Development: http://localhost:8080/api
- * Production: https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app/api
+ * Always uses Koyeb backend: https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app
  * 
- * @returns Backend base URL with /api suffix
+ * @returns Backend base URL without /api suffix (added per-endpoint)
  */
 export function getBackendUrl(): string {
-  // КРИТИЧНО: Используй ТОЛЬКО NEXT_PUBLIC_API_BASE
-  const baseUrl = process.env.NODE_ENV === 'development'
-    ? 'http://localhost:8080/api'
-    : (process.env.NEXT_PUBLIC_API_BASE || 'https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app/api');
+  // КРИТИЧНО: ВСЕГДА используем Koyeb backend
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE || 'https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app';
   
   // Remove trailing /api if present (we add it per-endpoint)
   return baseUrl.replace(/\/api$/, '');

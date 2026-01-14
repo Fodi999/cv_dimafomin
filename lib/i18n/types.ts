@@ -21,11 +21,9 @@ export interface Dictionary {
   auth: Record<string, any>;
   profile: Record<string, any>;
   recipes: Record<string, any>;
-  academy: Record<string, any>;
   tokens: Record<string, any>;
   admin: Record<string, any>;
   errors: Record<string, any>;
-  market: Record<string, any>;
   fridge: Record<string, any>;
   losses: Record<string, any>;
   ingredients: Record<string, any>;
