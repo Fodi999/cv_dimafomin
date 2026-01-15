@@ -23,6 +23,7 @@ export interface Ingredient {
 export interface IngredientsFilters {
   search: string;
   category: string;
+  sort?: string; // ✅ Sort option: "newest" (default), "name", "usage"
   page: number;
   limit: number;
 }
@@ -44,6 +45,7 @@ export function useIngredients() {
   const [filters, setFilters] = useState<IngredientsFilters>({
     search: "",
     category: "all",
+    sort: "newest", // ✅ Default: newest first (ORDER BY createdAt DESC)
     page: 1,
     limit: 50,
   });
@@ -57,6 +59,7 @@ export function useIngredients() {
       
       if (filters.search) queryParams.append("search", filters.search);
       if (filters.category !== "all") queryParams.append("category", filters.category);
+      if (filters.sort) queryParams.append("sort", filters.sort); // ✅ Pass sort to backend
       queryParams.append("page", filters.page.toString());
       queryParams.append("limit", filters.limit.toString());
 
@@ -76,17 +79,6 @@ export function useIngredients() {
 
       const data = await response.json();
       
-      // Temporary debug for pagination issue
-      if (data.data?.length !== filters.limit && data.data?.length > filters.limit) {
-        console.warn('[useIngredients] ⚠️ Pagination not working:', {
-          expected: filters.limit,
-          received: data.data?.length,
-          metaTotal: data.meta?.total,
-          metaCount: data.meta?.count,
-          url
-        });
-      }
-      
       // Ensure we always set an array
       const ingredientsList = data.data || data.ingredients || [];
       setIngredients(Array.isArray(ingredientsList) ? ingredientsList : []);
@@ -97,7 +89,7 @@ export function useIngredients() {
     } finally {
       setIsLoading(false);
     }
-  }, [filters.search, filters.category, filters.page, filters.limit]);
+  }, [filters.search, filters.category, filters.sort, filters.page, filters.limit]);
 
   useEffect(() => {
     fetchIngredients();

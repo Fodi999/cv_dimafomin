@@ -213,6 +213,12 @@ export const admin = {
       noProducts: "No products found",
       search: "Search",
       searchPlaceholder: "Search by name (any language)...",
+      sort: "Sort by",
+      sortOptions: {
+        newest: "Newest first",
+        name: "By name",
+        usage: "By usage",
+      },
       
       table: {
         name: "Name",
@@ -225,14 +231,14 @@ export const admin = {
       
       categories: {
         all: "All categories",
-        meat: "Meat",
-        fish: "Fish",
+        meat: "Meat & Poultry",
+        fish: "Fish & Seafood",
+        egg: "Eggs",
         vegetables: "Vegetables",
-        fruits: "Fruits",
-        dairy: "Dairy products",
-        grains: "Grains",
-        condiment: "Condiments",
-        spices: "Spices",
+        fruit: "Fruits & Berries",
+        dairy: "Dairy Products",
+        grains: "Grains & Pasta",
+        condiment: "Condiments & Spices",
         other: "Other",
       },
       

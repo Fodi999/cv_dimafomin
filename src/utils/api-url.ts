@@ -57,9 +57,10 @@ export function buildApiUrl(baseUrl: string, endpoint: string): string {
 /**
  * Получить нормализованный базовый URL API
  * Использует NEXT_PUBLIC_API_BASE из .env
+ * Always uses Koyeb backend for consistency
  */
 export function getApiBaseUrl(): string {
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8080';
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE || 'https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app';
   return normalizeBaseUrl(baseUrl);
 }
 

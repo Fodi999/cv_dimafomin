@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, Sparkles, TrendingUp, ArrowUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -12,13 +12,19 @@ import {
 } from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export type CategoryFilter = "all" | "protein" | "vegetable" | "dairy" | "grain" | "condiment" | "other";
+// ✅ Culinary categories (not nutrition groups!)
+export type CategoryFilter = "all" | "meat" | "fish" | "egg" | "vegetable" | "fruit" | "dairy" | "grain" | "condiment" | "other";
+
+// ✅ Sort options
+export type SortOption = "newest" | "name" | "usage";
 
 interface IngredientsFiltersProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
   categoryFilter: CategoryFilter;
   onCategoryChange: (value: CategoryFilter) => void;
+  sortBy?: SortOption;
+  onSortChange?: (value: SortOption) => void;
 }
 
 export function IngredientsFilters({
@@ -26,6 +32,8 @@ export function IngredientsFilters({
   onSearchChange,
   categoryFilter,
   onCategoryChange,
+  sortBy = "newest",
+  onSortChange,
 }: IngredientsFiltersProps) {
   const { t } = useLanguage();
 
@@ -55,15 +63,50 @@ export function IngredientsFilters({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t.admin.catalog.products.categories.all || "All categories"}</SelectItem>
-            <SelectItem value="vegetable">🥦 {t.admin.catalog.products.categories.vegetables}</SelectItem>
-            <SelectItem value="protein">🥩 {t.admin.catalog.products.categories.meat}</SelectItem>
-            <SelectItem value="dairy">🥛 {t.admin.catalog.products.categories.dairy}</SelectItem>
-            <SelectItem value="grain">🌾 {t.admin.catalog.products.categories.grains}</SelectItem>
-            <SelectItem value="condiment">🧂 {t.admin.catalog.products.categories.condiment}</SelectItem>
-            <SelectItem value="other">📦 {t.admin.catalog.products.categories.other}</SelectItem>
+            <SelectItem value="meat">🥩 {t.admin.catalog.products.categories.meat || "Meat & Poultry"}</SelectItem>
+            <SelectItem value="fish">🐟 {t.admin.catalog.products.categories.fish || "Fish & Seafood"}</SelectItem>
+            <SelectItem value="egg">🥚 {t.admin.catalog.products.categories.egg || "Eggs"}</SelectItem>
+            <SelectItem value="vegetable">🥦 {t.admin.catalog.products.categories.vegetables || "Vegetables"}</SelectItem>
+            <SelectItem value="fruit">🍎 {t.admin.catalog.products.categories.fruit || "Fruits & Berries"}</SelectItem>
+            <SelectItem value="dairy">🥛 {t.admin.catalog.products.categories.dairy || "Dairy Products"}</SelectItem>
+            <SelectItem value="grain">🌾 {t.admin.catalog.products.categories.grains || "Grains & Pasta"}</SelectItem>
+            <SelectItem value="condiment">🧂 {t.admin.catalog.products.categories.condiment || "Condiments & Spices"}</SelectItem>
+            <SelectItem value="other">📦 {t.admin.catalog.products.categories.other || "Other"}</SelectItem>
           </SelectContent>
         </Select>
       </div>
+
+      {/* Sort Options */}
+      {onSortChange && (
+        <div className="w-full space-y-2 md:w-[200px]">
+          <Label htmlFor="sort">{t.admin.catalog.products.sort || "Sort by"}</Label>
+          <Select value={sortBy} onValueChange={(value) => onSortChange(value as SortOption)}>
+            <SelectTrigger id="sort">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  <span>{t.admin.catalog.products.sortOptions?.newest || "Newest first"}</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="name">
+                <div className="flex items-center gap-2">
+                  <ArrowUpDown className="h-4 w-4" />
+                  <span>{t.admin.catalog.products.sortOptions?.name || "By name"}</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="usage">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4" />
+                  <span>{t.admin.catalog.products.sortOptions?.usage || "By usage"}</span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
     </div>
   );
 }

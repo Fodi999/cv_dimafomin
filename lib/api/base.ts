@@ -133,6 +133,22 @@ export async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): P
 
   if (isApiResponse<T>(data)) {
     console.log(`✅ API Success (new format) - returning data:`, data.data);
+    
+    // 🔍 DEBUG: Check daysLeft in fridge items
+    if (data.data && typeof data.data === 'object' && 'items' in data.data) {
+      const items = (data.data as any).items;
+      if (Array.isArray(items) && items.length > 0) {
+        console.log('[API base.ts] 🔍 First item daysLeft:', items[0].daysLeft, '(type:', typeof items[0].daysLeft, ')');
+        
+        // 🔍 Check for items with null daysLeft RIGHT AFTER JSON PARSE
+        const nullItems = items.filter((item: any) => item.daysLeft === null);
+        console.log('[API base.ts] 🔍 Items with NULL daysLeft:', nullItems.length);
+        if (nullItems.length > 0) {
+          console.log('[API base.ts] 🔍 First null item:', nullItems[0].ingredient?.name, '→ daysLeft:', nullItems[0].daysLeft);
+        }
+      }
+    }
+    
     return data.data;
   }
 

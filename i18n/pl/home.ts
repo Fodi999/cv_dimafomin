@@ -5,18 +5,15 @@
 
 export const home = {
   hero: {
-    badge: "ChefOS · Learning Mode",
-    title: "Twórz jak szef kuchni",
-    titleHighlight: "z pomocą AI",
-    subtitle: "System AI, który pomaga podejmować decyzje kulinarne — dlaczego, jak i kiedy to działa.",
-    ctaPrimary: "Rozpocznij z AI",
-    ctaSecondary: "Otwórz bazę wiedzy",
+    title: "Witamy w ChefOS",
+    subtitle: "Myśl jak profesjonalny szef kuchni.",
+    description: "AI pomaga podejmować decyzje — a nie tylko podążać za przepisami.",
+    details: "ChefOS to inteligentna platforma kulinarna, która łączy produkty, przepisy, koszty i doświadczenie w jeden system, abyś gotował świadomie i efektywnie.",
     stats: {
       recipes: "przepisów",
       ingredients: "składników",
       products: "produktów",
       chefTokens: "ChefTokens",
-      aiOnline: "AI online 24/7",
     },
   },
 } as const;

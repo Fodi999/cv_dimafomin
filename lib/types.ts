@@ -242,8 +242,8 @@ export interface FridgeItem {
   quantity: number;
   unit: string;
   arrivedAt?: string; // Дата добавления продукта (ISO 8601)
-  expiresAt: string;
-  daysLeft: number;
+  expiresAt: string | null; // Can be null for items without expiry date
+  daysLeft: number | null; // Can be null for items without expiry date
   status: FridgeItemStatus;
   totalPrice?: number; // Total price for this item (backend calculated)
   currency?: string; // Currency code (e.g., "PLN")

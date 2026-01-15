@@ -59,6 +59,16 @@ export async function GET(req: NextRequest) {
     }
 
     console.log('[API Proxy] ✅ Success, items count:', data.items?.length || 0);
+    
+    // 🔍 DEBUG: Check for null daysLeft values
+    if (data.data?.items) {
+      const nullDaysLeftItems = data.data.items.filter((item: any) => item.daysLeft === null);
+      console.log('[API Proxy] 🔍 Items with NULL daysLeft:', nullDaysLeftItems.length);
+      if (nullDaysLeftItems.length > 0) {
+        console.log('[API Proxy] 🔍 First null item:', nullDaysLeftItems[0].ingredient?.name, '→ daysLeft:', nullDaysLeftItems[0].daysLeft);
+      }
+    }
+    
     return NextResponse.json(data);
     
   } catch (error: any) {

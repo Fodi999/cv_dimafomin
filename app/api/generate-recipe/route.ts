@@ -38,13 +38,13 @@ export async function POST(request: NextRequest) {
 
     console.log("📥 Received request:", body);
 
-    // Отримуємо URL бекенду з environment variables
-    const backendUrl = process.env.RECIPE_API_URL || "http://localhost:8080";
+    // Get backend URL (always use Koyeb)
+    const backendUrl = 'https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app';
     const apiEndpoint = `${backendUrl}/api/generate-recipe`;
 
     console.log(`🌐 Calling Go backend at: ${apiEndpoint}`);
 
-    // Відправляємо запит до Go бекенду
+    // Send request to Go backend
     const response = await fetch(apiEndpoint, {
       method: "POST",
       headers: {
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
         cuisine: body.cuisine,
         difficulty: body.difficulty,
       }),
-      // Timeout після 30 секунд
+      // Timeout after 30 seconds
       signal: AbortSignal.timeout(30000),
     });
 
@@ -84,12 +84,12 @@ export async function POST(request: NextRequest) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";
 
-    // Якщо бекенд не доступен, повертаємо інформативну помилку
+    // If backend not available, return informative error
     if (errorMessage.includes("ECONNREFUSED") || errorMessage.includes("fetch failed")) {
       return NextResponse.json(
         {
           success: false,
-          error: `Go backend is not available at ${process.env.RECIPE_API_URL || "http://localhost:8080"}. Please ensure the Go server is running.`,
+          error: `Go backend is not available at https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app. Please ensure the Go server is running.`,
         } as GenerateResponse,
         { status: 503 }
       );

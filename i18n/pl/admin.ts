@@ -217,6 +217,14 @@ export const admin = {
       editProduct: "Edytuj produkt",
       deleteProduct: "Usuń produkt",
       noProducts: "Nie znaleziono produktów",
+      search: "Szukaj",
+      searchPlaceholder: "Szukaj po nazwie (dowolny język)...",
+      sort: "Sortuj",
+      sortOptions: {
+        newest: "Najnowsze najpierw",
+        name: "Po nazwie",
+        usage: "Po użyciu",
+      },
       
       table: {
         name: "Nazwa",
@@ -228,15 +236,15 @@ export const admin = {
       },
       
       categories: {
-        all: "Wszystkie",
-        meat: "Mięso",
-        fish: "Ryby",
+        all: "Wszystkie kategorie",
+        meat: "Mięso i drób",
+        fish: "Ryby i owoce morza",
+        egg: "Jaja",
         vegetables: "Warzywa",
-        fruits: "Owoce",
-        dairy: "Nabiał",
-        grains: "Zboża",
-        condiment: "Przyprawy",
-        spices: "Przyprawy",
+        fruit: "Owoce i jagody",
+        dairy: "Produkty mleczne",
+        grains: "Zboża i makarony",
+        condiment: "Przyprawy i dodatki",
         other: "Inne",
       },
       

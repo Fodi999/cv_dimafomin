@@ -52,7 +52,7 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
     }
   };
 
-  const getStatusConfig = (status: string, daysLeft: number) => {
+  const getStatusConfig = (status: string, daysLeft: number | null) => {
     switch (status) {
       case "fresh":
         return {
@@ -61,9 +61,11 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
           bgColor: "bg-emerald-50 dark:bg-emerald-900/20",
           borderColor: "border-emerald-200 dark:border-emerald-800/30",
           label: t?.fridge?.status?.fresh || "Fresh",
-          description: daysLeft > 30 
-            ? (t?.fridge?.status?.stillDaysPlural?.replace('{days}', String(daysLeft)) || `Still ${daysLeft} days`)
-            : (t?.fridge?.status?.daysLeftPlural?.replace('{days}', String(daysLeft)) || `${daysLeft} days left`),
+          description: daysLeft === null 
+            ? (t?.fridge?.status?.noExpiry || "No expiry date")
+            : daysLeft > 30 
+              ? (t?.fridge?.status?.stillDaysPlural?.replace('{days}', String(daysLeft)) || `Still ${daysLeft} days`)
+              : (t?.fridge?.status?.daysLeftPlural?.replace('{days}', String(daysLeft)) || `${daysLeft} days left`),
         };
       case "ok":
         return {
@@ -72,9 +74,11 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
           bgColor: "bg-green-50 dark:bg-green-900/20",
           borderColor: "border-green-200 dark:border-green-800/30",
           label: t?.fridge?.status?.fresh || "Fresh",
-          description: daysLeft > 7 
-            ? (t?.fridge?.status?.stillDaysPlural?.replace('{days}', String(daysLeft)) || `${daysLeft} days left`)
-            : (t?.fridge?.status?.daysLeftPlural?.replace('{days}', String(daysLeft)) || `${daysLeft} days`),
+          description: daysLeft === null
+            ? (t?.fridge?.status?.noExpiry || "No expiry date")
+            : daysLeft > 7 
+              ? (t?.fridge?.status?.stillDaysPlural?.replace('{days}', String(daysLeft)) || `${daysLeft} days left`)
+              : (t?.fridge?.status?.daysLeftPlural?.replace('{days}', String(daysLeft)) || `${daysLeft} days`),
         };
       case "warning":
         return {
@@ -83,7 +87,9 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
           bgColor: "bg-orange-50 dark:bg-orange-900/20",
           borderColor: "border-orange-200 dark:border-orange-800/30",
           label: t?.fridge?.status?.critical || "Use soon",
-          description: t?.fridge?.status?.daysLeftPlural?.replace('{days}', String(daysLeft)) || `${daysLeft} days left`,
+          description: daysLeft === null
+            ? (t?.fridge?.status?.noExpiry || "No expiry date")
+            : (t?.fridge?.status?.daysLeftPlural?.replace('{days}', String(daysLeft)) || `${daysLeft} days left`),
         };
       case "critical":
         return {
@@ -92,9 +98,11 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
           bgColor: "bg-red-50 dark:bg-red-900/20",
           borderColor: "border-red-200 dark:border-red-800/30",
           label: t?.fridge?.status?.useNow || "Use now!",
-          description: daysLeft === 0 
-            ? (t?.fridge?.status?.lastDay || "Last day") 
-            : (t?.fridge?.status?.daysLeftPlural?.replace('{days}', String(daysLeft)) || `${daysLeft} days`),
+          description: daysLeft === null
+            ? (t?.fridge?.status?.noExpiry || "No expiry date")
+            : daysLeft === 0 
+              ? (t?.fridge?.status?.lastDay || "Last day") 
+              : (t?.fridge?.status?.daysLeftPlural?.replace('{days}', String(daysLeft)) || `${daysLeft} days`),
         };
       case "expired":
         return {
@@ -117,7 +125,7 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
     }
   };
 
-  const statusConfig = getStatusConfig(item.status, item.daysLeft || 0);
+  const statusConfig = getStatusConfig(item.status, item.daysLeft);
   
   // ✅ Получаем локализованное имя напрямую из объекта ингредиента
   const translatedName = getLocalizedIngredientName(item.ingredient as any, language);

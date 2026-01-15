@@ -5,18 +5,15 @@
 
 export const home = {
   hero: {
-    badge: "ChefOS · Learning Mode",
-    title: "Create like a chef",
-    titleHighlight: "with AI",
-    subtitle: "AI system that helps make culinary decisions — why, how, and when it works.",
-    ctaPrimary: "Start with AI",
-    ctaSecondary: "Open knowledge base",
+    title: "Welcome to ChefOS",
+    subtitle: "Think like a professional chef.",
+    description: "AI helps you make decisions — not just follow recipes.",
+    details: "ChefOS is an intelligent culinary platform that combines products, recipes, costs, and experience into one system, so you cook consciously and efficiently.",
     stats: {
       recipes: "recipes",
       ingredients: "ingredients",
       products: "products",
       chefTokens: "ChefTokens",
-      aiOnline: "AI online 24/7",
     },
   },
 } as const;

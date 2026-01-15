@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useIngredients, useIngredientActions, Ingredient } from "@/hooks/useIngredients";
 import { IngredientsTable } from "@/components/admin/catalog/ingredients/IngredientsTable";
-import { IngredientsFilters, type CategoryFilter } from "@/components/admin/catalog/ingredients/IngredientsFilters";
+import { IngredientsFilters, type CategoryFilter, type SortOption } from "@/components/admin/catalog/ingredients/IngredientsFilters";
 import { IngredientFormModal } from "@/components/admin/catalog/ingredients/IngredientFormModal";
 import { IngredientDeleteDialog } from "@/components/admin/catalog/ingredients/IngredientDeleteDialog";
 import { AddIngredientDialog } from "@/components/admin/catalog/ingredients/AddIngredientDialog";
@@ -15,7 +15,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
  * Products Tab - Manages ingredients catalog
  * Features:
  * - Search by name (any language) with 300ms debounce
- * - Filter by category
+ * - Filter by culinary category (meat, fish, egg, etc.)
  * - Pagination
  * - Create/Edit/Delete ingredients with AI translation
  */
@@ -23,6 +23,7 @@ export function ProductsTab() {
   const { t } = useLanguage();
   const [localSearch, setLocalSearch] = useState("");
   const [localCategory, setLocalCategory] = useState<CategoryFilter>("all");
+  const [localSort, setLocalSort] = useState<SortOption>("newest"); // ✅ Default: newest first
   const debouncedSearch = useDebounce(localSearch, 300);
   
   const { ingredients, meta, isLoading, filters, updateFilters, refetch } = useIngredients();
@@ -39,6 +40,22 @@ export function ProductsTab() {
       page: 1 
     });
   }, [debouncedSearch]);
+
+  // Apply category filter
+  useEffect(() => {
+    updateFilters({ 
+      category: localCategory === "all" ? "all" : localCategory,
+      page: 1 
+    });
+  }, [localCategory]);
+
+  // Apply sort option
+  useEffect(() => {
+    updateFilters({ 
+      sort: localSort,
+      page: 1 
+    });
+  }, [localSort]);
 
   // Ensure ingredients is always an array
   const safeIngredients = Array.isArray(ingredients) ? ingredients : [];
@@ -98,18 +115,11 @@ export function ProductsTab() {
         {/* Filters */}
         <IngredientsFilters
           searchQuery={localSearch}
-          onSearchChange={(value) => {
-            setLocalSearch(value);
-            updateFilters({ page: 1 }); // Reset to page 1 on search
-          }}
+          onSearchChange={setLocalSearch}
           categoryFilter={localCategory}
-          onCategoryChange={(value) => {
-            setLocalCategory(value);
-            updateFilters({ 
-              category: value === "all" ? "all" : value,
-              page: 1 
-            });
-          }}
+          onCategoryChange={setLocalCategory}
+          sortBy={localSort}
+          onSortChange={setLocalSort}
         />
 
         {/* Table */}
@@ -123,7 +133,7 @@ export function ProductsTab() {
       {/* Count */}
       {meta && (
         <div className="text-sm text-muted-foreground text-center">
-          {t.common.showing}: {ingredients.length} {t.common.of} {meta.total}
+          {t.common.showing}: {safeIngredients.length} {t.common.of} {meta.total}
         </div>
       )}
       </CardContent>

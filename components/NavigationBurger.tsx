@@ -32,7 +32,7 @@ import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AuthModal from "@/components/auth/AuthModal";
-import { NotificationBell } from "@/components/NotificationBell";
+import { NotificationCenter } from "@/components/NotificationCenter";
 
 interface NavLink {
   label: string;
@@ -222,7 +222,7 @@ export default function NavigationBurger() {
 
           {/* ===== NOTIFICATIONS + PROFILE - RIGHT SIDE ===== */}
           <div className="ml-auto flex items-center gap-1 sm:gap-2">
-            <NotificationBell />
+            <NotificationCenter />
           </div>
         </div>
       </header>

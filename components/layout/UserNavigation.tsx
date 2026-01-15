@@ -19,7 +19,7 @@ import {
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { NotificationBell } from "@/components/NotificationBell";
+import { NotificationCenter } from "@/components/NotificationCenter";
 
 interface NavLink {
   label: string;
@@ -192,7 +192,7 @@ export default function UserNavigation() {
 
           {/* Right Side Icons */}
           <div className="ml-auto flex items-center gap-1 sm:gap-2">
-            <NotificationBell />
+            <NotificationCenter />
           </div>
         </div>
       </header>

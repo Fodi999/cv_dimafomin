@@ -221,16 +221,25 @@ export const admin = {
         recipes: "рецептов",
       },
       
+      search: "Поиск",
+      searchPlaceholder: "Поиск по названию (любой язык)...",
+      sort: "Сортировка",
+      sortOptions: {
+        newest: "Новые сверху",
+        name: "По названию",
+        usage: "По использованию",
+      },
+      
       categories: {
-        all: "Все",
-        meat: "Мясо",
-        fish: "Рыба",
+        all: "Все категории",
+        meat: "Мясо и птица",
+        fish: "Рыба и морепродукты",
+        egg: "Яйца",
         vegetables: "Овощи",
-        fruits: "Фрукты",
+        fruit: "Фрукты и ягоды",
         dairy: "Молочные продукты",
-        grains: "Крупы",
-        condiment: "Приправы",
-        spices: "Специи",
+        grains: "Крупы и паста",
+        condiment: "Приправы и специи",
         other: "Другое",
       },
       

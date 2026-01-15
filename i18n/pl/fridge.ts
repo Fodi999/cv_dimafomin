@@ -63,6 +63,8 @@ export const fridge = {
     unknown: "Nieznany status",
     dontUse: "Nie używaj",
     useNow: "Użyj teraz",
+    noExpiry: "Bez terminu ważności",
+    lastDay: "Ostatni dzień",
     daysLeft: "Zostało {days} dzień",
     daysLeftPlural: "Zostało {days} dni",
     stillDays: "Jeszcze {days} dzień",

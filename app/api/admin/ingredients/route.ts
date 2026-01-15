@@ -12,6 +12,16 @@ export async function GET(request: NextRequest) {
   const { user, error } = await requireAdmin(request);
   if (error) return error;
 
+  // Log query params for debugging
+  const { searchParams } = new URL(request.url);
+  console.log('🔍 [Admin Ingredients API] Query params:', {
+    search: searchParams.get('search'),
+    category: searchParams.get('category'),
+    page: searchParams.get('page'),
+    limit: searchParams.get('limit'),
+    fullUrl: request.url
+  });
+
   // Proxy to backend with all query params
   return proxyToBackend(request, {
     endpoint: '/api/admin/ingredients',
