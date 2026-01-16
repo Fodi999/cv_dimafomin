@@ -345,58 +345,66 @@ export default function AssistantPage() {
     setAiResponse(null); // Clear previous messages
 
     try {
-      console.log("🎯 Loading AI recommendation...");
+      console.log("🎯 Loading recipes from /api/recipes/match (GET)...");
       console.log(`   Excluding ${viewedRecipeIds.length} recipe(s):`, viewedRecipeIds);
       
-      // 🆕 Get recommendation using union type (handles success: false gracefully)
-      const result = await recipeMatchingApi.getRecommendation(
-        'fridge', 
-        20, 
-        token,
-        viewedRecipeIds
+      // ✅ Use GET /api/recipes/match endpoint (decision engine, not AI recommendations)
+      const result = await recipeMatchingApi.getRecipeMatches(
+        { 
+          limit: 20,
+          sort: 'coverage',
+          order: 'desc'
+        }, 
+        token
       );
       
-      // 🛡️ Handle empty state (no-results is a VALID scenario, not an error)
-      if (result.status === 'no-results') {
-        console.info("ℹ️ AI: No matching recipes (expected scenario)");
+      // Convert RecipeMatchResponse to AIRecommendationResult format
+      if (!result.recipes || result.recipes.length === 0) {
+        // Handle empty state
+        console.info("ℹ️ No matching recipes found (expected scenario)");
         setRecipeMatches([]);
         
-        // ✨ Show AIMessageCard for empty results
-        if (result.requiresUserAction) {
-          console.log("🔔 Showing AIMessageCard (requiresUserAction = true)");
-          setAiResponse({
-            code: viewedRecipeIds.length > 0 ? 'ALL_RECIPES_VIEWED' : 'NO_RECIPES_FOR_FRIDGE',
-            context: { 
-              fridgeItems: fridgeItems.length,
-              viewedCount: viewedRecipeIds.length,
-              totalRecipes: stats?.totalRecipes ?? 0, // 🔢 Frontend enrichment
-            },
-            success: false,
-          });
-        } else {
-          console.log("📨 Showing generic failure message");
-          setAiResponse({
-            code: 'FETCH_FAILED',
-            context: { 
-              message: result.message,
-              totalRecipes: stats?.totalRecipes ?? 0, // 🔢 Frontend enrichment
-            },
-            success: false,
-          });
-        }
-        
+        setAiResponse({
+          code: viewedRecipeIds.length > 0 ? 'ALL_RECIPES_VIEWED' : 'NO_RECIPES_FOR_FRIDGE',
+          context: { 
+            fridgeItems: fridgeItems.length,
+            viewedCount: viewedRecipeIds.length,
+            totalRecipes: stats?.totalRecipes ?? 0,
+          },
+          success: false,
+        });
         return;
       }
       
-      // ✅ Success case - we have a recipe
-      const recommendation = result.recipe;
+      // Filter out already viewed recipes
+      const unseenRecipes = result.recipes.filter(
+        recipe => !viewedRecipeIds.includes(recipe.recipeId)
+      );
       
-      console.log("✅ AI Recommendation received:");
-      console.log(`   Recipe: "${recommendation.title}" (ID: ${recommendation.recipeId})`);
+      if (unseenRecipes.length === 0) {
+        console.info("ℹ️ All available recipes already viewed");
+        setRecipeMatches([]);
+        setAiResponse({
+          code: 'ALL_RECIPES_VIEWED',
+          context: { 
+            fridgeItems: fridgeItems.length,
+            viewedCount: viewedRecipeIds.length,
+            totalRecipes: stats?.totalRecipes ?? 0,
+          },
+          success: false,
+        });
+        return;
+      }
+      
+      // Take first unseen recipe for ONE CARD AT A TIME UX
+      const recommendation = unseenRecipes[0];
+      
+      console.log("✅ Recipe match received from GET /api/recipes/match:");
+      console.log(`   Recipe: "${recommendation.title || recommendation.canonicalName}" (ID: ${recommendation.recipeId})`);
       console.log(`   Coverage: ${recommendation.coverage?.toFixed(0) ?? 'N/A'}%`);
       console.log(`   Score: ${recommendation.score ?? 'N/A'}`);
-      console.log(`   Can cook now: ${recommendation.canCookNow}`);
-      console.log(`   Used ingredients: ${recommendation.usedCount ?? 0}`);
+      console.log(`   Can cook now: ${recommendation.canCookNow ?? recommendation.canCook}`);
+      console.log(`   Used ingredients: ${recommendation.usedCount ?? recommendation.usedIngredients?.length ?? 0}`);
       console.log(`   Missing ingredients: ${recommendation.missingCount ?? 0}`);
       
       // Сохраняем ID этого рецепта, чтобы не показывать его снова
