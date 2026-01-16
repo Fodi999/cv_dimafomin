@@ -233,6 +233,7 @@ export const admin = {
         usedIn: "Wykorzystywane",
         actions: "Akcje",
         recipes: "przepisów",
+        products: "produktów",
       },
       
       categories: {
@@ -279,6 +280,8 @@ export const admin = {
     recipes: {
       title: "Przepisy",
       subtitle: "Zarządzaj katalogiem przepisów",
+      pageTitle: "Katalog przepisów",
+      pageSubtitle: "Zarządzaj przepisami za pomocą narzędzi AI",
       
       deleteDialog: {
         title: "Usunąć przepis?",

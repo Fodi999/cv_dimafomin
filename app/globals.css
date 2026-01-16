@@ -412,3 +412,85 @@
 .animate-soft-pulse {
   animation: soft-pulse 5s ease-in-out infinite;
 }
+
+/* ============================================
+   TOAST NOTIFICATIONS - Compact & Transparent
+   ============================================ */
+
+/* Toaster container positioning */
+[data-sonner-toaster] {
+  --width: 320px !important;
+}
+
+/* Individual toast styling */
+[data-sonner-toast] {
+  opacity: 0.85 !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  font-size: 14px !important;
+  padding: 12px 16px !important;
+  min-height: 48px !important;
+  max-width: 320px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Success toast - Green with transparency */
+[data-sonner-toast][data-type="success"] {
+  background: rgba(16, 185, 129, 0.9) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+/* Error toast - Red with transparency */
+[data-sonner-toast][data-type="error"] {
+  background: rgba(239, 68, 68, 0.9) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+/* Warning toast - Orange with transparency */
+[data-sonner-toast][data-type="warning"] {
+  background: rgba(245, 158, 11, 0.9) !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+/* Info toast - Blue with transparency */
+[data-sonner-toast][data-type="info"] {
+  background: rgba(59, 130, 246, 0.9) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Toast title */
+[data-sonner-toast] [data-title] {
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+}
+
+/* Toast description */
+[data-sonner-toast] [data-description] {
+  font-size: 12px !important;
+  opacity: 0.95 !important;
+  margin-top: 4px !important;
+}
+
+/* Toast icon */
+[data-sonner-toast] [data-icon] {
+  width: 16px !important;
+  height: 16px !important;
+  margin-right: 8px !important;
+}
+
+/* Close button */
+[data-sonner-toast] [data-close-button] {
+  opacity: 0.7 !important;
+  transition: opacity 0.2s !important;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  opacity: 1 !important;
+}
+
+/* Dark mode adjustments */
+.dark [data-sonner-toast] {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}

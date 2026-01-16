@@ -13,6 +13,7 @@ export interface Notification {
     daysLeft?: number;
     price?: number;
     link?: string;
+    action?: 'item_added' | 'item_deleted' | 'item_expired' | 'item_expiring'; // 🆕 Action type
   };
   isRead: boolean;
   createdAt: string;
@@ -182,5 +183,6 @@ export function useNotifications(filters: Partial<NotificationFilters> = {}) {
     markAsRead,
     markAllAsRead,
     refetch: fetchNotifications,
+    refetchUnreadCount: fetchUnreadCount, // 🆕 Exposed for manual refetch
   };
 }

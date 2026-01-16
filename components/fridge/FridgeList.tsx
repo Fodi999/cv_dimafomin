@@ -24,6 +24,7 @@ interface FridgeListProps {
   onDelete: (id: string) => void;
   onPriceClick?: (item: FridgeItemType) => void;
   onQuantityClick?: (item: FridgeItemType) => void;
+  highlightId?: string; // 🆕 ID of item to highlight (from notification click)
 }
 
 // ✅ Профессиональные категории с иконками lucide-react
@@ -39,7 +40,7 @@ const getCategoryConfig = (t: any) => [
   { value: "Inne", label: t?.fridge?.categories?.other || "Other", Icon: Package },
 ];
 
-export default function FridgeList({ items, onDelete, onPriceClick, onQuantityClick }: FridgeListProps) {
+export default function FridgeList({ items, onDelete, onPriceClick, onQuantityClick, highlightId }: FridgeListProps) {
   const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState("all");
   const CATEGORIES = getCategoryConfig(t);
@@ -103,22 +104,22 @@ export default function FridgeList({ items, onDelete, onPriceClick, onQuantityCl
   }
 
   return (
-    <div className="space-y-6">
-      {/* ✅ STICKY Горизонтальная панель категорий */}
-      <div className="sticky top-[64px] z-20 bg-gradient-to-b from-white via-white to-transparent dark:from-gray-950 dark:via-gray-950 dark:to-transparent pb-4">
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-sky-900/20 dark:to-cyan-900/20">
+    <div className="space-y-4 sm:space-y-6">
+      {/* ✅ STICKY Горизонтальная панель категорий - Mobile optimized */}
+      <div className="sticky top-[56px] sm:top-[64px] z-20 bg-gradient-to-b from-white via-white to-transparent dark:from-gray-950 dark:via-gray-950 dark:to-transparent pb-3 sm:pb-4">
+        <div className="bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-sky-900/20 dark:to-cyan-900/20">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <Refrigerator className="w-5 h-5 text-sky-500" />
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <Refrigerator className="w-4 h-4 sm:w-5 sm:h-5 text-sky-500" />
                 {t?.fridge?.title || "Fridge"}
               </h3>
-              <div className="flex items-center gap-3">
-                <span className="px-3 py-1 bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 text-sm font-bold rounded-full border border-sky-200 dark:border-sky-700">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 text-xs sm:text-sm font-bold rounded-full border border-sky-200 dark:border-sky-700">
                   {items.length} {t?.fridge?.stats?.products || "products"}
                 </span>
                 {items.reduce((sum, item) => sum + (item.totalPrice || 0), 0) > 0 && (
-                  <span className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 text-sm font-bold rounded-full border border-emerald-200 dark:border-emerald-800">
+                  <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 text-xs sm:text-sm font-bold rounded-full border border-emerald-200 dark:border-emerald-800">
                     {items.reduce((sum, item) => sum + (item.totalPrice || 0), 0).toFixed(2)} PLN
                   </span>
                 )}
@@ -126,9 +127,9 @@ export default function FridgeList({ items, onDelete, onPriceClick, onQuantityCl
             </div>
           </div>
           
-          {/* Tabs Navigation - с горизонтальным скроллом */}
-          <div className="p-3 bg-gray-50 dark:bg-slate-900/50 overflow-x-auto">
-            <div className="flex gap-2 min-w-max">
+          {/* Tabs Navigation - с горизонтальным скроллом, оптимизировано для мобильных */}
+          <div className="p-2 sm:p-3 bg-gray-50 dark:bg-slate-900/50 overflow-x-auto scrollbar-hide">
+            <div className="flex gap-1.5 sm:gap-2 min-w-max">
               {CATEGORIES.map((category) => {
                 const count = category.value === "all" ? items.length : (categoryCounts[category.value] || 0);
                 const isActive = activeCategory === category.value;
@@ -144,19 +145,19 @@ export default function FridgeList({ items, onDelete, onPriceClick, onQuantityCl
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setActiveCategory(category.value)}
                     className={`
-                      px-4 py-2.5 rounded-lg font-medium text-sm transition-all whitespace-nowrap
-                      flex items-center gap-2 relative
+                      px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition-all whitespace-nowrap
+                      flex items-center gap-1.5 sm:gap-2 relative
                       ${isActive 
                         ? 'bg-gradient-to-r from-sky-500 to-cyan-500 text-white shadow-lg' 
                         : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-gray-600'
                       }
                     `}
                   >
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-sky-500'}`} />
+                    <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isActive ? 'text-white' : 'text-sky-500'}`} />
                     <span>{category.label}</span>
                     {count > 0 && (
                       <span className={`
-                        px-2 py-0.5 rounded-full text-xs font-bold
+                        px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold
                         ${isActive 
                           ? 'bg-white/20 text-white' 
                           : 'bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400'
@@ -173,19 +174,19 @@ export default function FridgeList({ items, onDelete, onPriceClick, onQuantityCl
         </div>
       </div>
 
-      {/* ✅ Список продуктов */}
+      {/* ✅ Список продуктов - Mobile optimized */}
       {filteredItems.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center py-8 px-6 bg-white dark:bg-slate-800 rounded-xl shadow border border-gray-200 dark:border-gray-700"
+          className="text-center py-6 sm:py-8 px-4 sm:px-6 bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl shadow border border-gray-200 dark:border-gray-700"
         >
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
             {t?.fridge?.emptyCategory?.replace('{category}', CATEGORIES.find(c => c.value === activeCategory)?.label || '') || `No products in category ${CATEGORIES.find(c => c.value === activeCategory)?.label}`}
           </p>
         </motion.div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           <AnimatePresence mode="popLayout">
             {sortedItems.map((item, index) => (
               <FridgeItem
@@ -195,6 +196,7 @@ export default function FridgeList({ items, onDelete, onPriceClick, onQuantityCl
                 onPriceClick={onPriceClick}
                 onQuantityClick={onQuantityClick}
                 index={index}
+                isHighlighted={item.id === highlightId} // 🆕 Highlight if matches URL param
               />
             ))}
           </AnimatePresence>

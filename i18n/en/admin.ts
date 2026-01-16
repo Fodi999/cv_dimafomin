@@ -226,7 +226,8 @@ export const admin = {
         unit: "Unit",
         usedIn: "Used in",
         actions: "Actions",
-        recipes: "products",
+        recipes: "recipes",
+        products: "products",
       },
       
       categories: {
@@ -273,6 +274,8 @@ export const admin = {
     recipes: {
       title: "Recipes",
       subtitle: "Manage recipe catalog",
+      pageTitle: "Recipes Catalog",
+      pageSubtitle: "Manage recipes with AI-powered tools",
       
       deleteDialog: {
         title: "Delete recipe?",

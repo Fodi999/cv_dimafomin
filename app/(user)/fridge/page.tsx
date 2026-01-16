@@ -6,8 +6,9 @@ import { Refrigerator, Loader2, AlertCircle, CheckCircle2, Plus, ArrowLeft } fro
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useNotificationRefetch } from "@/contexts/NotificationRefetchContext";
 import { fridgeApi } from "@/lib/api";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import FridgeForm from "@/components/fridge/FridgeForm";
 import FridgeList from "@/components/fridge/FridgeList";
 import FridgeStats from "@/components/fridge/FridgeStats";
@@ -20,9 +21,12 @@ import { ACTIVE_STATUSES } from "@/lib/types";
 
 export default function FridgePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const highlightItemId = searchParams.get('highlight'); // 🆕 Get highlighted item from URL
   const { user, isLoading } = useUser();
   const { openAuthModal } = useAuth();
   const { t } = useLanguage();
+  const { triggerRefetch } = useNotificationRefetch(); // 🆕 For notification updates
   const [items, setItems] = useState<FridgeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,6 +86,10 @@ export default function FridgePage() {
       await fridgeApi.addItem(data, token);
       await loadFridgeItems();
       setIsSheetOpen(false);
+      
+      // 🆕 ШАГ 2: Refetch notifications after adding item
+      triggerRefetch();
+      
       setSuccessMessage(t?.fridge?.messages?.addSuccess || "✅ Product added to fridge!");
       setShowFlowCTA(true);
       setTimeout(() => {
@@ -104,6 +112,10 @@ export default function FridgePage() {
       // 🔥 Перезагружаем данные с сервера для консистентности
       // (важно для будущего soft-delete / auto-move to history)
       await loadFridgeItems();
+      
+      // 🆕 ШАГ 2: Refetch notifications after deleting item
+      triggerRefetch();
+      
       setSuccessMessage(t?.fridge?.messages?.deleteSuccess || "✅ Product deleted!");
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err: unknown) {
@@ -171,38 +183,38 @@ export default function FridgePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
-      {/* Sticky Header */}
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 pb-safe">
+      {/* Sticky Header - Mobile optimized */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+            className="flex items-center gap-1 sm:gap-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">{t?.fridge?.backButton || "Back"}</span>
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="text-sm sm:text-base font-medium hidden sm:inline">{t?.fridge?.backButton || "Back"}</span>
           </button>
-          <div className="flex items-center gap-3">
-            <Refrigerator className="w-6 h-6 text-purple-600" />
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t?.fridge?.title || "Fridge"}</h1>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Refrigerator className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
+            <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{t?.fridge?.title || "Fridge"}</h1>
           </div>
-          <div className="w-20" />
+          <div className="w-12 sm:w-20" />
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {isLoading && (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 text-sky-500 animate-spin" />
+          <div className="flex items-center justify-center py-8 sm:py-12">
+            <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 text-sky-500 animate-spin" />
           </div>
         )}
 
         {!isLoading && !user && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-12">
-            <AlertCircle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t?.fridge?.messages?.authRequired || "Authorization required"}</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">{t?.fridge?.messages?.authRequiredDesc || "Log in to manage your fridge"}</p>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => openAuthModal("login")} className="px-8 py-3 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-medium">{t?.fridge?.messages?.loginButton || "Log in"}</motion.button>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-8 sm:py-12 px-4">
+            <AlertCircle className="w-12 h-12 sm:w-16 sm:h-16 text-orange-500 mx-auto mb-3 sm:mb-4" />
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">{t?.fridge?.messages?.authRequired || "Authorization required"}</h2>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 sm:mb-6">{t?.fridge?.messages?.authRequiredDesc || "Log in to manage your fridge"}</p>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => openAuthModal("login")} className="px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 text-white text-sm sm:text-base font-medium">{t?.fridge?.messages?.loginButton || "Log in"}</motion.button>
           </motion.div>
         )}
 
@@ -210,38 +222,38 @@ export default function FridgePage() {
           <>
             <AnimatePresence>
               {successMessage && (
-                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
-                  <p className="text-green-700 dark:text-green-300">{successMessage}</p>
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center gap-2 sm:gap-3">
+                  <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                  <p className="text-sm sm:text-base text-green-700 dark:text-green-300">{successMessage}</p>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* 🔥 FLOW CTAs - Co dalej? */}
+            {/* 🔥 FLOW CTAs - Co dalej? - Mobile optimized */}
             <AnimatePresence>
               {showFlowCTA && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="mb-6 p-6 bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-sky-900/20 dark:to-cyan-900/20 border border-sky-200 dark:border-sky-800 rounded-xl"
+                  className="mb-4 sm:mb-6 p-4 sm:p-6 bg-gradient-to-r from-sky-50 to-cyan-50 dark:from-sky-900/20 dark:to-cyan-900/20 border border-sky-200 dark:border-sky-800 rounded-xl"
                 >
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-3">
                     {t?.fridge?.flow?.whatNext || "What now? 🎯"}
                   </h3>
-                  <div className="grid md:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <button
                       onClick={() => router.push("/recipes")}
-                      className="flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white rounded-lg transition-all font-semibold shadow-md hover:shadow-lg"
+                      className="flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white rounded-lg transition-all font-semibold shadow-md hover:shadow-lg text-sm sm:text-base"
                     >
-                      <span className="text-2xl">🍳</span>
+                      <span className="text-xl sm:text-2xl">🍳</span>
                       <span>{t?.fridge?.flow?.checkRecipes || "Check what you can cook"}</span>
                     </button>
                     <button
                       onClick={() => router.push("/assistant")}
-                      className="flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-all font-semibold shadow-md hover:shadow-lg"
+                      className="flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-all font-semibold shadow-md hover:shadow-lg text-sm sm:text-base"
                     >
-                      <span className="text-2xl">🤖</span>
+                      <span className="text-xl sm:text-2xl">🤖</span>
                       <span>{t?.fridge?.flow?.askAI || "Ask AI what to do"}</span>
                     </button>
                   </div>
@@ -285,27 +297,27 @@ export default function FridgePage() {
                   </motion.div>
                 )}
 
-                {/* ➕ Dodaj produkt button */}
-                <div className="mb-6">
+                {/* ➕ Dodaj produkt button - Mobile optimized */}
+                <div className="mb-4 sm:mb-6">
                   <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                     <SheetTrigger asChild>
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-medium rounded-lg shadow-lg flex items-center justify-center gap-2 transition-all"
+                        className="w-full sm:w-auto px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white text-sm sm:text-base font-medium rounded-lg shadow-lg flex items-center justify-center gap-2 transition-all"
                       >
-                        <Plus className="w-5 h-5" />
+                        <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                         {t?.fridge?.actions?.addProduct || "Add product"}
                       </motion.button>
                     </SheetTrigger>
                     <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto p-0">
-                      <SheetHeader className="px-6 pt-6 pb-4">
-                        <SheetTitle>{t?.fridge?.form?.addToFridgeTitle || "Add product to fridge"}</SheetTitle>
-                        <SheetDescription>
+                      <SheetHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4">
+                        <SheetTitle className="text-base sm:text-lg">{t?.fridge?.form?.addToFridgeTitle || "Add product to fridge"}</SheetTitle>
+                        <SheetDescription className="text-sm">
                           {t?.fridge?.form?.addToFridgeDesc || "Search for a product and enter quantity. Backend will automatically calculate expiry date."}
                         </SheetDescription>
                       </SheetHeader>
-                      <div className="px-6 pb-6">
+                      <div className="px-4 sm:px-6 pb-4 sm:pb-6">
                         <FridgeForm onAdd={handleAddItem} token={localStorage.getItem("token") || ""} />
                       </div>
                     </SheetContent>
@@ -318,6 +330,7 @@ export default function FridgePage() {
                   onDelete={handleRemoveItem} 
                   onPriceClick={handlePriceClick}
                   onQuantityClick={handleQuantityClick}
+                  highlightId={highlightItemId || undefined} // 🆕 Pass highlighted item ID
                 />
                 
                 {/* 💰 Price Sheet */}

@@ -219,6 +219,7 @@ export const admin = {
         usedIn: "Используется",
         actions: "Действия",
         recipes: "рецептов",
+        products: "продуктов",
       },
       
       search: "Поиск",
@@ -274,6 +275,8 @@ export const admin = {
     recipes: {
       title: "Рецепты",
       subtitle: "Управление каталогом рецептов",
+      pageTitle: "Каталог рецептов",
+      pageSubtitle: "Управляйте рецептами с помощью AI-инструментов",
       
       deleteDialog: {
         title: "Удалить рецепт?",

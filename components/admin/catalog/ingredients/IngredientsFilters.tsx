@@ -38,27 +38,31 @@ export function IngredientsFilters({
   const { t } = useLanguage();
 
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-end">
+    <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-end">
       {/* Search Input */}
-      <div className="flex-1 space-y-2">
-        <Label htmlFor="search">{t.admin.catalog.products.search || "Search"}</Label>
+      <div className="flex-1 space-y-1.5 sm:space-y-2">
+        <Label htmlFor="search" className="text-xs sm:text-sm">
+          {t.admin.catalog.products.search || "Search"}
+        </Label>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="search"
             placeholder={t.admin.catalog.products.searchPlaceholder || "Search by name (any language)..."}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-9"
+            className="pl-9 h-9 sm:h-10 text-sm"
           />
         </div>
       </div>
 
       {/* Category Filter */}
-      <div className="w-full space-y-2 md:w-[200px]">
-        <Label htmlFor="category">{t.admin.catalog.products.table.category || "Category"}</Label>
+      <div className="w-full space-y-1.5 sm:space-y-2 sm:w-[180px] md:w-[200px]">
+        <Label htmlFor="category" className="text-xs sm:text-sm">
+          {t.admin.catalog.products.table.category || "Category"}
+        </Label>
         <Select value={categoryFilter} onValueChange={(value) => onCategoryChange(value as CategoryFilter)}>
-          <SelectTrigger id="category">
+          <SelectTrigger id="category" className="h-9 sm:h-10 text-xs sm:text-sm">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -78,10 +82,12 @@ export function IngredientsFilters({
 
       {/* Sort Options */}
       {onSortChange && (
-        <div className="w-full space-y-2 md:w-[200px]">
-          <Label htmlFor="sort">{t.admin.catalog.products.sort || "Sort by"}</Label>
+        <div className="w-full space-y-1.5 sm:space-y-2 sm:w-[180px] md:w-[200px]">
+          <Label htmlFor="sort" className="text-xs sm:text-sm">
+            {t.admin.catalog.products.sort || "Sort by"}
+          </Label>
           <Select value={sortBy} onValueChange={(value) => onSortChange(value as SortOption)}>
-            <SelectTrigger id="sort">
+            <SelectTrigger id="sort" className="h-9 sm:h-10 text-xs sm:text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

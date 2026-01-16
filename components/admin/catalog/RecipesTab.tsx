@@ -90,39 +90,39 @@ export function RecipesTab() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <ChefHat className="h-5 w-5" />
+        <CardHeader className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex-1">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <ChefHat className="h-4 w-4 sm:h-5 sm:w-5" />
                 Рецепти
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm mt-1">
                 Управління каталогом рецептів ({meta?.total || 0} рецептів)
               </CardDescription>
             </div>
-            <Link href="/admin/recipes/create">
-              <Button size="sm" className="gap-2">
+            <Link href="/admin/recipes/create" className="w-full sm:w-auto">
+              <Button size="sm" className="gap-2 w-full sm:w-auto h-9 sm:h-10">
                 <Sparkles className="h-4 w-4" />
-                Створити рецепт
+                <span className="text-xs sm:text-sm">Створити рецепт</span>
               </Button>
             </Link>
           </div>
         </CardHeader>
 
         
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6">
           {/* Header: Filters + Reset Button */}
-          <div className="flex items-center justify-between pb-2 border-b">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-2 border-b">
             <div className="flex items-center gap-2">
-              <SlidersHorizontal className="h-5 w-5 text-muted-foreground" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <SlidersHorizontal className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                 Фільтри та сортування
               </h3>
               {activeFiltersCount > 0 && (
-                <Badge variant="secondary" className="ml-2">
+                <Badge variant="secondary" className="text-xs">
                   {activeFiltersCount} активних
                 </Badge>
               )}
@@ -132,47 +132,47 @@ export function RecipesTab() {
                 variant="outline"
                 size="sm"
                 onClick={handleResetFilters}
-                className="h-8 gap-2"
+                className="h-8 gap-2 w-full sm:w-auto"
               >
-                <X className="h-4 w-4" />
-                Скинути все
+                <X className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="text-xs sm:text-sm">Скинути все</span>
               </Button>
             )}
           </div>
 
           {/* Section 1: Search */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-              <Search className="h-4 w-4" />
+            <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <Search className="h-3 w-3 sm:h-4 sm:w-4" />
               Пошук
             </label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
               <Input
                 placeholder="Введіть назву рецепту..."
-                className="pl-9"
+                className="pl-8 sm:pl-9 h-9 sm:h-10 text-sm"
                 value={filters.search}
                 onChange={(e) => updateFilters({ search: e.target.value, page: 1 })}
               />
             </div>
           </div>
 
-          {/* Section 2: Filters & Sorting (Compact 2-row layout) */}
+          {/* Section 2: Filters & Sorting (Responsive layout) */}
           <div className="space-y-3">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-              <Filter className="h-4 w-4" />
+            <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <Filter className="h-3 w-3 sm:h-4 sm:w-4" />
               Фільтри та сортування
             </label>
             
-            {/* Row 1: Category Filters */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {/* Filters - vertical on mobile, grid on desktop */}
+            <div className="flex flex-col sm:grid sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
               {/* Cuisine/Category */}
               <Select
                 value={filters.cuisine || "all"}
                 onValueChange={(value) => updateFilters({ cuisine: value === "all" ? "" : value, page: 1 })}
                 disabled={isLoadingMeta}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-9 sm:h-10 text-sm">
                   <SelectValue placeholder="Всі кухні" />
                 </SelectTrigger>
                 <SelectContent>
@@ -191,7 +191,7 @@ export function RecipesTab() {
                 onValueChange={(value) => updateFilters({ difficulty: value === "all" ? "" : value, page: 1 })}
                 disabled={isLoadingMeta}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-9 sm:h-10 text-sm">
                   <SelectValue placeholder="Всі складності" />
                 </SelectTrigger>
                 <SelectContent>
@@ -210,7 +210,7 @@ export function RecipesTab() {
                 onValueChange={(value) => updateFilters({ status: value === "all" ? "" : value, page: 1 })}
                 disabled={isLoadingMeta}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-9 sm:h-10 text-sm">
                   <SelectValue placeholder="Всі статуси" />
                 </SelectTrigger>
                 <SelectContent>
@@ -224,14 +224,14 @@ export function RecipesTab() {
               </Select>
             </div>
 
-            {/* Row 2: Sort Controls */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {/* Sort Controls - vertical on mobile, 2-col on desktop */}
+            <div className="flex flex-col sm:grid sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
               <Select
                 value={filters.sortBy || 'created_at'}
                 onValueChange={(value) => updateFilters({ sortBy: value, page: 1 })}
                 disabled={isLoadingMeta}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-9 sm:h-10 text-sm">
                   <SelectValue placeholder="Сортувати за..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -248,7 +248,7 @@ export function RecipesTab() {
                 onValueChange={(value: 'asc' | 'desc') => updateFilters({ sortOrder: value, page: 1 })}
                 disabled={isLoadingMeta}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-9 sm:h-10 text-sm">
                   <SelectValue placeholder="Порядок..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -260,16 +260,16 @@ export function RecipesTab() {
                 </SelectContent>
               </Select>
 
-              {/* Empty space for alignment */}
+              {/* Empty space for alignment on desktop */}
               <div className="hidden md:block"></div>
             </div>
           </div>
 
           {/* Active Filters Tags */}
           {activeFiltersCount > 0 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {filters.search && (
-                <Badge variant="secondary" className="gap-1">
+                <Badge variant="secondary" className="gap-1 text-xs">
                   Пошук: "{filters.search}"
                   <X 
                     className="h-3 w-3 cursor-pointer hover:text-destructive" 
@@ -278,7 +278,7 @@ export function RecipesTab() {
                 </Badge>
               )}
               {filters.cuisine && filters.cuisine !== 'all' && (
-                <Badge variant="secondary" className="gap-1">
+                <Badge variant="secondary" className="gap-1 text-xs">
                   Кухня: {filters.cuisine}
                   <X 
                     className="h-3 w-3 cursor-pointer hover:text-destructive" 
@@ -287,7 +287,7 @@ export function RecipesTab() {
                 </Badge>
               )}
               {filters.difficulty && filters.difficulty !== 'all' && (
-                <Badge variant="secondary" className="gap-1">
+                <Badge variant="secondary" className="gap-1 text-xs">
                   Складність: {filters.difficulty}
                   <X 
                     className="h-3 w-3 cursor-pointer hover:text-destructive" 
@@ -296,7 +296,7 @@ export function RecipesTab() {
                 </Badge>
               )}
               {filters.status && filters.status !== 'all' && (
-                <Badge variant="secondary" className="gap-1">
+                <Badge variant="secondary" className="gap-1 text-xs">
                   Статус: {filters.status}
                   <X 
                     className="h-3 w-3 cursor-pointer hover:text-destructive" 
@@ -318,7 +318,7 @@ export function RecipesTab() {
 
           {/* Count */}
           {meta && (
-            <div className="text-sm text-muted-foreground text-center">
+            <div className="text-xs sm:text-sm text-muted-foreground text-center">
               Показано: {Array.isArray(recipes) ? recipes.length : 0} з {meta.total}
             </div>
           )}

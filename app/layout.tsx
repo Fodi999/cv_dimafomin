@@ -9,6 +9,7 @@ import { SettingsProvider } from "@/contexts/SettingsContext";
 import { UserProvider } from "@/contexts/UserContext";
 import { RecipeProvider } from "@/contexts/RecipeContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
+import { NotificationRefetchProvider } from "@/contexts/NotificationRefetchContext";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import PWARegister from "@/components/PWARegister";
 import AuthGate from "@/components/auth/AuthGate";
@@ -100,23 +101,40 @@ export default async function RootLayout({
                 <LanguageProvider initialLanguage={language} dictionary={dictionary}>
                   <RecipeProvider>
                     <NotificationProvider>
-                      <TokenValidator />
-                      <GlobalAuthModal /> {/* 🆕 Global auth modal for all pages */}
-                      <AuthGate>
-                        {/* ❌ NavigationBurger видалено з root layout */}
-                        {/* ✅ Кожен контекст має свою навігацію:
-                            - Public: мінімальний хедер на app/page.tsx
-                            - User: UserNavigation в app/(user)/layout.tsx
-                            - Admin: AdminNavigation в app/admin/layout.tsx
-                        */}
-                        <div className="min-h-screen">
-                          {children}
-                        </div>
-                      </AuthGate>
-                      {/* Global Toaster for toast notifications */}
-                      <Toaster richColors position="top-center" />
-                      {/* i18n Dev Warnings (only in development) */}
-                      <I18nDevWarning />
+                      <NotificationRefetchProvider>
+                        <TokenValidator />
+                        <GlobalAuthModal /> {/* 🆕 Global auth modal for all pages */}
+                        <AuthGate>
+                          {/* ❌ NavigationBurger видалено з root layout */}
+                          {/* ✅ Кожен контекст має свою навігацію:
+                              - Public: мінімальний хедер на app/page.tsx
+                              - User: UserNavigation в app/(user)/layout.tsx
+                              - Admin: AdminNavigation в app/admin/layout.tsx
+                          */}
+                          <div className="min-h-screen">
+                            {children}
+                          </div>
+                        </AuthGate>
+                        {/* Global Toaster for toast notifications */}
+                        <Toaster 
+                          richColors 
+                          position="top-right"
+                          expand={false}
+                          duration={3000}
+                          toastOptions={{
+                            style: {
+                              opacity: 0.85,
+                              backdropFilter: 'blur(8px)',
+                              fontSize: '14px',
+                              padding: '12px 16px',
+                              minHeight: '48px',
+                              maxWidth: '320px',
+                            },
+                          }}
+                        />
+                        {/* i18n Dev Warnings (only in development) */}
+                        <I18nDevWarning />
+                      </NotificationRefetchProvider>
                     </NotificationProvider>
                   </RecipeProvider>
                 </LanguageProvider>

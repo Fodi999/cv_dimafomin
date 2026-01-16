@@ -120,4 +120,40 @@ export const common = {
     message: "Скоро открытие!",
     follow: "Следите за обновлениями",
   },
+  
+  // Notifications
+  notifications: {
+    title: "Уведомления",
+    markAllRead: "Отметить все как прочитанные",
+    viewAll: "Посмотреть все уведомления",
+    empty: "Нет уведомлений",
+    unread: "Непрочитано",
+    
+    // Types
+    types: {
+      ai: "ИИ",
+      fridge: "Холодильник",
+      order: "Заказ",
+      system: "Система",
+      error: "Ошибка",
+    },
+    
+    // Time format
+    time: {
+      justNow: "Только что",
+      minutesAgo: "{{count}} мин назад",
+      hoursAgo: "{{count}} ч назад",
+      daysAgo: "{{count}} дн назад",
+    },
+    
+    // Fridge notifications
+    fridge: {
+      itemAdded: "Продукт добавлен",
+      itemDeleted: "Продукт убран",
+      itemExpiring: "Скоро истечёт",
+      itemExpired: "Срок годности истёк",
+      daysLeft: "{{count}} дней осталось",
+      priceAtRisk: "{{price}} PLN под угрозой",
+    },
+  },
 } as const;

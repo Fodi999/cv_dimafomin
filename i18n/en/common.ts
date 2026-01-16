@@ -120,4 +120,40 @@ export const common = {
     message: "Coming Soon!",
     follow: "Follow for Updates",
   },
+  
+  // Notifications
+  notifications: {
+    title: "Notifications",
+    markAllRead: "Mark all as read",
+    viewAll: "View all notifications",
+    empty: "No notifications",
+    unread: "Unread",
+    
+    // Types
+    types: {
+      ai: "AI",
+      fridge: "Fridge",
+      order: "Order",
+      system: "System",
+      error: "Error",
+    },
+    
+    // Time format
+    time: {
+      justNow: "Just now",
+      minutesAgo: "{{count}}m ago",
+      hoursAgo: "{{count}}h ago",
+      daysAgo: "{{count}}d ago",
+    },
+    
+    // Fridge notifications
+    fridge: {
+      itemAdded: "Product added",
+      itemDeleted: "Product removed",
+      itemExpiring: "Expiring soon",
+      itemExpired: "Expired",
+      daysLeft: "{{count}} days left",
+      priceAtRisk: "{{price}} PLN at risk",
+    },
+  },
 } as const;

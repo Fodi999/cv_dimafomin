@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Ingredient } from "@/hooks/useIngredients";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { motion } from "framer-motion";
 import { 
   getProductAge, 
   getProductAgeBadgeText, 
@@ -57,7 +58,7 @@ export function IngredientsTable({
     return (
       <div className="space-y-3">
         {[...Array(5)].map((_, i) => (
-          <Skeleton key={i} className="h-16 w-full" />
+          <Skeleton key={i} className="h-14 sm:h-16 w-full" />
         ))}
       </div>
     );
@@ -65,8 +66,8 @@ export function IngredientsTable({
 
   if (ingredients.length === 0) {
     return (
-      <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-        <p className="text-gray-500 dark:text-gray-400">
+      <div className="text-center py-8 sm:py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
           {t.admin.catalog.products.noProducts}
         </p>
       </div>
@@ -176,20 +177,23 @@ export function IngredientsTable({
         </table>
       </div>
 
-      {/* Mobile: Карточки */}
+      {/* Mobile: Карточки с анимацией */}
       <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
-        {ingredients.map((ingredient) => {
+        {ingredients.map((ingredient, index) => {
           const age = ingredient.createdAt ? getProductAge(ingredient.createdAt) : "old";
           const rowClass = getProductAgeRowClass(age);
           
           return (
-            <div
+            <motion.div
               key={ingredient.id}
-              className={`p-4 ${rowClass}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className={`p-3 sm:p-4 ${rowClass}`}
             >
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-900 dark:text-white mb-1">
+              <div className="flex items-start justify-between gap-2 sm:gap-3 mb-2">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white mb-1 truncate">
                     {getIngredientName(ingredient)}
                   </h3>
                   <div className="flex flex-wrap gap-1.5 mb-2">
@@ -222,7 +226,7 @@ export function IngredientsTable({
                     )}
                   </div>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1 flex-shrink-0">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -241,7 +245,7 @@ export function IngredientsTable({
                   </Button>
                 </div>
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>

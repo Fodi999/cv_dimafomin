@@ -137,12 +137,12 @@ export default function AdminUsersPage() {
   }));
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6 pb-safe">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
           {t.admin.users.title}
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">
+        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
           {t.admin.users.subtitle}
         </p>
       </div>

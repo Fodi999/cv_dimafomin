@@ -57,4 +57,40 @@ export const common = {
     message: "Wkrótce otwarcie!",
     follow: "Śledź aktualizacje",
   },
+  
+  // Notifications
+  notifications: {
+    title: "Powiadomienia",
+    markAllRead: "Oznacz wszystkie jako przeczytane",
+    viewAll: "Zobacz wszystkie powiadomienia",
+    empty: "Brak powiadomień",
+    unread: "Nieprzeczytane",
+    
+    // Types
+    types: {
+      ai: "AI",
+      fridge: "Lodówka",
+      order: "Zamówienie",
+      system: "System",
+      error: "Błąd",
+    },
+    
+    // Time format
+    time: {
+      justNow: "Teraz",
+      minutesAgo: "{{count}} min temu",
+      hoursAgo: "{{count}} godz. temu",
+      daysAgo: "{{count}} dni temu",
+    },
+    
+    // Fridge notifications
+    fridge: {
+      itemAdded: "Produkt dodany",
+      itemDeleted: "Produkt usunięty",
+      itemExpiring: "Wkrótce straci ważność",
+      itemExpired: "Stracił ważność",
+      daysLeft: "{{count}} dni pozostało",
+      priceAtRisk: "{{price}} PLN zagrożone",
+    },
+  },
 } as const;
