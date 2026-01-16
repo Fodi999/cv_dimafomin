@@ -18,6 +18,47 @@ import { AIMessageCard } from "@/components/ai/AIMessageCard";
 import { useRecipeStats } from "@/hooks/useRecipeStats";
 import { PageLayout, PageHeader } from "@/components/layout/PageLayout";
 
+// ═══════════════════════════════════════════════════════════════════════════
+// 🔒 ARCHITECTURAL CONTRACT: cook_now Scenario
+// ═══════════════════════════════════════════════════════════════════════════
+// 
+// CANONICAL RULE (DO NOT MODIFY):
+// 
+// The "cook_now" scenario ALWAYS uses deterministic rules-based matching
+// via GET /api/recipes/match and NEVER uses AI recommendations.
+//
+// Why?
+// 1. Deterministic matching is 100x cheaper than AI calls
+// 2. Users expect instant results for "what can I cook now"
+// 3. AI should only be fallback when catalog returns count === 0
+// 4. Economy: matching uses existing recipe catalog, AI generates new content
+//
+// Endpoints:
+// ✅ PRIMARY:   GET /api/recipes/match (rules-based, deterministic)
+// ❌ FORBIDDEN: POST /api/recipes/recommendations (AI-powered, expensive)
+//
+// Parameters for cook_now:
+const COOK_NOW_PARAMS = {
+  limit: 20,           // Get top 20 matches for rotation
+  sort: 'coverage',    // Prioritize recipes with highest ingredient coverage
+  order: 'desc',       // Best matches first
+  minCoverage: 0,      // Allow any match (filter on frontend if needed)
+} as const;
+//
+// UX Contract:
+// - If count > 0: Show recipes from catalog (NO AI fallback)
+// - If count === 0: Show AIMessageCard suggesting to add products or explore catalog
+// - Frontend filters already-viewed recipes from results
+//
+// Selection Logic (ONE CARD AT A TIME):
+// 1. coverage DESC      (максимальное покрытие ингредиентов)
+// 2. score DESC         (общий балл рецепта)
+// 3. usedCount DESC     (больше ингредиентов из холодильника)
+// 4. cookingTime ASC    (быстрее готовить)
+//
+// Last Updated: 2026-01-16
+// ═══════════════════════════════════════════════════════════════════════════
+
 // Types for recipe response
 interface RecipeIngredient {
   name: string;
@@ -345,30 +386,29 @@ export default function AssistantPage() {
     setAiResponse(null); // Clear previous messages
 
     try {
-      console.log("🎯 Loading recipes from /api/recipes/match (GET)...");
-      console.log(`   Excluding ${viewedRecipeIds.length} recipe(s):`, viewedRecipeIds);
+      // ═══════════════════════════════════════════════════════════════════
+      // 🔒 COOK_NOW CONTRACT: Rules-based matching only (NO AI)
+      // ═══════════════════════════════════════════════════════════════════
+      console.log("🎯 cook_now scenario: Loading recipes from GET /api/recipes/match");
+      console.log("📋 Parameters:", COOK_NOW_PARAMS);
+      console.log(`🚫 Excluding ${viewedRecipeIds.length} already viewed recipe(s):`, viewedRecipeIds);
       
-      // ✅ Use GET /api/recipes/match endpoint (decision engine, not AI recommendations)
-      const result = await recipeMatchingApi.getRecipeMatches(
-        { 
-          limit: 20,
-          sort: 'coverage',
-          order: 'desc'
-        }, 
-        token
-      );
+      // ✅ Use deterministic rules-based matching (PRIMARY endpoint)
+      const result = await recipeMatchingApi.getRecipeMatches(COOK_NOW_PARAMS, token);
       
-      // Convert RecipeMatchResponse to AIRecommendationResult format
+      console.log(`✅ Received ${result.count} recipe matches from catalog`);
+      
+      // Handle empty catalog state (count === 0)
       if (!result.recipes || result.recipes.length === 0) {
-        // Handle empty state
-        console.info("ℹ️ No matching recipes found (expected scenario)");
+        console.info("ℹ️ No recipes in catalog matching fridge contents");
         setRecipeMatches([]);
         
+        // 🎨 Show user-friendly message (NO AI fallback - by design)
         setAiResponse({
-          code: viewedRecipeIds.length > 0 ? 'ALL_RECIPES_VIEWED' : 'NO_RECIPES_FOR_FRIDGE',
+          code: 'NO_RECIPES_FOR_FRIDGE',
           context: { 
             fridgeItems: fridgeItems.length,
-            viewedCount: viewedRecipeIds.length,
+            viewedCount: 0,
             totalRecipes: stats?.totalRecipes ?? 0,
           },
           success: false,
@@ -376,13 +416,16 @@ export default function AssistantPage() {
         return;
       }
       
-      // Filter out already viewed recipes
+      // Filter out already viewed recipes (frontend-side exclusion)
       const unseenRecipes = result.recipes.filter(
         recipe => !viewedRecipeIds.includes(recipe.recipeId)
       );
       
+      console.log(`📊 After filtering: ${unseenRecipes.length} unseen recipes available`);
+      
+      // Handle "all recipes already viewed" state
       if (unseenRecipes.length === 0) {
-        console.info("ℹ️ All available recipes already viewed");
+        console.info("ℹ️ All available recipes already viewed by user");
         setRecipeMatches([]);
         setAiResponse({
           code: 'ALL_RECIPES_VIEWED',
@@ -396,21 +439,31 @@ export default function AssistantPage() {
         return;
       }
       
-      // Take first unseen recipe for ONE CARD AT A TIME UX
-      const recommendation = unseenRecipes[0];
+      // ═══════════════════════════════════════════════════════════════════
+      // 📍 Selection Logic: ONE CARD AT A TIME
+      // ═══════════════════════════════════════════════════════════════════
+      // Priority (already sorted by backend):
+      // 1. coverage DESC      → максимальное использование холодильника
+      // 2. score DESC         → лучший общий балл
+      // 3. usedCount DESC     → больше ингредиентов из холодильника  
+      // 4. cookingTime ASC    → быстрее приготовить
+      // ═══════════════════════════════════════════════════════════════════
+      const recommendation = unseenRecipes[0]; // Backend уже отсортировал
       
-      console.log("✅ Recipe match received from GET /api/recipes/match:");
-      console.log(`   Recipe: "${recommendation.title || recommendation.canonicalName}" (ID: ${recommendation.recipeId})`);
-      console.log(`   Coverage: ${recommendation.coverage?.toFixed(0) ?? 'N/A'}%`);
-      console.log(`   Score: ${recommendation.score ?? 'N/A'}`);
-      console.log(`   Can cook now: ${recommendation.canCookNow ?? recommendation.canCook}`);
-      console.log(`   Used ingredients: ${recommendation.usedCount ?? recommendation.usedIngredients?.length ?? 0}`);
-      console.log(`   Missing ingredients: ${recommendation.missingCount ?? 0}`);
+      console.log("✅ Selected recipe (top match from rules engine):");
+      console.log(`   📖 Title: "${recommendation.title || recommendation.canonicalName}"`);
+      console.log(`   🆔 ID: ${recommendation.recipeId}`);
+      console.log(`   📊 Coverage: ${recommendation.coverage?.toFixed(0) ?? 'N/A'}%`);
+      console.log(`   ⭐ Score: ${recommendation.score ?? 'N/A'}`);
+      console.log(`   ✅ Can cook: ${recommendation.canCookNow ?? recommendation.canCook}`);
+      console.log(`   🥘 Used: ${recommendation.usedCount ?? recommendation.usedIngredients?.length ?? 0} ingredients`);
+      console.log(`   🛒 Missing: ${recommendation.missingCount ?? 0} ingredients`);
+      console.log(`   ⏱️ Time: ${recommendation.cookingTime ?? recommendation.timeMinutes ?? 'N/A'} min`);
       
-      // Сохраняем ID этого рецепта, чтобы не показывать его снова
+      // Mark this recipe as viewed (prevent showing again)
       setViewedRecipeIds(prev => [...prev, recommendation.recipeId]);
       
-      // Обёртываем в массив для совместимости с ONE CARD AT A TIME UX
+      // Set for ONE CARD AT A TIME UX
       setRecipeMatches([recommendation]);
       setCurrentRecipeIndex(0);
       setAiResponse(null); // Clear any error messages
@@ -631,17 +684,45 @@ export default function AssistantPage() {
   const handleAnalyze = async (goal: AIGoal) => {
     console.log("🔵 handleAnalyze called with goal:", goal);
     
-    // 🆕 Decision Engine: Presets with structured responses
-    // "cook_now" = pokazuj przepisy z lodówki (zero zakupów)
+    // ═══════════════════════════════════════════════════════════════════════════
+    // 🔒 ARCHITECTURAL CONTRACT: cook_now uses rules-based matching ONLY
+    // ═══════════════════════════════════════════════════════════════════════════
+    // 
+    // Scenario: "cook_now" (Що можу приготувати зараз?)
+    // 
+    // Implementation:
+    // ✅ PRIMARY:   GET /api/recipes/match with COOK_NOW_PARAMS
+    // ❌ FORBIDDEN: POST /api/recipes/recommendations
+    // ❌ FORBIDDEN: AI fallback when count > 0
+    // 
+    // Rationale:
+    // - Deterministic matching = 100x cheaper than AI
+    // - User expects instant results, not AI generation
+    // - Catalog recipes already exist, no need to generate
+    // 
+    // AI ONLY used when:
+    // - count === 0 (no recipes in catalog match fridge)
+    // - User explicitly requests "generate new recipe"
+    // 
+    // ═══════════════════════════════════════════════════════════════════════════
     if (goal === "cook_now") {
-      console.log("🟢 Detected cook_now preset - loading recipes from catalog");
+      console.log("🟢 cook_now scenario triggered (RULES-BASED, NO AI)");
       console.log("📍 Endpoint: GET /api/recipes/match");
+      console.log("🚫 AI fallback: DISABLED by architectural contract");
+      
       setShowMatches(true); // Show the matches section
+      
+      // Load recipes from catalog if not already loaded
       if (recipeMatches.length === 0) {
-        await loadRecipeMatches(); // Load if not already loaded
+        await loadRecipeMatches();
       }
-      return;
+      
+      return; // NEVER proceed to AI for cook_now
     }
+    
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Other goals (expiring_soon, save_money, quick_meal) can use AI
+    // ═══════════════════════════════════════════════════════════════════════════
     
     // Clear recipe when running other goals
     clearRecipe();
