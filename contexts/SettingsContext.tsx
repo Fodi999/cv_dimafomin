@@ -12,6 +12,7 @@ import { getSettings, updateSettings as apiUpdateSettings } from "@/lib/api/sett
 import { DEFAULT_SETTINGS, type UserSettings, type PartialSettings } from "@/lib/types/settings";
 import { useAuth } from "./AuthContext";
 import { useUser } from "./UserContext";
+import { LANGUAGE_COOKIE_KEY, LANGUAGE_COOKIE_MAX_AGE } from "@/lib/i18n/constants";
 
 interface SettingsContextType {
   settings: UserSettings;
@@ -39,8 +40,10 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [isUpdating, setIsUpdating] = useState(false);
 
   /**
-   * Load settings from backend
-   * Falls back to localStorage if API fails
+   * Load settings from backend and sync with cookie
+   * 
+   * 🔥 КРИТИЧНО: Backend = источник истины
+   * Если backend.language !== cookie → обновить cookie
    */
   const loadSettings = useCallback(async () => {
     if (!isAuthenticated || !token) {
@@ -69,6 +72,26 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       }
       
       console.log("✅ Settings loaded:", data);
+      
+      // 🔥 Sync language with cookie (backend is source of truth)
+      if (typeof window !== "undefined" && data.language) {
+        const currentCookieLang = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith(`${LANGUAGE_COOKIE_KEY}=`))
+          ?.split("=")[1];
+        
+        if (currentCookieLang !== data.language) {
+          console.log(`🔄 Language mismatch: cookie="${currentCookieLang}", backend="${data.language}"`);
+          console.log(`🔄 Updating cookie to match backend: ${data.language}`);
+          
+          // Update cookie to match backend
+          document.cookie = `${LANGUAGE_COOKIE_KEY}=${data.language}; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
+          
+          // Reload page to apply new language
+          console.log("🔄 Reloading page with correct language...");
+          window.location.reload();
+        }
+      }
     } catch (error) {
       console.error("❌ Failed to load settings:", error);
       
@@ -101,6 +124,9 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
    */
   const updateSettings = useCallback(
     async (partial: PartialSettings) => {
+      console.log(`🔧 [SettingsContext] updateSettings called with:`, partial);
+      console.log(`🔧 [SettingsContext] isAuthenticated: ${isAuthenticated}, token: ${!!token}`);
+      
       if (!isAuthenticated || !token) {
         console.warn("⚠️ Cannot update settings - not authenticated");
         return;
@@ -111,10 +137,15 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       const optimistic = { ...settings, ...partial };
       setSettings(optimistic);
       setIsUpdating(true);
+      
+      console.log(`🔄 [SettingsContext] Optimistic update applied:`, optimistic);
 
       try {
-        console.log("⚙️ Updating settings:", partial);
-        const updated = await apiUpdateSettings(partial);
+        console.log("⚙️ Updating settings (sending FULL object):", optimistic);
+        
+        // ✅ КРИТИЧНО: Отправляем ВСЕ настройки, а не только partial
+        // Backend требует полный объект для валидации
+        const updated = await apiUpdateSettings(optimistic);
         
         setSettings(updated);
         
@@ -126,13 +157,15 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         console.log("✅ Settings updated:", updated);
       } catch (error) {
         console.error("❌ Failed to update settings:", error);
+        console.error("❌ Error details:", JSON.stringify(error, null, 2));
         
         // Rollback on error
         setSettings(previous);
         
-        // TODO: Show toast notification
+        // Show error to user (non-blocking)
         if (typeof window !== "undefined") {
-          alert("Nie udało się zapisać ustawień. Spróbuj ponownie.");
+          console.error("🚨 ERROR: Nie udało się zapisać ustawień. Spróbuj ponownie.");
+          // alert("Nie udało się zapisać ustawień. Spróbuj ponownie."); // Временно отключено для дебага
         }
       } finally {
         setIsUpdating(false);

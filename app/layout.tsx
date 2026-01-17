@@ -15,6 +15,7 @@ import PWARegister from "@/components/PWARegister";
 import AuthGate from "@/components/auth/AuthGate";
 import GlobalAuthModal from "@/components/auth/GlobalAuthModal"; // 🆕 Global auth modal
 import TokenValidator from "@/components/auth/TokenValidator";
+import ReloginNotification from "@/components/auth/ReloginNotification"; // 🆕 Relogin notification
 import { Toaster } from "@/components/ui/sonner";
 import { I18nDevWarning } from "@/components/dev/I18nDevWarning";
 import { getDictionary } from "@/lib/i18n/getDictionary";
@@ -103,6 +104,7 @@ export default async function RootLayout({
                     <NotificationProvider>
                       <NotificationRefetchProvider>
                         <TokenValidator />
+                        <ReloginNotification /> {/* 🆕 Notification for users with old tokens */}
                         <GlobalAuthModal /> {/* 🆕 Global auth modal for all pages */}
                         <AuthGate>
                           {/* ❌ NavigationBurger видалено з root layout */}

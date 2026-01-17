@@ -30,52 +30,47 @@ export function LanguageProvider({
   dictionary?: Dictionary;
   children: React.ReactNode;
 }) {
-  const [language] = useState<Language>(initialLanguage);
+  const [language, setLanguageState] = useState<Language>(initialLanguage);
   const [dictionary, setDictionary] = useState<Dictionary | null>(initialDictionary || null);
   const [isLoading, setIsLoading] = useState(!initialDictionary);
 
   useEffect(() => {
-    if (!dictionary) {
-      let mounted = true;
-
-      async function loadDictionary() {
-        try {
-          setIsLoading(true);
-          const dict = await getDictionary(language);
-          if (mounted) {
-            setDictionary(dict);
-          }
-        } catch (error) {
-          console.error("Failed to load dictionary:", error);
-          const fallbackDict = await getDictionary(DEFAULT_LANGUAGE);
-          if (mounted) {
-            setDictionary(fallbackDict);
-          }
-        } finally {
-          if (mounted) {
-            setIsLoading(false);
-          }
-        }
+    async function loadDictionary() {
+      try {
+        setIsLoading(true);
+        console.log(`🌍 [LanguageContext] Loading dictionary for: ${language}`);
+        const dict = await getDictionary(language);
+        setDictionary(dict);
+        console.log(`✅ [LanguageContext] Dictionary loaded for: ${language}`);
+      } catch (error) {
+        console.error("Failed to load dictionary:", error);
+        const fallbackDict = await getDictionary(DEFAULT_LANGUAGE);
+        setDictionary(fallbackDict);
+      } finally {
+        setIsLoading(false);
       }
-
-      loadDictionary();
-
-      return () => {
-        mounted = false;
-      };
     }
-  }, [language, dictionary]);
+
+    loadDictionary();
+  }, [language]);
 
   const setLanguage = (lang: Language) => {
     if (lang === language) return;
     
+    console.log(`🔄 [LanguageContext] Changing language from ${language} to ${lang}`);
+    
+    // Update cookie
     document.cookie = `${LANGUAGE_COOKIE_KEY}=${lang}; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
     
+    // Update localStorage
     if (typeof window !== "undefined") {
       localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
     }
     
-    window.location.reload();
+    // ✅ Update React state (triggers useEffect above to reload dictionary)
+    setLanguageState(lang);
+    
+    console.log(`✅ [LanguageContext] Language state updated to: ${lang}`);
   };
 
   if (!dictionary) {

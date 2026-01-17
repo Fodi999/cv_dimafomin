@@ -104,15 +104,19 @@ export async function proxyToBackend<T = any>(
       const cookieStore = await cookies();
       token = cookieStore.get('token')?.value;
       
+      console.log(`[Proxy] ${requestId} 🔑 Token from cookies:`, token ? `${token.substring(0, 20)}...` : 'MISSING');
+      
       if (!token) {
         // Check Authorization header as fallback
         const authHeader = request.headers.get('Authorization');
         if (authHeader?.startsWith('Bearer ')) {
           token = authHeader.substring(7);
+          console.log(`[Proxy] ${requestId} 🔑 Token from Authorization header:`, token ? `${token.substring(0, 20)}...` : 'MISSING');
         }
       }
       
       if (!token) {
+        console.error(`[Proxy] ${requestId} ❌ No auth token found`);
         return NextResponse.json({
           success: false,
           error: {
@@ -190,7 +194,7 @@ export async function proxyToBackend<T = any>(
     clearTimeout(timeoutId);
     
     const duration = Date.now() - startTime;
-    console.log(`[Proxy] ${requestId} ← ${response.status} (${duration}ms)`);
+    console.log(`[Proxy] ${requestId} ← ${response.status} ${response.statusText} (${duration}ms)`);
     
     // 7. Parse response
     let responseData: any;
@@ -198,9 +202,11 @@ export async function proxyToBackend<T = any>(
     
     if (contentType?.includes('application/json')) {
       responseData = await response.json();
+      console.log(`[Proxy] ${requestId} 📦 Response data:`, JSON.stringify(responseData).substring(0, 200));
     } else {
       const text = await response.text();
-      responseData = { raw: text };
+      console.warn(`[Proxy] ${requestId} ⚠️ Non-JSON response:`, text.substring(0, 200));
+      responseData = { message: text };
     }
     
     // 8. Handle errors

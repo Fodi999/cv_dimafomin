@@ -347,31 +347,10 @@ export default function AIRecommendationCard({
         </div>
       )}
 
-      {/* 6️⃣ "DLACZEGO TEN PRZEPIS?" SECTION */}
-      {(recipe.description || (recipe.coverage ?? 0) > 0.5) && (
-        <div className="px-6 py-4 bg-purple-50 dark:bg-purple-900/10 border-b border-gray-200 dark:border-gray-800">
-          <div className="flex items-start gap-3">
-            <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
-                Dlaczego ten przepis?
-              </p>
-              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                {recipe.description || (
-                  <>
-                    Ten przepis został zaproponowany, ponieważ:
-                    <br />• masz {recipe.usedIngredients.length} {recipe.usedIngredients.length === 1 ? 'składnik' : 'składników'} w lodówce
-                    {recipe.coverage && <> ({Math.min(100, Math.round(recipe.coverage > 1 ? recipe.coverage : recipe.coverage * 100))}% pokrycia)</>}
-                    <br />• {recipe.canCookNow ? 'możesz ugotować od razu' : `wystarczy dokupić ${recipe.missingCount} ${recipe.missingCount === 1 ? 'składnik' : 'składników'}`}
-                    {recipe.cookingTime && <><br />• przygotowanie zajmuje tylko {recipe.cookingTime} minut</>}
-                  </>
-                )}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
+      {/* 6️⃣ "DLACZEGO TEN PRZEPIS?" SECTION - REMOVED */}
+      {/* ❌ Убрано: Frontend НЕ генерирует AI текст */}
+      {/* ✅ Backend отправляет ai.title и ai.reason в родительском компоненте */}
+      
       {/* 7️⃣ ACTIONS SECTION */}
       <div className="p-6 space-y-3">
         {/* PRIMARY Actions */}

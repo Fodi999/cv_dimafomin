@@ -6,6 +6,7 @@ import { Clock, Users, ChefHat, TrendingUp, ShoppingCart, AlertCircle, Plus, Min
 import type { RecipeMatch, RecipeMatchIngredient } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getRecipeTitle } from "@/lib/i18n/getRecipeTitle";
+import { getLocalizedIngredientName } from "@/lib/i18n/translateIngredient";
 
 interface RecipeMatchCardProps {
   recipe: RecipeMatch;
@@ -308,9 +309,21 @@ export default function RecipeMatchCard({
             <ul className="space-y-1.5 text-sm">
               {recipe.usedIngredients.slice(0, 3).map((ing, i) => {
                 if (typeof ing === 'string') return null;
+                
+                // ✅ Get localized ingredient name
+                const ingredientName = getLocalizedIngredientName(
+                  {
+                    name: ing.name,
+                    namePl: (ing as any).name_pl || (ing as any).namePl,
+                    nameEn: (ing as any).name_en || (ing as any).nameEn,
+                    nameRu: (ing as any).name_ru || (ing as any).nameRu,
+                  },
+                  language
+                );
+                
                 return (
                   <li key={i} className="flex justify-between text-gray-700 dark:text-gray-300">
-                    <span>• {ing.name}</span>
+                    <span>• {ingredientName}</span>
                     <span className="font-medium">{formatQuantity(scaleQuantity(ing.quantity), ing.unit)}</span>
                   </li>
                 );
@@ -334,9 +347,21 @@ export default function RecipeMatchCard({
             <ul className="space-y-1.5 text-sm mb-3">
               {recipe.missingIngredients?.slice(0, 3).map((ing, i) => {
                 if (typeof ing === 'string') return null;
+                
+                // ✅ Get localized ingredient name
+                const ingredientName = getLocalizedIngredientName(
+                  {
+                    name: ing.name,
+                    namePl: (ing as any).name_pl || (ing as any).namePl,
+                    nameEn: (ing as any).name_en || (ing as any).nameEn,
+                    nameRu: (ing as any).name_ru || (ing as any).nameRu,
+                  },
+                  language
+                );
+                
                 return (
                   <li key={i} className="flex justify-between text-gray-700 dark:text-gray-300">
-                    <span>• {ing.name}</span>
+                    <span>• {ingredientName}</span>
                     <span className="font-medium">{formatQuantity(scaleQuantity(ing.quantity), ing.unit)}</span>
                   </li>
                 );

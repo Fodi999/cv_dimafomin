@@ -49,6 +49,8 @@ export async function getSettings(): Promise<UserSettings> {
 export async function updateSettings(
   settings: PartialSettings
 ): Promise<UserSettings> {
+  console.log(`🌐 [API] updateSettings called with:`, settings);
+  
   // Use Next.js API route to avoid CORS
   const response = await fetch("/api/settings", {
     method: "PATCH",
@@ -59,11 +61,16 @@ export async function updateSettings(
     body: JSON.stringify(settings),
   });
 
+  console.log(`🌐 [API] Response status: ${response.status}`);
+  
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`❌ [API] Failed to update settings: ${response.status}`, errorText);
     throw new Error(`Failed to update settings: ${response.status}`);
   }
 
   const data = await response.json();
+  console.log(`✅ [API] Settings updated successfully:`, data);
   
   // Handle new ApiResponse<SettingsResponse> format
   if (data.data) {

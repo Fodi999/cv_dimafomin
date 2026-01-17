@@ -15,6 +15,7 @@ import { fridge } from "@/i18n/en/fridge";
 import { losses } from "@/i18n/en/losses";
 import { ingredients } from "@/i18n/en/ingredients";
 import { home } from "@/i18n/en/home";
+import { assistant } from "@/i18n/en/assistant";
 import journey, { nextButtonTexts as journeyNextButtonTexts } from "@/i18n/en/journey";
 
 export const en = {
@@ -30,6 +31,7 @@ export const en = {
   losses,
   ingredients,
   home,
+  assistant,
   journey,
   journeyNextButtonTexts,
 } as const;

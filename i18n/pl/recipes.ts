@@ -367,6 +367,53 @@ export const recipes = {
     },
   },
 
+  // AI Recommendation Card
+  recommendation: {
+    title: "Rekomendacja AI",
+    subtitle: "Najlepszy przepis na teraz",
+    canCookNow: "Możesz ugotować teraz",
+    missing: "Brakuje",
+    missingIngredients: {
+      one: "składnik",
+      few: "składniki", // 2-4
+      many: "składników", // 5+
+    },
+    matchPercentage: "dopasowania",
+    servings: "porcji",
+    servingsLabel: {
+      one: "porcja",
+      few: "porcje", // 2-4
+      many: "porcji", // 5+
+    },
+    ingredients: "Składniki",
+    inFridge: "Masz w lodówce",
+    needToBuy: "Trzeba dokupić",
+    instructions: "Sposób przygotowania",
+    economy: "Ekonomia",
+    costToBuy: "Koszt dokupienia",
+    total: "Razem",
+    costPerServing: "Koszt za porcję",
+    budgetWarning: "To {{percent}}% Twojego tygodniowego budżetu",
+    wasteSavings: "Oszczędności (zapobieganie marnowaniu)",
+    whyThisRecipe: "Dlaczego ten przepis?",
+    whyExplanation: {
+      hasInFridge: "masz {{count}} składników w lodówce",
+      coverage: "{{percent}}% pokrycia",
+      canCookNow: "możesz ugotować od razu",
+      needToBuy: "wystarczy dokupić {{count}} składników",
+      quickPrep: "przygotowanie zajmuje tylko {{time}} minut",
+    },
+    actions: {
+      cook: "Ugotuj",
+      cooking: "Gotuję...",
+      addToCart: "Dodaj do zakupów",
+      save: "Zapisz",
+      saving: "Zapisuję...",
+      refresh: "Odśwież",
+      more: "więcej...",
+    },
+  },
+
   // Messages
   messages: {
     createSuccess: "Przepis został utworzony",

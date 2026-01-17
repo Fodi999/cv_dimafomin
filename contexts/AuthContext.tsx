@@ -67,6 +67,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const { token, user } = data.data;
       
+      // 🔥 Декодировать JWT для получения sub (user ID)
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.sub) {
+          localStorage.setItem("userId", payload.sub);
+          console.log("[AuthContext] ✅ User ID from sub:", payload.sub);
+        } else {
+          console.warn("[AuthContext] ⚠️ Token missing 'sub' - userId not saved");
+        }
+      } catch (e) {
+        console.error("[AuthContext] ❌ Failed to decode JWT:", e);
+      }
+      
       // Save to localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("role", user.role);
@@ -113,6 +126,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const { token, user } = data.data;
       
+      // 🔥 Декодировать JWT для получения sub (user ID)
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.sub) {
+          localStorage.setItem("userId", payload.sub);
+          console.log("[AuthContext] ✅ User ID from sub:", payload.sub);
+        } else {
+          console.warn("[AuthContext] ⚠️ Token missing 'sub' - userId not saved");
+        }
+      } catch (e) {
+        console.error("[AuthContext] ❌ Failed to decode JWT:", e);
+      }
+      
       // Save to localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("role", user.role);
@@ -153,6 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("user");
+    localStorage.removeItem("userId");  // 🔥 Очистить userId из sub
     
     // 🆕 Clear cookies
     document.cookie = "token=; path=/; max-age=0";

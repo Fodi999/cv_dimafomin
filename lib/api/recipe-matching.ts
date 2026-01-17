@@ -18,6 +18,13 @@ export interface RecipeMatchIngredient {
   totalPrice?: number;
   available?: number;
   estimatedCost?: number;
+  // 🌍 Translations (from backend)
+  name_pl?: string;
+  name_en?: string;
+  name_ru?: string;
+  namePl?: string;  // Alternative format (camelCase)
+  nameEn?: string;
+  nameRu?: string;
 }
 
 export interface RecipeMatchEconomy {
@@ -116,9 +123,8 @@ export const recipeMatchingApi = {
     if (params.order) queryParams.append('order', params.order);
 
     const url = `/recipes/match${queryParams.toString() ? `?${queryParams}` : ''}`;
-    console.log('Fetching recipe matches:', url);
-    
-    return apiFetch<RecipeMatchResponse>(url, { token });
+    const response = await apiFetch<RecipeMatchResponse>(url, { token });
+    return response;
   },
 
   getRecommendation: async (

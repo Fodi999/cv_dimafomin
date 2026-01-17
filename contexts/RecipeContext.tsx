@@ -67,9 +67,16 @@ export function RecipeProvider({ children }: { children: ReactNode }) {
         console.error("❌ RecipeContext: Failed to save to localStorage", err);
       }
     } else {
-      // Clear storage when recipe is null
-      localStorage.removeItem(STORAGE_KEY);
-      console.log("🗑️ RecipeContext: Cleared localStorage");
+      // 🔥 КРИТИЧНО: Только очищать если нет userId
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        // Нет userId → очистить
+        localStorage.removeItem(STORAGE_KEY);
+        console.log("🗑️ RecipeContext: Cleared localStorage (no userId)");
+      } else {
+        // userId есть → НЕ очищать (пользователь авторизован)
+        console.log("✅ RecipeContext: User ID present, preserving data");
+      }
     }
   }, [state]);
 

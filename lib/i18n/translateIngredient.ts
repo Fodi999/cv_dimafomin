@@ -11,15 +11,24 @@ import type { CatalogIngredient } from "@/lib/types";
 
 /**
  * Get localized ingredient name from backend response
- * Backend now returns full translations in all endpoints
- * @param ingredient - Ingredient object with namePl, nameEn, nameRu fields
+ * 
+ * ✅ Backend отправляет:
+ *    - name: уже локализованное название (для текущего языка пользователя)
+ *    - name_en, name_pl, name_ru: все переводы (для динамического переключения)
+ * 
+ * 🔄 Frontend использует:
+ *    - name_ru / name_pl / name_en для ДИНАМИЧЕСКОГО переключения языка
+ *    - Фоллбэк на name (уже локализованное backend'ом)
+ * 
+ * @param ingredient - Ingredient object with name, namePl, nameEn, nameRu fields
  * @param language - Current language (pl, en, ru)
- * @returns Localized name or fallback to default name
+ * @returns Localized name based on current language
  */
 export function getLocalizedIngredientName(
   ingredient: CatalogIngredient | { name: string; namePl?: string; nameEn?: string; nameRu?: string },
   language: string
 ): string {
+  // 🌍 Динамическое переключение языка на frontend
   switch (language) {
     case 'ru':
       return ingredient.nameRu || ingredient.name;

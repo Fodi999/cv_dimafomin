@@ -355,6 +355,53 @@ export const recipes = {
     },
   },
 
+  // AI Recommendation Card
+  recommendation: {
+    title: "Рекомендация AI",
+    subtitle: "Лучший рецепт сейчас",
+    canCookNow: "Можно готовить сейчас",
+    missing: "Не хватает",
+    missingIngredients: {
+      one: "ингредиент",
+      few: "ингредиента", // 2-4
+      many: "ингредиентов", // 5+
+    },
+    matchPercentage: "совпадения",
+    servings: "порций",
+    servingsLabel: {
+      one: "порция",
+      few: "порции", // 2-4
+      many: "порций", // 5+
+    },
+    ingredients: "Ингредиенты",
+    inFridge: "У вас в холодильнике",
+    needToBuy: "Нужно купить",
+    instructions: "Способ приготовления",
+    economy: "Экономия",
+    costToBuy: "Стоимость покупки",
+    total: "Итого",
+    costPerServing: "Стоимость на порцию",
+    budgetWarning: "Это {{percent}}% вашего недельного бюджета",
+    wasteSavings: "Экономия (предотвращение порчи)",
+    whyThisRecipe: "Почему этот рецепт?",
+    whyExplanation: {
+      hasInFridge: "у вас {{count}} ингредиентов в холодильнике",
+      coverage: "{{percent}}% совпадения",
+      canCookNow: "можно готовить сразу",
+      needToBuy: "достаточно купить {{count}} ингредиентов",
+      quickPrep: "приготовление займёт всего {{time}} минут",
+    },
+    actions: {
+      cook: "Готовить",
+      cooking: "Готовлю...",
+      addToCart: "Добавить в корзину",
+      save: "Сохранить",
+      saving: "Сохраняю...",
+      refresh: "Обновить",
+      more: "ещё...",
+    },
+  },
+
   messages: {
     createSuccess: "Рецепт создан",
     createError: "Ошибка создания рецепта",

@@ -32,7 +32,7 @@ export default function TokenValidator() {
     } else {
       console.log('✅ [TokenValidator] Token is valid');
       
-      // 🔍 DEBUG: Decode JWT to check role
+      // 🔍 DEBUG: Decode JWT and check sub
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         console.log("🔍 [TokenValidator] JWT Payload:", {
@@ -42,6 +42,17 @@ export default function TokenValidator() {
           hasRole: !!payload.role,
           exp: new Date(payload.exp * 1000).toISOString(),
         });
+        
+        // 🔥 КРИТИЧНО: Проверить наличие sub
+        if (!payload.sub) {
+          console.error("❌ [TokenValidator] Token missing 'sub' claim - INVALID TOKEN");
+          console.warn("⚠️ [TokenValidator] Backend must include 'sub' (user.id) in JWT");
+          // Не логаутим, но предупреждаем (для обратной совместимости)
+        } else {
+          // ✅ Сохранить userId из sub (для RecipeContext и других контекстов)
+          localStorage.setItem('userId', payload.sub);
+          console.log(`✅ [TokenValidator] User ID saved: ${payload.sub}`);
+        }
       } catch (e) {
         console.error("⚠️ [TokenValidator] Failed to decode JWT:", e);
       }

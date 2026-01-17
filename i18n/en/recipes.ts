@@ -355,6 +355,53 @@ export const recipes = {
     },
   },
 
+  // AI Recommendation Card
+  recommendation: {
+    title: "AI Recommendation",
+    subtitle: "Best recipe for now",
+    canCookNow: "You can cook now",
+    missing: "Missing",
+    missingIngredients: {
+      one: "ingredient",
+      few: "ingredients",
+      many: "ingredients",
+    },
+    matchPercentage: "match",
+    servings: "servings",
+    servingsLabel: {
+      one: "serving",
+      few: "servings",
+      many: "servings",
+    },
+    ingredients: "Ingredients",
+    inFridge: "You have in fridge",
+    needToBuy: "Need to buy",
+    instructions: "Preparation method",
+    economy: "Economy",
+    costToBuy: "Cost to buy",
+    total: "Total",
+    costPerServing: "Cost per serving",
+    budgetWarning: "That's {{percent}}% of your weekly budget",
+    wasteSavings: "Savings (preventing waste)",
+    whyThisRecipe: "Why this recipe?",
+    whyExplanation: {
+      hasInFridge: "you have {{count}} ingredients in fridge",
+      coverage: "{{percent}}% coverage",
+      canCookNow: "you can cook right away",
+      needToBuy: "just need to buy {{count}} ingredients",
+      quickPrep: "preparation takes only {{time}} minutes",
+    },
+    actions: {
+      cook: "Cook",
+      cooking: "Cooking...",
+      addToCart: "Add to cart",
+      save: "Save",
+      saving: "Saving...",
+      refresh: "Refresh",
+      more: "more...",
+    },
+  },
+
   messages: {
     createSuccess: "Recipe created",
     createError: "Error creating recipe",
