@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, Trash2, Eye, Clock, Users, Weight, Sparkles } from "lucide-react";
+import { Pencil, Trash2, Eye, Clock, Users, Weight, Sparkles, ChefHat, UtensilsCrossed, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,6 +8,7 @@ import { Recipe } from "@/hooks/useAdminRecipes";
 import { getRecipeName, isNewRecipe, formatRecipeDate } from "@/lib/utils/recipe-helpers";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 interface RecipesTableProps {
   recipes: Recipe[];
@@ -59,8 +60,9 @@ export function RecipesTable({ recipes, isLoading, onView, onEdit, onDelete }: R
   if (safeRecipes.length === 0) {
     return (
       <div className="text-center py-8 sm:py-12 bg-gray-50 dark:bg-gray-800/50 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700">
+        <ChefHat className="w-12 h-12 mx-auto mb-3 text-gray-400 dark:text-gray-600" />
         <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
-          🍳 Рецептів не знайдено
+          Рецептів не знайдено
         </p>
         <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500 mt-1">
           Додайте перший рецепт, щоб почати
@@ -70,53 +72,76 @@ export function RecipesTable({ recipes, isLoading, onView, onEdit, onDelete }: R
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <>
       {/* Desktop: Table */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
-              <th className="text-left p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                Назва
-              </th>
-              <th className="text-left p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                Кухня
-              </th>
-              <th className="text-left p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                Складність
-              </th>
-              <th className="text-left p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                Статус
-              </th>
-              <th className="text-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                <Clock className="w-4 h-4 inline" />
-              </th>
-              <th className="text-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                <Users className="w-4 h-4 inline" />
-              </th>
-              <th className="text-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                <Weight className="w-4 h-4 inline" />
-              </th>
-              <th className="text-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                Інгредієнти
-              </th>
-              <th className="text-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                <Eye className="w-4 h-4 inline" />
-              </th>
-              <th className="text-left p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                Дата створення
-              </th>
-              <th className="text-right p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                Дії
-              </th>
-            </tr>
-          </thead>
+          <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900/95 backdrop-blur-sm shadow-sm">
+            <tr className="border-b border-gray-200 dark:border-gray-700">
+                <th className="text-left p-3 text-sm font-medium text-gray-700 dark:text-gray-300 w-16">
+                  Фото
+                </th>
+                <th className="text-left p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Назва
+                </th>
+                <th className="text-left p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Кухня
+                </th>
+                <th className="text-left p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Складність
+                </th>
+                <th className="text-left p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Статус
+                </th>
+                <th className="text-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Clock className="w-4 h-4 inline" />
+                </th>
+                <th className="text-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Users className="w-4 h-4 inline" />
+                </th>
+                <th className="text-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Weight className="w-4 h-4 inline" />
+                </th>
+                <th className="text-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Інгредієнти
+                </th>
+                <th className="text-center p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Eye className="w-4 h-4 inline" />
+                </th>
+                <th className="text-left p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Дата створення
+                </th>
+                <th className="text-right p-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Дії
+                </th>
+              </tr>
+            </thead>
           <tbody>
             {safeRecipes.map((recipe) => (
               <tr
                 key={recipe.id}
                 className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors"
               >
+                {/* Image Cell */}
+                <td className="p-2">
+                  <div className="w-12 h-12 rounded-md overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                    {recipe.imageUrl ? (
+                      <img
+                        src={recipe.imageUrl}
+                        alt={getRecipeName(recipe, language as 'ru' | 'en' | 'pl' | 'uk')}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.src = "/images/recipe-placeholder.svg";
+                        }}
+                      />
+                    ) : (
+                      <ImageIcon className="w-5 h-5 text-gray-400 dark:text-gray-600" />
+                    )}
+                  </div>
+                </td>
+                
+                {/* Name Cell */}
                 <td className="p-3">
                 <div className="flex items-start gap-2">
                   <div className="flex-1">
@@ -219,10 +244,10 @@ export function RecipesTable({ recipes, isLoading, onView, onEdit, onDelete }: R
           ))}
         </tbody>
       </table>
-    </div>
+      </div>
 
-    {/* Mobile: Cards */}
-    <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
+      {/* Mobile: Cards */}
+      <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
       {safeRecipes.map((recipe, index) => (
         <motion.div
           key={recipe.id}
@@ -231,8 +256,26 @@ export function RecipesTable({ recipes, isLoading, onView, onEdit, onDelete }: R
           transition={{ delay: index * 0.05 }}
           className="p-3 sm:p-4"
         >
-          {/* Recipe Title + NEW Badge */}
-          <div className="flex items-start justify-between gap-2 mb-2">
+          {/* Recipe Title + Image + NEW Badge */}
+          <div className="flex items-start gap-3 mb-2">
+            {/* Recipe Image */}
+            <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
+              {recipe.imageUrl ? (
+                <img
+                  src={recipe.imageUrl}
+                  alt={getRecipeName(recipe, language as 'ru' | 'en' | 'pl' | 'uk')}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.src = "/images/recipe-placeholder.svg";
+                  }}
+                />
+              ) : (
+                <ImageIcon className="w-6 h-6 text-gray-400 dark:text-gray-600" />
+              )}
+            </div>
+
+            {/* Recipe Info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap mb-1">
                 <h3 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
@@ -286,7 +329,8 @@ export function RecipesTable({ recipes, isLoading, onView, onEdit, onDelete }: R
           <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1">
-                🥘 {recipe.ingredients?.length || 0} інгр.
+                <UtensilsCrossed className="w-3.5 h-3.5" />
+                {recipe.ingredients?.length || 0} інгр.
               </span>
               <span className="flex items-center gap-1">
                 <Eye className="w-3 h-3" />
@@ -330,6 +374,6 @@ export function RecipesTable({ recipes, isLoading, onView, onEdit, onDelete }: R
         </motion.div>
       ))}
     </div>
-  </div>
+    </>
   );
 }

@@ -47,7 +47,7 @@ export function useIngredients() {
     category: "all",
     sort: "newest", // ✅ Default: newest first (ORDER BY createdAt DESC)
     page: 1,
-    limit: 50,
+    limit: 12, // ✅ Changed from 50 to 12 for better pagination
   });
 
   const fetchIngredients = useCallback(async () => {

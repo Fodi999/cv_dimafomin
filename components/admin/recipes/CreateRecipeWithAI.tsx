@@ -5,9 +5,9 @@
 
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, X, Eye, Check, Loader2 } from "lucide-react";
+import { Plus, X, Eye, Check, Loader2, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,20 +41,100 @@ interface RecipeConflict {
   };
 }
 
-export function CreateRecipeWithAI() {
+interface CreateRecipeWithAIProps {
+  recipeId?: string; // For edit mode
+}
+
+export function CreateRecipeWithAI({ recipeId }: CreateRecipeWithAIProps) {
   const router = useRouter();
   const { language } = useLanguage();
   const { loading, previewing, preview, previewRecipe, saveRecipe, clearPreview } = useAIRecipe();
+  const isEditMode = !!recipeId;
 
   const [mode, setMode] = useState<RecipeAIMode>('edit');
+  const [loadingRecipe, setLoadingRecipe] = useState(false);
   const [title, setTitle] = useState("");
   const [cookingText, setCookingText] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [ingredients, setIngredients] = useState<RecipeIngredientRow[]>([
     { id: crypto.randomUUID(), ingredientId: "", name: "", quantity: 0, unit: "g", searchValue: "" }
   ]);
   const [creatingIngredient, setCreatingIngredient] = useState(false);
   const [conflict, setConflict] = useState<RecipeConflict | null>(null);
   const [conflictLang, setConflictLang] = useState<'ru' | 'en' | 'pl'>('ru');
+
+  // Load recipe data for edit mode
+  useEffect(() => {
+    if (isEditMode && recipeId) {
+      setLoadingRecipe(true);
+      const token = localStorage.getItem('token');
+      
+      // Use Next.js API route that proxies to backend
+      fetch(`/api/admin/recipes/${recipeId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to load recipe');
+          return res.json();
+        })
+        .then(response => {
+          console.log('🔍 [Edit Mode] Raw API response:', response);
+          
+          // Extract recipe data (API wraps it in { data: { ... } })
+          const data = response.data || response;
+          console.log('📦 [Edit Mode] Recipe data:', data);
+          
+          // Pre-fill form with existing recipe data
+          const recipeTitle = data.title || data.localName || data.canonicalName || '';
+          console.log('📝 [Edit Mode] Setting title:', recipeTitle);
+          setTitle(recipeTitle);
+          
+          // Build cooking text from steps
+          if (data.stepsRu && Array.isArray(data.stepsRu) && data.stepsRu.length > 0) {
+            const stepsText = data.stepsRu.map((step: any) => step.text).join(' ');
+            console.log('📋 [Edit Mode] Setting cooking text from stepsRu:', stepsText.substring(0, 100) + '...');
+            setCookingText(stepsText);
+          } else if (data.cookingText) {
+            console.log('📋 [Edit Mode] Setting cooking text from cookingText:', data.cookingText.substring(0, 100) + '...');
+            setCookingText(data.cookingText);
+          }
+          
+          // Load ingredients
+          if (data.ingredients && data.ingredients.length > 0) {
+            console.log('🥕 [Edit Mode] Loading ingredients:', data.ingredients.length);
+            const loadedIngredients = data.ingredients.map((ing: any) => ({
+              id: crypto.randomUUID(),
+              ingredientId: ing.ingredient?.id || ing.ingredientId || '',
+              name: ing.ingredient?.nameRu || ing.ingredient?.namePl || ing.ingredient?.nameEn || ing.name || '',
+              quantity: ing.quantity || ing.amount || 0,
+              unit: ing.unit || 'g',
+              searchValue: '',
+            }));
+            console.log('✅ [Edit Mode] Ingredients loaded:', loadedIngredients);
+            setIngredients(loadedIngredients);
+          }
+          
+          // Load image
+          if (data.imageUrl) {
+            console.log('🖼️ [Edit Mode] Setting image preview:', data.imageUrl);
+            setImagePreview(data.imageUrl);
+          }
+          
+          toast.success('Рецепт завантажено для редагування');
+        })
+        .catch(error => {
+          console.error('Error loading recipe:', error);
+          toast.error('Помилка завантаження рецепту');
+        })
+        .finally(() => {
+          setLoadingRecipe(false);
+        });
+    }
+  }, [isEditMode, recipeId]);
 
   // Add ingredient row
   const addIngredientRow = useCallback(() => {
@@ -144,6 +224,39 @@ export function CreateRecipeWithAI() {
     return true;
   }, [title, ingredients, cookingText]);
 
+  // Handle image file selection
+  const handleImageSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.match(/^image\/(jpeg|png|webp)$/)) {
+      toast.error("Nieprawidłowy format. Tylko JPEG, PNG, WEBP");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Plik zbyt duży. Maksymalnie 5MB");
+      return;
+    }
+
+    setImageFile(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  }, []);
+
+  // Remove image
+  const handleImageRemove = useCallback(() => {
+    setImageFile(null);
+    setImagePreview(null);
+  }, []);
+
   // Preview with AI
   const handlePreview = useCallback(async () => {
     if (!validateForm()) return;
@@ -179,6 +292,15 @@ export function CreateRecipeWithAI() {
 
   // Create recipe (only after preview)
   const handleCreate = useCallback(async (customTitle?: string) => {
+    console.log("🚀 [handleCreate] Starting recipe creation/edit:", {
+      isEditMode,
+      recipeId,
+      hasImageFile: !!imageFile,
+      imageFileName: imageFile?.name,
+      imageFileSize: imageFile?.size,
+      imageFileType: imageFile?.type,
+    });
+
     // If no preview, must preview first
     if (!preview) {
       toast.error("Сначала создайте превью с AI");
@@ -189,7 +311,8 @@ export function CreateRecipeWithAI() {
 
     try {
       // Use preview data to save recipe (with optional custom title)
-      const result = await saveRecipe({
+      const recipePayload = {
+        recipeId: recipeId || undefined, // ✅ НОВОЕ: Передаем ID для редактирования
         title: customTitle || preview.title,
         language: preview.language || language,
         description: preview.description || preview.summary || '',
@@ -197,15 +320,76 @@ export function CreateRecipeWithAI() {
         time_minutes: preview.time_minutes || preview.time || 0,
         difficulty: (preview.difficulty as 'easy' | 'medium' | 'hard') || 'easy',
         calories: preview.nutrition?.calories || preview.calories || 0,
+        portionWeightGrams: preview.totalWeight || 0, // ✅ ADD: Send portion weight from AI calculation
         ingredients: preview.ingredients || [],
         steps: (preview.steps || []).map(step => ({
           order: step.order,
           text: step.text,
           time: step.time || 0 // Ensure time is always a number
         }))
+      };
+      
+      console.log('📤 [handleCreate] Payload to save:', {
+        hasRecipeId: !!recipePayload.recipeId,
+        recipeId: recipePayload.recipeId,
+        title: recipePayload.title,
+        ingredientsCount: recipePayload.ingredients.length,
       });
+      
+      const result = await saveRecipe(recipePayload);
 
-      toast.success(`✅ Рецепт "${result.title || customTitle || preview.title}" успешно создан!`);
+      const savedRecipeId = result.id;
+
+      // Upload image if provided
+      if (imageFile && savedRecipeId) {
+        try {
+          console.log("🖼️ [Image Upload] Starting upload:", {
+            fileName: imageFile.name,
+            fileSize: imageFile.size,
+            fileType: imageFile.type,
+            recipeId: savedRecipeId,
+          });
+
+          const formData = new FormData();
+          formData.append("file", imageFile); // ✅ Backend expects "file", not "image"
+
+          // Log FormData contents
+          console.log("📦 [FormData] Contents:");
+          for (const [key, value] of formData.entries()) {
+            console.log(`  ${key}:`, value instanceof File ? `File(${value.name}, ${value.size}b)` : value);
+          }
+
+          const token = localStorage.getItem("token");
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+          
+          console.log("🚀 [Image Upload] Sending to:", `${apiUrl}/api/admin/recipes/${savedRecipeId}/image`);
+          
+          const uploadResponse = await fetch(`${apiUrl}/api/admin/recipes/${savedRecipeId}/image`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          });
+
+          console.log("📨 [Image Upload] Response status:", uploadResponse.status);
+
+          if (uploadResponse.ok) {
+            const data = await uploadResponse.json();
+            console.log("✅ [Image Upload] Success:", data);
+            toast.success("Изображение загружено!");
+          } else {
+            const errorText = await uploadResponse.text();
+            console.error("❌ [Image Upload] Failed:", errorText);
+            toast.warning("Рецепт создан, но изображение не загружено");
+          }
+        } catch (imageError) {
+          console.error("Image upload error:", imageError);
+          toast.warning("Рецепт создан, но изображение не загружено");
+        }
+      }
+
+      toast.success(`✅ Рецепт "${result.title || customTitle || preview.title}" ${isEditMode ? 'успішно оновлено' : 'успешно создан'}!`);
       
       // Clear conflict if any
       setConflict(null);
@@ -235,17 +419,30 @@ export function CreateRecipeWithAI() {
       toast.error(error.message || "Не удалось создать рецепт");
       setMode('preview'); // Return to preview on error
     }
-  }, [preview, language, saveRecipe, router]);
+  }, [preview, language, saveRecipe, router, isEditMode, recipeId, imageFile]);
 
   return (
     <div className="space-y-6">
+      {/* Loading state */}
+      {loadingRecipe && (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-muted-foreground">Завантаження рецепту...</p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Form - visible in edit mode */}
-      {mode === 'edit' && (
+      {!loadingRecipe && mode === 'edit' && (
         <Card>
           <CardHeader>
-            <CardTitle>Создать рецепт с AI</CardTitle>
+            <CardTitle>{isEditMode ? 'Редагувати рецепт' : 'Создать рецепт с AI'}</CardTitle>
             <CardDescription>
-              Введите минимум данных — AI создаст полный рецепт с шагами, временем и калориями
+              {isEditMode 
+                ? 'Оновіть дані — AI покращить деталі, кроки та калорії'
+                : 'Введите минимум данных — AI создаст полный рецепт с шагами, временем и калориями'
+              }
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -343,6 +540,64 @@ export function CreateRecipeWithAI() {
             </p>
           </div>
 
+          {/* Image Upload */}
+          <div className="space-y-2">
+            <Label htmlFor="recipeImage">Изображение рецепта (опционально)</Label>
+            <div className="space-y-3">
+              {/* Preview or Placeholder */}
+              <div className="relative aspect-[4/3] max-w-md bg-muted rounded-lg overflow-hidden border-2 border-dashed border-muted-foreground/25">
+                {imagePreview ? (
+                  <>
+                    <img
+                      src={imagePreview}
+                      alt="Recipe preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      className="absolute top-2 right-2"
+                      onClick={handleImageRemove}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </>
+                ) : (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground">
+                    <ImageIcon className="w-12 h-12 mb-2 opacity-50" />
+                    <p className="text-sm">Нет изображения</p>
+                  </div>
+                )}
+              </div>
+
+              {/* File Input */}
+              {!imageFile && (
+                <>
+                  <input
+                    id="recipeImage"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleImageSelect}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => document.getElementById('recipeImage')?.click()}
+                  >
+                    <ImageIcon className="w-4 h-4 mr-2" />
+                    Выбрать изображение
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    JPEG, PNG, WEBP. Максимум 5MB
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+
           {/* Actions */}
           <div className="flex gap-3">
             <Button
@@ -371,12 +626,12 @@ export function CreateRecipeWithAI() {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Создание...
+                  {isEditMode ? 'Збереження...' : 'Создание...'}
                 </>
               ) : (
                 <>
                   <Check className="mr-2 h-4 w-4" />
-                  Утвердить и создать
+                  {isEditMode ? 'Зберегти зміни' : 'Утвердить и создать'}
                 </>
               )}
             </Button>
@@ -459,6 +714,20 @@ export function CreateRecipeWithAI() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Image Preview */}
+            {imagePreview && (
+              <div className="relative aspect-video max-w-2xl mx-auto rounded-lg overflow-hidden border-2 border-blue-200 dark:border-blue-800">
+                <img
+                  src={imagePreview}
+                  alt={preview.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-2 right-2 px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
+                  📷 Изображение добавлено
+                </div>
+              </div>
+            )}
+
             <div>
               <h3 className="font-semibold text-lg">{preview.title}</h3>
               {preview.canonicalName && (
@@ -558,7 +827,7 @@ export function CreateRecipeWithAI() {
                 ) : (
                   <>
                     <Check className="mr-2 h-4 w-4" />
-                    Утвердить и создать
+                    {isEditMode ? 'Зберегти зміни' : 'Утвердить и создать'}
                   </>
                 )}
               </Button>

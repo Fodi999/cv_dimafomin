@@ -21,27 +21,32 @@ interface ActionGroup {
 
 function ActionGroupCard({ title, icon, color, links }: ActionGroup) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-      <div className="flex items-center gap-3 mb-4">
-        <div className={`p-2 rounded-lg ${color}`}>
-          {icon}
+    <div className="relative overflow-hidden bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4 hover:shadow-xl transition-all duration-300">
+      {/* Decorative background */}
+      <div className="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-2xl" />
+      
+      <div className="relative z-10">
+        <div className="flex items-center gap-2 mb-3">
+          <div className={`p-2 rounded-xl shadow-lg ${color}`}>
+            {icon}
+          </div>
+          <h3 className="font-bold text-sm text-gray-900 dark:text-white">{title}</h3>
         </div>
-        <h3 className="font-semibold text-gray-900 dark:text-white">{title}</h3>
-      </div>
 
-      <div className="space-y-2">
-        {links.map((link, idx) => (
-          <Link
-            key={idx}
-            href={link.href}
-            className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors group"
-          >
-            <span className="text-sm text-gray-700 dark:text-gray-300">
-              {link.label}
-            </span>
-            <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-200 transition-colors" />
-          </Link>
-        ))}
+        <div className="space-y-0.5">
+          {links.map((link, idx) => (
+            <Link
+              key={idx}
+              href={link.href}
+              className="flex items-center justify-between px-3 py-2 hover:bg-primary/5 dark:hover:bg-gray-700/50 rounded-lg transition-all duration-200 group border border-transparent hover:border-primary/20"
+            >
+              <span className="text-xs font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary">
+                {link.label}
+              </span>
+              <ArrowRight className="w-3 h-3 text-gray-400 group-hover:text-primary transition-all group-hover:translate-x-1" />
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -57,7 +62,6 @@ export function ActionHub() {
       color: "bg-blue-50 dark:bg-blue-900/20",
       links: [
         { label: t.admin.dashboard.actionHub.users.viewAll, href: "/admin/users" },
-        { label: t.admin.dashboard.actionHub.users.roles, href: "/admin/users/roles" },
         { label: t.admin.dashboard.actionHub.users.activity, href: "/admin/activity-log" },
       ],
     },
@@ -66,8 +70,8 @@ export function ActionHub() {
       icon: <BookOpen className="w-5 h-5 text-purple-600" />,
       color: "bg-purple-50 dark:bg-purple-900/20",
       links: [
-        { label: t.admin.dashboard.actionHub.content.recipes, href: "/admin/catalog" },
-        { label: t.admin.dashboard.actionHub.content.ingredients, href: "/admin/catalog" },
+        { label: t.admin.dashboard.actionHub.content.recipes, href: "/admin/catalog/recipes-list" },
+        { label: t.admin.dashboard.actionHub.content.ingredients, href: "/admin/catalog/products" },
       ],
     },
     {
@@ -76,17 +80,21 @@ export function ActionHub() {
       color: "bg-gray-50 dark:bg-gray-700/20",
       links: [
         { label: t.admin.dashboard.actionHub.system.settings, href: "/admin/settings" },
-        { label: t.admin.dashboard.actionHub.system.security, href: "/admin/settings/security" },
       ],
     },
   ];
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-        {t.admin.dashboard.actionHub.title}
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="mb-3">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+          {t.admin.dashboard.actionHub.title}
+        </h2>
+        <p className="text-xs text-muted-foreground">
+          Szybki dostęp do kluczowych funkcji
+        </p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {groups.map((group, idx) => (
           <ActionGroupCard key={idx} {...group} />
         ))}

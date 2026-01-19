@@ -256,7 +256,41 @@ export const admin = {
       title: "Рецепты",
       subtitle: "Управление каталогом рецептов",
       pageTitle: "Каталог рецептов",
-      pageSubtitle: "Управляйте рецептами с помощью AI-инструментов",
+      pageDescription: "Управляйте рецептами с помощью AI-инструментов",
+      createRecipe: "Создать рецепт",
+      
+      // Filters
+      filtersTitle: "Фильтры и сортировка",
+      activeFilters: "активных",
+      resetFilters: "Сбросить все",
+      
+      search: "Поиск",
+      searchPlaceholder: "Введите название рецепта...",
+      searchLabel: "Поиск",
+      
+      filterBy: "Фильтровать по",
+      allCuisines: "Все кухни",
+      allDifficulties: "Все сложности",
+      allStatuses: "Все статусы",
+      
+      cuisineLabel: "Кухня",
+      difficultyLabel: "Сложность",
+      statusLabel: "Статус",
+      
+      sortBy: "Сортировка",
+      sortByLabel: "Сортировать по...",
+      sortOrder: "Порядок...",
+      
+      showing: "Показано",
+      of: "из",
+      
+      // Pagination
+      page: "Страница",
+      firstPage: "Первая страница",
+      lastPage: "Последняя страница",
+      previous: "Назад",
+      next: "Вперед",
+      perPage: "На странице",
       
       deleteDialog: {
         title: "Удалить рецепт?",

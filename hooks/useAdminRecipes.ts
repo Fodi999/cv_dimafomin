@@ -11,6 +11,7 @@ export interface Recipe {
   cooking_time: number; // minutes
   servings: number;
   portionWeightGrams?: number; // вес одной порции в граммах
+  imageUrl?: string | null; // ← ДОБАВЛЕНО: URL изображения из Cloudinary
   ingredients: Array<{
     id?: string;
     ingredient_id?: string;
@@ -28,6 +29,18 @@ export interface Recipe {
     sortOrder?: number;
     inFridge?: boolean;
     fridgeQuantity?: number | null;
+    ingredient?: { // ✅ Nested ingredient object from backend
+      id?: string;
+      name?: string;
+      namePl?: string;
+      nameEn?: string;
+      nameRu?: string;
+      unit?: string;
+      category?: string;
+      nutritionGroup?: string;
+      usageCount?: number;
+      autoTranslated?: boolean;
+    };
   }>;
   steps?: Array<{
     stepNumber?: number;
@@ -60,19 +73,28 @@ export interface Recipe {
   region?: string;
   category?: string;
   timeMinutes?: number;
-  stepsPl?: string[];
+  stepsPl?: string | string[]; // ✅ Language-specific steps (can be string or array)
+  stepsEn?: string | string[]; // ✅ Language-specific steps
+  stepsRu?: string | string[]; // ✅ Language-specific steps
   nutritionProfile?: {
     type?: string;
     calories?: number;
+    protein?: number; // ✅ Protein in grams
+    fat?: number; // ✅ Fat in grams
+    carbohydrate?: number; // ✅ Carbohydrates in grams
   };
   source?: {
     type?: string;
     reference?: string;
+    generator?: string; // ✅ AI generator name (e.g., 'groq-llama-3.3-70b')
+    authorId?: string; // ✅ Author ID
+    timestamp?: number; // ✅ Creation timestamp
   };
   cookingTime?: number;
   portions?: number;
   createdAt?: string;
   updatedAt?: string;
+  imagePublicId?: string; // ✅ Cloudinary public ID
 }
 
 export interface RecipesFilters {
@@ -108,7 +130,7 @@ export function useAdminRecipes() {
     sortBy: "created_at",
     sortOrder: "desc",
     page: 1,
-    limit: 50,
+    limit: 12, // 12 рецептов на страницу для удобной пагинации
   });
   
   // Separate state for debounced search
@@ -140,7 +162,6 @@ export function useAdminRecipes() {
       queryParams.append("limit", filters.limit.toString());
 
       const url = `/api/admin/recipes?${queryParams.toString()}`;
-      console.log('[useAdminRecipes] Fetching from:', url);
 
       const response = await fetch(url, {
         headers: {
@@ -164,7 +185,19 @@ export function useAdminRecipes() {
           ? data.recipes 
           : [];
       
-      setRecipes(recipesArray);
+      // Map snake_case to camelCase and normalize field names
+      const mappedRecipes = recipesArray.map((recipe: any) => ({
+        ...recipe,
+        // Image URL mapping - backend returns "imageUrl"
+        imageUrl: recipe.imageUrl || recipe.image_url || recipe.imagePublicId || null,
+        // Cooking time mapping - backend returns "timeMinutes"
+        cooking_time: recipe.timeMinutes || recipe.cooking_time || recipe.cookingTime || recipe.time_minutes || 0,
+        // Created/Updated dates
+        created_at: recipe.createdAt || recipe.created_at,
+        updated_at: recipe.updatedAt || recipe.updated_at,
+      }));
+      
+      setRecipes(mappedRecipes);
       setMeta(data.meta || null);
     } catch (error) {
       console.error("[useAdminRecipes] Error:", error);

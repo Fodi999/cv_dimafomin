@@ -19,22 +19,14 @@ export default function RecipesCatalogPage() {
     const refreshParam = searchParams.get('refresh');
     if (refreshParam) {
       setRefreshKey(Date.now());
-      // Clean URL without params
-      window.history.replaceState({}, '', '/admin/catalog/recipes');
+      // ✅ Keep URL as is - no need to change it
+      // Clean URL by removing search params only
+      window.history.replaceState({}, '', '/admin/catalog/recipes-list');
     }
   }, [searchParams]);
 
   return (
-    <div className="container mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6 space-y-3 sm:space-y-4 md:space-y-6">
-      <div>
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">
-          {t.admin.catalog.recipes.pageTitle}
-        </h1>
-        <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
-          {t.admin.catalog.recipes.pageSubtitle}
-        </p>
-      </div>
-      
+    <div className="w-full">
       <RecipesTab key={refreshKey} />
     </div>
   );

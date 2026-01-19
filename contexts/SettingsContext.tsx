@@ -176,15 +176,18 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 
   /**
    * Load settings on mount when user changes
+   * 
+   * ✅ Fixed: removed loadSettings from deps to prevent infinite loop
    */
   useEffect(() => {
-    if (isAuthenticated && !userIsLoading) {
+    if (isAuthenticated && !userIsLoading && !isLoaded) {
       loadSettings();
     } else if (!isAuthenticated) {
       setSettings(DEFAULT_SETTINGS);
       setIsLoaded(true);
     }
-  }, [isAuthenticated, userIsLoading, loadSettings]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, userIsLoading]);
 
   return (
     <SettingsContext.Provider

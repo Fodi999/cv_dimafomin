@@ -359,6 +359,7 @@ export interface Recipe {
   title: string;
   description: string;
   image?: string;
+  imageUrl?: string | null; // ← ДОБАВЛЕНО: URL изображения из Cloudinary
   cookingTime: number;
   difficulty: "easy" | "medium" | "hard";
   servings: number;

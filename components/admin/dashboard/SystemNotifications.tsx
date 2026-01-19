@@ -48,23 +48,35 @@ export function SystemNotifications() {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-      <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-        {t.admin.dashboard.systemNotifications.title}
-      </h3>
-      <div className="space-y-2">
-        {notifications.map((notification, idx) => (
-          <div
-            key={idx}
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg border ${getColorClasses(notification.type)}`}
-          >
-            {notification.icon}
-            <div className="flex-1">
-              <span className="text-sm font-medium">{notification.message}</span>
+    <div className="relative overflow-hidden bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-lg h-full">
+      {/* Decorative background */}
+      <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-3xl" />
+      
+      <div className="relative z-10 h-full flex flex-col">
+        <div className="flex items-center justify-between mb-3 flex-shrink-0">
+          <h3 className="text-base font-bold text-gray-900 dark:text-white">
+            {t.admin.dashboard.systemNotifications.title}
+          </h3>
+          <span className="text-xs font-semibold px-2 py-1 rounded-full bg-primary/10 text-primary">
+            {notifications.length}
+          </span>
+        </div>
+        <div className="space-y-2 flex-1 overflow-y-auto">
+          {notifications.map((notification, idx) => (
+            <div
+              key={idx}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${getColorClasses(notification.type)} hover:scale-[1.01] transition-transform`}
+            >
+              <div className="p-1.5 rounded-lg bg-white/50 dark:bg-gray-800/50 flex-shrink-0">
+                {notification.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-xs font-semibold block truncate">{notification.message}</span>
+              </div>
+              <span className="text-xs font-medium opacity-70 whitespace-nowrap flex-shrink-0">{notification.time}</span>
             </div>
-            <span className="text-xs opacity-70">{notification.time}</span>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

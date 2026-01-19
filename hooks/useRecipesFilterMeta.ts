@@ -46,27 +46,29 @@ export function useRecipesFilterMeta() {
         // Fallback to default options if API fails
         setFilterMeta({
           cuisines: [
-            { value: 'italian', label: 'Італійська', icon: '🇮🇹' },
-            { value: 'japanese', label: 'Японська', icon: '🇯🇵' },
-            { value: 'ukrainian', label: 'Українська', icon: '🇺🇦' }
+            { value: 'italian', label: 'Італійська', icon: 'pizza' },
+            { value: 'japanese', label: 'Японська', icon: 'soup' },
+            { value: 'ukrainian', label: 'Українська', icon: 'wheat' }
           ],
           difficulties: [
-            { value: 'easy', label: 'Легкий', icon: '🟢' },
-            { value: 'medium', label: 'Середній', icon: '🟡' },
-            { value: 'hard', label: 'Складний', icon: '🔴' }
+            { value: 'easy', label: 'Легкий', icon: 'circle-green' },
+            { value: 'medium', label: 'Середній', icon: 'circle-yellow' },
+            { value: 'hard', label: 'Складний', icon: 'circle-red' }
           ],
           statuses: [
-            { value: 'draft', label: 'Чернетка', icon: '📝' },
-            { value: 'published', label: 'Опубліковано', icon: '✅' },
-            { value: 'archived', label: 'Архів', icon: '📦' }
+            { value: 'draft', label: 'Чернетка', icon: 'file-edit' },
+            { value: 'published', label: 'Опубліковано', icon: 'check-circle' },
+            { value: 'archived', label: 'Архів', icon: 'archive' }
           ],
           sortOptions: [
-            { value: 'created_at', label: 'За датою створення', icon: '📅' },
-            { value: 'title', label: 'За назвою', icon: '🔤' }
+            { value: 'created_at', label: 'За датою створення', icon: 'calendar' },
+            { value: 'title', label: 'За назвою', icon: 'text' },
+            { value: 'views', label: 'За переглядами', icon: 'eye' },
+            { value: 'cooking_time', label: 'За часом приготування', icon: 'clock' }
           ],
           sortOrders: [
-            { value: 'desc', label: 'За спаданням', icon: '⬇️' },
-            { value: 'asc', label: 'За зростанням', icon: '⬆️' }
+            { value: 'desc', label: 'За спаданням', icon: 'arrow-down' },
+            { value: 'asc', label: 'За зростанням', icon: 'arrow-up' }
           ],
           timeRanges: [],
           caloriesRanges: [],

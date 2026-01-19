@@ -12,7 +12,7 @@ export const uploadApi = {
 
   uploadImageFile: async (file: File, token?: string): Promise<UploadResponse> => {
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("file", file); // ✅ Backend expects "file", not "image"
     
     const headers: Record<string, string> = {};
     if (token) {

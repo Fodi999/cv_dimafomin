@@ -37,23 +37,26 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const auth = useAuth(); // 🔑 Depend on AuthContext
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   // 🔄 Fetch profile when authenticated
   useEffect(() => {
     if (!auth.isAuthenticated) {
       // Not authenticated - clear user
       setUser(null);
+      setProfileLoaded(false);
       return;
     }
 
-    if (user) {
+    if (profileLoaded) {
       // Already loaded - don't fetch again
       console.log("[UserContext] ℹ️ Profile already loaded, skipping");
       return;
     }
 
     fetchProfile();
-  }, [auth.isAuthenticated]); // Only depend on isAuthenticated
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auth.isAuthenticated]);
 
   const fetchProfile = async () => {
     if (!auth.token) return;
@@ -114,6 +117,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       // Cache in localStorage
       localStorage.setItem("user", JSON.stringify(userData));
       console.log("[UserContext] ✅ Profile loaded successfully with role:", userData.role || "NO ROLE");
+      
+      setProfileLoaded(true); // Mark as loaded
     } catch (error) {
       console.error("[UserContext] ❌ Profile fetch error:", error);
       
@@ -124,6 +129,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
           const userData = JSON.parse(cachedUser);
           setUser(userData);
           console.log("[UserContext] 📦 Using cached profile");
+          setProfileLoaded(true); // Mark as loaded even from cache
         } catch (e) {
           console.error("[UserContext] ❌ Failed to parse cached user");
         }
@@ -134,7 +140,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   const refreshProfile = async () => {
-    setUser(null); // Clear current user to trigger re-fetch
+    setProfileLoaded(false); // Reset flag to allow re-fetch
     await fetchProfile();
   };
 

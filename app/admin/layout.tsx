@@ -45,7 +45,9 @@ export default function AdminLayout({
         console.log("[AdminLayout] ✅ Admin access granted:", user.role);
       }
     }
-  }, [user, isLoading, router, openAuthModal, pathname]);
+    // ✅ Fixed: only check on mount or when loading completes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
 
   if (isLoading) {
     return (
@@ -65,26 +67,13 @@ export default function AdminLayout({
   return (
     <>
       <AdminNavigation />
-      <div className="min-h-screen w-full relative bg-gray-50 dark:bg-gray-950 flex flex-col">
-        {/* Content Area */}
-        {pathname.includes('/create') || pathname.includes('/edit') ? (
-          // Full screen mode for create/edit pages
-          <div className="flex-1 w-full pt-16 overflow-hidden">
+      <div className="fixed inset-0 pt-16 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+        {/* Content Area - Allow scroll for pages that need it */}
+        <div className="h-full w-full overflow-y-auto overflow-x-hidden">
+          <div className="min-h-full max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
             {children}
           </div>
-        ) : (
-          // Standard mode for list pages with gradient backgrounds
-          <>
-            {/* Background gradient elements for list pages */}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-red-500/5 to-orange-500/5 dark:via-red-500/10 dark:to-orange-500/10 pointer-events-none -z-10" />
-            <div className="absolute top-0 right-0 w-96 h-96 bg-red-400/10 dark:bg-red-500/20 rounded-full blur-3xl -translate-y-1/2 pointer-events-none -z-10" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-400/10 dark:bg-orange-500/20 rounded-full blur-3xl translate-y-1/2 pointer-events-none -z-10" />
-            
-            <div className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 py-8 overflow-auto">
-              {children}
-            </div>
-          </>
-        )}
+        </div>
       </div>
     </>
   );

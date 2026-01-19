@@ -161,6 +161,7 @@ export async function createRecipeWithAI(input: AIRecipeInput): Promise<AIRecipe
  * @returns Created recipe with ID
  */
 export interface SaveRecipeRequest {
+  recipeId?: string; // ✅ НОВОЕ: UUID рецепта для редактирования (опционально)
   title: string;
   language: string;
   description: string;
@@ -168,6 +169,7 @@ export interface SaveRecipeRequest {
   time_minutes: number;
   difficulty: 'easy' | 'medium' | 'hard';
   calories: number;
+  portionWeightGrams?: number; // ✅ ADD: Optional portion weight in grams
   ingredients: Array<{
     ingredientId: string;
     name: string;
@@ -182,7 +184,11 @@ export interface SaveRecipeRequest {
 }
 
 export async function saveRecipe(recipe: SaveRecipeRequest): Promise<AIRecipeCreated> {
-  console.log('[saveRecipe] 💾 Saving edited recipe:', recipe.title);
+  console.log('[saveRecipe] 💾 Saving recipe:', {
+    title: recipe.title,
+    recipeId: recipe.recipeId,
+    isEditMode: !!recipe.recipeId,
+  });
   
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

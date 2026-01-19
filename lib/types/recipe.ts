@@ -20,6 +20,9 @@ export interface Recipe {
   timeMinutes: number;
   servings: number;
   
+  // Image
+  imageUrl?: string | null; // ← ДОБАВЛЕНО: URL изображения из Cloudinary (опционально для старых рецептов)
+  
   // Локализованные поля (опциональные)
   titles?: {
     pl?: string;

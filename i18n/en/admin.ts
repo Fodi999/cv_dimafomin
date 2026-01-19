@@ -255,7 +255,41 @@ export const admin = {
       title: "Recipes",
       subtitle: "Manage recipe catalog",
       pageTitle: "Recipes Catalog",
-      pageSubtitle: "Manage recipes with AI-powered tools",
+      pageDescription: "Manage recipes with AI-powered tools",
+      createRecipe: "Create recipe",
+      
+      // Filters
+      filtersTitle: "Filters and sorting",
+      activeFilters: "active",
+      resetFilters: "Reset all",
+      
+      search: "Search",
+      searchPlaceholder: "Enter recipe name...",
+      searchLabel: "Search",
+      
+      filterBy: "Filter by",
+      allCuisines: "All cuisines",
+      allDifficulties: "All difficulties",
+      allStatuses: "All statuses",
+      
+      cuisineLabel: "Cuisine",
+      difficultyLabel: "Difficulty",
+      statusLabel: "Status",
+      
+      sortBy: "Sorting",
+      sortByLabel: "Sort by...",
+      sortOrder: "Order...",
+      
+      showing: "Showing",
+      of: "of",
+      
+      // Pagination
+      page: "Page",
+      firstPage: "First page",
+      lastPage: "Last page",
+      previous: "Previous",
+      next: "Next",
+      perPage: "Per page",
       
       deleteDialog: {
         title: "Delete recipe?",

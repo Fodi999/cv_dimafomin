@@ -260,7 +260,41 @@ export const admin = {
       title: "Przepisy",
       subtitle: "Zarządzaj katalogiem przepisów",
       pageTitle: "Katalog przepisów",
-      pageSubtitle: "Zarządzaj przepisami za pomocą narzędzi AI",
+      pageDescription: "Zarządzaj przepisami za pomocą narzędzi AI",
+      createRecipe: "Utwórz przepis",
+      
+      // Filters
+      filtersTitle: "Filtry i sortowanie",
+      activeFilters: "aktywnych",
+      resetFilters: "Resetuj wszystko",
+      
+      search: "Szukaj",
+      searchPlaceholder: "Wprowadź nazwę przepisu...",
+      searchLabel: "Szukaj",
+      
+      filterBy: "Filtruj według",
+      allCuisines: "Wszystkie kuchnie",
+      allDifficulties: "Wszystkie poziomy",
+      allStatuses: "Wszystkie statusy",
+      
+      cuisineLabel: "Kuchnia",
+      difficultyLabel: "Poziom trudności",
+      statusLabel: "Status",
+      
+      sortBy: "Sortowanie",
+      sortByLabel: "Sortuj według...",
+      sortOrder: "Kolejność...",
+      
+      showing: "Wyświetlono",
+      of: "z",
+      
+      // Pagination
+      page: "Strona",
+      firstPage: "Pierwsza strona",
+      lastPage: "Ostatnia strona",
+      previous: "Wstecz",
+      next: "Dalej",
+      perPage: "Na stronę",
       
       deleteDialog: {
         title: "Usunąć przepis?",

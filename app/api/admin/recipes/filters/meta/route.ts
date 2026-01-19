@@ -10,38 +10,38 @@ export async function GET(req: NextRequest) {
     // In production, these could be fetched from database or backend
     const filterMeta = {
       cuisines: [
-        { value: 'italian', label: 'Італійська', icon: '🇮🇹' },
-        { value: 'japanese', label: 'Японська', icon: '🇯🇵' },
-        { value: 'ukrainian', label: 'Українська', icon: '🇺🇦' },
-        { value: 'chinese', label: 'Китайська', icon: '🇨🇳' },
-        { value: 'french', label: 'Французька', icon: '🇫🇷' },
-        { value: 'american', label: 'Американська', icon: '🇺🇸' },
-        { value: 'mexican', label: 'Мексиканська', icon: '🇲🇽' },
-        { value: 'indian', label: 'Індійська', icon: '🇮🇳' },
-        { value: 'thai', label: 'Тайська', icon: '🇹🇭' },
-        { value: 'mediterranean', label: 'Середземноморська', icon: '🌊' },
-        { value: 'asian', label: 'Азійська', icon: '🥢' },
-        { value: 'european', label: 'Європейська', icon: '🌍' }
+        { value: 'italian', label: 'Італійська', icon: 'pizza' },
+        { value: 'japanese', label: 'Японська', icon: 'soup' },
+        { value: 'ukrainian', label: 'Українська', icon: 'wheat' },
+        { value: 'chinese', label: 'Китайська', icon: 'soup' },
+        { value: 'french', label: 'Французька', icon: 'croissant' },
+        { value: 'american', label: 'Американська', icon: 'pizza' },
+        { value: 'mexican', label: 'Мексиканська', icon: 'pepper' },
+        { value: 'indian', label: 'Індійська', icon: 'soup' },
+        { value: 'thai', label: 'Тайська', icon: 'soup' },
+        { value: 'mediterranean', label: 'Середземноморська', icon: 'fish' },
+        { value: 'asian', label: 'Азійська', icon: 'soup' },
+        { value: 'european', label: 'Європейська', icon: 'wheat' }
       ],
       difficulties: [
-        { value: 'easy', label: 'Легкий', icon: '🟢' },
-        { value: 'medium', label: 'Середній', icon: '🟡' },
-        { value: 'hard', label: 'Складний', icon: '🔴' }
+        { value: 'easy', label: 'Легкий', icon: 'circle-green' },
+        { value: 'medium', label: 'Середній', icon: 'circle-yellow' },
+        { value: 'hard', label: 'Складний', icon: 'circle-red' }
       ],
       statuses: [
-        { value: 'draft', label: 'Чернетка', icon: '📝' },
-        { value: 'published', label: 'Опубліковано', icon: '✅' },
-        { value: 'archived', label: 'Архів', icon: '📦' }
+        { value: 'draft', label: 'Чернетка', icon: 'file-edit' },
+        { value: 'published', label: 'Опубліковано', icon: 'check-circle' },
+        { value: 'archived', label: 'Архів', icon: 'archive' }
       ],
       sortOptions: [
-        { value: 'created_at', label: 'За датою створення', icon: '📅' },
-        { value: 'title', label: 'За назвою', icon: '🔤' },
-        { value: 'cooking_time', label: 'За часом приготування', icon: '⏱️' },
-        { value: 'views', label: 'За переглядами', icon: '👁️' }
+        { value: 'created_at', label: 'За датою створення', icon: 'calendar' },
+        { value: 'title', label: 'За назвою', icon: 'text' },
+        { value: 'cooking_time', label: 'За часом приготування', icon: 'clock' },
+        { value: 'views', label: 'За переглядами', icon: 'eye' }
       ],
       sortOrders: [
-        { value: 'desc', label: 'За спаданням', icon: '⬇️' },
-        { value: 'asc', label: 'За зростанням', icon: '⬆️' }
+        { value: 'desc', label: 'За спаданням', icon: 'arrow-down' },
+        { value: 'asc', label: 'За зростанням', icon: 'arrow-up' }
       ],
       timeRanges: [
         { value: '15', label: '≤ 15 хв', icon: '⚡' },

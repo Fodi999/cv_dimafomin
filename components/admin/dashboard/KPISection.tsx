@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Users, BookOpen, Brain, Settings } from "lucide-react";
+import { ArrowRight, Users, BookOpen, Settings, TrendingUp, TrendingDown } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,44 +11,50 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * KPI Section - Dashboard overview cards
- * Uses shadcn/ui Card components with real API data
+ * Modern design with gradients and better visual hierarchy
  */
 
 interface KPICardProps {
   icon: React.ReactNode;
   title: string;
   stats: Array<{ label: string; value: string | number; trend?: string; href?: string }>;
-  href: string;
+  href?: string; // Made optional
   iconColor: string;
   isLoading?: boolean;
-  buttonLabel: string;
+  buttonLabel?: string; // Made optional
 }
 
 function KPICard({ icon, title, stats, href, iconColor, isLoading, buttonLabel }: KPICardProps) {
   return (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">
+    <Card className="relative overflow-hidden hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
+      {/* Decorative background gradient */}
+      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-2xl" />
+      
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+        <CardTitle className="text-sm font-semibold">
           {title}
         </CardTitle>
-        <div className={`p-2 rounded-lg ${iconColor}`}>
+        <div className={`p-2 rounded-xl ${iconColor} shadow-lg`}>
           {icon}
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-2 mb-4">
+      <CardContent className="relative z-10 pb-3">
+        <div className="space-y-1.5">
           {stats.map((stat, idx) => {
             const content = (
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">{stat.label}:</span>
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between text-xs p-1.5 rounded-lg transition-colors">
+                <span className="text-muted-foreground font-medium">{stat.label}:</span>
+                <div className="flex items-center gap-1.5">
                   {isLoading ? (
                     <Skeleton className="h-5 w-16" />
                   ) : (
                     <>
-                      <span className="font-medium">{stat.value}</span>
+                      <span className="font-bold text-base">{stat.value}</span>
                       {stat.trend && (
-                        <span className="text-xs text-green-600 dark:text-green-400">{stat.trend}</span>
+                        <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 flex items-center gap-0.5">
+                          <TrendingUp className="w-2.5 h-2.5" />
+                          {stat.trend}
+                        </span>
                       )}
                     </>
                   )}
@@ -59,7 +65,7 @@ function KPICard({ icon, title, stats, href, iconColor, isLoading, buttonLabel }
             // If stat has href, make it clickable
             if (stat.href) {
               return (
-                <Link key={idx} href={stat.href} className="block hover:bg-muted/50 rounded px-2 py-1 -mx-2 transition-colors">
+                <Link key={idx} href={stat.href} className="block hover:bg-primary/5 rounded-lg transition-colors">
                   {content}
                 </Link>
               );
@@ -69,12 +75,17 @@ function KPICard({ icon, title, stats, href, iconColor, isLoading, buttonLabel }
           })}
         </div>
 
-        <Link href={href} className="block">
-          <Button variant="ghost" className="w-full justify-between group">
-            <span>{buttonLabel}</span>
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Button>
-        </Link>
+        {/* Show button only if href and buttonLabel provided */}
+        {href && buttonLabel && (
+          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+            <Link href={href} className="block">
+              <Button variant="ghost" size="sm" className="w-full justify-between group hover:bg-primary/10 transition-colors h-8">
+                <span className="font-semibold text-xs">{buttonLabel}</span>
+                <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </Link>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -92,7 +103,7 @@ export function KPISection() {
     : "0.0";
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {/* Users - Real Data */}
       <KPICard
         icon={<Users className="h-4 w-4 text-blue-600" />}
@@ -108,7 +119,7 @@ export function KPISection() {
         buttonLabel={t.admin.dashboard.kpi.users.viewAll}
       />
 
-      {/* Content - Real Data with Direct Links */}
+      {/* Content - Real Data with Direct Links (No bottom button - stats are clickable) */}
       <KPICard
         icon={<BookOpen className="h-4 w-4 text-green-600" />}
         title={t.admin.dashboard.kpi.content.title}
@@ -116,25 +127,8 @@ export function KPISection() {
           { label: t.admin.dashboard.kpi.content.recipes, value: adminStats?.recipes.total || 0, href: "/admin/catalog/recipes-list" },
           { label: t.admin.dashboard.kpi.content.products, value: adminStats?.ingredients?.total || 0, href: "/admin/catalog/products" },
         ]}
-        href="/admin/catalog"
         iconColor="bg-green-100 dark:bg-green-900/30"
         isLoading={isStatsLoading}
-        buttonLabel={t.admin.dashboard.kpi.content.viewAll}
-      />
-
-      {/* AI - Real Data */}
-      <KPICard
-        icon={<Brain className="h-4 w-4 text-purple-600" />}
-        title={t.admin.dashboard.kpi.ai.title}
-        stats={[
-          { label: t.admin.dashboard.kpi.ai.queries, value: adminStats?.ai.requests_today || 0 },
-          { label: t.admin.dashboard.kpi.ai.accuracy, value: adminStats?.ai.success_rate ? `${adminStats.ai.success_rate}%` : "0%" },
-          { label: t.admin.dashboard.kpi.ai.tokens, value: adminStats?.treasury.tokens_distributed ? `${(adminStats.treasury.tokens_distributed / 1000).toFixed(0)}K` : "0" },
-        ]}
-        href="/admin/integrations"
-        iconColor="bg-purple-100 dark:bg-purple-900/30"
-        isLoading={isStatsLoading}
-        buttonLabel={t.admin.dashboard.kpi.ai.viewAll}
       />
 
       {/* System - Real Data */}

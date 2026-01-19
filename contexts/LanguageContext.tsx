@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import type { Language, Dictionary } from '@/lib/i18n/types';
 import { 
   DEFAULT_LANGUAGE, 
@@ -30,9 +30,27 @@ export function LanguageProvider({
   dictionary?: Dictionary;
   children: React.ReactNode;
 }) {
+  // 🔒 Use ref to track if localStorage check happened
+  const hasCheckedStorage = useRef(false);
+  
   const [language, setLanguageState] = useState<Language>(initialLanguage);
   const [dictionary, setDictionary] = useState<Dictionary | null>(initialDictionary || null);
   const [isLoading, setIsLoading] = useState(!initialDictionary);
+
+  // 🔄 Check localStorage only once on mount
+  useEffect(() => {
+    if (!hasCheckedStorage.current && typeof window !== "undefined") {
+      hasCheckedStorage.current = true;
+      
+      const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+      if (savedLanguage && savedLanguage !== language) {
+        console.log(`🔄 [LanguageContext] Restoring saved language: ${savedLanguage}`);
+        // Update cookie to match
+        document.cookie = `${LANGUAGE_COOKIE_KEY}=${savedLanguage}; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
+        setLanguageState(savedLanguage as Language);
+      }
+    }
+  }, []); // Empty deps = run only once
 
   useEffect(() => {
     async function loadDictionary() {

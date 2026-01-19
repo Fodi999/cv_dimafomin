@@ -7,7 +7,7 @@ export async function GET(
 ) {
   const { id } = await params;
   return proxyToBackend(req, {
-    endpoint: `/api/admin/recipes/${id}`,
+    endpoint: `/api/recipes/${id}`, // ✅ FIX: Use public endpoint (returns full data with ingredients)
     method: 'GET'
   });
 }

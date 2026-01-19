@@ -14,25 +14,31 @@ export default function AdminDashboard() {
   const { t } = useLanguage();
   
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">
+    <div className="h-[calc(100vh-5rem)] flex flex-col gap-3 overflow-hidden">
+      {/* Header - Very Compact */}
+      <div className="flex-shrink-0">
+        <h2 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
           {t.admin.dashboard.title}
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {t.admin.dashboard.subtitle}
         </p>
       </div>
 
-      {/* 2️⃣ KPI-блок (4 карточки максимум) */}
-      <KPISection />
+      {/* KPI Cards - Compact */}
+      <div className="flex-shrink-0">
+        <KPISection />
+      </div>
 
-      {/* 3️⃣ Быстрые переходы (Action Hub) */}
-      <ActionHub />
-
-      {/* 4️⃣ Системные уведомления */}
-      <SystemNotifications />
+      {/* Action Hub + Notifications - Side by side, scrollable internally */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr,380px] gap-3 min-h-0">
+        <div className="overflow-y-auto">
+          <ActionHub />
+        </div>
+        <div className="overflow-y-auto">
+          <SystemNotifications />
+        </div>
+      </div>
     </div>
   );
 }

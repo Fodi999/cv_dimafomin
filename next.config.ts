@@ -6,6 +6,14 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   reactStrictMode: false, // 🔧 Отключаем Strict Mode для production-like behavior
   turbopack: {},
+  
+  // Увеличиваем лимит для загрузки изображений (по умолчанию 1MB)
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb', // Увеличиваем до 10MB для загрузки изображений
+    },
+  },
+  
   images: {
     remotePatterns: [
       {
