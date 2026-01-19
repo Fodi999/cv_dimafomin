@@ -21,7 +21,6 @@ export const admin = {
         title: "Content",
         recipes: "Recipes",
         products: "Products",
-        courses: "Courses",
         viewAll: "View catalog",
       },
       ai: {
@@ -44,7 +43,6 @@ export const admin = {
       totalUsers: "Total users",
       activeUsers: "Active users",
       totalRecipes: "Total recipes",
-      totalCourses: "Total courses",
       tokensInCirculation: "Tokens in circulation",
       revenue: "Revenue",
     },
@@ -61,7 +59,6 @@ export const admin = {
         title: "Content",
         recipes: "Recipes",
         ingredients: "Ingredients",
-        courses: "Courses",
       },
       ai: {
         title: "AI",
@@ -180,23 +177,6 @@ export const admin = {
       unfeature: "Unfeature",
       delete: "Delete",
       viewReports: "View reports",
-    },
-  },
-
-  courses: {
-    title: "Courses",
-    subtitle: "Manage courses",
-    draft: "Drafts",
-    published: "Published",
-    archived: "Archived",
-    
-    actions: {
-      publish: "Publish",
-      unpublish: "Unpublish",
-      archive: "Archive",
-      delete: "Delete",
-      edit: "Edit",
-      viewStudents: "View students",
     },
   },
 

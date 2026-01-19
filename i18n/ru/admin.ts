@@ -21,7 +21,6 @@ export const admin = {
         title: "Контент",
         recipes: "Рецепты",
         products: "Продукты",
-        courses: "Курсы",
         viewAll: "Смотреть каталог",
       },
       ai: {
@@ -44,7 +43,6 @@ export const admin = {
       totalUsers: "Всего пользователей",
       activeUsers: "Активных пользователей",
       totalRecipes: "Всего рецептов",
-      totalCourses: "Всего курсов",
       tokensInCirculation: "Токенов в обращении",
       revenue: "Доход",
     },
@@ -61,7 +59,6 @@ export const admin = {
         title: "Контент",
         recipes: "Рецепты",
         ingredients: "Ингредиенты",
-        courses: "Курсы",
       },
       ai: {
         title: "ИИ",
@@ -180,23 +177,6 @@ export const admin = {
       unfeature: "Убрать выделение",
       delete: "Удалить",
       viewReports: "Посмотреть жалобы",
-    },
-  },
-
-  courses: {
-    title: "Курсы",
-    subtitle: "Управление курсами",
-    draft: "Черновики",
-    published: "Опубликованы",
-    archived: "Архивированы",
-    
-    actions: {
-      publish: "Опубликовать",
-      unpublish: "Снять с публикации",
-      archive: "Архивировать",
-      delete: "Удалить",
-      edit: "Редактировать",
-      viewStudents: "Посмотреть студентов",
     },
   },
 

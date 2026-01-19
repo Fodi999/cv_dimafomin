@@ -23,7 +23,6 @@ export const admin = {
         title: "Treść",
         recipes: "Przepisy",
         products: "Produkty",
-        courses: "Kursy",
         viewAll: "Zobacz katalog",
       },
       ai: {
@@ -46,7 +45,6 @@ export const admin = {
       totalUsers: "Łącznie użytkowników",
       activeUsers: "Aktywnych użytkowników",
       totalRecipes: "Łącznie przepisów",
-      totalCourses: "Łącznie kursów",
       tokensInCirculation: "Tokenów w obiegu",
       revenue: "Przychód",
     },
@@ -63,7 +61,6 @@ export const admin = {
         title: "Treść",
         recipes: "Przepisy",
         ingredients: "Składniki",
-        courses: "Kursy",
       },
       ai: {
         title: "AI",
@@ -184,24 +181,6 @@ export const admin = {
       unfeature: "Usuń wyróżnienie",
       delete: "Usuń",
       viewReports: "Zobacz zgłoszenia",
-    },
-  },
-
-  // Courses Management
-  courses: {
-    title: "Kursy",
-    subtitle: "Zarządzaj kursami",
-    draft: "Szkice",
-    published: "Opublikowane",
-    archived: "Zarchiwizowane",
-    
-    actions: {
-      publish: "Opublikuj",
-      unpublish: "Cofnij publikację",
-      archive: "Archiwizuj",
-      delete: "Usuń",
-      edit: "Edytuj",
-      viewStudents: "Zobacz studentów",
     },
   },
 

@@ -17,7 +17,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 interface KPICardProps {
   icon: React.ReactNode;
   title: string;
-  stats: Array<{ label: string; value: string | number; trend?: string }>;
+  stats: Array<{ label: string; value: string | number; trend?: string; href?: string }>;
   href: string;
   iconColor: string;
   isLoading?: boolean;
@@ -37,23 +37,36 @@ function KPICard({ icon, title, stats, href, iconColor, isLoading, buttonLabel }
       </CardHeader>
       <CardContent>
         <div className="space-y-2 mb-4">
-          {stats.map((stat, idx) => (
-            <div key={idx} className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{stat.label}:</span>
-              <div className="flex items-center gap-2">
-                {isLoading ? (
-                  <Skeleton className="h-5 w-16" />
-                ) : (
-                  <>
-                    <span className="font-medium">{stat.value}</span>
-                    {stat.trend && (
-                      <span className="text-xs text-green-600 dark:text-green-400">{stat.trend}</span>
-                    )}
-                  </>
-                )}
+          {stats.map((stat, idx) => {
+            const content = (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">{stat.label}:</span>
+                <div className="flex items-center gap-2">
+                  {isLoading ? (
+                    <Skeleton className="h-5 w-16" />
+                  ) : (
+                    <>
+                      <span className="font-medium">{stat.value}</span>
+                      {stat.trend && (
+                        <span className="text-xs text-green-600 dark:text-green-400">{stat.trend}</span>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+            
+            // If stat has href, make it clickable
+            if (stat.href) {
+              return (
+                <Link key={idx} href={stat.href} className="block hover:bg-muted/50 rounded px-2 py-1 -mx-2 transition-colors">
+                  {content}
+                </Link>
+              );
+            }
+            
+            return <div key={idx}>{content}</div>;
+          })}
         </div>
 
         <Link href={href} className="block">
@@ -95,14 +108,13 @@ export function KPISection() {
         buttonLabel={t.admin.dashboard.kpi.users.viewAll}
       />
 
-      {/* Content - Real Data */}
+      {/* Content - Real Data with Direct Links */}
       <KPICard
         icon={<BookOpen className="h-4 w-4 text-green-600" />}
         title={t.admin.dashboard.kpi.content.title}
         stats={[
-          { label: t.admin.dashboard.kpi.content.recipes, value: adminStats?.recipes.total || 0 },
-          { label: t.admin.dashboard.kpi.content.products, value: adminStats?.ingredients?.total || 0 },
-          { label: t.admin.dashboard.kpi.content.courses, value: 0 },
+          { label: t.admin.dashboard.kpi.content.recipes, value: adminStats?.recipes.total || 0, href: "/admin/catalog/recipes-list" },
+          { label: t.admin.dashboard.kpi.content.products, value: adminStats?.ingredients?.total || 0, href: "/admin/catalog/products" },
         ]}
         href="/admin/catalog"
         iconColor="bg-green-100 dark:bg-green-900/30"
