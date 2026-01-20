@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Package, Coins, AlertTriangle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { FridgeItem } from "@/lib/types";
+import { calculateFridgeValue, countExpiringSoon } from "@/lib/fridgeUtils";
 
 interface FridgeStatsProps {
   items: FridgeItem[];
@@ -12,18 +13,19 @@ interface FridgeStatsProps {
 export default function FridgeStats({ items }: FridgeStatsProps) {
   const { t } = useLanguage();
   
-  // Calculate total value
-  const totalValue = items.reduce((sum, item) => {
-    return sum + (item.totalPrice || 0);
-  }, 0);
+  // ✅ ПРАВИЛЬНО: Calculate value based on REMAINING quantities
+  const totalValue = calculateFridgeValue(items);
 
-  // Calculate critical/expired value
+  // Count items expiring soon (within 2 days)
+  const expiringSoonCount = countExpiringSoon(items, 2);
+  
+  // Calculate critical value (items expiring within 2 days)
   const criticalValue = items
-    .filter(item => item.status === 'critical' || item.status === 'expired')
-    .reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+    .filter(item => item.daysLeft !== null && item.daysLeft <= 2)
+    .reduce((sum, item) => sum + (item.currentValue || 0), 0);
 
   const itemsCount = items.length;
-  const hasPrice = items.some(item => item.totalPrice !== undefined && item.totalPrice !== null);
+  const hasPrice = items.some(item => item.pricePerUnit !== undefined && item.pricePerUnit !== null);
 
   return (
     <motion.div
@@ -46,18 +48,25 @@ export default function FridgeStats({ items }: FridgeStatsProps) {
         </div>
       </div>
 
-      {/* Total value */}
+      {/* Current value (based on remaining) */}
       <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800/30">
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="p-1.5 sm:p-2 rounded-lg bg-green-500/10">
             <Coins className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400">{t?.fridge?.stats?.fridgeValue || "Fridge Value"}</p>
+            <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400">
+              {t?.fridge?.stats?.currentValue || "Current Value"}
+            </p>
             {hasPrice ? (
-              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                {totalValue.toFixed(2)} PLN
-              </p>
+              <>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                  {totalValue.toFixed(2)} PLN
+                </p>
+                <p className="text-[9px] sm:text-[10px] text-green-600 dark:text-green-400 mt-0.5">
+                  ✅ {t?.fridge?.stats?.basedOnRemaining || "Based on remaining"}
+                </p>
+              </>
             ) : (
               <p className="text-xs sm:text-sm text-amber-600 dark:text-amber-400 font-medium">
                 {t?.fridge?.stats?.noPrices || "No prices"}
@@ -67,20 +76,22 @@ export default function FridgeStats({ items }: FridgeStatsProps) {
         </div>
       </div>
 
-      {/* Critical/expired value warning */}
-      {criticalValue > 0 && (
+      {/* Expiring soon warning */}
+      {expiringSoonCount > 0 && (
         <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30 border border-orange-200 dark:border-orange-800/30">
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="p-1.5 sm:p-2 rounded-lg bg-orange-500/10">
               <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 dark:text-orange-400" />
             </div>
             <div>
-              <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400">{t?.fridge?.stats?.lossRisk || "Loss Risk"}</p>
-              <p className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">
-                {criticalValue.toFixed(2)} PLN
+              <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400">
+                {t?.fridge?.stats?.expiringSoon || "Expiring Soon"}
               </p>
-              <p className="text-[9px] sm:text-[10px] text-gray-500 dark:text-gray-500 mt-0.5">
-                {t?.fridge?.stats?.quickUse || "Products for quick use"}
+              <p className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">
+                {expiringSoonCount}
+              </p>
+              <p className="text-[9px] sm:text-[10px] text-orange-500 dark:text-orange-400 mt-0.5">
+                ⚠️ {criticalValue.toFixed(2)} PLN - {t?.fridge?.stats?.useToday || "Use today"}
               </p>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { apiFetch } from './base';
 import type { AddFridgeItemData } from '../types';
+import { enrichFridgeItem } from '../fridgeUtils';
 
 /**
  * Mapping Backend категорий (EN) → Frontend категорий (PL)
@@ -158,7 +159,11 @@ export const fridgeApi = {
           // expiresAt should be provided by backend now
           const expiresAt = item.expiresAt || item.expires_at;
           
-          return {
+          // ✅ NEW: Backend может вернуть quantityTotal и quantityRemaining
+          const quantityTotal = item.quantityTotal || item.quantity_total || item.quantity;
+          const quantityRemaining = item.quantityRemaining || item.quantity_remaining || item.quantity;
+          
+          const baseItem = {
             id: item.id,
             ingredient: {
               id: ingredient.id,
@@ -170,6 +175,8 @@ export const fridgeApi = {
               key: ingredient.key, // NEW: language-independent key
             },
             quantity: item.quantity,
+            quantityTotal,      // ✅ How much was purchased
+            quantityRemaining,  // ✅ How much is left
             unit: item.unit,
             arrivedAt: item.arrivedAt || item.arrived_at,
             expiresAt: expiresAt,
@@ -179,6 +186,9 @@ export const fridgeApi = {
             currency: currency,
             pricePerUnit: pricePerUnit,
           };
+          
+          // ✅ Enrich with calculated fields (freshness, currentValue, usagePercent)
+          return enrichFridgeItem(baseItem);
         });
         
         return { items: normalizedItems };

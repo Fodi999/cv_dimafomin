@@ -12,7 +12,11 @@ export const fridge = {
   // Stats
   stats: {
     products: "Продукты",
+    currentValue: "Текущая стоимость",
     fridgeValue: "Стоимость холодильника",
+    basedOnRemaining: "По остаткам",
+    expiringSoon: "Скоро испортятся",
+    useToday: "Использовать сегодня",
     lossRisk: "Риск потери",
     quickUse: "Продукты для быстрого использования",
     noPrices: "Нет цен",

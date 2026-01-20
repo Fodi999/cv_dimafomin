@@ -226,6 +226,9 @@ export interface IngredientSearchResponse {
 export type FridgeItemStatus = 'fresh' | 'ok' | 'warning' | 'critical' | 'expired';
 export const ACTIVE_STATUSES: readonly FridgeItemStatus[] = ['fresh', 'ok', 'warning', 'critical'] as const;
 
+// 🎯 Freshness status based on days left
+export type FreshnessStatus = 'fresh' | 'warning' | 'danger';
+
 export interface FridgeItem {
   id: string;
   ingredient: {
@@ -239,15 +242,28 @@ export interface FridgeItem {
     key?: string;          // Language-independent key (e.g., "beef")
     i18nKey?: string;      // Legacy: Ключ для перевода (например, "ingredient.cucumber")
   };
-  quantity: number;
+  
+  // 📦 Quantities
+  quantity: number;              // Total purchased amount (legacy - same as quantityTotal)
+  quantityTotal?: number;        // ✅ NEW: How much was purchased
+  quantityRemaining?: number;    // ✅ NEW: How much is left
   unit: string;
-  arrivedAt?: string; // Дата добавления продукта (ISO 8601)
-  expiresAt: string | null; // Can be null for items without expiry date
-  daysLeft: number | null; // Can be null for items without expiry date
-  status: FridgeItemStatus;
-  totalPrice?: number; // Total price for this item (backend calculated)
-  currency?: string; // Currency code (e.g., "PLN")
-  pricePerUnit?: number; // Price per unit (user input or backend default)
+  
+  // 📅 Dates
+  arrivedAt?: string;            // When added (ISO 8601)
+  expiresAt: string | null;      // When expires (can be null)
+  daysLeft: number | null;       // Days until expiry (can be null)
+  
+  // 🎨 Status
+  status: FridgeItemStatus;      // Legacy status (fresh/ok/warning/critical/expired)
+  freshness?: FreshnessStatus;   // ✅ NEW: Simplified freshness (fresh/warning/danger)
+  
+  // 💰 Price
+  totalPrice?: number;           // Total price paid for this item
+  pricePerUnit?: number;         // Price per unit (PLN/kg, PLN/l, PLN/pcs)
+  currency?: string;             // Currency code (e.g., "PLN")
+  currentValue?: number;         // ✅ NEW: Current value based on remaining quantity
+  usagePercent?: number;         // ✅ NEW: How much was used (0-100%)
 }
 
 export interface FridgeItemsResponse {
