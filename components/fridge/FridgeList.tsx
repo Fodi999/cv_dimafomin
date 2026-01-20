@@ -118,9 +118,9 @@ export default function FridgeList({ items, onDelete, onPriceClick, onQuantityCl
                 <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 text-xs sm:text-sm font-bold rounded-full border border-sky-200 dark:border-sky-700">
                   {items.length} {t?.fridge?.stats?.products || "products"}
                 </span>
-                {items.reduce((sum, item) => sum + (item.totalPrice || 0), 0) > 0 && (
+                {items.reduce((sum, item) => sum + (item.currentValue || 0), 0) > 0 && (
                   <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 text-xs sm:text-sm font-bold rounded-full border border-emerald-200 dark:border-emerald-800">
-                    {items.reduce((sum, item) => sum + (item.totalPrice || 0), 0).toFixed(2)} PLN
+                    {items.reduce((sum, item) => sum + (item.currentValue || 0), 0).toFixed(2)} PLN
                   </span>
                 )}
               </div>

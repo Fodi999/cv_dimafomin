@@ -382,7 +382,7 @@ export default function FridgePage() {
                       </p>
                       <p className="text-sm text-orange-800 dark:text-orange-200">
                         {(() => {
-                          const criticalValue = criticalItems.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+                          const criticalValue = criticalItems.reduce((sum, item) => sum + (item.currentValue || 0), 0);
                           if (criticalValue > 0) {
                             const message = t?.fridge?.warnings?.quickUseMessage || "Products worth {amount} PLN will spoil soon. AI can suggest what to cook with them.";
                             return message.replace('{amount}', criticalValue.toFixed(2));
