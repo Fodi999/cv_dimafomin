@@ -36,8 +36,12 @@ export const fridge = {
     "Warzywa": "Vegetables",
     "Owoce": "Fruits",
     "Pieczywo": "Bread",
+    "Zboża": "Grains",        // ✅ Grain/Rice
     "Napoje": "Drinks",
     "Ryby": "Fish",
+    "Jajka": "Eggs",          // ✅ Eggs
+    "Tłuszcze": "Oils",       // ✅ Oils/Fats
+    "Przyprawy": "Seasonings", // ✅ Seasonings/Condiments
     "Inne": "Other",
   },
   

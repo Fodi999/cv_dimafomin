@@ -214,6 +214,7 @@ export function useIngredientActions() {
 
   const deleteIngredient = async (id: string): Promise<boolean> => {
     try {
+      console.log('[deleteIngredient] Deleting ingredient:', id);
       const token = localStorage.getItem("token");
       const response = await fetch(`/api/admin/ingredients/${id}`, {
         method: "DELETE",
@@ -223,8 +224,11 @@ export function useIngredientActions() {
         },
       });
 
+      console.log('[deleteIngredient] Response status:', response.status);
+
       if (!response.ok) {
         const data = await response.json();
+        console.log('[deleteIngredient] Error response:', data);
         
         // Handle 409 Conflict - ingredient used in recipes
         if (response.status === 409) {
@@ -252,10 +256,14 @@ export function useIngredientActions() {
           return false;
         }
         
-        // Generic error
-        throw new Error(data.error || "Failed to delete ingredient");
+        // Generic error with detailed message
+        const errorMessage = data.error || data.message || "Failed to delete ingredient";
+        console.error('[deleteIngredient] Error:', errorMessage);
+        toast.error(`Помилка: ${errorMessage}`);
+        return false;
       }
 
+      console.log('[deleteIngredient] Success');
       toast.success("Інгредієнт видалено успішно");
       return true;
     } catch (error) {

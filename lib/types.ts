@@ -263,6 +263,6 @@ export interface AddFridgeItemData {
   priceUnit?: string; // Optional: unit for pricing (kg, l, szt) - LEGACY
   priceInput?: {
     value: number; // e.g., 50 PLN
-    per: "kg" | "l" | "szt"; // per kilogram/liter/piece
+    per: string; // ✅ Unit from ingredient (g, kg, ml, l, pcs, tsp, tbsp, cup, pinch, etc.)
   };
 }

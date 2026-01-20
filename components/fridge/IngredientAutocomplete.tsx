@@ -205,16 +205,16 @@ export default function IngredientAutocomplete({
                       : "hover:bg-sky-500/10"
                   } ${index > 0 ? "border-t border-gray-100 dark:border-gray-700" : ""}`}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900 dark:text-white">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-900 dark:text-white truncate">
                         {highlightMatch(translatedName, value)}
                       </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                         {t?.fridge?.item?.category || "Category"}: {translatedCategory}
                       </p>
                     </div>
-                    <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">
+                    <span className="flex-shrink-0 px-2.5 py-1 text-xs font-semibold rounded-full bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-700">
                       {ingredient.unit}
                     </span>
                   </div>

@@ -166,13 +166,32 @@ export function useNotifications(filters: Partial<NotificationFilters> = {}) {
     fetchUnreadCount();
   }, [fetchNotifications, fetchUnreadCount]);
 
-  // Poll for new notifications (every 30 seconds)
+  // Poll for new notifications (every 3 minutes when page is visible)
   useEffect(() => {
-    const interval = setInterval(() => {
-      fetchUnreadCount();
-    }, 30000);
+    const pollInterval = 180000; // 3 minutes
 
-    return () => clearInterval(interval);
+    const poll = () => {
+      // Only poll if page is visible
+      if (document.visibilityState === 'visible') {
+        fetchUnreadCount();
+      }
+    };
+
+    const interval = setInterval(poll, pollInterval);
+
+    // Also poll when page becomes visible again
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchUnreadCount();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [fetchUnreadCount]);
 
   return {

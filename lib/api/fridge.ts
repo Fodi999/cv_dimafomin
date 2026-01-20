@@ -8,18 +8,50 @@ const mapBackendCategoryToFrontend = (backendCategory?: string): string => {
   if (!backendCategory) return 'Inne';
   
   const mapping: Record<string, string> = {
-    'protein': 'Mięso',       // Kurczak, Wołowina, etc.
-    'dairy': 'Nabiał',        // Mleko, Ser, Jogurt
-    'vegetable': 'Warzywa',   // ← Singular form
-    'vegetables': 'Warzywa',  // Pomidory, Ogórki
-    'fruit': 'Owoce',         // ← Singular form
-    'fruits': 'Owoce',        // Jabłka, Banany
-    'grain': 'Pieczywo',      // ← Singular form
-    'grains': 'Pieczywo',     // Chleb, Bułki
-    'beverage': 'Napoje',     // ← Singular form
-    'beverages': 'Napoje',    // Woda, Sok
-    'seafood': 'Ryby',        // Łosoś, Tuńczyk
-    'other': 'Inne',          // Pozostałe
+    // Proteins & Meat
+    'protein': 'Mięso',
+    'meat': 'Mięso',
+    
+    // Dairy
+    'dairy': 'Nabiał',
+    
+    // Vegetables
+    'vegetable': 'Warzywa',
+    'vegetables': 'Warzywa',
+    
+    // Fruits
+    'fruit': 'Owoce',
+    'fruits': 'Owoce',
+    
+    // Grains & Bread
+    'grain': 'Zboża',          // ✅ FIX: Крупы (Рис), не Pieczywo
+    'grains': 'Zboża',
+    'bread': 'Pieczywo',       // Хлеб/Выпечка
+    
+    // Beverages
+    'beverage': 'Napoje',
+    'beverages': 'Napoje',
+    'drink': 'Napoje',
+    
+    // Seafood & Fish
+    'seafood': 'Ryby',
+    'fish': 'Ryby',            // ✅ FIX: Backend uses 'fish'
+    
+    // Eggs
+    'egg': 'Jajka',            // ✅ FIX: Backend uses 'egg'
+    'eggs': 'Jajka',
+    
+    // Oils & Fats
+    'oil': 'Tłuszcze',
+    'fat': 'Tłuszcze',
+    
+    // Seasonings & Spices
+    'seasoning': 'Przyprawy',
+    'condiment': 'Przyprawy',  // ✅ FIX: Backend uses 'condiment' for oil/salt
+    'spice': 'Przyprawy',
+    
+    // Other
+    'other': 'Inne',
   };
   
   return mapping[backendCategory.toLowerCase()] || 'Inne';
@@ -89,7 +121,7 @@ export const fridgeApi = {
       // Нормализация: Backend теперь возвращает полный объект ingredient
       if (response?.items && Array.isArray(response.items)) {
         
-        const normalizedItems = response.items.map((item: any) => {
+        const normalizedItems = response.items.map((item: any, index: number) => {
           // ✅ NEW: Backend returns full ingredient object with translations
           const ingredient = item.ingredient || {
             id: item.ingredientId || item.ingredient_id,
@@ -97,10 +129,26 @@ export const fridgeApi = {
             category: item.category,
           };
           
+          // 🔍 DEBUG: Log ALL items categories
+          if (process.env.NODE_ENV === "development") {
+            console.log(`[fridgeApi.getItems] 🏷️ Item ${index + 1}:`, {
+              name: ingredient.name,
+              backendCategory: ingredient.category,
+            });
+          }
+          
           // Map backend category to frontend
           const normalizedCategory = ingredient.category 
             ? mapBackendCategoryToFrontend(ingredient.category)
             : getCategoryFromName(ingredient.name || item.name || '');
+          
+          // 🔍 DEBUG: Log mapping result
+          if (process.env.NODE_ENV === "development") {
+            console.log(`[fridgeApi.getItems] 🏷️ Item ${index + 1} mapped:`, {
+              backend: ingredient.category,
+              frontend: normalizedCategory
+            });
+          }
           
           // Backend returns totalPrice, currency, pricePerUnit
           const totalPrice = item.totalPrice || item.total_price;

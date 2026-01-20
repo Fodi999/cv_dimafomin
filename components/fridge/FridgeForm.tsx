@@ -14,19 +14,40 @@ interface FridgeFormProps {
   token: string;
 }
 
+/**
+ * Convert product unit to price unit (human-readable)
+ * Examples: g → kg, ml → l, pcs → pcs
+ */
+const getPriceUnit = (unit: string): string => {
+  switch (unit.toLowerCase()) {
+    case 'g':   return 'kg';   // Price per kilogram
+    case 'ml':  return 'l';    // Price per liter
+    case 'pcs':
+    case 'szt': return 'pcs';  // Price per piece
+    default:    return unit;   // Keep as is (kg, l, tbsp, etc.)
+  }
+};
+
 export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
   const { t, language } = useLanguage();
   const [searchValue, setSearchValue] = useState("");
   const [selectedIngredient, setSelectedIngredient] = useState<CatalogIngredient | null>(null);
   const [quantity, setQuantity] = useState("");
   const [priceValue, setPriceValue] = useState("");
-  const [pricePer, setPricePer] = useState<"kg" | "szt" | "l">("kg");
   const [isAdding, setIsAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleIngredientSelect = (ingredient: CatalogIngredient) => {
     setSelectedIngredient(ingredient);
     setError(null);
+    
+    if (process.env.NODE_ENV === "development") {
+      console.log('[FridgeForm] 📅 Selected ingredient:', {
+        name: ingredient.name,
+        defaultShelfLifeDays: ingredient.defaultShelfLifeDays,
+        unit: ingredient.unit
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,6 +72,15 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
       const shelfLifeDays = selectedIngredient.defaultShelfLifeDays || 7;
       expiresAt.setDate(expiresAt.getDate() + shelfLifeDays);
       
+      if (process.env.NODE_ENV === "development") {
+        console.log('[FridgeForm] 📅 Calculating expiry date:', {
+          ingredientName: selectedIngredient.name,
+          shelfLifeDays,
+          calculatedDate: expiresAt.toISOString(),
+          daysFromNow: Math.ceil((expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+        });
+      }
+      
       const addData: AddFridgeItemData = {
         ingredientId: selectedIngredient.id,
         quantity: quantityNum,
@@ -62,8 +92,12 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
       if (priceValue && !isNaN(parseFloat(priceValue)) && parseFloat(priceValue) > 0) {
         addData.priceInput = {
           value: parseFloat(priceValue),
-          per: pricePer,
+          per: getPriceUnit(selectedIngredient.unit), // ✅ Convert: g → kg, ml → l
         };
+      }
+      
+      if (process.env.NODE_ENV === "development") {
+        console.log('[FridgeForm] 📤 Sending add request:', addData);
       }
       
       await onAdd(addData);
@@ -72,7 +106,6 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
       setSelectedIngredient(null);
       setQuantity("");
       setPriceValue("");
-      setPricePer("kg");
     } catch (err: any) {
       console.error("Failed to add item:", err);
       setError(err.message || t?.fridge?.form?.addError || "Error adding product");
@@ -171,21 +204,20 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
             min="0"
             value={priceValue}
             onChange={(e) => setPriceValue(e.target.value)}
-            placeholder={t?.fridge?.form?.pricePlaceholder || "e.g. 50"}
+            placeholder={
+              selectedIngredient 
+                ? `${t?.fridge?.form?.pricePlaceholder || "e.g. 50"} за ${selectedIngredient.unit}`
+                : (t?.fridge?.form?.pricePlaceholder || "e.g. 50")
+            }
             disabled={!selectedIngredient}
             className="flex-1 px-4 py-3 rounded-lg border border-sky-200 dark:border-sky-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed"
           />
-          <span className="flex items-center px-3 text-sm text-gray-600 dark:text-gray-400">{t?.fridge?.form?.pricePerLabel || "PLN per"}</span>
-          <select
-            value={pricePer}
-            onChange={(e) => setPricePer(e.target.value as "kg" | "l" | "szt")}
-            disabled={!selectedIngredient}
-            className="px-4 py-3 rounded-lg border border-sky-200 dark:border-sky-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <option value="kg">kg</option>
-            <option value="l">litr</option>
-            <option value="szt">szt</option>
-          </select>
+          <div className="flex items-center gap-2 px-4 py-3 rounded-lg border border-sky-200 dark:border-sky-800 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 min-w-[100px]">
+            <span className="text-sm font-medium">PLN /</span>
+            <span className="text-sm font-semibold text-sky-600 dark:text-sky-400">
+              {selectedIngredient?.unit || '—'}
+            </span>
+          </div>
         </div>
         <p className="mt-2 text-xs text-amber-600 dark:text-amber-400 flex items-start gap-1">
           <span className="text-base">⚠️</span>

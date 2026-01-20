@@ -152,6 +152,10 @@ export async function POST(req: NextRequest) {
           expiresAt: body.expiresAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
+          // 💰 Include price if provided
+          totalPrice: body.priceInput?.value || null,
+          pricePerUnit: body.priceInput?.value || null,
+          currency: 'PLN',
           // Note: This is a temporary mock. Real data should come from backend.
           _mock: true
         };

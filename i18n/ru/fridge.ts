@@ -37,8 +37,12 @@ export const fridge = {
     "Warzywa": "Овощи",
     "Owoce": "Фрукты",
     "Pieczywo": "Выпечка",
+    "Zboża": "Крупы",         // ✅ Grain/Rice
     "Napoje": "Напитки",
     "Ryby": "Рыба",
+    "Jajka": "Яйца",          // ✅ Eggs
+    "Tłuszcze": "Масла",      // ✅ Oils/Fats
+    "Przyprawy": "Специи",    // ✅ Seasonings/Condiments
     "Inne": "Другое",
   },
   
@@ -132,6 +136,18 @@ export const fridge = {
       kg: "килограмм (кг)",
       l: "литр (л)",
       szt: "штука (шт)",
+    },
+    // Единицы измерения для отображения
+    measureUnits: {
+      g: "граммы (г)",
+      kg: "килограммы (кг)",
+      ml: "миллилитры (мл)",
+      l: "литры (л)",
+      pcs: "штуки (шт)",
+      tsp: "чайные ложки (ч.л.)",
+      tbsp: "столовые ложки (ст.л.)",
+      cup: "стаканы",
+      pinch: "щепотки",
     },
   },
   
