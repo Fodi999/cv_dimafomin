@@ -3,83 +3,16 @@ import type { AddFridgeItemData } from '../types';
 import { enrichFridgeItem } from '../fridgeUtils';
 
 /**
- * Mapping Backend категорий (EN) → Frontend категорий (PL)
+ * ✅ NO CATEGORY MAPPING
+ * Backend sends categoryKey as-is: "fish", "egg", "grain", "condiment", etc.
+ * Frontend uses the same keys for filtering
+ * Translation happens via i18n: t.fridge.categories[categoryKey]
+ * 
+ * ❌ REMOVED: mapBackendCategoryToFrontend()
+ * ❌ REMOVED: getCategoryFromName()
+ * 
+ * Architecture: categoryKey = stable backend identifier, NOT translated label
  */
-const mapBackendCategoryToFrontend = (backendCategory?: string): string => {
-  if (!backendCategory) return 'Inne';
-  
-  const mapping: Record<string, string> = {
-    // Proteins & Meat
-    'protein': 'Mięso',
-    'meat': 'Mięso',
-    
-    // Dairy
-    'dairy': 'Nabiał',
-    
-    // Vegetables
-    'vegetable': 'Warzywa',
-    'vegetables': 'Warzywa',
-    
-    // Fruits
-    'fruit': 'Owoce',
-    'fruits': 'Owoce',
-    
-    // Grains & Bread
-    'grain': 'Zboża',          // ✅ FIX: Крупы (Рис), не Pieczywo
-    'grains': 'Zboża',
-    'bread': 'Pieczywo',       // Хлеб/Выпечка
-    
-    // Beverages
-    'beverage': 'Napoje',
-    'beverages': 'Napoje',
-    'drink': 'Napoje',
-    
-    // Seafood & Fish
-    'seafood': 'Ryby',
-    'fish': 'Ryby',            // ✅ FIX: Backend uses 'fish'
-    
-    // Eggs
-    'egg': 'Jajka',            // ✅ FIX: Backend uses 'egg'
-    'eggs': 'Jajka',
-    
-    // Oils & Fats
-    'oil': 'Tłuszcze',
-    'fat': 'Tłuszcze',
-    
-    // Seasonings & Spices
-    'seasoning': 'Przyprawy',
-    'condiment': 'Przyprawy',  // ✅ FIX: Backend uses 'condiment' for oil/salt
-    'spice': 'Przyprawy',
-    
-    // Other
-    'other': 'Inne',
-  };
-  
-  return mapping[backendCategory.toLowerCase()] || 'Inne';
-};
-
-/**
- * Fallback: Określenie kategorii po nazwie (jeśli backend не zwrócił)
- */
-const getCategoryFromName = (name: string): string => {
-  const lowerName = name.toLowerCase();
-  if (lowerName.includes('mleko') || lowerName.includes('milk') || lowerName.includes('jogurt') || lowerName.includes('ser')) {
-    return 'Nabiał';
-  }
-  if (lowerName.includes('mięso') || lowerName.includes('kurczak') || lowerName.includes('wołowina')) {
-    return 'Mięso';
-  }
-  if (lowerName.includes('chleb') || lowerName.includes('bułka') || lowerName.includes('bagietka')) {
-    return 'Pieczywo';
-  }
-  if (lowerName.includes('jabłko') || lowerName.includes('banan') || lowerName.includes('pomarańcz')) {
-    return 'Owoce';
-  }
-  if (lowerName.includes('pomidor') || lowerName.includes('ogórek') || lowerName.includes('sałata')) {
-    return 'Warzywa';
-  }
-  return 'Inne';
-};
 
 export const fridgeApi = {
   /**
@@ -94,16 +27,7 @@ export const fridgeApi = {
       const params = new URLSearchParams({ query: query.trim() });
       const response = await apiFetch<{ count: number; items: any[] }>(`/catalog/ingredients/search?${params}`, { token, language });
       
-      // Нормализация категорий в результатах поиска
-      if (response?.items && Array.isArray(response.items)) {
-        const normalizedItems = response.items.map((item: any) => ({
-          ...item,
-          category: mapBackendCategoryToFrontend(item.category),
-        }));
-        
-        return { count: response.count || normalizedItems.length, items: normalizedItems };
-      }
-      
+      // ✅ NO MAPPING - return backend data as-is
       return response;
     } catch (err: any) {
       console.warn("Ingredients search error:", err);
@@ -119,35 +43,22 @@ export const fridgeApi = {
     try {
       const response = await apiFetch<any>("/fridge/items", { token });
       
-      // Нормализация: Backend теперь возвращает полный объект ingredient
+      // Backend returns full ingredient object with categoryKey
       if (response?.items && Array.isArray(response.items)) {
         
         const normalizedItems = response.items.map((item: any, index: number) => {
-          // ✅ NEW: Backend returns full ingredient object with translations
+          // ✅ Backend returns full ingredient object with translations
           const ingredient = item.ingredient || {
             id: item.ingredientId || item.ingredient_id,
             name: item.name, // fallback for old format
-            category: item.category,
+            category: item.category || 'other',
           };
           
-          // 🔍 DEBUG: Log ALL items categories
+          // 🔍 DEBUG: Log categoryKey from backend
           if (process.env.NODE_ENV === "development") {
-            console.log(`[fridgeApi.getItems] 🏷️ Item ${index + 1}:`, {
+            console.log(`[fridgeApi.getItems] 🔑 Item ${index + 1}:`, {
               name: ingredient.name,
-              backendCategory: ingredient.category,
-            });
-          }
-          
-          // Map backend category to frontend
-          const normalizedCategory = ingredient.category 
-            ? mapBackendCategoryToFrontend(ingredient.category)
-            : getCategoryFromName(ingredient.name || item.name || '');
-          
-          // 🔍 DEBUG: Log mapping result
-          if (process.env.NODE_ENV === "development") {
-            console.log(`[fridgeApi.getItems] 🏷️ Item ${index + 1} mapped:`, {
-              backend: ingredient.category,
-              frontend: normalizedCategory
+              categoryKey: ingredient.category, // ✅ This is the stable key
             });
           }
           
@@ -159,7 +70,7 @@ export const fridgeApi = {
           // expiresAt should be provided by backend now
           const expiresAt = item.expiresAt || item.expires_at;
           
-          // ✅ NEW: Backend может вернуть quantityTotal и quantityRemaining
+          // ✅ Backend может вернуть quantityTotal и quantityRemaining
           const quantityTotal = item.quantityTotal || item.quantity_total || item.quantity;
           const quantityRemaining = item.quantityRemaining || item.quantity_remaining || item.quantity;
           
@@ -171,8 +82,8 @@ export const fridgeApi = {
               namePl: ingredient.name_pl,
               nameEn: ingredient.name_en,
               nameRu: ingredient.name_ru,
-              category: normalizedCategory,
-              key: ingredient.key, // NEW: language-independent key
+              category: ingredient.category, // ✅ Keep backend key as-is (fish, egg, grain, etc.)
+              key: ingredient.key, // Language-independent ingredient key
             },
             quantity: item.quantity,
             quantityTotal,      // ✅ How much was purchased

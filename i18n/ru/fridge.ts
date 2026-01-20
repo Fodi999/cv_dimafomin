@@ -50,20 +50,6 @@ export const fridge = {
     seasoning: "Специи",
     spice: "Специи",
     other: "Другое",
-    
-    // 🔥 Backend category mapping (Polish → Russian)
-    "Mięso": "Мясо",
-    "Nabiał": "Молочные",
-    "Warzywa": "Овощи",
-    "Owoce": "Фрукты",
-    "Pieczywo": "Выпечка",
-    "Zboża": "Крупы",         // ✅ Grain/Rice
-    "Napoje": "Напитки",
-    "Ryby": "Рыба",
-    "Jajka": "Яйца",          // ✅ Eggs
-    "Tłuszcze": "Масла",      // ✅ Oils/Fats
-    "Przyprawy": "Специи",    // ✅ Seasonings/Condiments
-    "Inne": "Другое",
   },
   
   // Item properties

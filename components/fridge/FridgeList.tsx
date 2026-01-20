@@ -27,17 +27,19 @@ interface FridgeListProps {
   highlightId?: string; // 🆕 ID of item to highlight (from notification click)
 }
 
-// ✅ Профессиональные категории с иконками lucide-react
+// ✅ Backend category keys с иконками (используем BACKEND keys вместо польских)
 const getCategoryConfig = (t: any) => [
   { value: "all", label: t?.fridge?.categories?.all || "All", Icon: LayoutGrid },
-  { value: "Nabiał", label: t?.fridge?.categories?.dairy || "Dairy", Icon: Milk },
-  { value: "Mięso", label: t?.fridge?.categories?.meat || "Meat", Icon: Beef },
-  { value: "Warzywa", label: t?.fridge?.categories?.vegetables || "Vegetables", Icon: Carrot },
-  { value: "Owoce", label: t?.fridge?.categories?.fruits || "Fruits", Icon: Apple },
-  { value: "Pieczywo", label: t?.fridge?.categories?.bread || "Bread", Icon: Croissant },
-  { value: "Napoje", label: t?.fridge?.categories?.drinks || "Drinks", Icon: Coffee },
-  { value: "Ryby", label: t?.fridge?.categories?.fish || "Fish", Icon: Fish },
-  { value: "Inne", label: t?.fridge?.categories?.other || "Other", Icon: Package },
+  { value: "dairy", label: t?.fridge?.categories?.dairy || "Dairy", Icon: Milk },
+  { value: "protein", label: t?.fridge?.categories?.protein || "Protein", Icon: Beef },
+  { value: "vegetable", label: t?.fridge?.categories?.vegetable || "Vegetables", Icon: Carrot },
+  { value: "fruit", label: t?.fridge?.categories?.fruit || "Fruits", Icon: Apple },
+  { value: "grain", label: t?.fridge?.categories?.grain || "Grains", Icon: Croissant },
+  { value: "beverage", label: t?.fridge?.categories?.beverage || "Beverages", Icon: Coffee },
+  { value: "fish", label: t?.fridge?.categories?.fish || "Fish", Icon: Fish },
+  { value: "egg", label: t?.fridge?.categories?.egg || "Eggs", Icon: Package },
+  { value: "condiment", label: t?.fridge?.categories?.condiment || "Condiments", Icon: Package },
+  { value: "other", label: t?.fridge?.categories?.other || "Other", Icon: Package },
 ];
 
 export default function FridgeList({ items, onDelete, onPriceClick, onQuantityClick, highlightId }: FridgeListProps) {
@@ -48,17 +50,17 @@ export default function FridgeList({ items, onDelete, onPriceClick, onQuantityCl
   console.log('[FridgeList] Received items:', items);
   console.log('[FridgeList] Items count:', items?.length);
   
-  // ✅ Подсчёт продуктов по категориям
+  // ✅ Подсчёт продуктов по категориям (используем backend category key)
   const categoryCounts = items.reduce((acc, item) => {
-    const category = item.ingredient?.category || 'Inne';
+    const category = item.ingredient?.category || 'other';
     acc[category] = (acc[category] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
   
-  // ✅ Фильтрация по активной категории
+  // ✅ Фильтрация по backend category key (НЕ по переведенному имени!)
   const filteredItems = activeCategory === "all" 
     ? items 
-    : items.filter(item => (item.ingredient?.category || 'Inne') === activeCategory);
+    : items.filter(item => (item.ingredient?.category || 'other') === activeCategory);
   
   // Сортировка: fresh → ok → warning → critical → expired
   const sortedItems = [...filteredItems].sort((a, b) => {

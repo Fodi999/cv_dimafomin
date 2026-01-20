@@ -149,155 +149,146 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
 
   return (
     <motion.div
-      ref={itemRef} // 🆕 Attach ref for scrolling
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ 
-        opacity: 1, 
-        x: 0,
-        scale: isHighlighted ? [1, 1.02, 1] : 1, // 🆕 Pulse animation if highlighted
-      }}
-      exit={{ opacity: 0, x: 20 }}
-      transition={{ 
-        delay: index * 0.03,
-        scale: { duration: 0.5, repeat: isHighlighted ? 2 : 0 } // 🆕 Repeat pulse 2 times
-      }}
+      ref={itemRef}
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.02 }}
       className={`
-        relative p-3 sm:p-4 rounded-lg sm:rounded-xl border-l-4 
-        ${statusConfig.borderColor}
-        ${isHighlighted 
-          ? 'ring-4 ring-blue-500/50 shadow-2xl bg-blue-50 dark:bg-blue-900/20' // 🆕 Highlighted state
-          : 'bg-white dark:bg-slate-800'
-        }
-        hover:shadow-md transition-all
-        flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4
+        group relative rounded-2xl
+        bg-white/90 dark:bg-slate-900/80
+        backdrop-blur-xl
+        border border-slate-200/60 dark:border-slate-700/50
+        shadow-sm hover:shadow-lg
+        transition-all
+        ${isHighlighted ? 'shadow-blue-500/20 ring-1 ring-blue-400/40' : ''}
       `}
     >
-      {/* Mobile: Top row with status icon, name, and delete button */}
-      <div className="flex items-center gap-3 w-full sm:w-auto">
-        {/* Иконка статуса */}
-        <div className={`flex-shrink-0 ${statusConfig.color}`}>
-          {statusConfig.icon}
-        </div>
-
-        {/* Название и категория */}
+      {/* HEADER */}
+      <div className="flex items-start justify-between p-4">
         <div className="flex-1 min-w-0">
-          <h4 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base leading-tight truncate">
+          <h3 className="font-semibold text-sm text-slate-900 dark:text-white truncate">
             {translatedName}
-          </h4>
-          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+          </h3>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
             {translatedCategory}
           </p>
-          
-          {/* ✅ Индикатор использования (usage progress bar) */}
-          {(item.quantityTotal ?? item.quantity) > 0 && (
-            <div className="mt-1.5 w-full">
-              <div className="h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                <div
-                  className={`h-1 rounded-full transition-all duration-300 ${
-                    item.freshness === 'danger' 
-                      ? 'bg-red-500 dark:bg-red-600'
-                      : item.freshness === 'warning'
-                      ? 'bg-orange-500 dark:bg-orange-600'
-                      : 'bg-sky-500 dark:bg-sky-600'
-                  }`}
-                  style={{ 
-                    width: `${100 - ((item.quantityRemaining ?? item.quantity) / (item.quantityTotal ?? item.quantity)) * 100}%` 
-                  }}
-                />
-              </div>
-            </div>
+        </div>
+
+        <span
+          className={`
+            ml-2 flex-shrink-0 px-2.5 py-0.5 rounded-full text-[10px] font-medium
+            ${statusConfig.bgColor} ${statusConfig.color}
+          `}
+        >
+          {statusConfig.label}
+        </span>
+      </div>
+
+      {/* PROGRESS */}
+      {(item.quantityTotal ?? item.quantity) > 0 && (
+        <div className="px-4 pb-3">
+          <div className="h-[3px] rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{
+                width: `${100 -
+                  ((item.quantityRemaining ?? item.quantity) /
+                    (item.quantityTotal ?? item.quantity)) *
+                    100}%`
+              }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className={`
+                h-full rounded-full
+                ${item.freshness === 'danger'
+                  ? 'bg-red-500'
+                  : item.freshness === 'warning'
+                  ? 'bg-orange-500'
+                  : 'bg-sky-500'}
+              `}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* BODY */}
+      <div className="grid grid-cols-3 gap-3 px-4 pb-3 text-xs">
+        {/* Quantity */}
+        <div>
+          <p className="text-slate-500 dark:text-slate-400 mb-0.5">
+            {t?.fridge?.item?.remaining || 'Remaining'}
+          </p>
+          <p className="font-semibold text-slate-900 dark:text-white">
+            {item.quantityRemaining ?? item.quantity}/{item.quantityTotal ?? item.quantity} {item.unit}
+          </p>
+        </div>
+
+        {/* Price */}
+        <div>
+          <p className="text-slate-500 dark:text-slate-400 mb-0.5">
+            {t?.fridge?.item?.totalCost || 'Value'}
+          </p>
+          {item.pricePerUnit !== undefined && item.pricePerUnit !== null && item.pricePerUnit > 0 ? (
+            <p className="font-semibold text-emerald-600 dark:text-emerald-400">
+              {(item.currentValue || 0).toFixed(2)} {item.currency || 'PLN'}
+            </p>
+          ) : (
+            <p className="text-xs text-slate-400 dark:text-slate-500">
+              {t?.fridge?.actions?.updatePrice || 'Add price'}
+            </p>
           )}
         </div>
 
-        {/* Кнопка удаления - visible on mobile */}
+        {/* Expiry */}
+        <div>
+          <p className="text-slate-500 dark:text-slate-400 mb-0.5">
+            {t?.fridge?.item?.expiryDate || 'Expiry'}
+          </p>
+          <p className="font-medium text-slate-700 dark:text-slate-300">
+            {item.daysLeft !== null && item.daysLeft <= 7 
+              ? `${item.daysLeft}d`
+              : formatExpirationDate(item.expiresAt).split(' ').slice(0, 2).join(' ')}
+          </p>
+        </div>
+      </div>
+
+      {/* FOOTER ACTIONS - появляются при hover */}
+      <div
+        className="
+          flex justify-end gap-1 px-3 pb-3
+          opacity-0 group-hover:opacity-100
+          transition-opacity duration-200
+        "
+      >
         <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => onQuantityClick?.(item)}
+          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          title={t?.fridge?.actions?.updateQuantity || "Change quantity"}
+        >
+          <Edit2 className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+        </motion.button>
+
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => onPriceClick?.(item)}
+          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          title={t?.fridge?.actions?.updatePrice || "Update price"}
+        >
+          <DollarSign className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+        </motion.button>
+
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => onDelete(item.id)}
-          className="flex-shrink-0 sm:hidden p-1.5 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg transition-colors text-red-500 dark:text-red-400"
+          className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
           title={t?.fridge?.actions?.deleteProduct || "Delete product"}
         >
-          <Trash2 className="w-4 h-4" />
+          <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
         </motion.button>
       </div>
-
-      {/* Mobile: Bottom row with quantity, price, expiry */}
-      <div className="flex items-center justify-between w-full sm:w-auto sm:flex-1 gap-2 sm:gap-4 text-xs sm:text-sm">
-        {/* Количество - ПРАВИЛЬНОЕ отображение остатков */}
-        <div className="flex-shrink-0">
-          <div className="flex items-center gap-1">
-            <div className="flex flex-col">
-              <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                {t?.fridge?.item?.remaining || "Осталось"} <span className="font-bold text-gray-900 dark:text-white">{item.quantityRemaining ?? item.quantity} {item.unit}</span>
-                {' / '}
-                {item.quantityTotal ?? item.quantity} {item.unit}
-              </span>
-            </div>
-            <button
-              onClick={() => onQuantityClick?.(item)}
-              className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-400 hover:text-blue-600"
-              title={t?.fridge?.actions?.updateQuantity || "Change quantity"}
-            >
-              <Edit2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Цена - ПРАВИЛЬНОЕ отображение стоимости остатков */}
-        {item.pricePerUnit !== undefined && item.pricePerUnit !== null && item.pricePerUnit > 0 ? (
-          <div className="flex-shrink-0 text-right">
-            <div className="flex items-center gap-1">
-              <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
-              <span className="font-bold text-sm sm:text-lg text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-                {(item.currentValue || 0).toFixed(2)} {item.currency === 'PLN' ? 'PLN' : item.currency || 'PLN'}
-              </span>
-              <button
-                onClick={() => onPriceClick?.(item)}
-                className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-400 hover:text-blue-600"
-                title="Zmień cenę"
-              >
-                <Edit2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              </button>
-            </div>
-            <div className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              {item.pricePerUnit.toFixed(2)}{' '}
-              PLN/{item.unit === 'g' ? 'kg' : item.unit === 'ml' ? 'l' : item.unit}
-            </div>
-          </div>
-        ) : (
-          <button
-            onClick={() => onPriceClick?.(item)}
-            className="flex-shrink-0 px-2 sm:px-3 py-1.5 sm:py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-[10px] sm:text-xs font-semibold rounded-lg transition-all"
-          >
-            {t?.fridge?.actions?.updatePrice || "Add price"}
-          </button>
-        )}
-
-        {/* Срок годности */}
-        <div className="flex-shrink-0 text-right min-w-[80px] sm:min-w-[100px]">
-          <div className={`text-[10px] sm:text-xs font-medium ${statusConfig.color}`}>
-            {statusConfig.label}
-          </div>
-          <div className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-            {formatExpirationDate(item.expiresAt)}
-          </div>
-          <div className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 flex items-center gap-1">
-            <Timer className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-            {statusConfig.description}
-          </div>
-        </div>
-      </div>
-
-      {/* Кнопка удаления - hidden on mobile, visible on desktop */}
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => onDelete(item.id)}
-        className="hidden sm:flex flex-shrink-0 p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg transition-colors text-red-500 dark:text-red-400"
-        title={t?.fridge?.actions?.deleteProduct || "Delete product"}
-      >
-        <Trash2 className="w-4 h-4" />
-      </motion.button>
     </motion.div>
   );
 }

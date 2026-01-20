@@ -45,20 +45,6 @@ export const fridge = {
     seasoning: "Seasonings",
     spice: "Spices",
     other: "Other",
-    
-    // 🔥 Backend category mapping (Polish → English)
-    "Mięso": "Meat",
-    "Nabiał": "Dairy",
-    "Warzywa": "Vegetables",
-    "Owoce": "Fruits",
-    "Pieczywo": "Bread",
-    "Zboża": "Grains",        // ✅ Grain/Rice
-    "Napoje": "Drinks",
-    "Ryby": "Fish",
-    "Jajka": "Eggs",          // ✅ Eggs
-    "Tłuszcze": "Oils",       // ✅ Oils/Fats
-    "Przyprawy": "Seasonings", // ✅ Seasonings/Condiments
-    "Inne": "Other",
   },
   
   // Item properties

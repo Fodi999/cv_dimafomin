@@ -41,7 +41,6 @@ export default function FridgePage() {
   // 🔥 Фильтрация: разделяем active (fresh/ok/warning/critical) vs expired
   const activeItems = items.filter((i) => ACTIVE_STATUSES.includes(i.status));
   // ❌ expiredItems УДАЛЕНЫ - источник истины только /api/history/losses
-  const criticalItems = activeItems.filter((i) => i.status === "critical");
 
   useEffect(() => {
     if (isLoading) return;
@@ -183,26 +182,26 @@ export default function FridgePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 pb-safe">
-      {/* Sticky Header - Mobile optimized */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-safe">
+      {/* Clean Header - минимализм */}
+      <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/60 sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-1 sm:gap-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+            className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="text-sm sm:text-base font-medium hidden sm:inline">{t?.fridge?.backButton || "Back"}</span>
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-sm font-medium hidden sm:inline">{t?.fridge?.backButton || "Back"}</span>
           </button>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Refrigerator className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
-            <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{t?.fridge?.title || "Fridge"}</h1>
+          <div className="flex items-center gap-2.5">
+            <Refrigerator className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+            <h1 className="text-lg font-semibold text-slate-900 dark:text-white">{t?.fridge?.title || "Fridge"}</h1>
           </div>
-          <div className="w-12 sm:w-20" />
+          <div className="w-16 sm:w-20" />
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
         {isLoading && (
           <div className="flex items-center justify-center py-8 sm:py-12">
             <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 text-sky-500 animate-spin" />
@@ -324,7 +323,7 @@ export default function FridgePage() {
                   </Sheet>
                 </div>
 
-                {/* 📋 Lista produktów - ТОЛЬКО activeItems (без expired) */}
+                {/* 📋 Lista produktów */}
                 <FridgeList 
                   items={activeItems} 
                   onDelete={handleRemoveItem} 
@@ -366,33 +365,6 @@ export default function FridgePage() {
                     </div>
                   </SheetContent>
                 </Sheet>
-                
-                {/* ⚠️ Предупреждение для critical items - ТОЛЬКО critical (не expired) */}
-                {criticalItems.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="mt-6 p-4 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30 border border-orange-200 dark:border-orange-800/30 rounded-lg flex gap-3"
-                  >
-                    <AlertCircle className="w-5 h-5 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-semibold text-orange-900 dark:text-orange-100 mb-1">
-                        {t?.fridge?.warnings?.quickUseTitle || "⚠️ Products requiring quick use"}
-                      </p>
-                      <p className="text-sm text-orange-800 dark:text-orange-200">
-                        {(() => {
-                          const criticalValue = criticalItems.reduce((sum, item) => sum + (item.currentValue || 0), 0);
-                          if (criticalValue > 0) {
-                            const message = t?.fridge?.warnings?.quickUseMessage || "Products worth {amount} PLN will spoil soon. AI can suggest what to cook with them.";
-                            return message.replace('{amount}', criticalValue.toFixed(2));
-                          }
-                          return `${t?.fridge?.stats?.quickUse || "Products for quick use"}: ${criticalItems.length}`;
-                        })()}
-                      </p>
-                    </div>
-                  </motion.div>
-                )}
                 
                 {/* 💡 Wskazówka */}
                 {activeItems.length > 0 && (

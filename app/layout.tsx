@@ -10,6 +10,7 @@ import { UserProvider } from "@/contexts/UserContext";
 import { RecipeProvider } from "@/contexts/RecipeContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { NotificationRefetchProvider } from "@/contexts/NotificationRefetchContext";
+import { CategoryProvider } from "@/contexts/CategoryContext"; // 🆕 Category Context
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import PWARegister from "@/components/PWARegister";
 import AuthGate from "@/components/auth/AuthGate";
@@ -100,9 +101,10 @@ export default async function RootLayout({
             <UserProvider>
               <SettingsProvider>
                 <LanguageProvider initialLanguage={language} dictionary={dictionary}>
-                  <RecipeProvider>
-                    <NotificationProvider>
-                      <NotificationRefetchProvider>
+                  <CategoryProvider> {/* 🆕 Category Provider wraps inside LanguageProvider */}
+                    <RecipeProvider>
+                      <NotificationProvider>
+                        <NotificationRefetchProvider>
                         <TokenValidator />
                         <ReloginNotification /> {/* 🆕 Notification for users with old tokens */}
                         <GlobalAuthModal /> {/* 🆕 Global auth modal for all pages */}
@@ -139,6 +141,7 @@ export default async function RootLayout({
                       </NotificationRefetchProvider>
                     </NotificationProvider>
                   </RecipeProvider>
+                  </CategoryProvider> {/* 🆕 Close CategoryProvider */}
                 </LanguageProvider>
               </SettingsProvider>
             </UserProvider>

@@ -31,17 +31,17 @@ export default function FridgeStats({ items }: FridgeStatsProps) {
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6"
+      className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-6"
     >
       {/* Total products */}
-      <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-sky-50 to-cyan-50 dark:from-sky-950/30 dark:to-cyan-950/30 border border-sky-200 dark:border-sky-800/30">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="p-1.5 sm:p-2 rounded-lg bg-sky-500/10">
-            <Package className="w-4 h-4 sm:w-5 sm:h-5 text-sky-600 dark:text-sky-400" />
+      <div className="p-4 rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-md transition-all">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800">
+            <Package className="w-5 h-5 text-slate-700 dark:text-slate-300" />
           </div>
           <div>
-            <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400">{t?.fridge?.stats?.products || "Products"}</p>
-            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+            <p className="text-xs text-slate-500 dark:text-slate-400">{t?.fridge?.stats?.products || "Products"}</p>
+            <p className="text-2xl font-semibold text-slate-900 dark:text-white">
               {itemsCount}
             </p>
           </div>
@@ -49,26 +49,21 @@ export default function FridgeStats({ items }: FridgeStatsProps) {
       </div>
 
       {/* Current value (based on remaining) */}
-      <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800/30">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="p-1.5 sm:p-2 rounded-lg bg-green-500/10">
-            <Coins className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400" />
+      <div className="p-4 rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-md transition-all">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
+            <Coins className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div>
-            <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400">
-              {t?.fridge?.stats?.currentValue || "Current Value"}
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {t?.fridge?.stats?.currentValue || "Value"}
             </p>
             {hasPrice ? (
-              <>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                  {totalValue.toFixed(2)} PLN
-                </p>
-                <p className="text-[9px] sm:text-[10px] text-green-600 dark:text-green-400 mt-0.5">
-                  ✅ {t?.fridge?.stats?.basedOnRemaining || "Based on remaining"}
-                </p>
-              </>
+              <p className="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
+                {totalValue.toFixed(2)} PLN
+              </p>
             ) : (
-              <p className="text-xs sm:text-sm text-amber-600 dark:text-amber-400 font-medium">
+              <p className="text-sm text-slate-400 dark:text-slate-500 font-medium">
                 {t?.fridge?.stats?.noPrices || "No prices"}
               </p>
             )}
@@ -78,21 +73,23 @@ export default function FridgeStats({ items }: FridgeStatsProps) {
 
       {/* Expiring soon warning */}
       {expiringSoonCount > 0 && (
-        <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30 border border-orange-200 dark:border-orange-800/30">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="p-1.5 sm:p-2 rounded-lg bg-orange-500/10">
-              <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 dark:text-orange-400" />
+        <div className="p-4 rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-orange-200/60 dark:border-orange-700/50 shadow-sm hover:shadow-md transition-all col-span-2 lg:col-span-1">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-orange-100 dark:bg-orange-900/30">
+              <AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
             </div>
             <div>
-              <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {t?.fridge?.stats?.expiringSoon || "Expiring Soon"}
               </p>
-              <p className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">
+              <p className="text-2xl font-semibold text-orange-600 dark:text-orange-400">
                 {expiringSoonCount}
               </p>
-              <p className="text-[9px] sm:text-[10px] text-orange-500 dark:text-orange-400 mt-0.5">
-                ⚠️ {criticalValue.toFixed(2)} PLN - {t?.fridge?.stats?.useToday || "Use today"}
-              </p>
+              {criticalValue > 0 && (
+                <p className="text-[10px] text-orange-500 dark:text-orange-400 mt-0.5">
+                  {criticalValue.toFixed(2)} PLN
+                </p>
+              )}
             </div>
           </div>
         </div>
