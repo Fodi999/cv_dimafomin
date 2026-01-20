@@ -28,6 +28,9 @@ export const fridge = {
     bread: "Pieczywo",
     drinks: "Napoje",
     fish: "Ryby",
+    oil: "Tłuszcze",
+    sauce: "Sosy",
+    condiment: "Przyprawy",
     other: "Inne",
     
     // 🔥 Backend category mapping
@@ -48,6 +51,7 @@ export const fridge = {
   // Item properties
   item: {
     quantity: "Ilość",
+    remaining: "Pozostało",
     pricePerKg: "Cena/kg",
     pricePerL: "Cena/l",
     totalCost: "Koszt całości",

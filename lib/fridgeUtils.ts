@@ -74,15 +74,20 @@ export function countExpiringSoon(items: FridgeItem[], withinDays: number = 2): 
  * Normalize category (temporary fix until backend is updated)
  */
 export function normalizeCategoryByName(category: string, name: string): string {
-  const lowerName = name.toLowerCase();
+  const n = name.toLowerCase();
   
-  // Fix oil categorization
-  if (lowerName.includes('масло') || lowerName.includes('olej') || lowerName.includes('oil')) {
+  // Fix oil categorization (масло = oil, NOT condiment)
+  if (n.includes('масло') || n.includes('olej') || n.includes('oil')) {
     return 'oil';
   }
   
+  // Fix sauce categorization
+  if (n.includes('соус') || n.includes('sos') || n.includes('sauce')) {
+    return 'sauce';
+  }
+  
   // Fix salt categorization
-  if (lowerName.includes('соль') || lowerName.includes('sól') || lowerName.includes('salt')) {
+  if (n.includes('соль') || n.includes('sól') || n.includes('salt')) {
     return 'condiment';
   }
   

@@ -33,6 +33,9 @@ export const fridge = {
     bread: "Выпечка",
     drinks: "Напитки",
     fish: "Рыба",
+    oil: "Масла",
+    sauce: "Соусы",
+    condiment: "Специи",
     other: "Другое",
     
     // 🔥 Backend category mapping (Polish → Russian)
@@ -53,6 +56,7 @@ export const fridge = {
   // Item properties
   item: {
     quantity: "Количество",
+    remaining: "Осталось",
     pricePerKg: "Цена/кг",
     pricePerL: "Цена/л",
     totalCost: "Общая стоимость",

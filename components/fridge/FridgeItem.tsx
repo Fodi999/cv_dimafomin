@@ -187,6 +187,26 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
           <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
             {translatedCategory}
           </p>
+          
+          {/* ✅ Индикатор использования (usage progress bar) */}
+          {(item.quantityTotal ?? item.quantity) > 0 && (
+            <div className="mt-1.5 w-full">
+              <div className="h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div
+                  className={`h-1 rounded-full transition-all duration-300 ${
+                    item.freshness === 'danger' 
+                      ? 'bg-red-500 dark:bg-red-600'
+                      : item.freshness === 'warning'
+                      ? 'bg-orange-500 dark:bg-orange-600'
+                      : 'bg-sky-500 dark:bg-sky-600'
+                  }`}
+                  style={{ 
+                    width: `${100 - ((item.quantityRemaining ?? item.quantity) / (item.quantityTotal ?? item.quantity)) * 100}%` 
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Кнопка удаления - visible on mobile */}
@@ -203,12 +223,16 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
 
       {/* Mobile: Bottom row with quantity, price, expiry */}
       <div className="flex items-center justify-between w-full sm:w-auto sm:flex-1 gap-2 sm:gap-4 text-xs sm:text-sm">
-        {/* Количество */}
+        {/* Количество - ПРАВИЛЬНОЕ отображение остатков */}
         <div className="flex-shrink-0">
           <div className="flex items-center gap-1">
-            <span className="font-bold text-base sm:text-lg text-gray-900 dark:text-white whitespace-nowrap">
-              {item.quantity} {item.unit}
-            </span>
+            <div className="flex flex-col">
+              <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                {t?.fridge?.item?.remaining || "Осталось"} <span className="font-bold text-gray-900 dark:text-white">{item.quantityRemaining ?? item.quantity} {item.unit}</span>
+                {' / '}
+                {item.quantityTotal ?? item.quantity} {item.unit}
+              </span>
+            </div>
             <button
               onClick={() => onQuantityClick?.(item)}
               className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-400 hover:text-blue-600"
@@ -219,13 +243,13 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
           </div>
         </div>
 
-        {/* Цена (если есть) */}
-        {item.totalPrice !== undefined && item.totalPrice !== null && item.pricePerUnit ? (
+        {/* Цена - ПРАВИЛЬНОЕ отображение стоимости остатков */}
+        {item.pricePerUnit !== undefined && item.pricePerUnit !== null && item.pricePerUnit > 0 ? (
           <div className="flex-shrink-0 text-right">
             <div className="flex items-center gap-1">
               <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
               <span className="font-bold text-sm sm:text-lg text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-                {item.totalPrice.toFixed(2)} {item.currency === 'PLN' ? 'PLN' : item.currency}
+                {(item.currentValue || 0).toFixed(2)} {item.currency === 'PLN' ? 'PLN' : item.currency || 'PLN'}
               </span>
               <button
                 onClick={() => onPriceClick?.(item)}
@@ -236,8 +260,8 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
               </button>
             </div>
             <div className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              {(item.pricePerUnit * (item.unit === 'g' || item.unit === 'ml' ? 1000 : 1)).toFixed(2)}{' '}
-              PLN/{item.unit === 'g' ? 'kg' : item.unit === 'ml' ? 'l' : 'pc'}
+              {item.pricePerUnit.toFixed(2)}{' '}
+              PLN/{item.unit === 'g' ? 'kg' : item.unit === 'ml' ? 'l' : item.unit}
             </div>
           </div>
         ) : (

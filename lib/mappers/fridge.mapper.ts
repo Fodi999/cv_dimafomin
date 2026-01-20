@@ -36,16 +36,21 @@ export interface FridgeItemVM {
  * Временный фикс до исправления на бэкенде
  */
 function normalizeCategory(category: string, name: string): string {
-  const lower = name.toLowerCase();
+  const n = name.toLowerCase();
   
-  // Масла
-  if (lower.includes('масло') || lower.includes('olej') || lower.includes('oil')) {
+  // Масла (масло = oil, NOT condiment)
+  if (n.includes('масло') || n.includes('olej') || n.includes('oil')) {
     return 'oil';
   }
   
-  // Соль, перец → специи
-  if (lower.includes('соль') || lower.includes('sól') || lower.includes('salt') ||
-      lower.includes('перец') || lower.includes('pieprz') || lower.includes('pepper')) {
+  // Соусы
+  if (n.includes('соус') || n.includes('sos') || n.includes('sauce')) {
+    return 'sauce';
+  }
+  
+  // Соль, перец → специи/приправы
+  if (n.includes('соль') || n.includes('sól') || n.includes('salt') ||
+      n.includes('перец') || n.includes('pieprz') || n.includes('pepper')) {
     return 'condiment';
   }
   

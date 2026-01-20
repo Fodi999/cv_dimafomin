@@ -28,6 +28,9 @@ export const fridge = {
     bread: "Bread",
     drinks: "Drinks",
     fish: "Fish",
+    oil: "Oils",
+    sauce: "Sauces",
+    condiment: "Seasonings",
     other: "Other",
     
     // 🔥 Backend category mapping (Polish → English)
@@ -48,6 +51,7 @@ export const fridge = {
   // Item properties
   item: {
     quantity: "Quantity",
+    remaining: "Remaining",
     pricePerKg: "Price/kg",
     pricePerL: "Price/l",
     totalCost: "Total cost",
