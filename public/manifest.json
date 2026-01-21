@@ -1,82 +1,70 @@
 {
-  "name": "Dima Fomin - Professional Chef",
-  "short_name": "Dima Fomin",
-  "description": "Professional Chef with 20 years of international experience. Specializing in sushi and European cuisine. Based in Gdańsk, Poland.",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#FEF9F5",
-  "theme_color": "#1E1A41",
-  "orientation": "portrait-primary",
+  "name": "ChefOS Food Academy – Smart Kitchen Platform",
+  "short_name": "ChefOS",
+  "description": "Умная платформа управления холодильником, рецептами и уведомлениями о сроках годности",
+  "start_url": "/",
   "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait",
+  "lang": "pl-PL",
+  "dir": "ltr",
   "display_override": ["standalone", "minimal-ui"],
+  "categories": ["food", "lifestyle", "productivity", "utilities"],
+  "keywords": [
+    "kitchen",
+    "fridge",
+    "recipes",
+    "notifications",
+    "food management",
+    "expiry tracking",
+    "kuchnia",
+    "холодильник",
+    "рецепти"
+  ],
   "icons": [
     {
       "src": "/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-1024x1024.png",
       "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any"
-    },
-    {
-      "src": "/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
     }
   ],
-  "lang": "pl-PL",
-  "dir": "ltr",
-  "categories": ["food", "business", "lifestyle"],
-  "keywords": ["chef", "kucharz", "polska", "gdansk", "sushi", "praca", "culinary"],
   "prefer_related_applications": false,
-  "related_applications": [],
   "shortcuts": [
     {
-      "name": "Profile",
-      "short_name": "Profile",
-      "description": "Open Academy Profile",
+      "name": "Fridge",
+      "short_name": "Fridge",
+      "description": "My Fridge Items",
+      "url": "/fridge",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Recipes",
+      "short_name": "Recipes",
+      "description": "Browse Recipes",
+      "url": "/recipes",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "AI Assistant",
+      "short_name": "AI",
+      "description": "AI Kitchen Assistant",
       "url": "/assistant",
       "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192", "type": "image/png" }]
-    },
-    {
-      "name": "Market",
-      "short_name": "Market",
-      "description": "Browse Courses",
-      "url": "/market",
-      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192", "type": "image/png" }]
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshots/home-mobile.png",
-      "sizes": "1284x2778",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Home screen with chef portfolio"
-    },
-    {
-      "src": "/screenshots/dashboard-mobile.png",
-      "sizes": "1284x2778",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Academy Dashboard"
     }
   ]
 }

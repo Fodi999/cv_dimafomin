@@ -1,165 +1,102 @@
-// Service Worker for Dima Fomin PWA
-// Version 1.0.0
+/**
+ * Service Worker - PWA 2025 Model
+ * 
+ * 🎯 Goals:
+ * ✅ Offline fallback
+ * ✅ Fast loading
+ * ❌ NO API caching (JWT safety)
+ * ❌ NO auth breaking
+ */
 
-const CACHE_NAME = 'dima-fomin-v1';
-const RUNTIME_CACHE = 'dima-fomin-runtime-v1';
+const CACHE_VERSION = 'chefos-v1';
+const RUNTIME_CACHE = 'chefos-runtime-v1';
 
-// Resources to cache immediately on install
+// Essential resources to cache on install
 const PRECACHE_URLS = [
-  './',
+  '/',
   '/manifest.json',
   '/icon-192x192.png',
   '/icon-512x512.png',
-  '/icon-180x180.png',
-  '/icon-1024x1024.png',
 ];
 
-// Install event - cache essential resources
+// Install event - cache essentials
 self.addEventListener('install', (event) => {
-  console.log('[SW] Install event');
+  console.log('[SW] Installing service worker...');
+  
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('[SW] Precaching app shell');
-        return cache.addAll(PRECACHE_URLS);
-      })
+    caches.open(CACHE_VERSION)
+      .then((cache) => cache.addAll(PRECACHE_URLS))
       .then(() => self.skipWaiting())
+      .catch((err) => console.error('[SW] Install failed:', err))
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - clean old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activate event');
+  console.log('[SW] Activating service worker...');
+  
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter((cacheName) => {
-              return cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE;
-            })
-            .map((cacheName) => {
-              console.log('[SW] Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
-            })
+            .filter((name) => name !== CACHE_VERSION && name !== RUNTIME_CACHE)
+            .map((name) => caches.delete(name))
         );
       })
       .then(() => self.clients.claim())
   );
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - network first, cache fallback
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET requests
-  if (request.method !== 'GET') {
-    return;
-  }
+  // Only handle GET requests
+  if (request.method !== 'GET') return;
 
-  // Skip chrome-extension and other protocols
-  if (!url.protocol.startsWith('http')) {
-    return;
-  }
+  // Skip non-HTTP protocols
+  if (!url.protocol.startsWith('http')) return;
 
-  // Skip API calls - always fetch fresh
+  // ❌ NEVER cache API (JWT auth!)
   if (url.pathname.startsWith('/api/')) {
-    event.respondWith(
-      fetch(request)
-        .catch(() => {
-          return new Response(
-            JSON.stringify({ error: 'Offline - API unavailable' }),
-            { 
-              headers: { 'Content-Type': 'application/json' },
-              status: 503 
-            }
-          );
-        })
-    );
     return;
   }
 
-  // Network First strategy for navigation
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // Cache successful responses
-          if (response.ok) {
-            const responseClone = response.clone();
-            caches.open(RUNTIME_CACHE).then((cache) => {
-              cache.put(request, responseClone);
-            });
-          }
-          return response;
-        })
-        .catch(() => {
-          // Fallback to cache
-          return caches.match(request)
-            .then((cachedResponse) => {
-              if (cachedResponse) {
-                return cachedResponse;
-              }
-              // Return offline page or index
-              return caches.match('./');
-            });
-        })
-    );
+  // ❌ NEVER cache auth endpoints
+  if (url.pathname.includes('/auth/') || url.pathname.includes('/login')) {
     return;
   }
 
-  // Cache First strategy for assets (images, fonts, etc.)
+  // Network first strategy (with cache fallback)
   event.respondWith(
-    caches.match(request)
-      .then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-
-        // Not in cache - fetch from network
-        return fetch(request)
-          .then((response) => {
-            // Don't cache non-successful responses
-            if (!response || response.status !== 200 || response.type === 'error') {
-              return response;
-            }
-
-            // Clone the response
-            const responseToCache = response.clone();
-
-            // Cache static assets
-            if (
-              url.pathname.match(/\.(png|jpg|jpeg|svg|gif|webp|ico|css|js|woff|woff2|ttf|otf)$/)
-            ) {
-              caches.open(RUNTIME_CACHE).then((cache) => {
-                cache.put(request, responseToCache);
-              });
-            }
-
-            return response;
-          })
-          .catch(() => {
-            // Network failed, check cache one more time
-            return caches.match(request);
+    fetch(request)
+      .then((response) => {
+        // Only cache successful responses
+        if (response && response.status === 200) {
+          const responseClone = response.clone();
+          caches.open(RUNTIME_CACHE).then((cache) => {
+            cache.put(request, responseClone);
           });
+        }
+        return response;
+      })
+      .catch(() => {
+        // Fallback to cache when offline
+        return caches.match(request).then((cached) => {
+          return cached || new Response(
+            '<!DOCTYPE html><html><body><h1>Offline</h1><p>No internet connection</p></body></html>',
+            { headers: { 'Content-Type': 'text/html' } }
+          );
+        });
       })
   );
 });
 
-// Handle messages from clients
+// Handle skip waiting message
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-  
-  if (event.data && event.data.type === 'CACHE_URLS') {
-    event.waitUntil(
-      caches.open(RUNTIME_CACHE).then((cache) => {
-        return cache.addAll(event.data.urls);
-      })
-    );
-  }
 });
-
-console.log('[SW] Service Worker loaded');

@@ -19,6 +19,7 @@ import TokenValidator from "@/components/auth/TokenValidator";
 import ReloginNotification from "@/components/auth/ReloginNotification"; // 🆕 Relogin notification
 import { Toaster } from "@/components/ui/sonner";
 import { I18nDevWarning } from "@/components/dev/I18nDevWarning";
+import { PWAInstallButton } from "@/components/PWAInstallButton"; // 🆕 PWA Install Button
 import { getDictionary } from "@/lib/i18n/getDictionary";
 import { DEFAULT_LANGUAGE, LANGUAGE_COOKIE_KEY, isSupportedLanguage } from "@/lib/i18n/constants";
 import type { Language } from "@/lib/i18n/types";
@@ -30,9 +31,10 @@ const inter = Inter({
 });
 
 /**
- * Default Metadata - SEO Configuration 2025
+ * Default Metadata - SEO Configuration 2025 + PWA
  * 
  * 🎯 CANONICAL DOMAIN: https://dima-fomin.pl
+ * 📱 PWA ENABLED: Install as app on mobile
  * 
  * This is the primary SEO config for Google indexing.
  * Each page can override with generateMetadata() if needed.
@@ -40,6 +42,8 @@ const inter = Inter({
 export const metadata: Metadata = {
   ...getMetadata("pl"),
   metadataBase: new URL("https://dima-fomin.pl"),
+  manifest: "/manifest.json",
+  themeColor: "#0f172a",
   alternates: {
     canonical: "https://dima-fomin.pl",
     languages: {
@@ -47,6 +51,17 @@ export const metadata: Metadata = {
       uk: "https://dima-fomin.pl/ua",
       "x-default": "https://dima-fomin.pl",
     },
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "ChefOS",
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
   },
 };
 
@@ -156,6 +171,8 @@ export default async function RootLayout({
                         />
                         {/* i18n Dev Warnings (only in development) */}
                         <I18nDevWarning />
+                        {/* PWA Install Button (shows when installable) */}
+                        <PWAInstallButton />
                       </NotificationRefetchProvider>
                     </NotificationProvider>
                   </RecipeProvider>
