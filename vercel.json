@@ -36,8 +36,7 @@
         }
       ],
       "destination": "https://dima-fomin.pl/$1",
-      "permanent": true,
-      "statusCode": 301
+      "permanent": true
     },
     {
       "source": "/(.*)",
@@ -48,8 +47,7 @@
         }
       ],
       "destination": "https://dima-fomin.pl/$1",
-      "permanent": true,
-      "statusCode": 301
+      "permanent": true
     }
   ]
 }
