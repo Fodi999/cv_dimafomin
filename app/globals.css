@@ -14,6 +14,21 @@
   }
 }
 
+/**
+ * PWA 2025 - Zoom Protection (SaaS/Dashboard Best Practice)
+ * 
+ * ✅ Disables: pinch zoom, gesture zoom, double-tap zoom
+ * ✅ Preserves: scroll, accessibility, form interactions
+ * ✅ Works on: iOS Safari, Android Chrome, macOS trackpad
+ */
+html, body {
+  touch-action: manipulation;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

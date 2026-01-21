@@ -20,6 +20,7 @@ import ReloginNotification from "@/components/auth/ReloginNotification"; // 🆕
 import { Toaster } from "@/components/ui/sonner";
 import { I18nDevWarning } from "@/components/dev/I18nDevWarning";
 import { PWAInstallButton } from "@/components/PWAInstallButton"; // 🆕 PWA Install Button
+import { ZoomProtection } from "@/components/ZoomProtection"; // 🆕 Zoom Protection
 import { getDictionary } from "@/lib/i18n/getDictionary";
 import { DEFAULT_LANGUAGE, LANGUAGE_COOKIE_KEY, isSupportedLanguage } from "@/lib/i18n/constants";
 import type { Language } from "@/lib/i18n/types";
@@ -60,8 +61,8 @@ export const metadata: Metadata = {
   viewport: {
     width: "device-width",
     initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
+    maximumScale: 1,
+    userScalable: false,
   },
 };
 
@@ -129,6 +130,7 @@ export default async function RootLayout({
       </head>
       <body className="antialiased relative">
         <PWARegister />
+        <ZoomProtection /> {/* 🆕 Zoom Protection (trackpad Ctrl+wheel) */}
         <ThemeProvider defaultTheme="system">
           <AuthProvider>
             <UserProvider>
