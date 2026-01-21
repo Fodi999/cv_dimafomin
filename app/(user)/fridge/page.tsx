@@ -12,7 +12,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import FridgeForm from "@/components/fridge/FridgeForm";
 import FridgeList from "@/components/fridge/FridgeList";
 import FridgeStats from "@/components/fridge/FridgeStats";
-import FridgeAIActions from "@/components/fridge/FridgeAIActions";
 import PriceSheet from "@/components/fridge/PriceSheet";
 import QuantitySheet from "@/components/fridge/QuantitySheet";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -283,18 +282,6 @@ export default function FridgePage() {
                   📌 Причина: Локальный expiredItems != backend history
                   ✅ Источник истины: ТОЛЬКО /losses (GET /api/history/losses)
                 */}
-
-                {/* ✨ AI Actions - ТОЛЬКО если есть activeItems */}
-                {activeItems.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="mb-6"
-                  >
-                    <FridgeAIActions />
-                  </motion.div>
-                )}
 
                 {/* ➕ Dodaj produkt button - Mobile optimized */}
                 <div className="mb-4 sm:mb-6">

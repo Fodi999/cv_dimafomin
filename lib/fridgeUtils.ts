@@ -110,10 +110,7 @@ export function enrichFridgeItem(item: FridgeItem): FridgeItem {
     freshness: getFreshnessStatus(item.daysLeft),
     currentValue: calculateCurrentValue(item),
     usagePercent: calculateUsagePercent(item),
-    ingredient: {
-      ...item.ingredient,
-      category: normalizeCategoryByName(item.ingredient.category, item.ingredient.name)
-    }
+    // ✅ DON'T MODIFY categoryKey - backend is source of truth
   };
 }
 

@@ -10,6 +10,7 @@ import type {
   ApiResponse,
   ApiError,
 } from "./types";
+import { LANGUAGE_STORAGE_KEY } from "@/lib/i18n/constants";
 
 // Use Next.js proxy routes instead of direct backend calls
 // All API calls go through /api/* routes which proxy to backend
@@ -24,11 +25,15 @@ export interface ApiOptions extends RequestInit {
 export type { ApiResponse, ApiError } from "./types";
 
 /**
- * Get current language from localStorage
+ * ✅ Get current language from localStorage
+ * Single source of truth: localStorage[LANGUAGE_STORAGE_KEY]
+ * LanguageContext writes to it, base.ts reads from it
  */
 function getCurrentLanguage(): string {
-  if (typeof window === "undefined") return "pl";
-  return localStorage.getItem("preferred-language") || "pl";
+  if (typeof window === "undefined") return "en"; // Default for SSR
+  const storedLang = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+  console.log(`🌍 [base.ts] Reading language from localStorage["${LANGUAGE_STORAGE_KEY}"]: "${storedLang}"`);
+  return storedLang || "en"; // Default to "en" if not set
 }
 
 /**

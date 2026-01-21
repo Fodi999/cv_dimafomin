@@ -50,22 +50,36 @@ export default function FridgeList({ items, onDelete, onPriceClick, onQuantityCl
   console.log('[FridgeList] Received items:', items);
   console.log('[FridgeList] Items count:', items?.length);
   
-  // ✅ Подсчёт продуктов по категориям (используем backend category key)
+  // ✅ Подсчёт продуктов по категориям (используем backend categoryKey)
   const categoryCounts = items.reduce((acc, item) => {
-    const category = item.ingredient?.category || 'other';
-    acc[category] = (acc[category] || 0) + 1;
+    const categoryKey = item.ingredient?.categoryKey || 'other';
+    acc[categoryKey] = (acc[categoryKey] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
   
-  // ✅ Фильтрация по backend category key (НЕ по переведенному имени!)
+  // ✅ Фильтрация по backend categoryKey (НЕ по переведенному имени!)
   const filteredItems = activeCategory === "all" 
     ? items 
-    : items.filter(item => (item.ingredient?.category || 'other') === activeCategory);
+    : items.filter(item => (item.ingredient?.categoryKey || 'other') === activeCategory);
   
-  // Сортировка: fresh → ok → warning → critical → expired
+  // 🔥 Сортировка: critical → warning → fresh/ok (по daysLeft возрастанию)
   const sortedItems = [...filteredItems].sort((a, b) => {
-    const order = { fresh: 0, ok: 1, warning: 2, critical: 3, expired: 4 };
-    return order[a.status] - order[b.status];
+    // Приоритет 1: Critical (1-2 дня) - самые первые
+    const aCritical = a.status === 'critical';
+    const bCritical = b.status === 'critical';
+    if (aCritical && !bCritical) return -1;
+    if (!aCritical && bCritical) return 1;
+    
+    // Приоритет 2: Warning (3-5 дней) - после critical
+    const aWarning = a.status === 'warning';
+    const bWarning = b.status === 'warning';
+    if (aWarning && !bWarning) return -1;
+    if (!aWarning && bWarning) return 1;
+    
+    // Приоритет 3: Внутри каждой группы сортируем по daysLeft (меньше = выше)
+    const aDays = a.daysLeft ?? Infinity;
+    const bDays = b.daysLeft ?? Infinity;
+    return aDays - bDays;
   });
   
   console.log('[FridgeList] Active category:', activeCategory);

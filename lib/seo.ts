@@ -1,7 +1,20 @@
 import type { Metadata } from "next";
 import type { Language } from "./i18n/types";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://dima-fomin.pl";
+/**
+ * SEO Configuration 2025
+ * 
+ * 🎯 CANONICAL DOMAIN: https://dima-fomin.pl
+ * 
+ * Google indexing:
+ * ✅ dima-fomin.pl → Primary (indexed)
+ * ❌ vercel.app → Redirect to primary (not indexed)
+ * 
+ * All metadata uses canonical domain only.
+ */
+
+const CANONICAL_DOMAIN = "https://dima-fomin.pl";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || CANONICAL_DOMAIN;
 
 // Helper to safely access config with fallback
 function safeGetConfig<T>(config: { pl: T; ua: T }, language: Language): T {
@@ -61,9 +74,11 @@ export const seoConfig = {
 
 export function getMetadata(language: Language): Metadata {
   const config = seoConfig[language as "pl" | "ua"] || seoConfig["pl"];
-  const langPath = language === "pl" ? "/pl" : "/ua";
+  const langPath = language === "pl" ? "" : `/${language}`; // Root for PL, /ua for UA
 
   return {
+    metadataBase: new URL(CANONICAL_DOMAIN), // 🎯 2025: Single source of truth
+    
     title: config.title,
     description: config.description,
     keywords: config.keywords,
@@ -72,24 +87,24 @@ export function getMetadata(language: Language): Metadata {
     publisher: "Dima Fomin",
     
     alternates: {
-      canonical: `${SITE_URL}${langPath}`,
+      canonical: `${CANONICAL_DOMAIN}${langPath}`, // 🎯 Critical for Google
       languages: {
-        pl: `${SITE_URL}/pl`,
-        uk: `${SITE_URL}/ua`,
-        "x-default": SITE_URL,
+        pl: `${CANONICAL_DOMAIN}/pl`,
+        uk: `${CANONICAL_DOMAIN}/ua`,
+        "x-default": CANONICAL_DOMAIN,
       },
     },
 
     openGraph: {
       type: "website",
       locale: config.locale,
-      url: `${SITE_URL}${langPath}`,
+      url: `${CANONICAL_DOMAIN}${langPath}`,
       title: config.ogTitle,
       description: config.ogDescription,
       siteName: "Dima Fomin - Sushi Chef",
       images: [
         {
-          url: `${SITE_URL}/preview.jpg`,
+          url: `${CANONICAL_DOMAIN}/preview.jpg`,
           width: 1200,
           height: 630,
           alt: "Dima Fomin - Professional Sushi Chef",

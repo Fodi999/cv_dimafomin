@@ -225,7 +225,7 @@ export function NotificationCenter() {
               <div className="flex-1 overflow-y-auto max-h-96">
                 {isLoading ? (
                   <div className="p-8 text-center text-slate-500">{t?.common?.loading || "Loading..."}</div>
-                ) : notifications.length === 0 ? (
+                ) : !notifications || !Array.isArray(notifications) || notifications.length === 0 ? (
                   <div className="p-8 text-center text-slate-500">
                     <Bell className="w-12 h-12 mx-auto mb-2 text-slate-300" />
                     <p>{t?.common?.notifications?.empty || "No notifications"}</p>

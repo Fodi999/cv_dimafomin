@@ -43,6 +43,25 @@ export const fridgeApi = {
     try {
       const response = await apiFetch<any>("/fridge/items", { token });
       
+      // 🔍 RAW RESPONSE LOG - see what backend actually sends
+      if (process.env.NODE_ENV === "development" && response?.items?.[0]) {
+        console.log("🔥 RAW FRIDGE ITEM FROM BACKEND:", JSON.stringify(response.items[0], null, 2));
+        console.log("🔍 INGREDIENT OBJECT STRUCTURE:", {
+          hasId: !!response.items[0].ingredient?.id,
+          hasName: !!response.items[0].ingredient?.name,
+          hasNamePl: !!(response.items[0].ingredient?.name_pl || response.items[0].ingredient?.namePl),
+          hasNameEn: !!(response.items[0].ingredient?.name_en || response.items[0].ingredient?.nameEn),
+          hasNameRu: !!(response.items[0].ingredient?.name_ru || response.items[0].ingredient?.nameRu),
+          hasUnit: !!response.items[0].ingredient?.unit,
+          allKeys: Object.keys(response.items[0].ingredient || {})
+        });
+        console.log("🔍 STATUS DEBUG:", {
+          daysLeft: response.items[0].daysLeft,
+          status: response.items[0].status,
+          expiresAt: response.items[0].expiresAt
+        });
+      }
+      
       // Backend returns full ingredient object with categoryKey
       if (response?.items && Array.isArray(response.items)) {
         
@@ -51,24 +70,57 @@ export const fridgeApi = {
           const ingredient = item.ingredient || {
             id: item.ingredientId || item.ingredient_id,
             name: item.name, // fallback for old format
-            category: item.category || 'other',
+            category: 'other', // will be overridden below
           };
+          
+          // ✅ Priority: ingredient.category_key > item.category_key > ingredient.category > 'other'
+          const categoryKey = 
+            ingredient.category_key || 
+            ingredient.categoryKey || 
+            item.category_key || 
+            item.categoryKey || 
+            ingredient.category || 
+            'other';
           
           // 🔍 DEBUG: Log categoryKey from backend
           if (process.env.NODE_ENV === "development") {
             console.log(`[fridgeApi.getItems] 🔑 Item ${index + 1}:`, {
               name: ingredient.name,
-              categoryKey: ingredient.category, // ✅ This is the stable key
+              ingredientCategoryKey: ingredient.category_key,
+              itemCategoryKey: item.category_key,
+              finalCategory: categoryKey,
             });
           }
           
-          // Backend returns totalPrice, currency, pricePerUnit
-          const totalPrice = item.totalPrice || item.total_price;
-          const pricePerUnit = item.pricePerUnit || item.price_per_unit;
+          // ✅ NEW FORMAT: Backend returns price object with value/per
+          // Example: { price: { value: 6.3, per: "kg" }, computed: { unitPrice: 0.0063, totalCost: 0.0126 } }
+          const priceObject = item.price;
+          const computedObject = item.computed;
+          
+          // ✅ LEGACY FORMAT: Old flat structure (fallback)
+          const totalPrice = computedObject?.totalCost || item.totalPrice || item.total_price;
+          const pricePerUnit = computedObject?.unitPrice || priceObject?.value || item.pricePerUnit || item.price_per_unit;
           const currency = item.currency || 'PLN';
           
           // expiresAt should be provided by backend now
           const expiresAt = item.expiresAt || item.expires_at;
+          const daysLeft = item.daysLeft || item.days_left;
+          
+          // 🔥 Calculate status based on daysLeft (frontend override)
+          let status = item.status || 'ok';
+          if (daysLeft !== null && daysLeft !== undefined) {
+            if (daysLeft <= 0) {
+              status = 'expired';
+            } else if (daysLeft <= 2) {
+              status = 'critical';
+            } else if (daysLeft <= 5) {
+              status = 'warning';
+            } else if (daysLeft <= 10) {
+              status = 'ok';
+            } else {
+              status = 'fresh';
+            }
+          }
           
           // ✅ Backend может вернуть quantityTotal и quantityRemaining
           const quantityTotal = item.quantityTotal || item.quantity_total || item.quantity;
@@ -78,11 +130,11 @@ export const fridgeApi = {
             id: item.id,
             ingredient: {
               id: ingredient.id,
-              name: ingredient.name,
-              namePl: ingredient.name_pl,
-              nameEn: ingredient.name_en,
-              nameRu: ingredient.name_ru,
-              category: ingredient.category, // ✅ Keep backend key as-is (fish, egg, grain, etc.)
+              name: ingredient.name,  // ✅ Current language from backend
+              namePl: ingredient.name_pl || ingredient.namePl,
+              nameEn: ingredient.name_en || ingredient.nameEn,
+              nameRu: ingredient.name_ru || ingredient.nameRu,
+              categoryKey: categoryKey, // ✅ Backend sends categoryKey (fish, egg, grain, etc.)
               key: ingredient.key, // Language-independent ingredient key
             },
             quantity: item.quantity,
@@ -91,8 +143,8 @@ export const fridgeApi = {
             unit: item.unit,
             arrivedAt: item.arrivedAt || item.arrived_at,
             expiresAt: expiresAt,
-            daysLeft: item.daysLeft || item.days_left || 0,
-            status: item.status || 'ok',
+            daysLeft: daysLeft,
+            status: status, // ✅ Calculated status based on daysLeft
             totalPrice: totalPrice,
             currency: currency,
             pricePerUnit: pricePerUnit,

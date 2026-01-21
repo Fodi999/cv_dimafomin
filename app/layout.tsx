@@ -29,8 +29,26 @@ const inter = Inter({
   display: "swap",
 });
 
-// Default metadata (будет использоваться как fallback)
-export const metadata: Metadata = getMetadata("pl");
+/**
+ * Default Metadata - SEO Configuration 2025
+ * 
+ * 🎯 CANONICAL DOMAIN: https://dima-fomin.pl
+ * 
+ * This is the primary SEO config for Google indexing.
+ * Each page can override with generateMetadata() if needed.
+ */
+export const metadata: Metadata = {
+  ...getMetadata("pl"),
+  metadataBase: new URL("https://dima-fomin.pl"),
+  alternates: {
+    canonical: "https://dima-fomin.pl",
+    languages: {
+      pl: "https://dima-fomin.pl/pl",
+      uk: "https://dima-fomin.pl/ua",
+      "x-default": "https://dima-fomin.pl",
+    },
+  },
+};
 
 /**
  * Root Layout (SSR with cookie-based i18n)

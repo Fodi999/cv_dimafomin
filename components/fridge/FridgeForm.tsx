@@ -119,9 +119,9 @@ export default function FridgeForm({ onAdd, token }: FridgeFormProps) {
     ? getLocalizedIngredientName(selectedIngredient, language)
     : null;
     
-  // ✅ Переводим категорию
-  const translatedCategory = selectedIngredient?.category
-    ? (t?.fridge?.categories?.[selectedIngredient.category] || selectedIngredient.category)
+  // ✅ Переводим категорию (используем categoryKey)
+  const translatedCategory = selectedIngredient?.categoryKey
+    ? (t?.fridge?.categories?.[selectedIngredient.categoryKey] || selectedIngredient.categoryKey)
     : null;
 
   return (

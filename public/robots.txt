@@ -1,14 +1,11 @@
-# robots.txt for Dima Fomin Portfolio
+# robots.txt - SEO Configuration 2025
+# Canonical domain: https://dima-fomin.pl
 
 User-agent: *
 Allow: /
 
-# Sitemaps
+# Sitemap (submit to Google Search Console)
 Sitemap: https://dima-fomin.pl/sitemap.xml
 
-# Crawl-delay for polite bots
-Crawl-delay: 1
-
-# Disallow specific paths (if needed)
-Disallow: /api/
-Disallow: /_next/static/
+# No restrictions - public portfolio site
+# All pages should be indexed

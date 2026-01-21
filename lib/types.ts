@@ -209,7 +209,7 @@ export interface CatalogIngredient {
   name_en?: string; // Snake case variant
   name_ru?: string; // Snake case variant
   unit: string;
-  category: string; // Кулинарная категория (fish, meat, vegetable, etc.)
+  categoryKey: string; // ✅ Backend category key (fish, egg, grain, condiment, etc.)
   nutritionGroup?: string; // Нутриентная группа (protein, carbohydrate, fat, etc.)
   defaultShelfLifeDays: number;
   defaultPricePerUnit?: number;
@@ -229,6 +229,18 @@ export const ACTIVE_STATUSES: readonly FridgeItemStatus[] = ['fresh', 'ok', 'war
 // 🎯 Freshness status based on days left
 export type FreshnessStatus = 'fresh' | 'warning' | 'danger';
 
+// 💰 NEW: Price aggregation from history
+export interface PriceObject {
+  value: number;     // Price value (e.g., 6.3 for "6.30 PLN/kg")
+  per: string;       // Price unit (e.g., "kg", "l", "pcs")
+}
+
+// 💰 NEW: Computed price fields
+export interface ComputedPrice {
+  unitPrice: number;  // Price normalized per smallest unit (e.g., 0.0063 PLN/g)
+  totalCost: number;  // Total cost for purchased quantity (e.g., 0.0126 PLN for 2g)
+}
+
 export interface FridgeItem {
   id: string;
   ingredient: {
@@ -237,7 +249,7 @@ export interface FridgeItem {
     namePl?: string;       // Polish translation
     nameEn?: string;       // English translation
     nameRu?: string;       // Russian translation
-    category: string;      // Кулинарная категория (fish, meat, vegetable, etc.)
+    categoryKey: string;   // ✅ Backend category key (fish, egg, grain, condiment, etc.)
     nutritionGroup?: string; // Нутриентная группа (protein, carbohydrate, fat, etc.)
     key?: string;          // Language-independent key (e.g., "beef")
     i18nKey?: string;      // Legacy: Ключ для перевода (например, "ingredient.cucumber")
@@ -258,12 +270,18 @@ export interface FridgeItem {
   status: FridgeItemStatus;      // Legacy status (fresh/ok/warning/critical/expired)
   freshness?: FreshnessStatus;   // ✅ NEW: Simplified freshness (fresh/warning/danger)
   
-  // 💰 Price
-  totalPrice?: number;           // Total price paid for this item
-  pricePerUnit?: number;         // Price per unit (PLN/kg, PLN/l, PLN/pcs)
+  // 💰 Price (NEW FORMAT from backend)
+  price?: PriceObject;           // ✅ NEW: Price from history (e.g., { value: 6.3, per: "kg" })
+  computed?: ComputedPrice;      // ✅ NEW: Computed values (e.g., { unitPrice: 0.0063, totalCost: 0.0126 })
+  
+  // 💰 Price (LEGACY FORMAT - fallback)
+  totalPrice?: number;           // LEGACY: Total price paid for this item
+  pricePerUnit?: number;         // LEGACY: Price per unit (PLN/kg, PLN/l, PLN/pcs)
   currency?: string;             // Currency code (e.g., "PLN")
-  currentValue?: number;         // ✅ NEW: Current value based on remaining quantity
-  usagePercent?: number;         // ✅ NEW: How much was used (0-100%)
+  
+  // 💰 Computed values (enriched by frontend)
+  currentValue?: number;         // ✅ Current value based on remaining quantity
+  usagePercent?: number;         // ✅ How much was used (0-100%)
 }
 
 export interface FridgeItemsResponse {

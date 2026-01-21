@@ -65,6 +65,8 @@ export const fridge = {
     invalidDate: "Неверная дата",
     dateError: "Ошибка даты",
     stable: "стабильная",
+    urgent: "СРОЧНО!", // 🔥 New: Badge for critical items
+    category: "Категория",
   },
   
   // Item status

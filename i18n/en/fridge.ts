@@ -60,6 +60,8 @@ export const fridge = {
     invalidDate: "Invalid date",
     dateError: "Date error",
     stable: "stable",
+    urgent: "URGENT!", // 🔥 New: Badge for critical items
+    category: "Category",
   },
   
   // Item status

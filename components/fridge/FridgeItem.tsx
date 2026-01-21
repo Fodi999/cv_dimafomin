@@ -5,6 +5,7 @@ import { Trash2, AlertCircle, CheckCircle2, AlertTriangle, Clock, Edit2, DollarS
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getLocalizedIngredientName } from "@/lib/i18n/translateIngredient";
 import { formatLocalizedDate } from "@/lib/i18n/formatDate";
+import { formatQuantityRange } from "@/lib/formatters/unitFormatter";
 import type { FridgeItem as FridgeItemType } from "@/lib/types";
 import PriceTrend from "./PriceTrend";
 import { useState, useEffect, useRef } from "react";
@@ -144,8 +145,22 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
   // ✅ Получаем локализованное имя напрямую из объекта ингредиента
   const translatedName = getLocalizedIngredientName(item.ingredient as any, language);
   
-  // ✅ Переводим категорию
-  const translatedCategory = t?.fridge?.categories?.[item.ingredient.category] || item.ingredient.category;
+  // ✅ Переводим категорию (используем categoryKey)
+  const translatedCategory = t?.fridge?.categories?.[item.ingredient.categoryKey] || item.ingredient.categoryKey;
+
+  // 🔥 Подсветка для продуктов с истекающим сроком
+  const isCritical = item.status === 'critical';
+  const isWarning = item.status === 'warning';
+  
+  // Critical (1-2 дня) - красная подсветка
+  const criticalClasses = isCritical 
+    ? 'ring-2 ring-red-500/60 dark:ring-red-400/60 bg-red-50/30 dark:bg-red-950/20 shadow-red-200/50 dark:shadow-red-900/50' 
+    : '';
+  
+  // Warning (3-5 дней) - оранжевая подсветка
+  const warningClasses = isWarning 
+    ? 'ring-2 ring-orange-400/60 dark:ring-orange-500/60 bg-orange-50/30 dark:bg-orange-950/20 shadow-orange-200/50 dark:shadow-orange-900/50' 
+    : '';
 
   return (
     <motion.div
@@ -161,8 +176,24 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
         shadow-sm hover:shadow-lg
         transition-all
         ${isHighlighted ? 'shadow-blue-500/20 ring-1 ring-blue-400/40' : ''}
+        ${criticalClasses}
+        ${warningClasses}
       `}
     >
+      {/* 🔥 URGENT BADGE для критичных продуктов */}
+      {isCritical && (
+        <div className="absolute -top-2 -right-2 z-10">
+          <motion.div
+            initial={{ scale: 0, rotate: -12 }}
+            animate={{ scale: 1, rotate: 0 }}
+            className="px-3 py-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-[10px] font-bold rounded-full shadow-lg flex items-center gap-1"
+          >
+            <AlertTriangle className="w-3 h-3" />
+            {t?.fridge?.item?.urgent || 'СРОЧНО!'}
+          </motion.div>
+        </div>
+      )}
+
       {/* HEADER */}
       <div className="flex items-start justify-between p-4">
         <div className="flex-1 min-w-0">
@@ -218,7 +249,12 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
             {t?.fridge?.item?.remaining || 'Remaining'}
           </p>
           <p className="font-semibold text-slate-900 dark:text-white">
-            {item.quantityRemaining ?? item.quantity}/{item.quantityTotal ?? item.quantity} {item.unit}
+            {formatQuantityRange(
+              item.quantityRemaining ?? item.quantity,
+              item.quantityTotal ?? item.quantity,
+              item.unit,
+              language
+            )}
           </p>
         </div>
 

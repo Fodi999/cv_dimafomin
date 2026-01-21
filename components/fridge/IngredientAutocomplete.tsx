@@ -56,9 +56,9 @@ export default function IngredientAutocomplete({
         // ✅ Чистая работа с данными: API слой уже нормализовал ответ
         let items = response?.items ?? [];
         
-        // ✅ Фильтрация по категории (если указан фильтр)
+        // ✅ Фильтрация по категории (если указан фильтр, используем categoryKey)
         if (categoryFilter) {
-          items = items.filter(item => item.category === categoryFilter);
+          items = items.filter(item => item.categoryKey === categoryFilter);
           if (process.env.NODE_ENV === "development") {
             console.log('[IngredientAutocomplete] 🔍 Filtered by category:', categoryFilter, '→', items.length, 'items');
           }
@@ -186,8 +186,8 @@ export default function IngredientAutocomplete({
               // ✅ Получаем локализованное имя напрямую из бэкенда
               const translatedName = getLocalizedIngredientName(ingredient, language);
               
-              // ✅ Переводим категорию
-              const translatedCategory = t?.fridge?.categories?.[ingredient.category] || ingredient.category;
+              // ✅ Переводим категорию (используем categoryKey)
+              const translatedCategory = t?.fridge?.categories?.[ingredient.categoryKey] || ingredient.categoryKey;
               
               return (
                 <motion.div

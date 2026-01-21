@@ -19,7 +19,8 @@ import {
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { NotificationCenter } from "@/components/NotificationCenter";
+import { NotificationBadge } from "@/components/notifications/NotificationBadge";
+import { NotificationPanel } from "@/components/notifications/NotificationPanel";
 
 interface NavLink {
   label: string;
@@ -48,6 +49,7 @@ export default function UserNavigation() {
   const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -190,12 +192,25 @@ export default function UserNavigation() {
             </div>
           </Link>
 
-          {/* Right Side Icons */}
-          <div className="ml-auto flex items-center gap-1 sm:gap-2">
-            <NotificationCenter />
+          {/* Right Side: Notification Badge */}
+          <div className="ml-auto">
+            <NotificationBadge 
+              onClick={() => setIsNotificationPanelOpen(true)} 
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800/50 rounded-lg transition-colors"
+            />
           </div>
         </div>
       </header>
+
+      {/* Notification Panel */}
+      <AnimatePresence>
+        {isNotificationPanelOpen && (
+          <NotificationPanel 
+            isOpen={isNotificationPanelOpen} 
+            onClose={() => setIsNotificationPanelOpen(false)} 
+          />
+        )}
+      </AnimatePresence>
 
       {/* ========== OVERLAY ========== */}
       <AnimatePresence>
