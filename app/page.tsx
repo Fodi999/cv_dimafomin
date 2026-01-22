@@ -1,15 +1,62 @@
-"use client";
+/**
+ * ✅ Home Page - Server Component with SSR
+ * 
+ * SEO Strategy:
+ * 1. Server-side i18n → Google sees translated content immediately
+ * 2. Metadata API → Perfect meta tags in HTML
+ * 3. Pure SSR → No "use client", full indexability
+ * 4. Client components → Only for interactive parts (StatsCounter)
+ * 
+ * What Google sees:
+ * <h1>Welcome to ChefOS</h1> ← In initial HTML! ✅
+ * <h2>Think like a professional chef.</h2> ← Indexed! ✅
+ * <p>AI helps you make decisions...</p> ← Crawlable! ✅
+ */
 
+import type { Metadata } from "next";
 import PublicHeader from "@/components/layout/PublicHeader";
 import DynamicMetaTags from "@/components/DynamicMetaTags";
 import StructuredData from "@/components/StructuredData";
 import DevelopmentModal from "@/components/DevelopmentModal";
-import StatsCounter from "@/components/sections/StatsCounter";
-import { useLanguage } from "@/contexts/LanguageContext";
+import HomeContent from "@/components/home/HomeContent";
+import { getServerLanguage } from "@/lib/i18n/server";
+import { getDictionary } from "@/lib/i18n/getDictionary";
 
-export default function Home() {
-  const { t } = useLanguage();
+// ✅ SSR Metadata for SEO (Google sees this immediately)
+export const metadata: Metadata = {
+  title: "Dmitrij Fomin - Full-Stack Developer & AI Chef Assistant Creator",
+  description: "Full-stack developer specializing in React, Next.js, TypeScript, and AI-powered cooking assistants. Building ChefOS - an intelligent recipe platform.",
+  keywords: [
+    "Dmitrij Fomin",
+    "Full-Stack Developer",
+    "React Developer",
+    "Next.js",
+    "TypeScript",
+    "AI Assistant",
+    "ChefOS",
+    "Recipe Platform",
+    "Web Development",
+    "Poland Developer"
+  ],
+  authors: [{ name: "Dmitrij Fomin" }],
+  openGraph: {
+    title: "Dmitrij Fomin - Full-Stack Developer",
+    description: "Full-stack developer specializing in React, Next.js, TypeScript, and AI-powered cooking assistants.",
+    type: "website",
+    locale: "en_US",
+    alternateLocale: ["pl_PL", "ru_RU"],
+  },
+};
+
+// ✅ Async Server Component - loads translations server-side
+export default async function HomePage() {
+  // 🌍 Get user language from cookies (server-side)
+  const lang = await getServerLanguage();
   
+  // 📖 Load dictionary server-side (lazy loaded per language)
+  const dict = await getDictionary(lang);
+  
+  // 🎯 SEO content is now in props → Google can index it!
   return (
     <>
       <DynamicMetaTags />
@@ -19,47 +66,17 @@ export default function Home() {
       {/* Navigation */}
       <PublicHeader />
       
-      {/* Always show section content - no landing page */}
-      <main className="relative w-full h-screen overflow-hidden bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-        {/* Content wrapper with padding for header */}
-        <div className="h-full pt-24 sm:pt-28 pb-8 px-6 sm:px-12 lg:px-20 overflow-y-auto">
-          <div className="max-w-5xl mx-auto space-y-8">
-              
-              {/* Main heading with gradient */}
-              <div className="space-y-4">
-                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 bg-clip-text text-transparent leading-tight">
-                  {t.home.hero.title}
-                </h1>
-              </div>
-
-              {/* Subheading with emphasis */}
-              <div className="space-y-6">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-50 leading-snug">
-                  {t.home.hero.subtitle}
-                </h2>
-                <p className="text-xl sm:text-2xl lg:text-3xl font-medium text-gray-700 dark:text-gray-300 leading-relaxed">
-                  {t.home.hero.description}
-                </p>
-              </div>
-
-              {/* Description with card style */}
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 via-amber-500/20 to-yellow-500/20 dark:from-orange-500/10 dark:via-amber-500/10 dark:to-yellow-500/10 blur-3xl -z-10"></div>
-                <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl p-8 sm:p-10 shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
-                  <p className="text-lg sm:text-xl lg:text-2xl text-gray-900 dark:text-gray-100 leading-relaxed font-normal">
-                    {t.home.hero.details}
-                  </p>
-                </div>
-              </div>
-
-              {/* Stats Counter - positioned below the main content */}
-              <div className="pt-8">
-                <StatsCounter />
-              </div>
-
-          </div>
-        </div>
-      </main>
+      {/* 
+        ✅ Client component receives server-side translated content
+        Google sees the content in initial HTML (SSR)
+        StatsCounter is client-side (interactive), but non-SEO content
+      */}
+      <HomeContent
+        title={dict.home.hero.title}
+        subtitle={dict.home.hero.subtitle}
+        description={dict.home.hero.description}
+        details={dict.home.hero.details}
+      />
     </>
   );
 }
