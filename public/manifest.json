@@ -1,28 +1,16 @@
 {
   "name": "ChefOS Food Academy – Smart Kitchen Platform",
   "short_name": "ChefOS",
-  "description": "Умная платформа управления холодильником, рецептами и уведомлениями о сроках годности",
+  "description": "Smart platform for managing fridge, recipes, costs and kitchen decisions",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
-  "orientation": "portrait",
-  "lang": "pl-PL",
+  "orientation": "any",
+  "lang": "en",
   "dir": "ltr",
-  "display_override": ["standalone", "minimal-ui"],
-  "categories": ["food", "lifestyle", "productivity", "utilities"],
-  "keywords": [
-    "kitchen",
-    "fridge",
-    "recipes",
-    "notifications",
-    "food management",
-    "expiry tracking",
-    "kuchnia",
-    "холодильник",
-    "рецепти"
-  ],
+  "categories": ["food", "productivity", "lifestyle"],
   "icons": [
     {
       "src": "/icon-192x192.png",
@@ -35,36 +23,24 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-1024x1024.png",
-      "sizes": "1024x1024",
-      "type": "image/png",
-      "purpose": "any"
     }
   ],
   "prefer_related_applications": false,
   "shortcuts": [
     {
       "name": "Fridge",
-      "short_name": "Fridge",
-      "description": "My Fridge Items",
       "url": "/fridge",
-      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Recipes",
-      "short_name": "Recipes",
-      "description": "Browse Recipes",
       "url": "/recipes",
-      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "AI Assistant",
-      "short_name": "AI",
-      "description": "AI Kitchen Assistant",
       "url": "/assistant",
-      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     }
   ]
 }
