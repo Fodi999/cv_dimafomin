@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   AlertCircle
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { RecipeMatch } from "@/lib/api";
 
 interface AIRecommendationCardProps {
@@ -43,6 +44,7 @@ export default function AIRecommendationCard({
 }: AIRecommendationCardProps) {
   const [isInstructionsExpanded, setIsInstructionsExpanded] = useState(false);
   const [servings, setServings] = useState(recipe.servings); // 🆕 UI state for portions
+  const { t } = useLanguage(); // ✅ Добавляем переводы
 
   // Calculate servings multiplier
   const servingsMultiplier = recipe.servings > 0 ? servings / recipe.servings : 1;
@@ -61,11 +63,12 @@ export default function AIRecommendationCard({
   // Determine recipe status
   const getRecipeStatus = () => {
     if (recipe.canCookNow) {
-      return { emoji: '🟢', text: 'Możesz ugotować teraz', color: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' };
+      return { emoji: '🟢', text: t.recipes.match.canCookNow, color: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' };
     } else if (recipe.missingCount <= 2) {
-      return { emoji: '🟡', text: `Brakuje ${recipe.missingCount} składników`, color: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' };
+      const ingredientWord = recipe.missingCount === 1 ? t.recipes.match.ingredientSingular : t.recipes.match.ingredientPlural;
+      return { emoji: '🟡', text: `Не хватает ${recipe.missingCount} ${ingredientWord}`, color: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' };
     } else {
-      return { emoji: '🔴', text: `Brakuje ${recipe.missingCount} składników`, color: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' };
+      return { emoji: '🔴', text: `Не хватает ${recipe.missingCount} ${t.recipes.match.ingredientPlural}`, color: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' };
     }
   };
 
@@ -76,50 +79,85 @@ export default function AIRecommendationCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className={`rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-lg overflow-hidden ${className}`}
+      className={`rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-md overflow-hidden ${className}`}
     >
-      {/* 1️⃣ HEADER SECTION */}
-      <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-white">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            {/* Status Badge */}
-            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-3 ${status.color}`}>
+      {/* 🖼️ RECIPE IMAGE - COMPACT */}
+      {recipe.imageUrl && (
+        <div className="relative h-40 w-full overflow-hidden">
+          <img 
+            src={recipe.imageUrl} 
+            alt={recipe.title}
+            className="w-full h-full object-cover"
+          />
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+          
+          {/* Recipe Title on Image */}
+          <div className="absolute bottom-0 left-0 right-0 p-3">
+            <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold mb-1.5 ${status.color}`}>
               <span>{status.emoji}</span>
               <span>{status.text}</span>
             </div>
-            
-            <h3 className="text-2xl font-bold mb-2">
+            <h3 className="text-lg font-bold text-white drop-shadow-lg">
               {recipe.title}
             </h3>
-            {recipe.description && (
-              <p className="text-purple-100 text-sm leading-relaxed">
-                {recipe.description}
-              </p>
-            )}
           </div>
-          <div className="flex-shrink-0">
-            <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <Sparkles className="w-6 h-6" />
+        </div>
+      )}
+
+      {/* 1️⃣ HEADER SECTION (only if no image) */}
+      {!recipe.imageUrl && (
+        <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-white">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              {/* Status Badge */}
+              <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-3 ${status.color}`}>
+                <span>{status.emoji}</span>
+                <span>{status.text}</span>
+              </div>
+              
+              <h3 className="text-2xl font-bold mb-2">
+                {recipe.title}
+              </h3>
+              {recipe.description && (
+                <p className="text-purple-100 text-sm leading-relaxed">
+                  {recipe.description}
+                </p>
+              )}
+            </div>
+            <div className="flex-shrink-0">
+              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <Sparkles className="w-6 h-6" />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* 2️⃣ META SECTION */}
-      <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
+      {/* Description section (if image exists) */}
+      {recipe.imageUrl && recipe.description && (
+        <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
+          <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+            {recipe.description}
+          </p>
+        </div>
+      )}
+
+      {/* 2️⃣ META SECTION - COMPACT */}
+      <div className="px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6 text-sm">
+          <div className="flex items-center gap-4 text-sm">
             {recipe.cookingTime && (
-              <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+              <div className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300">
                 <Clock className="w-4 h-4 text-purple-500" />
                 <span className="font-medium">{recipe.cookingTime} min</span>
               </div>
             )}
             {recipe.coverage !== undefined && (
-              <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+              <div className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300">
                 <CheckCircle2 className="w-4 h-4 text-green-500" />
                 <span className="font-medium">
-                  {Math.min(100, Math.round(recipe.coverage > 1 ? recipe.coverage : recipe.coverage * 100))}% dopasowania
+                  {Math.min(100, Math.round(recipe.coverage > 1 ? recipe.coverage : recipe.coverage * 100))}% совпадение
                 </span>
               </div>
             )}
@@ -127,89 +165,88 @@ export default function AIRecommendationCard({
 
           {/* Servings control */}
           {recipe.servings > 0 && (
-            <div className="flex items-center gap-2 text-sm bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2">
-              <Users className="w-4 h-4 text-purple-500" />
+            <div className="flex items-center gap-2 text-sm bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg px-2.5 py-1.5">
+              <Users className="w-3.5 h-3.5 text-purple-500" />
               <button
                 onClick={() => setServings(Math.max(1, servings - 1))}
-                className="w-6 h-6 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 font-bold transition-colors"
+                className="w-5 h-5 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 font-bold transition-colors text-xs"
                 disabled={servings <= 1}
               >
                 −
               </button>
-              <span className="font-semibold text-gray-900 dark:text-white min-w-[3ch] text-center">
+              <span className="font-semibold text-gray-900 dark:text-white min-w-[2ch] text-center">
                 {servings}
               </span>
               <button
                 onClick={() => setServings(servings + 1)}
-                className="w-6 h-6 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 font-bold transition-colors"
+                className="w-5 h-5 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 font-bold transition-colors text-xs"
               >
                 +
               </button>
-              <span className="text-gray-600 dark:text-gray-400 font-medium">porcji</span>
+              <span className="text-gray-600 dark:text-gray-400 font-medium text-xs">{t.recipes.match.servingPlural}</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* 3️⃣ INGREDIENTS SECTION */}
-      <div className="p-6 border-b border-gray-200 dark:border-gray-800">
-        <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Składniki
+      {/* 3️⃣ INGREDIENTS SECTION - COMPACT */}
+      <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+        <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-3">
+          {t.recipes.detail.ingredients}
         </h4>
-        <div className="space-y-3">
-          {/* Available ingredients */}
-          {recipe.usedIngredients && recipe.usedIngredients.length > 0 && (
-            <div>
-              <p className="text-xs font-semibold text-green-600 dark:text-green-400 uppercase tracking-wide mb-2">
-                Masz w lodówce ({recipe.usedIngredients.length})
-              </p>
-              <div className="space-y-2">
-                {recipe.usedIngredients.map((ing, idx) => {
-                  if (typeof ing === 'string') return null;
-                  return (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-3 text-sm bg-green-50 dark:bg-green-900/20 rounded-lg p-3"
-                    >
-                      <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-                      <span className="text-gray-900 dark:text-white font-medium flex-1">
-                        {ing.name}
-                      </span>
-                      <span className="text-gray-600 dark:text-gray-400 font-mono text-xs">
-                        {formatQuantity(ing.quantity * servingsMultiplier, ing.unit)}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Missing ingredients */}
-          {recipe.missingIngredients && recipe.missingIngredients.length > 0 && (
-            <div>
-              <p className="text-xs font-semibold text-orange-600 dark:text-orange-400 uppercase tracking-wide mb-2">
-                Trzeba dokupić ({recipe.missingIngredients.length})
-              </p>
-              <div className="space-y-2">
-                {recipe.missingIngredients.map((ing, idx) => (
+        
+        {/* Available ingredients - Pills style */}
+        {recipe.usedIngredients && recipe.usedIngredients.length > 0 && (
+          <div className="mb-3">
+            <p className="text-xs font-semibold text-green-600 dark:text-green-400 uppercase tracking-wide mb-2">
+              {t.recipes.match.fromFridge} ({recipe.usedIngredients.length})
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {recipe.usedIngredients.map((ing, idx) => {
+                if (typeof ing === 'string') return null;
+                return (
                   <div
                     key={idx}
-                    className="flex items-center gap-3 text-sm bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
                   >
-                    <AlertCircle className="w-4 h-4 text-orange-600 dark:text-orange-400 flex-shrink-0" />
-                    <span className="text-gray-900 dark:text-white font-medium flex-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                    <span className="text-gray-900 dark:text-white font-medium">
                       {ing.name}
                     </span>
                     <span className="text-gray-600 dark:text-gray-400 font-mono text-xs">
                       {formatQuantity(ing.quantity * servingsMultiplier, ing.unit)}
                     </span>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* Missing ingredients - Pills style */}
+        {recipe.missingIngredients && recipe.missingIngredients.length > 0 && (
+          <div>
+            <p className="text-xs font-semibold text-orange-600 dark:text-orange-400 uppercase tracking-wide mb-2">
+              {t.recipes.match.toBuy} ({recipe.missingIngredients.length})
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {recipe.missingIngredients.map((ing, idx) => (
+                <div
+                  key={idx}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800"
+                >
+                  <AlertCircle className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400 flex-shrink-0" />
+                  <span className="text-gray-900 dark:text-white font-medium">
+                    {ing.name}
+                  </span>
+                  <span className="text-gray-600 dark:text-gray-400 font-mono text-xs">
+                    {formatQuantity(ing.quantity * servingsMultiplier, ing.unit)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 4️⃣ COLLAPSIBLE INSTRUCTIONS */}
@@ -217,15 +254,15 @@ export default function AIRecommendationCard({
         <div className="border-b border-gray-200 dark:border-gray-800">
           <button
             onClick={() => setIsInstructionsExpanded(!isInstructionsExpanded)}
-            className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+            className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
           >
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Sposób przygotowania
+            <h4 className="text-base font-semibold text-gray-900 dark:text-white">
+              {t.recipes.detail.instructions}
             </h4>
             {isInstructionsExpanded ? (
-              <ChevronUp className="w-5 h-5 text-gray-500" />
+              <ChevronUp className="w-4 h-4 text-gray-500" />
             ) : (
-              <ChevronDown className="w-5 h-5 text-gray-500" />
+              <ChevronDown className="w-4 h-4 text-gray-500" />
             )}
           </button>
           
@@ -238,13 +275,13 @@ export default function AIRecommendationCard({
                 transition={{ duration: 0.3 }}
                 className="overflow-hidden"
               >
-                <div className="px-6 pb-6 space-y-4">
+                <div className="px-4 pb-4 space-y-2.5">
                   {recipe.steps.map((step, idx) => (
-                    <div key={idx} className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 font-bold flex items-center justify-center text-sm">
+                    <div key={idx} className="flex gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 font-bold flex items-center justify-center text-xs">
                         {idx + 1}
                       </div>
-                      <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed pt-1">
+                      <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed pt-0.5">
                         {step}
                       </p>
                     </div>
@@ -270,7 +307,7 @@ export default function AIRecommendationCard({
               {recipe.economy.costToComplete > 0 && recipe.missingIngredients && recipe.missingIngredients.length > 0 && (
                 <div className="space-y-2 mb-3">
                   <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                    Koszt dokupienia ({recipe.missingIngredients.length} {recipe.missingIngredients.length === 1 ? 'składnik' : 'składników'}):
+                    {t.recipes.match.costToBuy} ({recipe.missingIngredients.length} {t.recipes.match.ingredientPlural}):
                   </p>
                   <div className="space-y-1">
                     {recipe.missingIngredients.slice(0, 3).map((ing, idx) => {
@@ -287,7 +324,7 @@ export default function AIRecommendationCard({
                     })}
                     {recipe.missingIngredients.length > 3 && (
                       <p className="text-xs text-gray-500 dark:text-gray-500 pl-2">
-                        +{recipe.missingIngredients.length - 3} więcej...
+                        +{recipe.missingIngredients.length - 3} {t.recipes.match.more}
                       </p>
                     )}
                   </div>
@@ -295,7 +332,7 @@ export default function AIRecommendationCard({
                   {/* Total cost for selected servings */}
                   <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
                     <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                      Razem ({servings} {servings === 1 ? 'porcja' : servings < 5 ? 'porcje' : 'porcji'}):
+                      {t.common.total} ({servings} {t.recipes.match.servingPlural}):
                     </span>
                     <span className="text-sm font-bold text-gray-900 dark:text-white">
                       {(recipe.economy.costToComplete * servingsMultiplier).toFixed(2)} {recipe.economy.currency}
@@ -305,7 +342,7 @@ export default function AIRecommendationCard({
                   {/* Per-portion cost */}
                   {recipe.servings > 0 && (
                     <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-500">
-                      <span>Koszt za porcję:</span>
+                      <span>{t.recipes.match.totalCost}:</span>
                       <span className="font-mono">
                         {(recipe.economy.costToComplete / recipe.servings).toFixed(2)} {recipe.economy.currency}
                       </span>
@@ -352,23 +389,23 @@ export default function AIRecommendationCard({
       {/* ✅ Backend отправляет ai.title и ai.reason в родительском компоненте */}
       
       {/* 7️⃣ ACTIONS SECTION */}
-      <div className="p-6 space-y-3">
+      <div className="p-4 space-y-2.5">
         {/* PRIMARY Actions */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <button
             onClick={() => onCook(servingsMultiplier)}
             disabled={isCooking}
-            className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+            className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg text-sm"
           >
             {isCooking ? (
               <>
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Gotuję...
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                {t.recipes.match.cooking}
               </>
             ) : (
               <>
-                <ChefHat className="w-5 h-5" />
-                Ugotuj
+                <ChefHat className="w-4 h-4" />
+                {t.recipes.match.cook}
               </>
             )}
           </button>
@@ -376,40 +413,40 @@ export default function AIRecommendationCard({
           {recipe.missingIngredients && recipe.missingIngredients.length > 0 && (
             <button
               onClick={onAddToCart}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+              className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg text-sm"
             >
-              <ShoppingCart className="w-5 h-5" />
-              Dodaj do zakupów
+              <ShoppingCart className="w-4 h-4" />
+              {t.recipes.match.addToShoppingList}
             </button>
           )}
         </div>
 
         {/* SECONDARY Actions */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <button
             onClick={onSave}
             disabled={isSaving}
-            className="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-all flex items-center justify-center gap-2"
+            className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-all flex items-center justify-center gap-2 text-sm"
           >
             {isSaving ? (
               <>
-                <div className="w-4 h-4 border-2 border-gray-400 border-t-gray-700 dark:border-t-gray-300 rounded-full animate-spin" />
-                Zapisuję...
+                <div className="w-3.5 h-3.5 border-2 border-gray-400 border-t-gray-700 dark:border-t-gray-300 rounded-full animate-spin" />
+                {t.common.saving}
               </>
             ) : (
               <>
-                <Save className="w-4 h-4" />
-                Zapisz
+                <Save className="w-3.5 h-3.5" />
+                {t.common.save}
               </>
             )}
           </button>
 
           <button
             onClick={onRefresh}
-            className="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-all flex items-center justify-center gap-2"
+            className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-all flex items-center justify-center gap-2 text-sm"
           >
-            <RotateCw className="w-4 h-4" />
-            Odśwież
+            <RotateCw className="w-3.5 h-3.5" />
+            {t.common.refresh}
           </button>
         </div>
       </div>

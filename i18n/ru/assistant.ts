@@ -5,12 +5,12 @@
 export const assistant = {
   // Page header
   title: "AI Кухонный ассистент",
-  description: "Интеллектуальные рекомендации на основе вашего холодильника",
+  description: "Лучший рецепт для вашего холодильника прямо сейчас",
   
   // Section titles
   recommendation: "Рекомендация AI",
   questionTitle: "Что вы хотите сделать?",
-  questionDescription: "Rules Engine проанализировал ваш холодильник и принял лучшее решение",
+  questionDescription: "Rules Engine выбрал рецепт с наибольшим совпадением ингредиентов",
   
   // Loading states
   loading: "AI анализирует содержимое холодильника…",

@@ -2,36 +2,47 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { RecipeCard } from "@/components/recipes/RecipeCard";
+import { MenuRecipeCard } from "@/components/recipes/MenuRecipeCard";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Loader2, ChefHat, Check, AlertCircle, ShoppingCart, ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, ChefHat, ArrowLeft, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { recipeMatchingApi, AvailableRecipesResponse } from "@/lib/api/recipe-matching";
-import { getRecipeTitle } from "@/lib/i18n/getRecipeTitle";
+import { menuApi, TodayMenuItem } from "@/lib/api/menu";
+import { toast } from "sonner";
 
 export default function RecipesPage() {
   const { t, language } = useLanguage();
   const router = useRouter();
   const { token } = useAuth();
   
-  const [available, setAvailable] = useState<AvailableRecipesResponse | null>(null);
+  const [menu, setMenu] = useState<TodayMenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
   
-  // UI state for collapsible sections
-  const [showAlmostCook, setShowAlmostCook] = useState(true);
-  const [showNeedToBuy, setShowNeedToBuy] = useState(false);
+  // Tab navigation: 'menu' | 'cooking' | 'history'
+  const [activeTab, setActiveTab] = useState<'menu' | 'cooking' | 'history'>('menu');
 
   useEffect(() => {
     if (token) {
-      loadAvailableRecipes();
+      loadTodayMenu();
     }
-  }, [token, language]); // Re-load when language changes
+  }, [token, language]);
 
-  async function loadAvailableRecipes() {
+  // 👂 Listen for recipe-saved event from assistant page
+  useEffect(() => {
+    const handleRecipeSaved = () => {
+      console.log("📢 [page] recipe-saved event received");
+      loadTodayMenu();
+    };
+
+    window.addEventListener('recipe-saved', handleRecipeSaved);
+    return () => window.removeEventListener('recipe-saved', handleRecipeSaved);
+  }, [token]);
+
+  async function loadTodayMenu() {
     if (!token) {
-      setError("Please login to see recipes");
+      setError("Пожалуйста, войдите в систему");
       setLoading(false);
       return;
     }
@@ -40,37 +51,96 @@ export default function RecipesPage() {
       setLoading(true);
       setError(null);
       
-      console.log("🔍 Loading available recipes from fridge...");
-      console.log("🌍 UI Language:", language);
+      console.log("🍽️ [page] Loading today's menu...");
+      const response = await menuApi.getToday(token, language);
       
-      const data = await recipeMatchingApi.getAvailableRecipes({}, token, language);
-      
-      console.log("✅ Available recipes loaded:", {
-        canCook: data.canCook.length,
-        almostCook: data.almostCook.length,
-        needToBuy: data.needToBuy.length,
-        total: data.totalCount
+      console.log("✅ [page] RAW response from menuApi:", {
+        isArray: Array.isArray(response),
+        length: Array.isArray(response) ? response.length : 'NOT_ARRAY',
+        data: response,
       });
       
-      // 🔍 DEBUG: Check what fields backend returns
-      if (data.canCook.length > 0) {
-        const firstRecipe = data.canCook[0];
-        console.log("🔍 Backend recipe structure:", {
-          title: firstRecipe.title,
-          localName: firstRecipe.localName,
-          canonicalName: firstRecipe.canonicalName,
-          hasTitle: !!firstRecipe.title,
-          hasLocalName: !!firstRecipe.localName,
-          hasCanonicalName: !!firstRecipe.canonicalName
-        });
-      }
+      // Ensure we have an array
+      const menuItems = Array.isArray(response) ? response : [];
       
-      setAvailable(data);
+      console.log("📊 [page] Menu items after filtering:", {
+        menu: menuItems.filter(i => i.status === "menu").length,
+        cooking: menuItems.filter(i => i.status === "cooking").length,
+        history: menuItems.filter(i => i.status === "history").length,
+        total: menuItems.length,
+      });
+      
+      // Set full menu array (component will filter)
+      setMenu(menuItems);
     } catch (err: any) {
-      console.error("❌ Failed to load available recipes:", err);
-      setError(err.message || "Nie udało się załadować przepisów");
+      console.error("❌ [page] Failed to load today's menu:", err);
+      setError(err.message || "Не удалось загрузить меню");
     } finally {
       setLoading(false);
+    }
+  }
+
+  const planned = menu.filter(i => i.status === "menu");
+  const cooking = menu.filter(i => i.status === "cooking");
+  const completed = menu.filter(i => i.status === "history");
+
+  async function handleStartCooking(itemId: string) {
+    if (!token) return;
+    
+    try {
+      setActionLoading(itemId);
+      console.log("🔵 Starting to cook item:", itemId);
+      
+      await menuApi.startCooking(itemId, token);
+      toast.success("✅ Начали готовить!");
+      
+      // Reload menu
+      await loadTodayMenu();
+    } catch (err: any) {
+      console.error("❌ Failed to start cooking:", err);
+      toast.error("❌ Ошибка: " + (err.message || "Не удалось начать готовку"));
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
+  async function handleCompleteCooking(itemId: string) {
+    if (!token) return;
+    
+    try {
+      setActionLoading(itemId);
+      console.log("✅ Completing item:", itemId);
+      
+      await menuApi.completeCooking(itemId, token);
+      toast.success("🎉 Отлично! Блюдо готово!");
+      
+      // Reload menu
+      await loadTodayMenu();
+    } catch (err: any) {
+      console.error("❌ Failed to complete cooking:", err);
+      toast.error("❌ Ошибка: " + (err.message || "Не удалось завершить готовку"));
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
+  async function handleUpdateServings(itemId: string, servings: number) {
+    if (!token) return;
+    
+    try {
+      setActionLoading(itemId);
+      console.log("🍴 Updating servings for item:", itemId, "to", servings);
+      
+      await menuApi.updateServings(itemId, servings, token);
+      toast.success("✅ Количество порций обновлено!");
+      
+      // Reload menu
+      await loadTodayMenu();
+    } catch (err: any) {
+      console.error("❌ Failed to update servings:", err);
+      toast.error("❌ Ошибка: " + (err.message || "Не удалось обновить порции"));
+    } finally {
+      setActionLoading(null);
     }
   }
 
@@ -84,157 +154,207 @@ export default function RecipesPage() {
     show: { opacity: 1, y: 0 },
   };
 
+  // Tab stats
+  const menuCount = menu.filter(i => i.status === "menu").length;
+  const cookingCount = menu.filter(i => i.status === "cooking").length;
+  const historyCount = menu.filter(i => i.status === "history").length;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+      {/* Header */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <button onClick={() => router.back()} className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between mb-4">
+          <button 
+            onClick={() => router.back()} 
+            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors"
+          >
             <ArrowLeft className="w-5 h-5" />
             <span className="font-medium">{t?.common?.back || "Назад"}</span>
           </button>
           <div className="flex items-center gap-3">
             <ChefHat className="w-6 h-6 text-green-600" />
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t?.recipes?.cooking?.title || "Gotowanie"}</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Kitchen Dashboard</h1>
           </div>
           <div className="w-20" />
         </div>
+
+        {/* Tab Navigation */}
+        {!loading && menu.length > 0 && (
+          <div className="max-w-7xl mx-auto px-4 flex gap-2 border-t border-gray-200 dark:border-gray-700">
+            <button
+              onClick={() => setActiveTab('menu')}
+              className={`px-6 py-3 font-semibold text-sm transition-all border-b-2 ${
+                activeTab === 'menu'
+                  ? 'border-yellow-500 text-yellow-600 dark:text-yellow-400'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+              }`}
+            >
+              📋 В меню <span className="ml-2 text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">{menuCount}</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('cooking')}
+              className={`px-6 py-3 font-semibold text-sm transition-all border-b-2 ${
+                activeTab === 'cooking'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+              }`}
+            >
+              🍳 Готовится <span className="ml-2 text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">{cookingCount}</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('history')}
+              className={`px-6 py-3 font-semibold text-sm transition-all border-b-2 ${
+                activeTab === 'history'
+                  ? 'border-green-500 text-green-600 dark:text-green-400'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+              }`}
+            >
+              ✅ История <span className="ml-2 text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">{historyCount}</span>
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
         {loading && (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-4" />
-            <p className="text-gray-600 dark:text-gray-400">{t?.recipes?.cooking?.loading || "Sprawdzanie Twojej lodówki..."}</p>
+            <p className="text-gray-600 dark:text-gray-400">Загружаю ваше меню на день...</p>
           </div>
         )}
 
         {error && !loading && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center">
-            <p className="text-red-800 dark:text-red-200">{error}</p>
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center mb-6">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+              <p className="text-red-800 dark:text-red-200">{error}</p>
+            </div>
+            <button
+              onClick={() => loadTodayMenu()}
+              className="mt-3 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded font-medium text-sm transition-colors"
+            >
+              Попробовать снова
+            </button>
           </div>
         )}
 
-        {!loading && !error && available && (
+        {!loading && !error && menu.length === 0 && (
+          <div className="bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-12 text-center">
+            <ChefHat className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400 mb-2 text-lg font-semibold">Ваше меню пусто</p>
+            <p className="text-sm text-gray-500 dark:text-gray-500 mb-6">Добавьте рецепты в меню, чтобы начать готовить</p>
+            <button 
+              onClick={() => router.push("/assistant")} 
+              className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+            >
+              🤖 Перейти к ассистенту
+            </button>
+          </div>
+        )}
+
+        {!loading && !error && menu.length > 0 && (
           <>
-            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-8 shadow-sm">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Check className="w-5 h-5 text-green-600" />
-                    <span className="text-2xl font-bold text-green-600">{available.canCookCount}</span>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{t?.recipes?.cooking?.stats?.canCookNow || "Można ugotować teraz"}</p>
-                </div>
-                <div>
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <AlertCircle className="w-5 h-5 text-yellow-600" />
-                    <span className="text-2xl font-bold text-yellow-600">{available.almostCookCount}</span>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{t?.recipes?.cooking?.stats?.almostReady || "Prawie gotowe"}</p>
-                </div>
-                <div>
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <ShoppingCart className="w-5 h-5 text-red-600" />
-                    <span className="text-2xl font-bold text-red-600">{available.needToBuyCount}</span>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{t?.recipes?.cooking?.stats?.needShopping || "Wymaga zakupów"}</p>
-                </div>
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-500 text-center mt-4">{t?.recipes?.cooking?.stats?.basedOnFridge || "Na podstawie Twojej lodówki pokazujemy, co możesz ugotować teraz"}</p>
-            </motion.div>
-
-            <motion.div variants={container} initial="hidden" animate="show" className="mb-12">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-3 h-3 rounded-full bg-green-500" />
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t?.recipes?.cooking?.sections?.canCook?.title || "Można ugotować teraz"}</h2>
-                <span className="text-sm text-gray-500">({available.canCookCount})</span>
-              </div>
-
-              {available.canCookCount === 0 && available.almostCookCount === 0 ? (
-                <div className="bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-8 text-center">
-                  <ChefHat className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 dark:text-gray-400 mb-2">{t?.recipes?.cooking?.empty?.title || "Twoja lodówka jest pusta"}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-500">{t?.recipes?.cooking?.empty?.description || "Dodaj składniki do lodówki, aby zobaczyć co możesz ugotować"}</p>
-                  <button onClick={() => router.push("/fridge")} className="mt-4 px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">{t?.recipes?.cooking?.empty?.action || "Przejdź do lodówki"}</button>
-                </div>
-              ) : (
-                <motion.div variants={container} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {available.canCook.map((recipe) => (
-                    <motion.div key={recipe.recipeId} variants={item}>
-                      <RecipeCard 
-                        id={recipe.recipeId} 
-                        title={getRecipeTitle(recipe, language)} 
-                        category={recipe.country || "main"} 
-                        difficulty={(recipe.difficulty as "beginner" | "intermediate" | "advanced") || "intermediate"} 
-                        cookingTime={recipe.timeMinutes || recipe.cookingTime} 
-                        imageUrl={recipe.imageUrl || "https://i.postimg.cc/B63F53xY/DSCF4622.jpg"} 
-                        author={{ name: "Dima Fomin", avatar: "https://i.postimg.cc/k4SPVGzv/avatar.jpg" }} 
-                        likes={0} 
-                        comments={0} 
-                      />
+            {/* 📋 МЕНЮ TAB */}
+            {activeTab === 'menu' && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                    <div className="w-4 h-4 rounded-full bg-yellow-500" />
+                    Сегодняшнее меню
+                  </h2>
+                  {menuCount === 0 ? (
+                    <div className="text-center py-12">
+                      <p className="text-gray-500 dark:text-gray-400 mb-4">Нет блюд в меню</p>
+                      <button 
+                        onClick={() => router.push("/assistant")} 
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-medium transition-colors"
+                      >
+                        Добавить рецепт
+                      </button>
+                    </div>
+                  ) : (
+                    <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {menu.filter(i => i.status === "menu").map((menuItem) => (
+                        <motion.div key={menuItem.id} variants={item}>
+                          <MenuRecipeCard
+                            item={menuItem}
+                            status="menu"
+                            onStartCooking={() => handleStartCooking(menuItem.id)}
+                            onComplete={() => {}}
+                            onUpdateServings={(servings) => handleUpdateServings(menuItem.id, servings)}
+                            isLoading={actionLoading === menuItem.id}
+                          />
+                        </motion.div>
+                      ))}
                     </motion.div>
-                  ))}
-                </motion.div>
-              )}
-            </motion.div>
-
-            {available.almostCookCount > 0 && (
-              <motion.div variants={container} initial="hidden" animate="show" className="mb-12">
-                <button onClick={() => setShowAlmostCook(!showAlmostCook)} className="flex items-center gap-3 mb-6 w-full group">
-                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t?.recipes?.cooking?.sections?.almostCook?.title || "Prawie gotowe"}</h2>
-                  <span className="text-sm text-gray-500">({available.almostCookCount})</span>
-                  {showAlmostCook ? <ChevronUp className="w-5 h-5 text-gray-400 ml-auto group-hover:text-gray-600" /> : <ChevronDown className="w-5 h-5 text-gray-400 ml-auto group-hover:text-gray-600" />}
-                </button>
-                {showAlmostCook && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {available.almostCook.map((recipe) => (
-                      <motion.div key={recipe.recipeId} variants={item}>
-                        <RecipeCard 
-                          id={recipe.recipeId} 
-                          title={getRecipeTitle(recipe, language)} 
-                          category={recipe.country || "main"} 
-                          difficulty={(recipe.difficulty as "beginner" | "intermediate" | "advanced") || "intermediate"} 
-                          cookingTime={recipe.timeMinutes || recipe.cookingTime} 
-                          imageUrl={recipe.imageUrl || "https://i.postimg.cc/B63F53xY/DSCF4622.jpg"} 
-                          author={{ name: "Dima Fomin", avatar: "https://i.postimg.cc/k4SPVGzv/avatar.jpg" }} 
-                          likes={0} 
-                          comments={0} 
-                        />
-                      </motion.div>
-                    ))}
-                  </motion.div>
-                )}
+                  )}
+                </div>
               </motion.div>
             )}
 
-            {available.needToBuyCount > 0 && (
-              <motion.div variants={container} initial="hidden" animate="show">
-                <button onClick={() => setShowNeedToBuy(!showNeedToBuy)} className="flex items-center gap-3 mb-6 w-full group">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t?.recipes?.cooking?.sections?.needToBuy?.title || "Wymaga zakupów"}</h2>
-                  <span className="text-sm text-gray-500">({available.needToBuyCount})</span>
-                  {showNeedToBuy ? <ChevronUp className="w-5 h-5 text-gray-400 ml-auto group-hover:text-gray-600" /> : <ChevronDown className="w-5 h-5 text-gray-400 ml-auto group-hover:text-gray-600" />}
-                </button>
-                {showNeedToBuy && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {available.needToBuy.map((recipe) => (
-                      <motion.div key={recipe.recipeId} variants={item}>
-                        <RecipeCard 
-                          id={recipe.recipeId} 
-                          title={getRecipeTitle(recipe, language)} 
-                          category={recipe.country || "main"} 
-                          difficulty={(recipe.difficulty as "beginner" | "intermediate" | "advanced") || "intermediate"} 
-                          cookingTime={recipe.timeMinutes || recipe.cookingTime} 
-                          imageUrl={recipe.imageUrl || "https://i.postimg.cc/B63F53xY/DSCF4622.jpg"} 
-                          author={{ name: "Dima Fomin", avatar: "https://i.postimg.cc/k4SPVGzv/avatar.jpg" }} 
-                          likes={0} 
-                          comments={0} 
-                        />
-                      </motion.div>
-                    ))}
-                  </motion.div>
-                )}
+            {/* 🍳 ГОТОВИТСЯ TAB */}
+            {activeTab === 'cooking' && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                    <div className="w-4 h-4 rounded-full bg-blue-500 animate-pulse" />
+                    Активная готовка
+                  </h2>
+                  {cookingCount === 0 ? (
+                    <div className="text-center py-12">
+                      <p className="text-gray-500 dark:text-gray-400 mb-4">Нет активных блюд</p>
+                      <p className="text-sm text-gray-400 dark:text-gray-500">Нажмите "Готовить" на блюде из меню</p>
+                    </div>
+                  ) : (
+                    <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {menu.filter(i => i.status === "cooking").map((menuItem) => (
+                        <motion.div key={menuItem.id} variants={item}>
+                          <MenuRecipeCard
+                            item={menuItem}
+                            status="cooking"
+                            onStartCooking={() => {}}
+                            onComplete={() => handleCompleteCooking(menuItem.id)}
+                            onUpdateServings={() => {}}
+                            isLoading={actionLoading === menuItem.id}
+                          />
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* ✅ ИСТОРИЯ TAB */}
+            {activeTab === 'history' && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                    <div className="w-4 h-4 rounded-full bg-green-500 animate-pulse" />
+                    Приготовлено сегодня
+                  </h2>
+                  {historyCount === 0 ? (
+                    <div className="text-center py-12">
+                      <p className="text-gray-500 dark:text-gray-400 mb-4">История пуста</p>
+                      <p className="text-sm text-gray-400 dark:text-gray-500">Завершённые блюда будут показаны здесь</p>
+                    </div>
+                  ) : (
+                    <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {menu.filter(i => i.status === "history").map((menuItem) => (
+                        <motion.div key={menuItem.id} variants={item}>
+                          <MenuRecipeCard
+                            item={menuItem}
+                            status="history"
+                            onStartCooking={() => {}}
+                            onComplete={() => {}}
+                            onUpdateServings={() => {}}
+                            isLoading={false}
+                          />
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  )}
+                </div>
               </motion.div>
             )}
           </>

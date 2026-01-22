@@ -168,6 +168,7 @@ export const recipes = {
     decreaseServings: "Уменьшить порции",
     increaseServings: "Увеличить порции",
     more: "еще",
+    viewRecipe: "Смотреть рецепт",
   },
 
   instructions: {

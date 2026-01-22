@@ -4,19 +4,22 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { RecipeProvider } from "@/contexts/RecipeContext";
 import { Loader } from "lucide-react";
 import UserNavigation from "@/components/layout/UserNavigation";
 
 /**
  * User App Layout
  * 
+ * ✅ RecipeProvider wraps all /app routes EXCEPT /assistant
+ * 
  * Защищённая зона для авторизованных пользователей (не админов).
  * Содержит:
- * - Холодильник (/app/fridge)
- * - Рецепты (/app/recipes)
- * - AI Ассистент (/app/assistant)
- * - Академия (/app/academy)
- * - Токены (/app/tokens)
+ * - Холодильник (/app/fridge) ✅ RecipeProvider
+ * - Рецепты (/app/recipes) ✅ RecipeProvider
+ * - AI Ассистент (/app/assistant) ❌ NO RecipeProvider (has own layout)
+ * - Академия (/app/academy) ✅ RecipeProvider
+ * - Токены (/app/tokens) ✅ RecipeProvider
  * 
  * Middleware уже проверил наличие token и role !== admin.
  * Здесь делаем дополнительную проверку на клиенте.
@@ -77,8 +80,11 @@ export default function AppLayout({
     return null;
   }
 
+  // ❌ Disable RecipeProvider for /assistant
+  const isAssistantPage = pathname?.startsWith("/assistant");
+
   // Рендерим приложение пользователя
-  return (
+  const content = (
     <div className="min-h-screen bg-background">
       {/* User Navigation (отдельное меню для /app) */}
       <UserNavigation />
@@ -89,4 +95,13 @@ export default function AppLayout({
       </main>
     </div>
   );
+
+  // ✅ Wrap with RecipeProvider for all routes EXCEPT /assistant
+  if (isAssistantPage) {
+    console.log("🚫 RecipeProvider: DISABLED on /assistant (isolated)");
+    return content;
+  }
+
+  console.log("✅ RecipeProvider: ENABLED on", pathname);
+  return <RecipeProvider>{content}</RecipeProvider>;
 }

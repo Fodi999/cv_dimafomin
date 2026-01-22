@@ -1,16 +1,15 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useRecipe } from "@/contexts/RecipeContext";
 import { useRouter } from "next/navigation";
 import { useAIRecommendation } from "@/hooks/useAIRecommendation";
-import AIRecommendationCard from "@/components/assistant/AIRecommendationCard";
+import AIRecommendationCardCompact from "@/components/assistant/AIRecommendationCardCompact";
 import { AIMessageCard } from "@/components/ai/AIMessageCard";
 import { PageLayout, PageHeader } from "@/components/layout/PageLayout";
 import { generateUUID } from "@/lib/uuid";
@@ -58,50 +57,11 @@ export default function AssistantPage() {
   const { user, isLoading: userLoading } = useUser();
   const { openAuthModal } = useAuth();
   const { t } = useLanguage();
-  const { setRecipe: saveToRecipeContext } = useRecipe();
   const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
   
-  // 🎯 Mapper function: AIRecipeResponse → RecipeContext
-  const handleRecipeLoaded = useCallback((aiResponse: AIRecipeResponse) => {
-    console.log("🔄 Saving AI recipe to RecipeContext");
-    
-    // Map AIRecipeResponse to RecipeContext format
-    const recipeForContext = {
-      title: aiResponse.recipe.displayName,
-      canonicalName: aiResponse.recipe.canonicalName,
-      description: aiResponse.recipe.description,
-      ingredients: aiResponse.recipe.ingredients.map(ing => ({
-        name: ing.name,
-        quantity: ing.quantity,
-        unit: ing.unit,
-      })),
-      ingredientsMissing: aiResponse.recipe.missingIngredients.map(ing => ({
-        name: ing.name,
-        quantity: ing.quantity,
-        unit: ing.unit,
-      })),
-      servings: 2, // Default servings (backend не передаёт)
-      timeMinutes: aiResponse.recipe.cookingTime || 30,
-      difficulty: aiResponse.recipe.difficulty,
-      // Economy будет null для catalog recipes (backend не считает)
-      economy: null,
-    };
-    
-    saveToRecipeContext({
-      recipe: recipeForContext,
-      usedProducts: aiResponse.ai.ingredientsUsed.map(name => ({
-        name,
-        usedAmount: 0, // Backend не передаёт количество
-        unit: 'шт',
-      })),
-    });
-    
-    console.log("✅ AI recipe saved to RecipeContext (persists across navigation & reload)");
-  }, [saveToRecipeContext]);
-  
-  // 🎯 Single source of truth - backend Rules Engine
-  // ✅ Автоматически сохраняет в RecipeContext через handleRecipeLoaded
-  const { data, loading, error, refetch, loadNext } = useAIRecommendation(token, handleRecipeLoaded);
+  // ✅ NO RecipeContext hook - AI Assistant is isolated
+  // ✅ AI recommendations are ephemeral, not persistent
+  const { data, loading, error, refetch, loadNext } = useAIRecommendation(token);
 
   // 🔐 Auth Guard
   useEffect(() => {
@@ -177,6 +137,11 @@ export default function AssistantPage() {
           { duration: 7000 }
         );
 
+        // ✅ Recipe is cooked - backend has recorded it
+        // ❌ NO need to save to RecipeContext (AI recommendation is ephemeral)
+        // RecipeContext is for user-selected recipes from catalog, not AI recommendations
+        console.log("✅ Recipe cooked successfully (backend recorded)");
+
         // Refresh recommendation after cooking
         setTimeout(() => refetch(), 1000);
       }
@@ -196,12 +161,12 @@ export default function AssistantPage() {
   // ⭐ Save Recipe Handler
   const handleSaveRecipe = async (recipeId: string) => {
     if (!token) {
-      toast.error('Zaloguj się, aby zapisać przepis');
+      toast.error('Войдите, чтобы сохранить рецепт');
       return;
     }
 
     try {
-      console.log('⭐ Saving recipe:', recipeId);
+      console.log('⭐ Saving recipe to cooking list:', recipeId);
 
       const response = await fetch('/api/user/recipes/save', {
         method: 'POST',
@@ -212,16 +177,25 @@ export default function AssistantPage() {
         body: JSON.stringify({ recipeId }),
       });
 
+      console.log('📥 Save recipe response status:', response.status, response.statusText);
+      
       const data = await response.json();
+      console.log('📦 Save recipe response data:', data);
 
       if (data.success) {
-        toast.success('Przepis zapisany! Znajdziesz go w sekcji "Zapisane przepisy"', { duration: 5000 });
+        toast.success('✅ Рецепт добавлен в раздел "Готовка"! Найдёте его на странице готовки', { duration: 5000 });
+        console.log('✅ Recipe saved successfully');
+        
+        // Trigger a refresh event that /recipes page can listen to
+        window.dispatchEvent(new Event('recipe-saved'));
+        
       } else {
-        throw new Error(data.message || 'Nie udało się zapisać przepisu');
+        console.error('❌ Server returned success=false:', data);
+        throw new Error(data.message || 'Не удалось сохранить рецепт');
       }
     } catch (err: any) {
       console.error('❌ Failed to save recipe:', err);
-      toast.error(err.message || 'Nie udało się zapisać. Spróbuj ponownie');
+      toast.error(err.message || 'Не удалось сохранить. Попробуйте снова');
     }
   };
 
@@ -290,29 +264,34 @@ export default function AssistantPage() {
       background="gradient-purple"
       maxWidth="lg"
     >
-      <PageHeader
-        title={t.assistant.title}
-        description={t.assistant.description}
-        icon={<Sparkles className="w-6 h-6" />}
-      />
+      <div className="space-y-6">
+        <PageHeader
+          title={t.assistant.title}
+          description={t.assistant.description}
+          icon={<Sparkles className="w-6 h-6" />}
+        />
 
-      {/* 📊 Question Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="rounded-xl border border-purple-200 dark:border-purple-800 bg-white dark:bg-gray-900 p-8 text-center"
-      >
-        <Sparkles className="w-12 h-12 text-purple-500 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          {t.assistant.questionTitle}
-        </h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          {t.assistant.questionDescription}
-        </p>
-      </motion.div>
+        {/* 📊 Question Section - COMPACT */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="rounded-xl border border-purple-200 dark:border-purple-800 bg-white dark:bg-gray-900 p-4 text-center"
+        >
+          <div className="flex items-center justify-center gap-3">
+            <Sparkles className="w-5 h-5 text-purple-500" />
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {t.assistant.questionTitle}
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {t.assistant.questionDescription}
+              </p>
+            </div>
+          </div>
+        </motion.div>
 
-      {/* 🔄 Loading State */}
+        {/* 🔄 Loading State */}
       {loading && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -343,43 +322,21 @@ export default function AssistantPage() {
         />
       )}
 
-      {/* ✅ Success State - AI Recommendation */}
+      {/* ✅ Success State - AI Recommendation - COMPACT VIEW */}
       {data && !loading && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="space-y-4"
         >
-          {/* AI Context Message - ТОЛЬКО от backend */}
-          <div className="rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-4">
-            <div className="flex items-start gap-3">
-              <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="font-medium text-blue-900 dark:text-blue-200 mb-1">
-                  {data.ai.title}
-                </p>
-                <p className="text-sm text-blue-800 dark:text-blue-300">
-                  {data.ai.reason}
-                </p>
-                {data.ai.tip && (
-                  <p className="mt-2 text-xs text-blue-700 dark:text-blue-400 italic">
-                    💡 {data.ai.tip}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Recipe Card */}
-          <AIRecommendationCard
+          <AIRecommendationCardCompact
             recipe={{
               recipeId: data.recipe.id,
               title: data.recipe.displayName,
               localName: data.recipe.displayName,
               canonicalName: data.recipe.canonicalName,
               description: data.recipe.description,
-              servings: 2,
+              servings: data.recipe.servings || 1,
               timeMinutes: data.recipe.cookingTime || 30,
               difficulty: data.recipe.difficulty,
               canCook: data.recipe.canCookNow,
@@ -391,6 +348,10 @@ export default function AssistantPage() {
               imageUrl: data.recipe.imageUrl,
               country: data.recipe.country,
               cookingTime: data.recipe.cookingTime || 30,
+              steps: data.recipe.steps || [],
+              matchStatus: data.recipe.scenario === 'CAN_COOK_NOW' ? 'ready' : 
+                          data.recipe.scenario === 'ALMOST_READY' ? 'almost_ready' : 'not_ready',
+              matchPercent: Math.round(data.recipe.matchRatio * 100),
               usedIngredients: data.recipe.ingredients
                 .filter(ing => ing.available !== undefined && ing.available >= ing.quantity)
                 .map(ing => ({
@@ -406,40 +367,14 @@ export default function AssistantPage() {
                 estimatedCost: 0,
               })),
             }}
-            onCook={(servingsMultiplier: number) => handleCookRecipe(data.recipe.id, servingsMultiplier)}
+            aiTitle={data.ai.title}
+            aiReason={data.ai.reason}
             onSave={() => handleSaveRecipe(data.recipe.id)}
-            onAddToCart={() => handleAddToCart(data.recipe.missingIngredients || [])}
-            onRefresh={() => {
-              if (loadNext) {
-                loadNext();
-              } else {
-                refetch();
-              }
-            }}
-            isCooking={false}
-            isSaving={false}
+            isSaved={false}
           />
-
-          {/* AI Ingredients Used - ТОЛЬКО от backend */}
-          {data.ai.ingredientsUsed && data.ai.ingredientsUsed.length > 0 && (
-            <div className="rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 p-6">
-              <h3 className="font-semibold text-green-900 dark:text-green-200 mb-3">
-                {t.assistant.ingredientsFromFridge}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {data.ai.ingredientsUsed.map((ingredient: string, idx: number) => (
-                  <span 
-                    key={idx}
-                    className="px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/40 text-sm text-green-700 dark:text-green-300"
-                  >
-                    {ingredient}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
         </motion.div>
       )}
+      </div>
     </PageLayout>
   );
 }

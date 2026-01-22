@@ -55,6 +55,8 @@ export interface RecipeMatch {
   score?: number;
   match?: number;              // Backend returns match score
   coverage?: number;
+  matchPercent?: number;       // ✅ Backend provides 0-100 match percentage
+  matchStatus?: "ready" | "almost_ready" | "not_ready"; // ✅ Backend status
   usedIngredients: string[] | RecipeMatchIngredient[];  // Can be simple strings or detailed objects
   missingIngredients?: RecipeMatchIngredient[];
   missing?: string[];          // Backend returns simple string array
@@ -64,6 +66,10 @@ export interface RecipeMatch {
   missingCount: number;
   usedCount?: number;
   costToComplete?: number;     // Backend returns cost estimate
+  aiExplanation?: {            // ✅ AI explanation from backend
+    title?: string;
+    reason?: string;
+  };
 }
 
 export interface CookRecipeParams {

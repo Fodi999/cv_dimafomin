@@ -31,7 +31,15 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8080/api'
  * @throws Error если API недоступен
  */
 export async function fetchAIRecipe(token: string): Promise<AIRecipeResponse> {
-  const res = await fetch(`${API_BASE}/ai-recipe/recommendation`, {
+  // ✅ Get user language from localStorage
+  const lang = typeof window !== 'undefined' 
+    ? localStorage.getItem('lang') || 'ru' 
+    : 'ru';
+  
+  console.log('🌍 [fetchAIRecipe] Using language:', lang);
+  
+  // ✅ Use /recipe-recommendations with lang parameter
+  const res = await fetch(`${API_BASE}/recipe-recommendations?limit=1&lang=${lang}`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -50,7 +58,66 @@ export async function fetchAIRecipe(token: string): Promise<AIRecipeResponse> {
   }
 
   const json = await res.json();
-  return json.data as AIRecipeResponse;
+  return transformRecipeResponse(json);
+}
+
+// Helper: Map backend match_status to RecipeScenario
+function mapMatchStatusToScenario(status: string): 'CAN_COOK_NOW' | 'ALMOST_READY' | 'NEED_MORE' {
+  switch (status) {
+    case 'ready':
+      return 'CAN_COOK_NOW';
+    case 'almost_ready':
+      return 'ALMOST_READY';
+    case 'need_more':
+      return 'NEED_MORE';
+    default:
+      return 'NEED_MORE';
+  }
+}
+
+// Helper: Transform backend recipe to AIRecipeResponse format
+function transformRecipeResponse(json: any): AIRecipeResponse {
+  if (!json.recipes || json.recipes.length === 0) {
+    throw new Error('No recipes found');
+  }
+  
+  const recipe = json.recipes[0];
+  return {
+    recipe: {
+      id: recipe.id,
+      canonicalName: recipe.canonical_name,
+      displayName: recipe.title,
+      imageUrl: recipe.image_url,
+      canCookNow: recipe.match_status === 'ready',
+      scenario: mapMatchStatusToScenario(recipe.match_status),
+      confidence: 'MEDIUM',
+      matchRatio: recipe.match_percent / 100,
+      servings: recipe.servings || 1,  // ✅ Backend servings (default 1)
+      steps: recipe.steps || [],  // ✅ Backend cooking steps (localized)
+      ingredients: (recipe.available_ingredients || []).map((ing: any) => ({
+        id: ing.id,
+        name: ing.display_name,
+        quantity: ing.quantity,
+        unit: ing.unit,
+        available: ing.quantity,
+      })),
+      missingIngredients: (recipe.missing_ingredients || []).map((ing: any) => ({
+        id: ing.id,
+        name: ing.display_name,
+        quantity: ing.quantity,
+        unit: ing.unit,
+      })),
+      cookingTime: recipe.cook_time,
+      difficulty: undefined,
+      country: undefined,
+    },
+    ai: {
+      title: json.summary || 'AI recommendation',  // ✅ Use backend summary (already localized)
+      reason: json.summary || '',  // ✅ Use backend summary as reason too
+      ingredientsUsed: (recipe.available_ingredients || []).map((ing: any) => ing.display_name),
+    },
+    success: true,
+  };
 }
 
 /**
@@ -63,7 +130,13 @@ export async function fetchNextAIRecipe(
   token: string,
   skipRecipeId: string
 ): Promise<AIRecipeResponse> {
-  const res = await fetch(`${API_BASE}/ai-recipe/recommendation?skip=${skipRecipeId}`, {
+  // ✅ Get user language from localStorage
+  const lang = typeof window !== 'undefined' 
+    ? localStorage.getItem('lang') || 'ru' 
+    : 'ru';
+  
+  // ✅ Use /recipe-recommendations with skip and lang parameters
+  const res = await fetch(`${API_BASE}/recipe-recommendations?limit=1&skip=${skipRecipeId}&lang=${lang}`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -77,5 +150,5 @@ export async function fetchNextAIRecipe(
   }
 
   const json = await res.json();
-  return json.data as AIRecipeResponse;
+  return transformRecipeResponse(json);
 }

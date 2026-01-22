@@ -3,543 +3,309 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { 
-  ArrowLeft, 
-  Clock, 
-  Users, 
-  ChefHat, 
-  Star,
-  CheckCircle2,
-  XCircle,
-  ShoppingCart,
-  Loader2,
-  AlertCircle,
-  Globe,
-  Flame
-} from 'lucide-react';
+import { ArrowLeft, Clock, Users, ChefHat, Loader2, AlertCircle, Globe, Flame, CheckCircle, XCircle, ShoppingCart, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { authFetch } from '@/lib/auth-interceptor';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { getRecipeTitle } from '@/lib/i18n/getRecipeTitle';
-
-interface RecipeDetails {
-  id: string;
-  localName: string;
-  canonicalName: string;
-  localName_pl?: string;
-  localName_ru?: string;
-  localName_en?: string;
-  country: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  timeMinutes: number;
-  servings: number;
-  category: string;
-  ingredients: {
-    id: string;
-    name: string;
-    quantity: number;
-    unit: string;
-    inFridge: boolean;
-    fridgeQuantity?: number;
-  }[];
-  instructions: string[];
-  tags: string[];
-  isSaved?: boolean;
-  // ❌ ВИДАЛЕНО: Backend не повертає ці поля!
-  // Frontend сам рахує stats з ingredients
-}
+import { fetchRecipeDetails, type RecipeDetails } from '@/lib/api/catalog';
+import Image from 'next/image';
 
 const difficultyConfig = {
-  easy: { labelKey: 'easy' as const, color: 'text-green-600', bgColor: 'bg-green-50' },
-  medium: { labelKey: 'medium' as const, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },
-  hard: { labelKey: 'hard' as const, color: 'text-red-600', bgColor: 'bg-red-50' },
+  easy: { label: 'Легкий', color: 'text-green-600', bgColor: 'bg-green-50' },
+  medium: { label: 'Средний', color: 'text-yellow-600', bgColor: 'bg-yellow-50' },
+  hard: { label: 'Сложный', color: 'text-red-600', bgColor: 'bg-red-50' },
 };
 
 export default function RecipeDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
-  const { language, t } = useLanguage();
+  const { isAuthenticated, openAuthModal } = useAuth();
+  const { t } = useLanguage();
   const recipeId = params.id as string;
 
   const [recipe, setRecipe] = useState<RecipeDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [addingToCart, setAddingToCart] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (!recipeId) return;
-    loadRecipeDetails();
-  }, [recipeId]);
-
-  // ✅ Add missing ingredients to fridge (правильна архітектура)
-  const addMissingToFridge = async () => {
-    if (!recipe) return;
-    
-    setAddingToCart(true);
-    
-    try {
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        alert('Musisz być zalogowany, aby dodać produkty');
-        setAddingToCart(false);
-        return;
-      }
-      
-      console.log('🛒 Adding missing ingredients to fridge for recipe:', recipeId);
-      
-      // ✅ Правильний запит
-      const response = await fetch('/api/fridge/add-missing', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ recipeId }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Backend error: ${response.status}`);
-      }
-      
-      const result = await response.json();
-      console.log('✅ Backend response:', result);
-      
-      const { added, skipped, items } = result.data || {};
-      
-      // 🔄 Refetch recipe to update ingredient status
-      console.log('🔄 Refreshing recipe data...');
-      await loadRecipeDetails();
-      
-      // ✅ Success notification with details
-      const message = items && items.length > 0
-        ? `✅ Dodano ${added} ${added === 1 ? 'składnik' : 'składników'} do lodówki!\n\n${items.map((item: any) => `• ${item.name}: ${item.addedQuantity} ${item.unit}`).join('\n')}\n\nMożesz teraz ugotować ten przepis! 🍳`
-        : `✅ Dodano ${added} ${added === 1 ? 'składnik' : 'składników'} do lodówki!\n\nMożesz teraz ugotować ten przepis! 🍳`;
-      
-      alert(message);
-      
-    } catch (error: any) {
-      console.error('❌ Failed to add to fridge:', error);
-      alert('Nie udało się dodać produktów do lodówki: ' + error.message);
-    } finally {
-      setAddingToCart(false);
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
     }
-  };
+    loadRecipeDetails();
+  }, [recipeId, isAuthenticated]);
 
-  const loadRecipeDetails = async () => {
-    setLoading(true);
+  const loadRecipeDetails = async (forceRefresh = false) => {
+    if (forceRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
 
     try {
-      console.log('🔍 Loading recipe details for ID:', recipeId);
+      console.log('🔍 Loading recipe details for:', recipeId, forceRefresh ? '(FORCE REFRESH)' : '');
 
-      // Get token from localStorage
-      const token = localStorage.getItem('token');
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const lang = typeof window !== 'undefined' ? localStorage.getItem('lang') || 'ru' : 'ru';
       
-      // ✅ Fetch from backend API with Authorization header
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'Accept-Language': language,
-      };
-
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-        console.log('🔐 Sending request with auth token');
-        console.log('🌍 Language:', language);
-      } else {
-        console.log('⚠️ No token found - sending public request');
+      if (!token) {
+        throw new Error('Authentication required');
       }
-
-      const response = await fetch(`/api/recipes/${recipeId}`, {
-        headers,
+      
+      const recipeData = await fetchRecipeDetails(recipeId, token, lang);
+      
+      console.log('✅ Recipe loaded with ingredients:', {
+        total: recipeData.ingredients.length,
+        inFridge: recipeData.ingredients.filter(i => i.inFridge).length,
+        missing: recipeData.ingredients.filter(i => !i.inFridge).length,
+        ingredients: recipeData.ingredients.map(i => ({
+          name: i.name,
+          inFridge: i.inFridge,
+          quantity: i.quantity,
+          unit: i.unit
+        }))
       });
       
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Wymagana autoryzacja. Zaloguj się, aby zobaczyć szczegóły przepisu.');
-        }
-        throw new Error('Nie udało się załadować przepisu');
-      }
-
-      const data = await response.json();
-      console.log('📥 Recipe data received:', data);
-      console.log('🧊 RAW Ingredients from backend:', data.data?.ingredients);
-      console.log('🧊 Ingredients with fridge status:', data.data?.ingredients?.map((ing: any) => ({
-        rawName: ing.name,
-        ingredientObject: ing.ingredient,
-        ingredientName: ing.ingredient?.name,
-        localizedName: ing.ingredient?.localName,
-        inFridge: ing.inFridge,
-        fridgeQuantity: ing.fridgeQuantity,
-      })));
-
-      if (data.success && data.data) {
-        const backendRecipe = data.data;
-        
-        // ✅ Backend відправляє inFridge для кожного інгредієнта
-        // Frontend сам рахує stats!
-        
-        // 🔍 DEBUG: Log backend localization fields
-        console.log("🌍 Backend localization fields:", {
-          id: backendRecipe.id,
-          canonicalName: backendRecipe.canonicalName,
-          localName: backendRecipe.localName,
-          localName_pl: backendRecipe.localName_pl,
-          localName_ru: backendRecipe.localName_ru,
-          localName_en: backendRecipe.localName_en,
-          uiLanguage: language,
-        });
-        
-        const transformedRecipe: RecipeDetails = {
-          id: backendRecipe.id,
-          localName: backendRecipe.localName || backendRecipe.canonicalName,
-          canonicalName: backendRecipe.canonicalName,
-          localName_pl: backendRecipe.localName_pl,
-          localName_ru: backendRecipe.localName_ru,
-          localName_en: backendRecipe.localName_en,
-          country: backendRecipe.country || 'Unknown',
-          difficulty: backendRecipe.difficulty || 'medium',
-          timeMinutes: backendRecipe.timeMinutes || 0,
-          servings: backendRecipe.servings || 0,
-          category: backendRecipe.category || 'main',
-          // ✅ Backend вже відправляє inFridge для кожного інгредієнта!
-          ingredients: (backendRecipe.ingredients || []).map((ing: any) => ({
-            id: ing.id,
-            name: ing.ingredient?.name || ing.name || 'Unknown',
-            quantity: ing.quantity || 0,
-            unit: ing.unit || '',
-            inFridge: ing.inFridge || false, // ✅ З бекенду!
-            fridgeQuantity: ing.fridgeQuantity || 0, // ✅ З бекенду!
-          })),
-          instructions: backendRecipe.instructions || backendRecipe.steps || [
-            'Instrukcje będą dostępne wkrótce.',
-          ],
-          tags: backendRecipe.tags || [],
-          isSaved: backendRecipe.isSaved || false,
-        };
-
-        // ✅ Рахуємо stats на фронтенді з ingredients
-        const total = transformedRecipe.ingredients.length;
-        const available = transformedRecipe.ingredients.filter(i => i.inFridge).length;
-        const missing = total - available;
-
-        console.log('✅ Recipe stats calculated on frontend:', {
-          totalIngredients: total,
-          availableInFridge: available,
-          missingCount: missing,
-        });
-        
-        setRecipe(transformedRecipe);
-        console.log('✅ Recipe loaded:', transformedRecipe.localName);
-      } else {
-        throw new Error('Nieprawidłowa odpowiedź z serwera');
-      }
+      setRecipe(recipeData);
     } catch (err: any) {
       console.error('❌ Failed to load recipe details:', err);
-      setError(err.message || 'Nie udało się załadować przepisu');
+      setError(err.message || 'Произошла ошибка при загрузке');
+      
+      if (err.message.includes('Token expired')) {
+        // Clear expired token
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('token');
+        }
+        setTimeout(() => openAuthModal('login'), 500);
+      } else if (err.message.includes('Authentication') || err.message.includes('авторизация')) {
+        setTimeout(() => openAuthModal('login'), 500);
+      }
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  // Debug: Log render state
-  console.log('🎨 Rendering RecipeDetailsPage:', { loading, error, hasRecipe: !!recipe, recipeName: recipe?.localName });
+  if (!isAuthenticated && !loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 flex items-center justify-center p-4">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-4 max-w-md">
+          <AlertCircle className="w-16 h-16 text-orange-500 mx-auto" />
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t.auth?.authRequired || 'Требуется авторизация'}</h2>
+          <p className="text-gray-600 dark:text-gray-400">{t.auth?.pleaseLogin || 'Пожалуйста, войдите в систему'}</p>
+          <button onClick={() => openAuthModal('login')} className="px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium transition-all">{t.auth?.loginButton || 'Войти'}</button>
+        </motion.div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white to-purple-50 dark:from-gray-950 dark:to-purple-900/20 py-8 px-4">
-        <div className="max-w-4xl mx-auto pt-[80px]">
-          <div className="flex items-center justify-center py-20">
-            <div className="text-center space-y-4">
-              <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto" />
-              <p className="text-gray-600 dark:text-gray-400">{t.recipes.loading.loadingRecipe}</p>
-            </div>
-          </div>
-        </div>
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 flex items-center justify-center p-4">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center space-y-4">
+          <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto" />
+          <p className="text-gray-600 dark:text-gray-400">{t.common?.loading || 'Загрузка...'}</p>
+        </motion.div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white to-purple-50 dark:from-gray-950 dark:to-purple-900/20 py-8 px-4">
-        <div className="max-w-4xl mx-auto pt-[80px]">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-xl border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-6"
-          >
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-red-900 dark:text-red-200 mb-1">
-                  {t.recipes.loading.loadingError}
-                </p>
-                <p className="text-sm text-red-800 dark:text-red-300">
-                  {error}
-                </p>
-                <button
-                  onClick={() => router.back()}
-                  className="mt-4 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
-                >
-                  {t.common.back}
-                </button>
-              </div>
-            </div>
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 p-4">
+        <div className="max-w-4xl mx-auto pt-20">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-6 text-center">
+            <AlertCircle className="w-12 h-12 text-red-600 dark:text-red-400 mx-auto mb-3" />
+            <h3 className="text-lg font-semibold text-red-900 dark:text-red-200 mb-2">{t.common?.error || 'Ошибка'}</h3>
+            <p className="text-red-700 dark:text-red-300 mb-4">{error}</p>
+            <button onClick={() => router.back()} className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-all">{t.common?.back || 'Назад'}</button>
           </motion.div>
         </div>
       </div>
     );
   }
 
-  if (!recipe) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-white to-purple-50 dark:from-gray-950 dark:to-purple-900/20 py-8 px-4">
-        <div className="max-w-4xl mx-auto pt-[80px]">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-xl border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700 p-6"
-          >
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-red-900 dark:text-red-200 mb-1">
-                  {t.recipes.loading.loadingError}
-                </p>
-                <p className="text-sm text-red-800 dark:text-red-300">
-                  {error || t.recipes.loading.recipeNotFound}
-                </p>
-                <button
-                  onClick={() => router.back()}
-                  className="mt-4 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
-                >
-                  {t.common.back}
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
+  if (!recipe) return null;
 
-  // ✅ ПРАВИЛЬНО: Рахуємо stats ПІСЛЯ early returns (не useMemo, бо recipe може бути null)
-  const difficulty = difficultyConfig[recipe.difficulty];
+  const difficulty = difficultyConfig[recipe.difficulty as keyof typeof difficultyConfig] || difficultyConfig.medium;
   
-  const ingredients = recipe.ingredients ?? [];
-  const totalIngredients = ingredients.length;
-  const ingredientsInFridge = ingredients.filter(i => i.inFridge).length;
-  const missingIngredients = totalIngredients - ingredientsInFridge;
-
-  console.log('📊 Recipe stats (calculated on frontend):', {
-    totalIngredients,
-    ingredientsInFridge,
-    missingIngredients,
-  });
+  // Calculate match statistics
+  const totalIngredients = recipe.ingredients.length;
+  const availableIngredients = recipe.ingredients.filter(i => i.inFridge).length;
+  const missingIngredients = totalIngredients - availableIngredients;
+  const matchPercent = totalIngredients > 0 ? Math.round((availableIngredients / totalIngredients) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-purple-50 dark:from-gray-950 dark:to-purple-900/20 py-4 px-4">
-      <div className="max-w-3xl mx-auto pt-[70px] space-y-3">
-        {/* Back button */}
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors text-sm"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>{t.common.back}</span>
-        </button>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 py-8 px-4">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Back button and refresh */}
+        <div className="flex items-center justify-between">
+          <button onClick={() => router.back()} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+            <span>{t.common?.back || 'Назад'}</span>
+          </button>
+          
+          <button 
+            onClick={() => loadRecipeDetails(true)} 
+            disabled={refreshing}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            <span>{t.common?.refresh || 'Обновить'}</span>
+          </button>
+        </div>
 
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm p-4"
-        >
-          <div className="flex items-start justify-between gap-3 mb-3">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                {getRecipeTitle(recipe, language)}
-              </h1>
-              {recipe.canonicalName && getRecipeTitle(recipe, language) !== recipe.canonicalName && (
-                <p className="text-sm text-gray-600 dark:text-gray-400">{recipe.canonicalName}</p>
-              )}
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+          {recipe.imageUrl && (
+            <div className="relative w-full h-64 sm:h-80">
+              <Image src={recipe.imageUrl} alt={recipe.title} fill className="object-cover" priority />
             </div>
-            {recipe.isSaved && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 text-xs font-medium">
-                <Star className="w-3 h-3" />
-                {t.recipes.card.saved}
-              </span>
-            )}
-          </div>
+          )}
 
-          {/* Meta info */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs">
-              <Globe className="w-3 h-3" />
-              {recipe.country}
-            </span>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 text-xs">
-              <Clock className="w-3 h-3" />
-              {recipe.timeMinutes} min
-            </span>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 text-xs">
-              <Users className="w-3 h-3" />
-              {recipe.servings} {t.recipes.ingredients.servings}
-            </span>
-            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${difficulty.bgColor} ${difficulty.color} text-xs`}>
-              <ChefHat className="w-3 h-3" />
-              {t.recipes.filters.difficultyOptions[difficulty.labelKey]}
-            </span>
+          <div className="p-6">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{recipe.title}</h1>
+
+            {/* Match status badge */}
+            {missingIngredients === 0 ? (
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium mb-4">
+                <CheckCircle className="w-4 h-4" />
+                <span>Все ингредиенты есть! Можно готовить</span>
+              </div>
+            ) : (
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-sm font-medium mb-4">
+                <AlertCircle className="w-4 h-4" />
+                <span>Не хватает {missingIngredients} {missingIngredients === 1 ? 'ингредиент' : missingIngredients < 5 ? 'ингредиента' : 'ингредиентов'}</span>
+                <span className="ml-2 font-bold">{matchPercent}% совпадение</span>
+              </div>
+            )}
+
+            <div className="flex flex-wrap gap-4 mb-6">
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                <Clock className="w-5 h-5" />
+                <span>{recipe.cookTime} мин</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                <Users className="w-5 h-5" />
+                <span>{recipe.servings} порций</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <ChefHat className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                <span className={`px-2 py-1 rounded ${difficulty.bgColor} ${difficulty.color} text-sm font-medium`}>{difficulty.label}</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                <Globe className="w-5 h-5" />
+                <span>{recipe.country}</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                <Flame className="w-5 h-5" />
+                <span>{recipe.category}</span>
+              </div>
+            </div>
           </div>
         </motion.div>
 
-        {/* Ingredients */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm p-4"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-              {t.recipes.ingredients.title}
-            </h2>
-            {recipe.ingredients.length > 0 && (
-              <div className="flex items-center gap-3 text-xs">
-                <span className="flex items-center gap-1 text-green-600">
-                  <CheckCircle2 className="w-3 h-3" />
-                  {ingredientsInFridge} {t.recipes.ingredients.inFridge}
-                </span>
-                {missingIngredients > 0 && (
-                  <span className="flex items-center gap-1 text-orange-600">
-                    <XCircle className="w-3 h-3" />
-                    {missingIngredients} {t.recipes.ingredients.missing}
-                  </span>
-                )}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Ингредиенты</h2>
+          
+          {/* Available ingredients */}
+          {recipe.ingredients.filter(i => i.inFridge).length > 0 && (
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Из холодильника ({recipe.ingredients.filter(i => i.inFridge).length})
+                </h3>
               </div>
-            )}
-          </div>
-
-          {recipe.ingredients.length === 0 ? (
-            <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-              <AlertCircle className="w-10 h-10 mx-auto mb-2 opacity-50" />
-              <p className="font-medium text-sm">{t.recipes.ingredients.listEmpty}</p>
-              <p className="text-xs mt-1">{t.recipes.ingredients.listEmptyDesc}</p>
-            </div>
-          ) : (
-            <>
-              <div className="space-y-1.5">
-                {recipe.ingredients.map((ingredient) => (
-                  <div
-                    key={ingredient.id}
-                    className={`flex items-center justify-between p-2 rounded-lg ${
-                      ingredient.inFridge
-                        ? 'bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800'
-                        : 'bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800'
-                    }`}
+              <ul className="space-y-2">
+                {recipe.ingredients.filter(i => i.inFridge).map((ingredient, index) => (
+                  <motion.li 
+                    key={ingredient.id || index} 
+                    initial={{ opacity: 0, x: -20 }} 
+                    animate={{ opacity: 1, x: 0 }} 
+                    transition={{ delay: index * 0.05 }} 
+                    className="flex items-center gap-3 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
                   >
-                    <div className="flex items-center gap-2">
-                      {ingredient.inFridge ? (
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-orange-600" />
-                      )}
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
-                        {ingredient.name}
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-gray-900 dark:text-white font-medium">{ingredient.name}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                         {ingredient.quantity} {ingredient.unit}
-                      </span>
-                      {ingredient.fridgeQuantity !== undefined && ingredient.fridgeQuantity !== null && (
-                        <span className={`block text-xs ${
-                          ingredient.inFridge 
-                            ? 'text-green-600 dark:text-green-400' 
-                            : 'text-orange-600 dark:text-orange-400'
-                        }`}>
-                          ({t.recipes.ingredients.youHave}: {ingredient.fridgeQuantity} {ingredient.unit})
-                        </span>
-                      )}
+                        {ingredient.fridgeQuantity && ingredient.fridgeQuantity > 0 && (
+                          <span className="ml-2 text-green-600 dark:text-green-400">
+                            (У вас: {ingredient.fridgeQuantity} {ingredient.unit})
+                          </span>
+                        )}
+                      </p>
                     </div>
-                  </div>
+                  </motion.li>
                 ))}
-              </div>
+              </ul>
+            </div>
+          )}
 
-              {missingIngredients > 0 ? (
+          {/* Missing ingredients */}
+          {recipe.ingredients.filter(i => !i.inFridge).length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <ShoppingCart className="w-5 h-5 text-orange-600" />
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Нужно купить ({recipe.ingredients.filter(i => !i.inFridge).length})
+                  </h3>
+                </div>
                 <button
-                  onClick={addMissingToFridge}
-                  disabled={addingToCart}
-                  className="mt-3 w-full px-3 py-1.5 rounded-lg bg-green-100 hover:bg-green-200 dark:bg-green-900/20 dark:hover:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => loadRecipeDetails()}
+                  className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 flex items-center gap-1"
                 >
-                  <ShoppingCart className="w-4 h-4" />
-                  {addingToCart ? t.recipes.ingredients.addingToFridge : `${t.recipes.ingredients.addMissingToFridge} (${missingIngredients})`}
+                  <RefreshCw className="w-3 h-3" />
+                  <span>Обновить</span>
                 </button>
-              ) : (
-                <button
-                  onClick={() => alert(t.recipes.ingredients.readyToCook)}
-                  className="mt-3 w-full px-3 py-1.5 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-sm font-medium transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
-                >
-                  <Flame className="w-4 h-4" />
-                  {t.recipes.ingredients.cookNow}
-                </button>
-              )}
-            </>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                💡 После добавления продуктов в холодильник, нажмите "Обновить" чтобы увидеть изменения
+              </p>
+              <ul className="space-y-2">
+                {recipe.ingredients.filter(i => !i.inFridge).map((ingredient, index) => (
+                  <motion.li 
+                    key={ingredient.id || index} 
+                    initial={{ opacity: 0, x: -20 }} 
+                    animate={{ opacity: 1, x: 0 }} 
+                    transition={{ delay: index * 0.05 }} 
+                    className="flex items-center gap-3 p-3 rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800"
+                  >
+                    <XCircle className="w-5 h-5 text-orange-600 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-gray-900 dark:text-white font-medium">{ingredient.name}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{ingredient.quantity} {ingredient.unit}</p>
+                    </div>
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
           )}
         </motion.div>
 
-        {/* Instructions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm p-4"
-        >
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
-            {t.recipes.instructions.title}
-          </h2>
-          <ol className="space-y-2.5">
-            {recipe.instructions.map((step, index) => (
-              <li key={index} className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 font-bold flex items-center justify-center text-sm">
-                  {index + 1}
-                </span>
-                <p className="flex-1 text-sm text-gray-700 dark:text-gray-300 pt-0.5">
-                  {step}
-                </p>
-              </li>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Инструкции</h2>
+          <ol className="space-y-4">
+            {recipe.steps.map((step, index) => (
+              <motion.li key={index} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.1 }} className="flex gap-4">
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold">{index + 1}</span>
+                <p className="flex-1 text-gray-700 dark:text-gray-300 pt-1">{step}</p>
+              </motion.li>
             ))}
           </ol>
         </motion.div>
 
-        {/* Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="flex gap-2 sticky bottom-4"
-        >
-          <button
-            className={`flex-1 px-4 py-3 rounded-lg text-sm ${
-              missingIngredients === 0
-                ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
-                : 'bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700'
-            } text-white font-medium shadow-lg transition-all flex items-center justify-center gap-2`}
-          >
-            <ChefHat className="w-5 h-5" />
-            {missingIngredients === 0 ? t.recipes.ingredients.cookNow : t.recipes.ingredients.missing}
-          </button>
-          {!recipe.isSaved && (
-            <button
-              className="px-6 py-4 rounded-lg bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/20 dark:hover:bg-amber-900/30 text-amber-700 dark:text-amber-300 font-medium shadow-lg transition-all flex items-center gap-2"
-            >
-              <Star className="w-5 h-5" />
-              {t.recipes.card.saveRecipe}
-            </button>
-          )}
-        </motion.div>
+        {recipe.tags && recipe.tags.length > 0 && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-wrap gap-2">
+            {recipe.tags.map((tag, index) => (
+              <span key={index} className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm">#{tag}</span>
+            ))}
+          </motion.div>
+        )}
       </div>
     </div>
   );

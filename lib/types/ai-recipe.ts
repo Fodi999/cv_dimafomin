@@ -61,6 +61,8 @@ export interface RecipeDTO {
   imageUrl?: string;
   description?: string;
   cookingTime?: number;
+  servings?: number;     // ✅ Базовое количество порций
+  steps?: string[];      // ✅ Шаги приготовления (локализованы backend'ом)
   difficulty?: string;
   country?: string;
 }

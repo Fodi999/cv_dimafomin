@@ -7,10 +7,10 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { UserProvider } from "@/contexts/UserContext";
-import { RecipeProvider } from "@/contexts/RecipeContext";
+import { AIRecommendationProvider } from "@/contexts/AIRecommendationContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { NotificationRefetchProvider } from "@/contexts/NotificationRefetchContext";
-import { CategoryProvider } from "@/contexts/CategoryContext"; // 🆕 Category Context
+import { CategoryProvider } from "@/contexts/CategoryContext";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import PWARegister from "@/components/PWARegister";
 import AuthGate from "@/components/auth/AuthGate";
@@ -136,8 +136,10 @@ export default async function RootLayout({
             <UserProvider>
               <SettingsProvider>
                 <LanguageProvider initialLanguage={language} dictionary={dictionary}>
-                  <CategoryProvider> {/* 🆕 Category Provider wraps inside LanguageProvider */}
-                    <RecipeProvider>
+                  <CategoryProvider>
+                    <AIRecommendationProvider>
+                      {/* ❌ NO RecipeProvider in root layout */}
+                      {/* ✅ RecipeProvider moved to specific route layouts */}
                       <NotificationProvider>
                         <NotificationRefetchProvider>
                         <TokenValidator />
@@ -177,8 +179,8 @@ export default async function RootLayout({
                         <PWAInstallButton />
                       </NotificationRefetchProvider>
                     </NotificationProvider>
-                  </RecipeProvider>
-                  </CategoryProvider> {/* 🆕 Close CategoryProvider */}
+                  </AIRecommendationProvider>
+                  </CategoryProvider>
                 </LanguageProvider>
               </SettingsProvider>
             </UserProvider>
