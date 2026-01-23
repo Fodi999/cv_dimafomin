@@ -25,6 +25,7 @@ export const common = {
   viewMore: "Zobacz więcej",
   learnMore: "Dowiedz się więcej",
   getStarted: "Zacznij",
+  aboutProject: "O projekcie",
   
   // Status
   loading: "Ładowanie...",

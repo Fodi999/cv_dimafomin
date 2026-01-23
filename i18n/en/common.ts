@@ -39,6 +39,7 @@ export const common = {
   redo: "Redo",
   refresh: "Refresh",
   reload: "Reload",
+  aboutProject: "About project",
   
   // Status
   loading: "Loading...",

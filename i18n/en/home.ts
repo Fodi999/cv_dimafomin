@@ -10,10 +10,9 @@ export const home = {
     description: "AI helps you make decisions — not just follow recipes.",
     details: "ChefOS is an intelligent culinary platform that combines products, recipes, costs, and experience into one system, so you cook consciously and efficiently.",
     stats: {
+      users: "users",
       recipes: "recipes",
-      ingredients: "ingredients",
       products: "products",
-      chefTokens: "ChefTokens",
     },
   },
 } as const;

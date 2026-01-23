@@ -8,6 +8,25 @@ const BACKEND_URL = getBackendUrl();
  */
 export async function GET() {
   try {
+    // Fetch users count from backend
+    let usersCount = 100; // Fallback
+    try {
+      const usersRes = await fetch(`${BACKEND_URL}/api/admin/users/stats`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        next: { revalidate: 3600 }, // Cache for 1 hour
+      });
+
+      if (usersRes.ok) {
+        const usersData = await usersRes.json();
+        usersCount = usersData.total || usersData.totalUsers || usersData.count || 100;
+        console.log('[Public Stats] Users count from backend:', usersCount);
+      }
+    } catch (usersError) {
+      console.error('[Public Stats] Error fetching users:', usersError);
+    }
+
     // Fetch ingredients count
     const ingredientsRes = await fetch(`${BACKEND_URL}/api/catalog/ingredients`, {
       headers: {
@@ -48,6 +67,7 @@ export async function GET() {
     }
 
     return NextResponse.json({
+      usersCount,
       recipesCount,
       ingredientsCount,
       aiOnline: true,
@@ -57,6 +77,7 @@ export async function GET() {
     
     // Return fallback data
     return NextResponse.json({
+      usersCount: 100,
       recipesCount: 16,
       ingredientsCount: 214,
       aiOnline: true,

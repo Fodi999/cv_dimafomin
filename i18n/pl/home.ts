@@ -10,10 +10,9 @@ export const home = {
     description: "AI pomaga podejmować decyzje — a nie tylko podążać za przepisami.",
     details: "ChefOS to inteligentna platforma kulinarna, która łączy produkty, przepisy, koszty i doświadczenie w jeden system, abyś gotował świadomie i efektywnie.",
     stats: {
+      users: "użytkowników",
       recipes: "przepisów",
-      ingredients: "składników",
       products: "produktów",
-      chefTokens: "ChefTokens",
     },
   },
 } as const;

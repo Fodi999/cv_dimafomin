@@ -16,6 +16,7 @@ import { losses } from "@/i18n/ru/losses";
 import { ingredients } from "@/i18n/ru/ingredients";
 import { home } from "@/i18n/ru/home";
 import { assistant } from "@/i18n/ru/assistant";
+import { about } from "@/i18n/ru/about";
 import journey, { nextButtonTexts as journeyNextButtonTexts } from "@/i18n/ru/journey";
 
 export const ru = {
@@ -32,6 +33,7 @@ export const ru = {
   ingredients,
   home,
   assistant,
+  about,
   journey,
   journeyNextButtonTexts,
 } as const;

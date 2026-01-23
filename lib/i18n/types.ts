@@ -31,6 +31,7 @@ export interface Dictionary {
   assistant: Record<string, any>;
   journey: Record<string, any>;
   journeyNextButtonTexts: Record<string, string>;
+  about: Record<string, any>;
 }
 
 /**

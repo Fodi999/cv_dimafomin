@@ -1,6 +1,6 @@
 "use client";
 
-import StatsCounter from "@/components/sections/StatsCounter";
+import AboutButton from "@/components/sections/AboutButton";
 
 /**
  * ✅ Pure Client Component - NO i18n
@@ -55,9 +55,9 @@ export default function HomeContent({
               </div>
             </div>
 
-            {/* Stats Counter - positioned below the main content */}
+            {/* About Button - positioned below the main content */}
             <div className="pt-8">
-              <StatsCounter />
+              <AboutButton />
             </div>
 
         </div>
