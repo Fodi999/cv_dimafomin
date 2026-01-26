@@ -9,14 +9,12 @@ import {
   X,
   Home,
   LogOut,
-  Refrigerator,
   Star,
   ChefHat,
-  BrainCircuit,
   User as UserIcon,
   Settings,
 } from "lucide-react";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "@/contexts/SessionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { NotificationBadge } from "@/components/notifications/NotificationBadge";
@@ -83,47 +81,40 @@ export default function UserNavigation() {
     };
   }, [isOpen]);
 
-  // 📍 Меню пользователя (без админских пунктов!)
+  // 📍 Меню пользователя (новая архитектура 2026)
   const navLinks: NavLink[] = [
-    // ===== КУХНЯ =====
+    // ===== MARKETPLACE =====
     {
-      label: t?.navigation?.menu?.fridge?.label || "Fridge",
-      href: "/fridge",
-      icon: <Refrigerator className="w-5 h-5" />,
-      description: t?.navigation?.menu?.fridge?.description || "Manage products and expiration dates",
-      category: t?.navigation?.categories?.kitchen || "Kitchen",
-      categoryLabel: `🍳 ${t?.navigation?.categories?.kitchen || "Kitchen"}`,
-    },
-    {
-      label: t?.navigation?.menu?.cooking?.label || "Recipes",
-      href: "/recipes",
+      label: t?.navigation?.menu?.marketplace?.label || "Marketplace",
+      href: "/customer/marketplace",
       icon: <ChefHat className="w-5 h-5" />,
-      description: t?.navigation?.menu?.cooking?.description || "Recipe catalog and inspiration",
-      category: t?.navigation?.categories?.kitchen || "Kitchen",
+      description: t?.navigation?.menu?.marketplace?.description || "Browse dishes and place orders",
+      category: t?.navigation?.categories?.shopping || "Shopping",
+      categoryLabel: `🛒 ${t?.navigation?.categories?.shopping || "Shopping"}`,
     },
     {
-      label: t?.navigation?.menu?.assistant?.label || "AI Assistant",
-      href: "/assistant",
-      icon: <BrainCircuit className="w-5 h-5" />,
-      description: t?.navigation?.menu?.assistant?.description || "Smart kitchen help",
-      category: t?.navigation?.categories?.kitchen || "Kitchen",
-    },
-    {
-      label: t?.navigation?.menu?.myRecipes?.label || "My Recipes",
-      href: "/recipes/saved",
+      label: t?.navigation?.menu?.orders?.label || "My Orders",
+      href: "/customer/orders",
       icon: <Star className="w-5 h-5" />,
-      description: t?.navigation?.menu?.myRecipes?.description || "Your favorite collection",
-      category: t?.navigation?.categories?.kitchen || "Kitchen",
+      description: t?.navigation?.menu?.orders?.description || "Order history and tracking",
+      category: t?.navigation?.categories?.shopping || "Shopping",
     },
 
     // ===== ПРОФІЛЬ =====
     {
       label: t?.navigation?.menu?.profile?.label || "My Profile",
-      href: "/profile",
+      href: "/customer/profile",
       icon: <UserIcon className="w-5 h-5" />,
-      description: t?.navigation?.menu?.profile?.description || "Settings and statistics",
+      description: t?.navigation?.menu?.profile?.description || "Settings and account",
       category: t?.navigation?.categories?.profile || "Profile",
       categoryLabel: `👤 ${t?.navigation?.menu?.profile?.label || "Profile"}`,
+    },
+    {
+      label: t?.navigation?.menu?.settings?.label || "Settings",
+      href: "/customer/profile/settings",
+      icon: <Settings className="w-5 h-5" />,
+      description: t?.navigation?.menu?.settings?.description || "Preferences and notifications",
+      category: t?.navigation?.categories?.profile || "Profile",
     },
   ];
 
@@ -174,7 +165,7 @@ export default function UserNavigation() {
 
           {/* Logo */}
           <Link
-            href="/fridge"
+            href="/customer/marketplace"
             className="flex items-center gap-2 font-bold text-sm tracking-tight hover:opacity-80 transition group"
           >
             <motion.div
@@ -182,13 +173,13 @@ export default function UserNavigation() {
               whileTap={{ scale: 0.95 }}
               className="p-1.5 bg-gradient-to-br from-sky-500 to-cyan-500 rounded-lg"
             >
-              <BrainCircuit className="w-5 h-5 text-white" />
+              <ChefHat className="w-5 h-5 text-white" />
             </motion.div>
             <div className="flex flex-col leading-tight">
               <span className="text-gray-900 dark:text-white text-sm font-bold">
                 ChefOS
               </span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">Food Academy</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Marketplace</span>
             </div>
           </Link>
 

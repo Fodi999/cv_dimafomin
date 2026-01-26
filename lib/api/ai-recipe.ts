@@ -27,10 +27,10 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8080/api'
  * - Рендерит UI
  * 
  * @param token - JWT токен пользователя
- * @returns AI recommendation с полностью готовыми данными
+ * @returns AI recommendation с полностью готовыми данными, или null если нет подходящих рецептов
  * @throws Error если API недоступен
  */
-export async function fetchAIRecipe(token: string): Promise<AIRecipeResponse> {
+export async function fetchAIRecipe(token: string): Promise<AIRecipeResponse | null> {
   // ✅ Get user language from localStorage
   const lang = typeof window !== 'undefined' 
     ? localStorage.getItem('lang') || 'ru' 
@@ -76,9 +76,11 @@ function mapMatchStatusToScenario(status: string): 'CAN_COOK_NOW' | 'ALMOST_READ
 }
 
 // Helper: Transform backend recipe to AIRecipeResponse format
-function transformRecipeResponse(json: any): AIRecipeResponse {
+function transformRecipeResponse(json: any): AIRecipeResponse | null {
+  // ✅ Если рецептов нет - возвращаем null (не ошибка)
   if (!json.recipes || json.recipes.length === 0) {
-    throw new Error('No recipes found');
+    console.log('ℹ️ [transformRecipeResponse] No recipes found - user may need to add more ingredients');
+    return null;
   }
   
   const recipe = json.recipes[0];
@@ -129,7 +131,7 @@ function transformRecipeResponse(json: any): AIRecipeResponse {
 export async function fetchNextAIRecipe(
   token: string,
   skipRecipeId: string
-): Promise<AIRecipeResponse> {
+): Promise<AIRecipeResponse | null> {
   // ✅ Get user language from localStorage
   const lang = typeof window !== 'undefined' 
     ? localStorage.getItem('lang') || 'ru' 

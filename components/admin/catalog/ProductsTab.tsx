@@ -113,7 +113,7 @@ export function ProductsTab() {
           {t.admin.catalog.products.title}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          {t.admin.catalog.products.subtitle}
+          Позиции меню, которые видят пользователи в маркетплейсе.
         </p>
       </div>
 

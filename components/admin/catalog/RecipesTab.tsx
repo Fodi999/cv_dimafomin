@@ -167,8 +167,8 @@ export function RecipesTab() {
   };
 
   const handleEditRecipe = (recipe: Recipe) => {
-    // Redirect to AI creation page - will be modified to support edit mode
-    router.push(`/admin/recipes/create?edit=${recipe.id}`);
+    // Redirect to AI creation page with edit mode
+    router.push(`/admin/catalog/recipes/new?edit=${recipe.id}`);
   };
 
   const handleDeleteRecipe = async (recipe: Recipe) => {
@@ -217,10 +217,10 @@ export function RecipesTab() {
                 </span>
               </CardTitle>
               <CardDescription className="text-sm mt-1.5">
-                {t.admin.catalog.recipes.pageDescription || 'Керуйте каталогом рецептів'} ({meta?.total || 0})
+                Основа приготовления. Используется для расчёта себестоимости и списаний. ({meta?.total || 0})
               </CardDescription>
             </div>
-            <Link href="/admin/recipes/create" className="w-full sm:w-auto">
+            <Link href="/admin/catalog/recipes/new" className="w-full sm:w-auto">
               <Button 
                 size="sm" 
                 className="gap-2 w-full sm:w-auto h-10 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white shadow-lg shadow-orange-500/30"

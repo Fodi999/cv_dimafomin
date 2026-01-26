@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "@/contexts/SessionContext";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Edit2, Shield } from "lucide-react";

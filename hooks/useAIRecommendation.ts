@@ -46,11 +46,19 @@ export function useAIRecommendation(
 
     try {
       const response = await fetchAIRecipe(token);
-      setData(response);
       
-      // ✅ Вызвать callback если передан (через ref для стабильности)
-      if (onRecipeLoadedRef.current) {
-        onRecipeLoadedRef.current(response);
+      // ✅ Если рецептов нет - это не ошибка, просто пустой результат
+      if (!response) {
+        setData(null);
+        setError('no_recipes'); // Специальный код ошибки для UI
+        console.log('ℹ️ No recipes available - user may need to add ingredients');
+      } else {
+        setData(response);
+        
+        // ✅ Вызвать callback если передан (через ref для стабильности)
+        if (onRecipeLoadedRef.current) {
+          onRecipeLoadedRef.current(response);
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'AI unavailable');
@@ -73,11 +81,19 @@ export function useAIRecommendation(
 
     try {
       const response = await fetchNextAIRecipe(token, data.recipe.id);
-      setData(response);
       
-      // ✅ Вызвать callback если передан (через ref для стабильности)
-      if (onRecipeLoadedRef.current) {
-        onRecipeLoadedRef.current(response);
+      // ✅ Если следующего рецепта нет - показываем сообщение
+      if (!response) {
+        setData(null);
+        setError('no_more_recipes');
+        console.log('ℹ️ No more recipes available');
+      } else {
+        setData(response);
+        
+        // ✅ Вызвать callback если передан (через ref для стабильности)
+        if (onRecipeLoadedRef.current) {
+          onRecipeLoadedRef.current(response);
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load next recipe');

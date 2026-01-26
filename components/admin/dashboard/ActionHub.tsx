@@ -71,7 +71,7 @@ export function ActionHub() {
       color: "bg-purple-50 dark:bg-purple-900/20",
       links: [
         { label: t.admin.dashboard.actionHub.content.recipes, href: "/admin/catalog/recipes-list" },
-        { label: t.admin.dashboard.actionHub.content.ingredients, href: "/admin/catalog/products" },
+        { label: t.admin.dashboard.actionHub.content.ingredients, href: "/admin/ingredients" },
       ],
     },
     {

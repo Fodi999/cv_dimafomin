@@ -7,8 +7,15 @@ import { getLocalizedIngredientName } from "@/lib/i18n/translateIngredient";
 import { formatLocalizedDate } from "@/lib/i18n/formatDate";
 import { formatQuantityRange } from "@/lib/formatters/unitFormatter";
 import type { FridgeItem as FridgeItemType } from "@/lib/types";
+import { getWarehouseStatus, calculateDaysLeft } from "@/lib/types/warehouse-ui";
 import PriceTrend from "./PriceTrend";
 import { useState, useEffect, useRef } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface FridgeItemProps {
   item: FridgeItemType;
@@ -148,9 +155,11 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
   // ✅ Переводим категорию (используем categoryKey)
   const translatedCategory = t?.fridge?.categories?.[item.ingredient.categoryKey] || item.ingredient.categoryKey;
 
-  // 🔥 Подсветка для продуктов с истекающим сроком
-  const isCritical = item.status === 'critical';
-  const isWarning = item.status === 'warning';
+  // 🔥 Используем единый UI-контракт для статусов
+  const daysLeft = calculateDaysLeft(item.expiresAt);
+  const warehouseStatus = getWarehouseStatus(daysLeft);
+  const isWarning = warehouseStatus === 'WARNING';
+  const isCritical = warehouseStatus === 'WARNING' && daysLeft !== null && daysLeft <= 1;
   
   // Critical (1-2 дня) - красная подсветка
   const criticalClasses = isCritical 
@@ -194,6 +203,31 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
         </div>
       )}
 
+      {/* 🟡 WARNING BADGE для продуктов с коротким сроком */}
+      {isWarning && !isCritical && (
+        <div className="absolute -top-2 -right-2 z-10">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <motion.div
+                  initial={{ scale: 0, rotate: -12 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  className="px-3 py-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-[10px] font-bold rounded-full shadow-lg flex items-center gap-1 cursor-help"
+                >
+                  <Clock className="w-3 h-3" />
+                  {daysLeft === 1 ? '1 день' : `${daysLeft} дня`}
+                </motion.div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs max-w-[200px]">
+                  Скоро истечёт ({daysLeft} {daysLeft === 1 ? 'день' : 'дня'}). Будет автоматически списано при истечении срока.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      )}
+
       {/* HEADER */}
       <div className="flex items-start justify-between p-4">
         <div className="flex-1 min-w-0">
@@ -205,14 +239,31 @@ export default function FridgeItem({ item, onDelete, onPriceClick, onQuantityCli
           </p>
         </div>
 
-        <span
-          className={`
-            ml-2 flex-shrink-0 px-2.5 py-0.5 rounded-full text-[10px] font-medium
-            ${statusConfig.bgColor} ${statusConfig.color}
-          `}
-        >
-          {statusConfig.label}
-        </span>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span
+                className={`
+                  ml-2 flex-shrink-0 px-2.5 py-0.5 rounded-full text-[10px] font-medium cursor-help
+                  ${warehouseStatus === 'WARNING' 
+                    ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border border-yellow-300 dark:border-yellow-800'
+                    : warehouseStatus === 'OK'
+                    ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                    : statusConfig.bgColor + ' ' + statusConfig.color}
+                `}
+              >
+                {warehouseStatus === 'WARNING' ? '🟡' : warehouseStatus === 'OK' ? '🟢' : statusConfig.label}
+              </span>
+            </TooltipTrigger>
+            {warehouseStatus === 'WARNING' && (
+              <TooltipContent>
+                <p className="text-xs">
+                  Скоро истечёт ({daysLeft} {daysLeft === 1 ? 'день' : 'дня'}). Будет автоматически списано при истечении срока.
+                </p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       {/* PROGRESS */}

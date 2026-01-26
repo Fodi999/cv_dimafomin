@@ -132,9 +132,9 @@ export function UsersKPI({ stats, isLoading = false }: UsersKPIProps) {
         isLoading={isLoading}
         isUnavailable={!premium || premium === 0}
         tooltip={
-          !premium || premium === 0
-            ? t.admin.users.kpi.noPremium
-            : undefined
+          premium && premium > 0
+            ? "Пользователи с активной подпиской или бизнес-аккаунтом"
+            : "Premium — пользователи с активной подпиской или бизнес-аккаунтом"
         }
       />
     </div>

@@ -6,16 +6,30 @@ import { UsersFilters } from "@/components/admin/users/UsersFilters";
 import { UsersTable, User } from "@/components/admin/users/UsersTable";
 import { UserViewModal } from "@/components/admin/users/UserViewModal";
 import { UserEditModal } from "@/components/admin/users/UserEditModal";
-import { UserDeleteDialog } from "@/components/admin/users/UserDeleteDialog";
 import {
   useAdminUsers,
   useAdminUserDetails,
   useAdminUserActions,
   useAdminUsersStats,
-  useAdminDeleteUser,
 } from "@/hooks/useAdminUsers";
+import { Info, Users } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+
+// Map backend roles to frontend roles: premium → user, super_admin → super_admin
+const mapRoleToFrontend = (role: string): "user" | "admin" | "super_admin" => {
+  if (role === "super_admin" || role === "superadmin") return "super_admin";
+  if (role === "admin") return "admin";
+  return "user"; // premium, user, home_chef → user
+};
+
+// Map frontend roles back to backend roles for API calls
+const mapRoleToBackend = (role: "user" | "admin" | "super_admin"): "user" | "admin" | "premium" => {
+  if (role === "super_admin") return "admin"; // Temporary: backend doesn't have super_admin yet
+  if (role === "admin") return "admin";
+  return "user"; // user → user (or could be "premium" if needed)
+};
 
 export default function AdminUsersPage() {
   const { t } = useLanguage();
@@ -24,25 +38,23 @@ export default function AdminUsersPage() {
     useAdminUsers();
   const { stats, isLoading: isStatsLoading, refetch: refetchStats } = useAdminUsersStats();
   const { changeRole, changeStatus } = useAdminUserActions();
-  const { deleteUser } = useAdminDeleteUser();
 
   // Modals
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   const { user: selectedUserDetails, isLoading: isUserLoading } =
     useAdminUserDetails(selectedUserId);
 
   // Convert AdminUserDetails to User for modal compatibility
+
   const selectedUser: User | null = selectedUserDetails
     ? {
         id: selectedUserDetails.id,
         name: selectedUserDetails.name,
         email: selectedUserDetails.email,
-        role: selectedUserDetails.role,
+        role: mapRoleToFrontend(selectedUserDetails.role),
         status: selectedUserDetails.status,
         joinedAt: selectedUserDetails.joinedAt,
         lastActiveAt: selectedUserDetails.lastActiveAt,
@@ -76,7 +88,9 @@ export default function AdminUsersPage() {
 
     // Check if role changed
     if (updates.role && originalUser.role !== updates.role) {
-      success = await changeRole(userId, updates.role);
+      // Map frontend role to backend role before sending
+      const backendRole = mapRoleToBackend(updates.role);
+      success = await changeRole(userId, backendRole);
     }
 
     // Check if status changed
@@ -100,24 +114,6 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleDelete = (user: User) => {
-    setUserToDelete(user);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!userToDelete) return;
-
-    const success = await deleteUser(userToDelete.id);
-    
-    if (success) {
-      setIsDeleteDialogOpen(false);
-      setUserToDelete(null);
-      refetch(); // Обновить список пользователей
-      refetchStats(); // 🔥 Обновить статистику (KPI)
-    }
-  };
-
   const handleExport = () => {
     toast.info(t.admin.users.export);
   };
@@ -127,7 +123,7 @@ export default function AdminUsersPage() {
     id: user.id,
     name: user.name,
     email: user.email,
-    role: user.role,
+    role: mapRoleToFrontend(user.role),
     status: user.status,
     joinedAt: user.joinedAt,
     lastActiveAt: user.lastActiveAt,
@@ -160,35 +156,55 @@ export default function AdminUsersPage() {
             status: value as "all" | "active" | "blocked" | "pending",
           })
         }
-        roleFilter={filters.role === "all" ? "all" : filters.role}
-        onRoleChange={(value) =>
+        roleFilter={filters.role === "all" ? "all" : filters.role === "superadmin" ? "super_admin" : filters.role}
+        onRoleChange={(value) => {
+          // Map frontend role to backend filter format
+          const backendRole = value === "super_admin" ? "superadmin" : value;
           updateFilters({
-            role: value as "all" | "user" | "admin" | "superadmin",
-          })
-        }
+            role: backendRole as "all" | "user" | "admin" | "superadmin",
+          });
+        }}
         onExport={handleExport}
       />
 
       {/* Table */}
-      <UsersTable
-        users={displayUsers}
-        isLoading={isLoading}
-        onView={handleView}
-        onEdit={handleEdit}
-        onToggleBlock={handleToggleBlock}
-        onDelete={handleDelete}
-      />
-
-      {/* Delete Confirmation Dialog */}
-      {userToDelete && (
-        <UserDeleteDialog
-          open={isDeleteDialogOpen}
-          onOpenChange={setIsDeleteDialogOpen}
-          onConfirm={handleConfirmDelete}
-          userName={userToDelete.name}
-          userEmail={userToDelete.email}
+      {displayUsers.length === 0 && !isLoading ? (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <Users className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
+            <h3 className="text-xl font-semibold mb-2">Пользователи появятся после регистрации</h3>
+            <p className="text-muted-foreground">
+              Вы можете управлять доступами и ролями здесь
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <UsersTable
+          users={displayUsers}
+          isLoading={isLoading}
+          onView={handleView}
+          onEdit={handleEdit}
+          onToggleBlock={handleToggleBlock}
         />
       )}
+
+      {/* Info Block - Связь с другими модулями */}
+      <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+        <CardContent className="p-4">
+          <div className="flex items-start gap-3">
+            <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                Связь с другими модулями
+              </p>
+              <p className="text-xs text-blue-800 dark:text-blue-200">
+                <strong>Auth</strong> (роли / блокировки), <strong>Activity Log</strong> (действия пользователей), 
+                <strong> Settings</strong> (политики доступа). Удаление пользователей запрещено — только soft-block.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* View Modal */}
       <UserViewModal

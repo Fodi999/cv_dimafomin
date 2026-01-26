@@ -64,7 +64,7 @@ export function UsersFilters({
             </SelectContent>
           </Select>
 
-          {/* Role Filter - реальные роли из БД */}
+          {/* Role Filter - роли: super_admin, admin, user */}
           <Select value={roleFilter} onValueChange={onRoleChange}>
             <SelectTrigger className="w-full sm:w-[160px] lg:w-[200px] h-9 sm:h-10 text-xs sm:text-sm">
               <SelectValue placeholder={t.admin.users.status.all} />
@@ -73,7 +73,7 @@ export function UsersFilters({
               <SelectItem value="all">{t.admin.users.status.all}</SelectItem>
               <SelectItem value="user">{t.admin.users.roles.user}</SelectItem>
               <SelectItem value="admin">{t.admin.users.roles.admin}</SelectItem>
-              <SelectItem value="superadmin">⭐ Superadmin</SelectItem>
+              <SelectItem value="super_admin">👑 Super Admin</SelectItem>
             </SelectContent>
           </Select>
         </div>

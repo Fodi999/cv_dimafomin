@@ -28,7 +28,7 @@ import {
   Store,
   ChefHat,
 } from "lucide-react";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "@/contexts/SessionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AuthModal from "@/components/auth/AuthModal";
@@ -375,7 +375,7 @@ export default function NavigationBurger() {
               </nav>
 
               {/* ===== ADMIN SECTION ===== */}
-              {user && user.role === "admin" && (
+              {user && user.role === "super_admin" && (
                 <>
                   <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent my-3" />
                   
@@ -389,7 +389,8 @@ export default function NavigationBurger() {
                         { label: "Панель керування", href: "/admin/dashboard", Icon: LayoutDashboard },
                         { label: "Замовлення", href: "/admin/orders", Icon: Package },
                         { label: "Користувачі", href: "/admin/users", Icon: Users },
-                        { label: "Рецепти", href: "/admin/recipes", Icon: BookOpen },
+                        { label: "Каталог", href: "/admin/catalog", Icon: BookOpen },
+                        { label: "Рецепти", href: "/recipes", Icon: BookOpen },
                         { label: "Активність", href: "/admin/activity-log", Icon: Activity },
                         { label: "Інтеграції", href: "/admin/integrations", Icon: Puzzle },
                         { label: "Налаштування", href: "/admin/settings", Icon: Settings },
@@ -442,7 +443,7 @@ export default function NavigationBurger() {
                   <>
                     <motion.div
                       whileHover={{ scale: 1.02 }}
-                      onClick={() => handleLinkClick(user.role === "admin" ? "/admin/dashboard" : "/profile")}
+                      onClick={() => handleLinkClick(user.role === "super_admin" ? "/admin/dashboard" : "/customer/profile")}
                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-sky-500/10 to-cyan-500/10 border-2 border-sky-500/50 hover:border-sky-500 cursor-pointer transition-all"
                     >
                       {user.avatar ? (

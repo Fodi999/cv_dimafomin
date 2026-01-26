@@ -14,6 +14,19 @@ const nextConfig: NextConfig = {
     },
   },
   
+  // 🔀 Redirects for legacy routes
+  async redirects() {
+    return [
+      // No redirects needed - using original paths
+      // /admin/catalog/* stays as is
+      // /fridge stays as is
+      // /recipes stays as is
+      // /assistant stays as is
+      // /losses stays as is
+      // Only /admin/ingredients is new
+    ];
+  },
+  
   images: {
     remotePatterns: [
       {

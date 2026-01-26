@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "@/contexts/SessionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Settings, LogOut, ChevronDown, Menu, X, Home, BookOpen, ShoppingBag, BrainCircuit, Sparkles, Refrigerator, LayoutDashboard, Users, ShoppingCart, Coins } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";

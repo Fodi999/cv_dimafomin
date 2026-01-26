@@ -1,12 +1,13 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { cookies } from "next/headers";
 import "./globals.css";
 import { getMetadata } from "@/lib/seo";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { SettingsProvider } from "@/contexts/SettingsContext";
 import { UserProvider } from "@/contexts/UserContext";
+import { SettingsProvider } from "@/contexts/SettingsContext";
+import { SessionProvider } from "@/contexts/SessionContext";
 import { AIRecommendationProvider } from "@/contexts/AIRecommendationContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { NotificationRefetchProvider } from "@/contexts/NotificationRefetchContext";
@@ -14,13 +15,13 @@ import { CategoryProvider } from "@/contexts/CategoryContext";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import PWARegister from "@/components/PWARegister";
 import AuthGate from "@/components/auth/AuthGate";
-import GlobalAuthModal from "@/components/auth/GlobalAuthModal"; // 🆕 Global auth modal
+import GlobalAuthModal from "@/components/auth/GlobalAuthModal";
 import TokenValidator from "@/components/auth/TokenValidator";
-import ReloginNotification from "@/components/auth/ReloginNotification"; // 🆕 Relogin notification
+import ReloginNotification from "@/components/auth/ReloginNotification";
 import { Toaster } from "@/components/ui/sonner";
 import { I18nDevWarning } from "@/components/dev/I18nDevWarning";
-import { PWAInstallButton } from "@/components/PWAInstallButton"; // 🆕 PWA Install Button
-import { ZoomProtection } from "@/components/ZoomProtection"; // 🆕 Zoom Protection
+import { PWAInstallButton } from "@/components/PWAInstallButton";
+import { ZoomProtection } from "@/components/ZoomProtection";
 import { getDictionary } from "@/lib/i18n/getDictionary";
 import { DEFAULT_LANGUAGE, LANGUAGE_COOKIE_KEY, isSupportedLanguage } from "@/lib/i18n/constants";
 import type { Language } from "@/lib/i18n/types";
@@ -44,7 +45,6 @@ export const metadata: Metadata = {
   ...getMetadata("pl"),
   metadataBase: new URL("https://dima-fomin.pl"),
   manifest: "/manifest.json",
-  themeColor: "#0f172a",
   alternates: {
     canonical: "https://dima-fomin.pl",
     languages: {
@@ -58,12 +58,17 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "ChefOS",
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
+};
+
+/**
+ * Viewport Configuration - Next.js 14+ requires separate export
+ */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#0f172a",
 };
 
 /**
@@ -134,14 +139,15 @@ export default async function RootLayout({
         <ThemeProvider defaultTheme="system">
           <AuthProvider>
             <UserProvider>
-              <SettingsProvider>
-                <LanguageProvider initialLanguage={language} dictionary={dictionary}>
-                  <CategoryProvider>
-                    <AIRecommendationProvider>
-                      {/* ❌ NO RecipeProvider in root layout */}
-                      {/* ✅ RecipeProvider moved to specific route layouts */}
-                      <NotificationProvider>
-                        <NotificationRefetchProvider>
+              <SessionProvider>
+                <SettingsProvider>
+                  <LanguageProvider initialLanguage={language} dictionary={dictionary}>
+                    <CategoryProvider>
+                      <AIRecommendationProvider>
+                        {/* ❌ NO RecipeProvider in root layout */}
+                        {/* ✅ RecipeProvider moved to specific route layouts */}
+                        <NotificationProvider>
+                          <NotificationRefetchProvider>
                         <TokenValidator />
                         <ReloginNotification /> {/* 🆕 Notification for users with old tokens */}
                         <GlobalAuthModal /> {/* 🆕 Global auth modal for all pages */}
@@ -183,6 +189,7 @@ export default async function RootLayout({
                   </CategoryProvider>
                 </LanguageProvider>
               </SettingsProvider>
+            </SessionProvider>
             </UserProvider>
           </AuthProvider>
         </ThemeProvider>

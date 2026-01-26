@@ -1,21 +1,26 @@
 /**
- * Admin Navigation Schema - Professional SaaS Structure
+ * Admin Navigation Schema - Business-Focused Structure
  * 
- * Clean, business-focused admin navigation (7 core sections):
- * 1. Dashboard - System overview, KPIs
- * 2. Users - User management, roles, activity log
- * 3. Content - Recipes catalog, ingredients catalog
- * 4. AI - Limits & cost management
- * 5. Economy - Token treasury, transactions, bonuses/penalties
- * 6. Integrations - API keys, webhooks, external services
- * 7. Settings - General config, feature flags, security
+ * MVP → Scale Navigation (Money-First Approach):
+ * 1. Dashboard - Overview, KPIs
+ * 2. Menu - Dishes (Products) & Recipes (Tech Cards)
+ * 3. Inventory - Warehouse/Stock management
+ * 4. Purchases - Procurement, suppliers, costs
+ * 5. Orders - Order management
+ * 6. Losses - Write-offs, waste tracking
+ * 7. Economy - Profit, margins, financial analytics
+ * 8. Assistant - AI helper for owner
+ * 9. Users - Staff, roles, access control
+ * 10. Integrations - Wolt, Glovo, POS, webhooks
+ * 11. Activity Log - Audit trail
+ * 12. Settings - General business config
  * 
  * Key principles:
- * - 7 sections max (optimal cognitive load)
+ * - Every menu item either makes money or protects money
+ * - Business language (not CMS/tech terms)
  * - No duplicates
- * - Business-focused language
+ * - Actions = buttons, not menu items
  * - Max 2 levels deep
- * - RBAC + Feature flags support
  */
 
 import {
@@ -25,16 +30,16 @@ import {
   Plug,
   Settings,
   ChefHat,
-  Carrot,
+  UtensilsCrossed,
   Shield,
   Activity,
   TrendingUp,
-  Gift,
-  Key,
-  Webhook,
-  Cloud,
-  Flag,
-  Lock,
+  ShoppingCart,
+  Package,
+  ClipboardList,
+  TrendingDown,
+  Bot,
+  BookOpen,
   type LucideIcon,
 } from "lucide-react";
 
@@ -49,6 +54,9 @@ export type FeatureFlag =
   | "advanced_ai"
   | "economy_management";
 
+export type NavigationLevel = "primary" | "secondary" | "system";
+export type NavigationAccent = "danger" | "success" | "warning" | "info" | "purple";
+
 export interface NavigationItem {
   id: string;
   label: {
@@ -59,6 +67,8 @@ export interface NavigationItem {
   icon: LucideIcon;
   href: string;
   badge?: string;
+  level?: NavigationLevel; // Уровень важности
+  accent?: NavigationAccent; // Цветовой акцент для primary
   requiredRoles?: AdminRole[];
   requiredFeatures?: FeatureFlag[];
 }
@@ -71,18 +81,20 @@ export interface NavigationSection {
     pl: string;
   };
   items: NavigationItem[];
+  level?: NavigationLevel; // Уровень важности группы
+  collapsible?: boolean; // Можно сворачивать
   requiredRoles?: AdminRole[];
   requiredFeatures?: FeatureFlag[];
 }
 
 // ═══════════════════════════════════════════════════════════
-// NAVIGATION SCHEMA - 7 CORE SECTIONS
+// NAVIGATION SCHEMA - BUSINESS-FOCUSED (MVP → Scale)
 // ═══════════════════════════════════════════════════════════
 
 export const adminNavigationSchema: NavigationSection[] = [
   
   // ───────────────────────────────────────────────────────
-  // 📊 1. DASHBOARD
+  // 📊 1. DASHBOARD (Панель управления)
   // ───────────────────────────────────────────────────────
   {
     id: "dashboard",
@@ -91,6 +103,7 @@ export const adminNavigationSchema: NavigationSection[] = [
       ru: "Панель управления",
       pl: "Panel sterowania",
     },
+    level: "primary",
     items: [
       {
         id: "dashboard",
@@ -101,13 +114,219 @@ export const adminNavigationSchema: NavigationSection[] = [
         },
         icon: LayoutDashboard,
         href: "/admin/dashboard",
+        level: "primary",
       },
     ],
   },
 
   // ───────────────────────────────────────────────────────
-  // 👥 2. USERS (Пользователи)
+  // 🔥 ОПЕРАЦИОННОЕ ЯДРО (PRIMARY)
   // ───────────────────────────────────────────────────────
+  
+  // 📦 Склад (Холодильник) — РЕАЛЬНАЯ ЖИЗНЬ
+  {
+    id: "inventory",
+    label: {
+      en: "Inventory (Fridge)",
+      ru: "Склад (Холодильник)",
+      pl: "Magazyn (Lodówka)",
+    },
+    level: "primary",
+    items: [
+      {
+        id: "inventory",
+        label: {
+          en: "Inventory (Fridge)",
+          ru: "Склад (Холодильник)",
+          pl: "Magazyn (Lodówka)",
+        },
+        icon: Package,
+        href: "/admin/ingredients",
+        level: "primary",
+      },
+    ],
+  },
+
+  // 📉 Списания
+  {
+    id: "losses",
+    label: {
+      en: "Losses",
+      ru: "Списания",
+      pl: "Straty",
+    },
+    level: "primary",
+    items: [
+      {
+        id: "losses",
+        label: {
+          en: "Losses",
+          ru: "Списания",
+          pl: "Straty",
+        },
+        icon: TrendingDown,
+        href: "/admin/losses",
+        level: "primary",
+        accent: "danger",
+      },
+    ],
+  },
+
+  // 💰 Экономика
+  {
+    id: "economy",
+    label: {
+      en: "Economy",
+      ru: "Экономика",
+      pl: "Ekonomia",
+    },
+    level: "primary",
+    items: [
+      {
+        id: "economy",
+        label: {
+          en: "Economy",
+          ru: "Экономика",
+          pl: "Ekonomia",
+        },
+        icon: Wallet,
+        href: "/admin/economy",
+        level: "primary",
+        accent: "success",
+      },
+    ],
+  },
+
+  // 🤖 Ассистент
+  {
+    id: "assistant",
+    label: {
+      en: "Assistant",
+      ru: "Ассистент",
+      pl: "Asystent",
+    },
+    level: "primary",
+    items: [
+      {
+        id: "assistant",
+        label: {
+          en: "Assistant",
+          ru: "Ассистент",
+          pl: "Asystent",
+        },
+        icon: Bot,
+        href: "/admin/assistant",
+        level: "primary",
+        accent: "purple",
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────
+  // 🏭 ПРОИЗВОДСТВЕННЫЙ ПРОЦЕСС (SECONDARY)
+  // ───────────────────────────────────────────────────────
+  
+  // 📚 Каталог продуктов (ПЕРЕД Рецептами - база данных)
+  {
+    id: "products-catalog",
+    label: {
+      en: "Products Catalog",
+      ru: "Каталог продуктов",
+      pl: "Katalog produktów",
+    },
+    level: "secondary",
+    collapsible: true,
+    items: [
+      {
+        id: "products-catalog",
+        label: {
+          en: "Products Catalog",
+          ru: "Каталог продуктов",
+          pl: "Katalog produktów",
+        },
+        icon: BookOpen,
+        href: "/admin/catalog/products",
+      },
+    ],
+  },
+
+  // 👨‍🍳 Рецепты (используют продукты из каталога)
+  {
+    id: "recipes",
+    label: {
+      en: "Recipes",
+      ru: "Рецепты",
+      pl: "Przepisy",
+    },
+    level: "secondary",
+    collapsible: true,
+    items: [
+      {
+        id: "recipes",
+        label: {
+          en: "Recipes",
+          ru: "Рецепты",
+          pl: "Przepisy",
+        },
+        icon: ChefHat,
+        href: "/admin/catalog/recipes-list",
+      },
+    ],
+  },
+
+  // 🛒 Закупки
+  {
+    id: "purchases",
+    label: {
+      en: "Purchases",
+      ru: "Закупки",
+      pl: "Zakupy",
+    },
+    level: "secondary",
+    collapsible: true,
+    items: [
+      {
+        id: "purchases",
+        label: {
+          en: "Purchases",
+          ru: "Закупки",
+          pl: "Zakupy",
+        },
+        icon: ShoppingCart,
+        href: "/admin/purchases",
+      },
+    ],
+  },
+
+  // 📋 Заказы
+  {
+    id: "orders",
+    label: {
+      en: "Orders",
+      ru: "Заказы",
+      pl: "Zamówienia",
+    },
+    level: "secondary",
+    collapsible: true,
+    items: [
+      {
+        id: "orders",
+        label: {
+          en: "Orders",
+          ru: "Заказы",
+          pl: "Zamówienia",
+        },
+        icon: ClipboardList,
+        href: "/admin/orders",
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────
+  // ⚙️ СИСТЕМА (SYSTEM)
+  // ───────────────────────────────────────────────────────
+  
+  // 👥 Пользователи
   {
     id: "users",
     label: {
@@ -115,6 +334,8 @@ export const adminNavigationSchema: NavigationSection[] = [
       ru: "Пользователи",
       pl: "Użytkownicy",
     },
+    level: "system",
+    collapsible: true,
     items: [
       {
         id: "users",
@@ -137,6 +358,44 @@ export const adminNavigationSchema: NavigationSection[] = [
         href: "/admin/users/roles",
         requiredRoles: ["admin", "superadmin"],
       },
+    ],
+  },
+
+  // 🔌 Интеграции
+  {
+    id: "integrations",
+    label: {
+      en: "Integrations",
+      ru: "Интеграции",
+      pl: "Integracje",
+    },
+    level: "system",
+    collapsible: true,
+    items: [
+      {
+        id: "integrations",
+        label: {
+          en: "Integrations",
+          ru: "Интеграции",
+          pl: "Integracje",
+        },
+        icon: Plug,
+        href: "/admin/integrations",
+      },
+    ],
+  },
+
+  // 📜 Журнал активности
+  {
+    id: "activity",
+    label: {
+      en: "Activity Log",
+      ru: "Журнал активности",
+      pl: "Dziennik aktywności",
+    },
+    level: "system",
+    collapsible: true,
+    items: [
       {
         id: "activity",
         label: {
@@ -150,158 +409,7 @@ export const adminNavigationSchema: NavigationSection[] = [
     ],
   },
 
-  // ───────────────────────────────────────────────────────
-  // 🍽️ 3. CONTENT (Каталог: продукты и рецепты раздельно)
-  // ───────────────────────────────────────────────────────
-  {
-    id: "content",
-    label: {
-      en: "Content",
-      ru: "Контент",
-      pl: "Zawartość",
-    },
-    items: [
-      {
-        id: "catalog-products",
-        label: {
-          en: "Products Catalog",
-          ru: "Каталог продуктов",
-          pl: "Katalog produktów",
-        },
-        icon: Carrot,
-        href: "/admin/catalog/products",
-      },
-      {
-        id: "catalog-recipes",
-        label: {
-          en: "Recipes Catalog",
-          ru: "Каталог рецептов",
-          pl: "Katalog przepisów",
-        },
-        icon: ChefHat,
-        href: "/admin/catalog/recipes-list",
-      },
-    ],
-  },
-
-  // ───────────────────────────────────────────────────────
-  // 🤖 4. AI
-  // ───────────────────────────────────────────────────────
-  {
-    id: "ai",
-    label: {
-      en: "AI",
-      ru: "AI",
-      pl: "AI",
-    },
-    items: [
-      {
-        id: "ai-limits",
-        label: {
-          en: "Limits & Cost",
-          ru: "Лимиты и стоимость",
-          pl: "Limity i koszt",
-        },
-        icon: TrendingUp,
-        href: "/admin/ai-limits",
-        requiredFeatures: ["advanced_ai"],
-      },
-    ],
-  },
-
-  // ───────────────────────────────────────────────────────
-  // 💰 5. ECONOMY (Экономика)
-  // ───────────────────────────────────────────────────────
-  {
-    id: "economy",
-    label: {
-      en: "Economy",
-      ru: "Экономика",
-      pl: "Ekonomia",
-    },
-    items: [
-      {
-        id: "treasury",
-        label: {
-          en: "Token Treasury",
-          ru: "Казна токенов",
-          pl: "Skarbiec tokenów",
-        },
-        icon: Wallet,
-        href: "/admin/token-bank",
-      },
-      {
-        id: "transactions",
-        label: {
-          en: "Transactions",
-          ru: "Транзакции",
-          pl: "Transakcje",
-        },
-        icon: TrendingUp,
-        href: "/admin/transactions",
-      },
-      {
-        id: "bonuses",
-        label: {
-          en: "Bonuses & Penalties",
-          ru: "Бонусы и штрафы",
-          pl: "Bonusy i kary",
-        },
-        icon: Gift,
-        href: "/admin/rewards",
-      },
-    ],
-    requiredFeatures: ["economy_management"],
-  },
-
-  // ───────────────────────────────────────────────────────
-  // 🔌 6. INTEGRATIONS (Интеграции)
-  // ───────────────────────────────────────────────────────
-  {
-    id: "integrations",
-    label: {
-      en: "Integrations",
-      ru: "Интеграции",
-      pl: "Integracje",
-    },
-    items: [
-      {
-        id: "api-keys",
-        label: {
-          en: "API Keys",
-          ru: "API ключи",
-          pl: "Klucze API",
-        },
-        icon: Key,
-        href: "/admin/integrations/api-keys",
-      },
-      {
-        id: "webhooks",
-        label: {
-          en: "Webhooks",
-          ru: "Вебхуки",
-          pl: "Webhooki",
-        },
-        icon: Webhook,
-        href: "/admin/integrations/webhooks",
-      },
-      {
-        id: "services",
-        label: {
-          en: "External Services",
-          ru: "Внешние сервисы",
-          pl: "Usługi zewnętrzne",
-        },
-        icon: Cloud,
-        href: "/admin/integrations/services",
-      },
-    ],
-    requiredFeatures: ["integrations"],
-  },
-
-  // ───────────────────────────────────────────────────────
-  // ⚙️ 7. SETTINGS (Настройки)
-  // ───────────────────────────────────────────────────────
+  // ⚙️ Общие настройки
   {
     id: "settings",
     label: {
@@ -309,6 +417,8 @@ export const adminNavigationSchema: NavigationSection[] = [
       ru: "Настройки",
       pl: "Ustawienia",
     },
+    level: "system",
+    collapsible: true,
     items: [
       {
         id: "general",
@@ -319,28 +429,6 @@ export const adminNavigationSchema: NavigationSection[] = [
         },
         icon: Settings,
         href: "/admin/settings",
-      },
-      {
-        id: "features",
-        label: {
-          en: "Feature Flags",
-          ru: "Флаги функций",
-          pl: "Flagi funkcji",
-        },
-        icon: Flag,
-        href: "/admin/settings/features",
-        requiredRoles: ["superadmin"],
-      },
-      {
-        id: "security",
-        label: {
-          en: "Security",
-          ru: "Безопасность",
-          pl: "Bezpieczeństwo",
-        },
-        icon: Lock,
-        href: "/admin/settings/security",
-        requiredRoles: ["admin", "superadmin"],
       },
     ],
   },

@@ -90,22 +90,44 @@ export async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): P
       responseText = await response.text();
       console.log(`📥 Error response text:`, responseText.substring(0, 500));
       
-      if (responseText.trim()) {
-        error = JSON.parse(responseText);
+      // Проверяем, что это JSON, а не HTML (например, 404 страница)
+      const contentType = response.headers.get("content-type") || "";
+      const isJson = contentType.includes("application/json");
+      const looksLikeJson = responseText.trim().startsWith("{") || responseText.trim().startsWith("[");
+      
+      if (responseText.trim() && (isJson || looksLikeJson)) {
+        try {
+          error = JSON.parse(responseText);
+        } catch (parseError) {
+          // Если не удалось распарсить как JSON, создаем объект ошибки
+          error = {
+            code: "INVALID_JSON",
+            message: `${response.status} ${response.statusText}`,
+            details: { 
+              responseText: responseText.substring(0, 200),
+              parseError: parseError instanceof Error ? parseError.message : String(parseError)
+            }
+          };
+        }
       } else {
+        // HTML или другой не-JSON ответ (например, 404 страница)
         error = {
-          code: "NO_RESPONSE",
+          code: "NON_JSON_RESPONSE",
           message: `${response.status} ${response.statusText}`,
+          details: { 
+            contentType,
+            responseText: responseText.substring(0, 200),
+            hint: "Backend returned non-JSON response (possibly HTML error page)"
+          }
         };
       }
     } catch (e) {
-      console.error(`⚠️ Failed to parse error response:`, e);
+      console.error(`⚠️ Failed to read error response:`, e);
       error = {
-        code: "PARSE_ERROR",
+        code: "READ_ERROR",
         message: `${response.status} ${response.statusText}`,
         details: { 
-          responseText: responseText.substring(0, 200),
-          parseError: e instanceof Error ? e.message : String(e)
+          readError: e instanceof Error ? e.message : String(e)
         }
       };
     }

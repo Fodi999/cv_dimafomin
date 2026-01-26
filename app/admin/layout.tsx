@@ -1,80 +1,55 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { useUser } from "@/contexts/UserContext";
-import { useAuth } from "@/contexts/AuthContext";
-import { Loader } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/contexts/SessionContext";
+import { Loader2 } from "lucide-react";
 import AdminNavigation from "@/components/layout/AdminNavigation";
-import { isAdminRole } from "@/lib/auth/roles";
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+/**
+ * 🔐 ADMIN LAYOUT - ChefOS Architecture 2026
+ * 
+ * Guard: только super_admin
+ * Layout: профессиональный SaaS dashboard с красивой навигацией
+ */
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const pathname = usePathname();
-  const { user, isLoading } = useUser();
-  const { openAuthModal, logout } = useAuth();
+  const { session, isLoading } = useSession();
 
-  // Проверка прав доступа администратора
   useEffect(() => {
-    console.log("[AdminLayout] 🔐 Access check:", {
-      isLoading,
-      hasUser: !!user,
-      userEmail: user?.email,
-      userRole: user?.role,
-      roleType: typeof user?.role,
-      isAdmin: isAdminRole(user?.role),
-      pathname,
-    });
+    if (isLoading) return;
 
-    if (!isLoading) {
-      if (!user) {
-        console.warn("[AdminLayout] ❌ No user - opening auth modal");
-        openAuthModal("login");
-      } else if (!isAdminRole(user.role)) {
-        console.warn("[AdminLayout] ❌ User is not admin:", {
-          email: user.email,
-          role: user.role,
-          expected: "admin or super_admin",
-        });
-        router.push("/");
-      } else {
-        console.log("[AdminLayout] ✅ Admin access granted:", user.role);
-      }
+    // 🔐 Guard: только super_admin
+    if (!session || session.role !== 'super_admin') {
+      console.warn("[AdminLayout] ⛔ Access denied - redirecting to customer");
+      router.push('/customer/marketplace');
     }
-    // ✅ Fixed: only check on mount or when loading completes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading]);
+  }, [session, isLoading, router]);
 
+  // 🔄 Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader className="w-12 h-12 animate-spin text-sky-600 dark:text-sky-400 mx-auto mb-4" />
-          <p className="text-muted-foreground">Проверка доступу...</p>
-        </div>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-sky-500 animate-spin" />
       </div>
     );
   }
 
-  if (!user || !isAdminRole(user.role)) {
+  // 🔐 Not authorized
+  if (!session || session.role !== 'super_admin') {
     return null;
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      {/* 🎨 Admin Navigation - Modern 2026 Design */}
       <AdminNavigation />
-      <div className="fixed inset-0 pt-16 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-        {/* Content Area - Allow scroll for pages that need it */}
-        <div className="h-full w-full overflow-y-auto overflow-x-hidden">
-          <div className="min-h-full max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
-            {children}
-          </div>
-        </div>
-      </div>
-    </>
+      
+      {/* 📄 Content - с отступом для header */}
+      <main className="w-full pt-16 px-4 sm:px-6 lg:px-8 pb-8">
+        {children}
+      </main>
+    </div>
   );
 }

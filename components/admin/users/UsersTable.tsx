@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, Edit, Shield, Ban, Unlock, MoreVertical, Trash2, User as UserIcon, Crown } from "lucide-react";
+import { Eye, Edit, Shield, Ban, Unlock, MoreVertical, User as UserIcon, Crown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +10,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -26,7 +32,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: "user" | "premium" | "admin";
+  role: "user" | "admin" | "super_admin";
   status: "active" | "blocked" | "pending"; // 🔥 Права пользователя
   joinedAt: string;
   lastActiveAt: string; // 🔥 Поведение (активность)
@@ -40,12 +46,11 @@ interface UserCardProps {
   onView: (user: User) => void;
   onEdit: (user: User) => void;
   onToggleBlock: (user: User) => void;
-  onDelete: (user: User) => void;
   index: number;
 }
 
 // 📱 Mobile Card Component
-function UserCard({ user, onView, onEdit, onToggleBlock, onDelete, index }: UserCardProps) {
+function UserCard({ user, onView, onEdit, onToggleBlock, index }: UserCardProps) {
   const { t } = useLanguage();
   
   const getRoleBadge = (role: string) => {
@@ -53,17 +58,20 @@ function UserCard({ user, onView, onEdit, onToggleBlock, onDelete, index }: User
       user: { 
         label: t.admin.users.roles.user, 
         variant: "secondary" as const,
-        icon: <UserIcon className="w-3 h-3 text-gray-600 dark:text-gray-400" />
-      },
-      premium: { 
-        label: t.admin.users.roles.premium, 
-        variant: "default" as const,
-        icon: <Crown className="w-3 h-3 text-yellow-600 dark:text-yellow-500" />
+        icon: <UserIcon className="w-3 h-3 text-gray-600 dark:text-gray-400" />,
+        tooltip: "Права доступа: обычный пользователь"
       },
       admin: { 
         label: t.admin.users.roles.admin, 
+        variant: "default" as const,
+        icon: <Shield className="w-3 h-3 text-blue-600 dark:text-blue-500" />,
+        tooltip: "Права доступа: админ кухни / бизнеса"
+      },
+      super_admin: { 
+        label: "👑 Super Admin", 
         variant: "destructive" as const,
-        icon: <Shield className="w-3 h-3 text-red-600 dark:text-red-500" />
+        icon: <Crown className="w-3 h-3 text-purple-600 dark:text-purple-500" />,
+        tooltip: "Права доступа: владелец платформы"
       },
     };
     return variants[role as keyof typeof variants] || variants.user;
@@ -165,30 +173,31 @@ function UserCard({ user, onView, onEdit, onToggleBlock, onDelete, index }: User
                 </>
               )}
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => onDelete(user)}
-              className="text-red-600 dark:text-red-400"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              {t.admin.users.actions.delete}
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
       {/* Badges: Role + Status */}
       <div className="flex flex-wrap items-center gap-2 mb-3">
-        <Badge variant={roleBadge.variant} className="text-xs flex items-center gap-1">
-          {roleBadge.icon}
-          {roleBadge.label}
-        </Badge>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant={roleBadge.variant} className="text-xs flex items-center gap-1 cursor-help">
+                {roleBadge.icon}
+                {roleBadge.label}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{roleBadge.tooltip}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <Badge variant={statusBadge.variant} className={`text-xs ${statusBadge.className}`}>
           {statusBadge.label}
         </Badge>
       </div>
 
-      {/* Stats */}
+      {/* Activity / Revenue */}
       <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100 dark:border-gray-700">
         <div>
           <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
@@ -199,9 +208,9 @@ function UserCard({ user, onView, onEdit, onToggleBlock, onDelete, index }: User
           </p>
         </div>
         <div className="text-right">
-          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Stats</p>
+          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Activity / Revenue</p>
           <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white mt-0.5">
-            {user.ordersCount} {t.admin.users.table.actions}
+            {user.ordersCount} заказов
           </p>
           <p className="text-xs font-semibold text-green-600 dark:text-green-400">
             ${user.totalSpent}
@@ -217,17 +226,28 @@ interface UserRowProps {
   onView: (user: User) => void;
   onEdit: (user: User) => void;
   onToggleBlock: (user: User) => void;
-  onDelete: (user: User) => void;
 }
 
-function UserRow({ user, onView, onEdit, onToggleBlock, onDelete }: UserRowProps) {
+function UserRow({ user, onView, onEdit, onToggleBlock }: UserRowProps) {
   const { t } = useLanguage();
   
   const getRoleBadge = (role: string) => {
     const variants = {
-      user: { label: t.admin.users.roles.user, variant: "secondary" as const },
-      premium: { label: t.admin.users.roles.premium, variant: "default" as const },
-      admin: { label: t.admin.users.roles.admin, variant: "destructive" as const },
+      user: { 
+        label: t.admin.users.roles.user, 
+        variant: "secondary" as const,
+        tooltip: "Права доступа: обычный пользователь"
+      },
+      admin: { 
+        label: t.admin.users.roles.admin, 
+        variant: "default" as const,
+        tooltip: "Права доступа: админ кухни / бизнеса"
+      },
+      super_admin: { 
+        label: "👑 Super Admin", 
+        variant: "destructive" as const,
+        tooltip: "Права доступа: владелец платформы"
+      },
     };
     return variants[role as keyof typeof variants] || variants.user;
   };
@@ -294,7 +314,18 @@ function UserRow({ user, onView, onEdit, onToggleBlock, onDelete }: UserRowProps
 
       {/* Role */}
       <TableCell>
-        <Badge variant={roleBadge.variant}>{roleBadge.label}</Badge>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant={roleBadge.variant} className="cursor-help">
+                {roleBadge.label}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{roleBadge.tooltip}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </TableCell>
 
       {/* Status - права пользователя */}
@@ -314,10 +345,10 @@ function UserRow({ user, onView, onEdit, onToggleBlock, onDelete }: UserRowProps
         </div>
       </TableCell>
 
-      {/* Stats */}
+      {/* Activity / Revenue */}
       <TableCell>
         <div className="flex flex-col gap-1">
-          <span className="text-sm">{user.ordersCount} {t.admin.users.table.actions}</span>
+          <span className="text-sm">{user.ordersCount} заказов</span>
           <span className="text-sm font-semibold text-green-600 dark:text-green-400">
             ${user.totalSpent}
           </span>
@@ -364,14 +395,6 @@ function UserRow({ user, onView, onEdit, onToggleBlock, onDelete }: UserRowProps
                 </>
               )}
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => onDelete(user)}
-              className="text-red-600 dark:text-red-400"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              {t.admin.users.actions.delete}
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </TableCell>
@@ -385,7 +408,6 @@ interface UsersTableProps {
   onView: (user: User) => void;
   onEdit: (user: User) => void;
   onToggleBlock: (user: User) => void;
-  onDelete: (user: User) => void;
 }
 
 /**
@@ -399,7 +421,6 @@ export function UsersTable({
   onView,
   onEdit,
   onToggleBlock,
-  onDelete,
 }: UsersTableProps) {
   const { t } = useLanguage();
   
@@ -464,7 +485,6 @@ export function UsersTable({
             onView={onView}
             onEdit={onEdit}
             onToggleBlock={onToggleBlock}
-            onDelete={onDelete}
             index={index}
           />
         ))}
@@ -479,7 +499,7 @@ export function UsersTable({
               <TableHead>{t.admin.users.table.role}</TableHead>
               <TableHead>{t.admin.users.table.status}</TableHead>
               <TableHead>{t.admin.users.table.lastActive}</TableHead>
-              <TableHead>Stats</TableHead>
+              <TableHead>Activity / Revenue</TableHead>
               <TableHead className="text-right">{t.admin.users.table.actions}</TableHead>
             </TableRow>
           </TableHeader>
@@ -491,7 +511,6 @@ export function UsersTable({
                 onView={onView}
                 onEdit={onEdit}
                 onToggleBlock={onToggleBlock}
-                onDelete={onDelete}
               />
             ))}
           </TableBody>

@@ -396,7 +396,7 @@ export function CreateRecipeWithAI({ recipeId }: CreateRecipeWithAIProps) {
       
       // Redirect to recipes catalog page
       setTimeout(() => {
-        router.push('/admin/catalog/recipes-list?refresh=' + Date.now());
+        router.push('/admin/recipes?refresh=' + Date.now());
       }, 1500);
     } catch (error: any) {
       // DEBUG: Log full error to see structure

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Upload, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "@/contexts/SessionContext";
 import { ProfileData } from "@/lib/types";
 
 interface ProfileEditSheetProps {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "@/contexts/SessionContext";
 import { Settings, Shield, LogOut, User, ChevronDown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
@@ -47,7 +47,7 @@ export function AdminHeader() {
                 System Administrator
               </span>
               <span className="px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-medium">
-                {user?.role === "superadmin" ? "SUPERADMIN" : "ADMIN"}
+                {user?.role === "super_admin" ? "SUPERADMIN" : "ADMIN"}
               </span>
               <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
             </button>

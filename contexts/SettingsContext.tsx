@@ -11,7 +11,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { getSettings, updateSettings as apiUpdateSettings } from "@/lib/api/settings";
 import { DEFAULT_SETTINGS, type UserSettings, type PartialSettings } from "@/lib/types/settings";
 import { useAuth } from "./AuthContext";
-import { useUser } from "./UserContext";
+import { useSession } from "./SessionContext";
 import { LANGUAGE_COOKIE_KEY, LANGUAGE_COOKIE_MAX_AGE } from "@/lib/i18n/constants";
 
 interface SettingsContextType {
@@ -34,7 +34,7 @@ const STORAGE_KEY = "user-settings-cache";
  */
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const { token, isAuthenticated } = useAuth();
-  const { isLoading: userIsLoading } = useUser();
+  const { isLoading: userIsLoading } = useSession();
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);

@@ -1,14 +1,14 @@
 "use client";
 
 import { useAuth } from "@/contexts/AuthContext";
-import { useUser } from "@/contexts/UserContext";
+import { useSession } from "@/contexts/SessionContext";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const auth = useAuth();
-  const { isLoading: userLoading } = useUser();
+  const { isLoading: userLoading } = useSession();
   const [isInitialized, setIsInitialized] = useState(false);
 
   // 🆕 Public routes that don't need AuthGate

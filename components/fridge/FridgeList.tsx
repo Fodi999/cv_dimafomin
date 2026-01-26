@@ -18,6 +18,8 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import FridgeItem from "./FridgeItem";
 import type { FridgeItem as FridgeItemType } from "@/lib/types";
+import { getWarehouseStatus, calculateDaysLeft } from "@/lib/types/warehouse-ui";
+import { syncWarehouseToLosses } from "@/lib/utils/warehouse-sync";
 
 interface FridgeListProps {
   items: FridgeItemType[];
@@ -43,15 +45,25 @@ const getCategoryConfig = (t: any) => [
 ];
 
 export default function FridgeList({ items, onDelete, onPriceClick, onQuantityClick, highlightId }: FridgeListProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activeCategory, setActiveCategory] = useState("all");
   const CATEGORIES = getCategoryConfig(t);
   
   console.log('[FridgeList] Received items:', items);
   console.log('[FridgeList] Items count:', items?.length);
   
+  // 🔥 ФРОНТЕНД-СИНХРОНИЗАЦИЯ: Фильтруем EXPIRED продукты
+  // EXPIRED продукты НЕ показываются на складе - они автоматически появляются в списаниях
+  const { activeWarehouseItems, expiredLosses } = syncWarehouseToLosses(items, language);
+  
+  if (expiredLosses.length > 0) {
+    console.log(`[FridgeList] 🚫 Filtered out ${expiredLosses.length} EXPIRED items. They will appear in Losses.`);
+  }
+  
+  console.log('[FridgeList] Active warehouse items (EXPIRED filtered):', activeWarehouseItems.length);
+  
   // ✅ Подсчёт продуктов по категориям (используем backend categoryKey)
-  const categoryCounts = items.reduce((acc, item) => {
+  const categoryCounts = activeWarehouseItems.reduce((acc, item) => {
     const categoryKey = item.ingredient?.categoryKey || 'other';
     acc[categoryKey] = (acc[categoryKey] || 0) + 1;
     return acc;
@@ -59,33 +71,31 @@ export default function FridgeList({ items, onDelete, onPriceClick, onQuantityCl
   
   // ✅ Фильтрация по backend categoryKey (НЕ по переведенному имени!)
   const filteredItems = activeCategory === "all" 
-    ? items 
-    : items.filter(item => (item.ingredient?.categoryKey || 'other') === activeCategory);
+    ? activeWarehouseItems 
+    : activeWarehouseItems.filter(item => (item.ingredient?.categoryKey || 'other') === activeCategory);
   
-  // 🔥 Сортировка: critical → warning → fresh/ok (по daysLeft возрастанию)
+  // 🔥 Сортировка: WARNING → OK (по daysLeft возрастанию)
+  // Используем единый UI-контракт для статусов
   const sortedItems = [...filteredItems].sort((a, b) => {
-    // Приоритет 1: Critical (1-2 дня) - самые первые
-    const aCritical = a.status === 'critical';
-    const bCritical = b.status === 'critical';
-    if (aCritical && !bCritical) return -1;
-    if (!aCritical && bCritical) return 1;
+    const aDaysLeft = calculateDaysLeft(a.expiresAt);
+    const bDaysLeft = calculateDaysLeft(b.expiresAt);
+    const aStatus = getWarehouseStatus(aDaysLeft);
+    const bStatus = getWarehouseStatus(bDaysLeft);
     
-    // Приоритет 2: Warning (3-5 дней) - после critical
-    const aWarning = a.status === 'warning';
-    const bWarning = b.status === 'warning';
-    if (aWarning && !bWarning) return -1;
-    if (!aWarning && bWarning) return 1;
+    // Приоритет 1: WARNING (≤2 дня) - самые первые
+    if (aStatus === 'WARNING' && bStatus !== 'WARNING') return -1;
+    if (aStatus !== 'WARNING' && bStatus === 'WARNING') return 1;
     
-    // Приоритет 3: Внутри каждой группы сортируем по daysLeft (меньше = выше)
-    const aDays = a.daysLeft ?? Infinity;
-    const bDays = b.daysLeft ?? Infinity;
+    // Приоритет 2: Внутри каждой группы сортируем по daysLeft (меньше = выше)
+    const aDays = aDaysLeft ?? Infinity;
+    const bDays = bDaysLeft ?? Infinity;
     return aDays - bDays;
   });
   
   console.log('[FridgeList] Active category:', activeCategory);
   console.log('[FridgeList] Filtered items:', filteredItems.length);
 
-  if (items.length === 0) {
+  if (activeWarehouseItems.length === 0) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -98,22 +108,29 @@ export default function FridgeList({ items, onDelete, onPriceClick, onQuantityCl
         </h3>
         <div className="max-w-md mx-auto text-left">
           <p className="text-gray-600 dark:text-gray-400 mb-3">
-            {t?.fridge?.emptyState?.title || "Add products to:"}
+            {t?.fridge?.emptyState?.title || "Добавьте продукты на склад:"}
           </p>
-          <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+          <ul className="space-y-2 text-gray-700 dark:text-gray-300 mb-6">
             <li className="flex items-start gap-2">
               <span className="text-sky-500 mt-1">•</span>
-              <span>{t?.fridge?.emptyState?.reason1 || "Get AI recipe suggestions"}</span>
+              <span>{t?.fridge?.emptyState?.reason1 || "AI предложит рецепты на основе продуктов"}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-sky-500 mt-1">•</span>
-              <span>{t?.fridge?.emptyState?.reason2 || "Use products before expiry"}</span>
+              <span>{t?.fridge?.emptyState?.reason2 || "Используйте продукты до истечения срока"}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-sky-500 mt-1">•</span>
-              <span>{t?.fridge?.emptyState?.reason3 || "Avoid buying duplicates"}</span>
+              <span>{t?.fridge?.emptyState?.reason3 || "Не покупайте то, что уже есть на складе"}</span>
             </li>
           </ul>
+          
+          {/* ℹ️ Информация о синхронизации со списаниями */}
+          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-lg">
+            <p className="text-sm text-blue-900 dark:text-blue-100">
+              <strong>ℹ️ Автоматическая синхронизация:</strong> Продукты с истекшим сроком годности автоматически переносятся в раздел "Списания". Проверьте там, если продукт исчез со склада.
+            </p>
+          </div>
         </div>
       </motion.div>
     );

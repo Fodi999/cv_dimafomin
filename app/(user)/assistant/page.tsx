@@ -315,7 +315,12 @@ export default function AssistantPage() {
       {/* ❌ Error State */}
       {error && !loading && (
         <AIMessageCard
-          code={error === 'No authentication token' ? 'AUTH_REQUIRED' : 'FETCH_FAILED'}
+          code={
+            error === 'No authentication token' ? 'AUTH_REQUIRED' :
+            error === 'no_recipes' ? 'EMPTY_FRIDGE' :
+            error === 'no_more_recipes' ? 'NO_MORE_RECIPES' :
+            'FETCH_FAILED'
+          }
           context={{ message: error }}
           onAction={handleAction}
           onDismiss={() => refetch()}
