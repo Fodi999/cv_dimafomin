@@ -31,17 +31,18 @@ export function CategoryProvider({ children }: { children: React.ReactNode }) {
       
       const token = localStorage.getItem('token');
       if (!token) {
-        console.warn('[CategoryContext] No token available, using fallback categories');
-        // Will use fallback categories from categoryApi
+        console.log('[CategoryContext] No token available, will try without auth');
       }
       
-      const data = await fetchCategories(language, token || '');
+      // Pass token or null (not empty string) - fetchCategories handles both cases
+      const data = await fetchCategories(language, token || null);
       setCategories(data);
       console.log(`[CategoryContext] Loaded ${data.length} categories for language: ${language}`);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load categories';
       console.error('[CategoryContext] Error loading categories:', err);
       setError(errorMessage);
+      // Even on error, fallback categories are returned, so we still have data
     } finally {
       setLoading(false);
     }

@@ -36,19 +36,31 @@ interface CategoryApiResponse {
  * //   ...
  * // ]
  */
-export async function fetchCategories(language: string, token: string): Promise<Category[]> {
+export async function fetchCategories(language: string, token?: string | null): Promise<Category[]> {
   try {
+    // Build headers - only include Authorization if token exists
+    const headers: HeadersInit = {
+      'Accept-Language': language, // pl, en, ru
+      'Content-Type': 'application/json',
+    };
+    
+    // Only add Authorization header if token is provided
+    if (token && token.trim()) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`${API_BASE_URL}/api/catalog/ingredient-categories`, {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept-Language': language, // pl, en, ru
-        'Content-Type': 'application/json',
-      },
+      headers,
       cache: 'no-store', // Always fetch fresh data
     });
 
     if (!response.ok) {
+      // If 401 and no token, use fallback immediately (expected behavior)
+      if (response.status === 401 && !token) {
+        console.warn('[categoryApi] 401 without token - using fallback categories');
+        return getFallbackCategories(language);
+      }
       throw new Error(`Failed to fetch categories: ${response.status} ${response.statusText}`);
     }
 
