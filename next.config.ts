@@ -17,6 +17,27 @@ const nextConfig: NextConfig = {
   // 🔀 Redirects for legacy routes
   async redirects() {
     return [
+      // Customer routes (legacy /customer/* → actual paths)
+      {
+        source: '/customer/profile',
+        destination: '/profile',
+        permanent: true,
+      },
+      {
+        source: '/customer/profile/settings',
+        destination: '/profile/settings',
+        permanent: true,
+      },
+      {
+        source: '/customer/marketplace',
+        destination: '/marketplace',
+        permanent: true,
+      },
+      {
+        source: '/customer/orders',
+        destination: '/orders',
+        permanent: true,
+      },
       // No redirects needed - using original paths
       // /admin/catalog/* stays as is
       // /fridge stays as is

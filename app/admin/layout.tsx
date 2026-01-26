@@ -23,7 +23,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     // 🔐 Guard: только super_admin
     if (!session || session.role !== 'super_admin') {
       console.warn("[AdminLayout] ⛔ Access denied - redirecting to customer");
-      router.push('/customer/marketplace');
+      router.push('/marketplace');
     }
   }, [session, isLoading, router]);
 

@@ -2,69 +2,59 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, User } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { SimpleProfileHeader } from "@/components/profile/SimpleProfileHeader";
-import { HeroKPI } from "@/components/profile/HeroKPI";
-import { ProgressControl } from "@/components/profile/ProgressControl";
-import { CollectiveInsight } from "@/components/profile/CollectiveInsight";
-import { ProfileTabs, ProfileTab } from "@/components/profile/ProfileTabs";
-import { OverviewTab } from "@/components/profile/tabs/OverviewTab";
-import { StatsTab } from "@/components/profile/tabs/StatsTab";
-import { ResourcesTab } from "@/components/profile/tabs/ResourcesTab";
-import { motion, AnimatePresence } from "framer-motion";
+import { CustomerProfileHeader } from "@/components/profile/CustomerProfileHeader";
+import { CustomerKPI } from "@/components/profile/CustomerKPI";
+import { OrdersPreview } from "@/components/profile/OrdersPreview";
+import { NotificationsBlock } from "@/components/profile/NotificationsBlock";
+import { Order } from "@/lib/types/order";
+import { motion } from "framer-motion";
 
+// Mock данные заказов (в будущем из API)
+const mockOrders: Order[] = [
+  {
+    id: "1",
+    orderNumber: "ORD-2451",
+    date: "2026-01-15T14:30:00Z",
+    status: "completed",
+    items: [],
+    itemsCount: 3,
+    total: 109.0,
+  },
+  {
+    id: "2",
+    orderNumber: "ORD-2450",
+    date: "2026-01-14T18:20:00Z",
+    status: "cooking",
+    items: [],
+    itemsCount: 3,
+    total: 64.0,
+  },
+  {
+    id: "3",
+    orderNumber: "ORD-2449",
+    date: "2026-01-13T12:15:00Z",
+    status: "paid",
+    items: [],
+    itemsCount: 1,
+    total: 35.0,
+  },
+];
+
+/**
+ * Customer Profile Page
+ * Route: /profile
+ * Purpose: Customer dashboard - orders, favorites, notifications
+ * NO kitchen, NO recipes, NO economy, NO gamification
+ */
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, isLoading, updateProfile } = useUser();
+  const { user, isLoading } = useUser();
   const { t } = useLanguage();
 
-  const [activeTab, setActiveTab] = useState<ProfileTab>("overview");
-
-  const [stats, setStats] = useState({
-    cookedRecipes: 12,
-    savedRecipes: 34,
-    fridgeItems: 28,
-    savedMoney: 450.50,
-  });
-
-  const [overviewData, setOverviewData] = useState({
-    lastActions: [
-      {
-        id: "1",
-        type: "dish_cooked" as const,
-        text: "Ugotowano: Spaghetti Carbonara",
-        timestamp: "2024-01-15T18:30:00Z",
-      },
-      {
-        id: "2",
-        type: "product_added" as const,
-        text: "Dodano: Mleko 2%",
-        timestamp: "2024-01-15T12:00:00Z",
-      },
-    ],
-    weeklyBudget: 300,
-    weeklySpent: 185,
-  });
-
-  const [statsData, setStatsData] = useState({
-    wastePercentage: 8,
-    topRecipes: [
-      { name: "Spaghetti Carbonara", count: 5 },
-      { name: "Pierogi ruskie", count: 4 },
-    ],
-    topCategories: [
-      { name: "Warzywa", spent: 120 },
-      { name: "Mięso", spent: 95 },
-    ],
-  });
-
-  const [resourcesData, setResourcesData] = useState({
-    ownRecipes: 2,
-    cartItems: 0,
-    purchasedCourses: 3,
-  });
+  const [orders] = useState<Order[]>(mockOrders); // В будущем из API
+  const [favoriteDishes] = useState(5); // В будущем из API
 
   useEffect(() => {
     if (!user) return;
@@ -72,6 +62,7 @@ export default function ProfilePage() {
 
   const handleEditProfile = () => {
     console.log("Edit profile clicked");
+    // В будущем открыть модалку редактирования
   };
 
   const handleSettings = () => {
@@ -109,120 +100,65 @@ export default function ProfilePage() {
     );
   }
 
+  // Вычисляем метрики
+  const totalOrders = orders.length;
+  const lastOrder = orders.length > 0 ? orders[0] : undefined;
+  const activeOrders = orders.filter(
+    (o) => o.status !== "completed" && o.status !== "cancelled"
+  ).length;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 py-6">
-        
-        {/* 🧠 Block 1: Identity (minimal, quiet) */}
-        <div className="mb-3 sm:mb-4">
-          <SimpleProfileHeader
+        {/* Header */}
+        <div className="mb-6">
+          <CustomerProfileHeader
             name={user.name || "User"}
             email={user.email || ""}
             avatar={user.avatar || "/default-avatar.png"}
-            level={user.level || 1}
-            chefTokens={user.chefTokens || 0}
             onEdit={handleEditProfile}
             onSettings={handleSettings}
           />
-          {/* Page Subtitle */}
           <motion.p
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-center text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-2 font-medium"
           >
-            {t?.profile?.page?.subtitle || "💼 Your kitchen management center"}
+            Ваш профиль покупателя
           </motion.p>
         </div>
 
-        {/* 🔥 Block 2: Hero KPI (Main Metrics - Oszczędzono is PRIMARY) */}
-        <div className="mb-3 sm:mb-4">
-          <HeroKPI
-            savedMoney={stats.savedMoney}
-            cookedRecipes={stats.cookedRecipes}
-            fridgeItems={stats.fridgeItems}
-            chefTokens={user.chefTokens || 0}
+        {/* Customer KPI Cards */}
+        <div className="mb-6">
+          <CustomerKPI
+            totalOrders={totalOrders}
+            lastOrder={lastOrder}
+            activeOrders={activeOrders}
+            favoriteDishes={favoriteDishes}
           />
         </div>
 
-        {/* 📈 Block 3: Progress & Control (Level + Budget) */}
-        <div className="mb-3 sm:mb-4">
-          <ProgressControl
-            level={user.level || 1}
-            xp={2450}
-            maxXp={5000}
-            weeklyBudget={overviewData.weeklyBudget}
-            weeklySpent={overviewData.weeklySpent}
-          />
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Orders Preview */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <OrdersPreview orders={orders} />
+          </motion.div>
+
+          {/* Notifications */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <NotificationsBlock />
+          </motion.div>
         </div>
-
-        {/* � Block 4: Collective Insight (AI-mediated social layer) */}
-        <div className="mb-4 sm:mb-6">
-          <CollectiveInsight userLevel={user.level || 1} />
-        </div>
-
-        {/* �🧭 Block 5: Tabs (Przegląd / Statystyki / Zasoby) */}
-        <div className="space-y-3 sm:space-y-4">
-          <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-          <AnimatePresence mode="wait">
-            {activeTab === "overview" && (
-              <motion.div
-                key="overview"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.2 }}
-              >
-                <OverviewTab
-                  level={user.level || 1}
-                  xp={2450}
-                  maxXp={5000}
-                  lastActions={overviewData.lastActions}
-                  weeklyBudget={overviewData.weeklyBudget}
-                  weeklySpent={overviewData.weeklySpent}
-                />
-              </motion.div>
-            )}
-
-            {activeTab === "stats" && (
-              <motion.div
-                key="stats"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.2 }}
-              >
-                <StatsTab
-                  weeklyBudget={overviewData.weeklyBudget}
-                  weeklySpent={overviewData.weeklySpent}
-                  wastePercentage={statsData.wastePercentage}
-                  topRecipes={statsData.topRecipes}
-                  topCategories={statsData.topCategories}
-                />
-              </motion.div>
-            )}
-
-            {activeTab === "resources" && (
-              <motion.div
-                key="resources"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.2 }}
-              >
-                <ResourcesTab
-                  savedRecipes={stats.savedRecipes}
-                  cookedRecipes={stats.cookedRecipes}
-                  ownRecipes={resourcesData.ownRecipes}
-                  cartItems={resourcesData.cartItems}
-                  purchasedCourses={resourcesData.purchasedCourses}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
       </div>
     </div>
   );

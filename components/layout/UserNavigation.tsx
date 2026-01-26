@@ -82,11 +82,12 @@ export default function UserNavigation() {
   }, [isOpen]);
 
   // 📍 Меню пользователя (новая архитектура 2026)
+  // Структура: Shopping → Profile → System Actions
   const navLinks: NavLink[] = [
-    // ===== MARKETPLACE =====
+    // ===== 🛒 SHOPPING (Блок 1) =====
     {
       label: t?.navigation?.menu?.marketplace?.label || "Marketplace",
-      href: "/customer/marketplace",
+      href: "/marketplace",
       icon: <ChefHat className="w-5 h-5" />,
       description: t?.navigation?.menu?.marketplace?.description || "Browse dishes and place orders",
       category: t?.navigation?.categories?.shopping || "Shopping",
@@ -94,24 +95,24 @@ export default function UserNavigation() {
     },
     {
       label: t?.navigation?.menu?.orders?.label || "My Orders",
-      href: "/customer/orders",
+      href: "/orders",
       icon: <Star className="w-5 h-5" />,
       description: t?.navigation?.menu?.orders?.description || "Order history and tracking",
       category: t?.navigation?.categories?.shopping || "Shopping",
     },
 
-    // ===== ПРОФІЛЬ =====
+    // ===== 👤 МОЙ ПРОФИЛЬ (Блок 2) =====
     {
-      label: t?.navigation?.menu?.profile?.label || "My Profile",
-      href: "/customer/profile",
+      label: t?.navigation?.menu?.profile?.label || "Мой профиль",
+      href: "/profile",
       icon: <UserIcon className="w-5 h-5" />,
-      description: t?.navigation?.menu?.profile?.description || "Settings and account",
+      description: t?.navigation?.menu?.profile?.description || "Dashboard and account overview",
       category: t?.navigation?.categories?.profile || "Profile",
       categoryLabel: `👤 ${t?.navigation?.menu?.profile?.label || "Profile"}`,
     },
     {
       label: t?.navigation?.menu?.settings?.label || "Settings",
-      href: "/customer/profile/settings",
+      href: "/profile/settings",
       icon: <Settings className="w-5 h-5" />,
       description: t?.navigation?.menu?.settings?.description || "Preferences and notifications",
       category: t?.navigation?.categories?.profile || "Profile",
@@ -165,7 +166,7 @@ export default function UserNavigation() {
 
           {/* Logo */}
           <Link
-            href="/customer/marketplace"
+            href="/marketplace"
             className="flex items-center gap-2 font-bold text-sm tracking-tight hover:opacity-80 transition group"
           >
             <motion.div

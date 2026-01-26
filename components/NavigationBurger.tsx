@@ -443,7 +443,7 @@ export default function NavigationBurger() {
                   <>
                     <motion.div
                       whileHover={{ scale: 1.02 }}
-                      onClick={() => handleLinkClick(user.role === "super_admin" ? "/admin/dashboard" : "/customer/profile")}
+                      onClick={() => handleLinkClick(user.role === "super_admin" ? "/admin/dashboard" : "/profile")}
                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-sky-500/10 to-cyan-500/10 border-2 border-sky-500/50 hover:border-sky-500 cursor-pointer transition-all"
                     >
                       {user.avatar ? (

@@ -14,12 +14,22 @@ import type { UserSettings, PartialSettings } from "@/lib/types/settings";
  * @throws Error if request fails
  */
 export async function getSettings(): Promise<UserSettings> {
+  // Get token from localStorage
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+  
+  // Add Authorization header if token is available
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  
   // Use Next.js API route to avoid CORS
   const response = await fetch("/api/settings", {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     credentials: "include",
   });
 
@@ -51,12 +61,22 @@ export async function updateSettings(
 ): Promise<UserSettings> {
   console.log(`🌐 [API] updateSettings called with:`, settings);
   
+  // Get token from localStorage
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+  
+  // Add Authorization header if token is available
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  
   // Use Next.js API route to avoid CORS
   const response = await fetch("/api/settings", {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     credentials: "include",
     body: JSON.stringify(settings),
   });

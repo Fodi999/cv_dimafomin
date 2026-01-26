@@ -16,6 +16,9 @@ import {
   AIPreferencesSection,
   NotificationSettingsSection,
 } from "@/components/profile/settings";
+import CustomerAIPreferencesSection from "@/components/profile/settings/CustomerAIPreferencesSection";
+import CustomerNotificationSettingsSection from "@/components/profile/settings/CustomerNotificationSettingsSection";
+import { useSession } from "@/contexts/SessionContext";
 import { motion } from "framer-motion";
 
 type SettingsSection = 
@@ -27,7 +30,10 @@ export default function SettingsPage() {
   const router = useRouter();
   const { isLoaded, isUpdating } = useSettings();
   const { t } = useLanguage();
+  const { session } = useSession();
   const [activeSection, setActiveSection] = useState<SettingsSection>("core");
+  
+  const isCustomerMode = session?.mode === 'customer';
 
   if (!isLoaded) {
     return (
@@ -43,15 +49,15 @@ export default function SettingsPage() {
   const sections = [
     { 
       id: "core", 
-      label: t?.profile?.settings?.sections?.core?.label || "Core", 
+      label: t?.profile?.settings?.sections?.core?.label || "Основные", 
       icon: Settings, 
-      description: t?.profile?.settings?.sections?.core?.description || "Language, time, units" 
+      description: isCustomerMode ? "Язык и время" : (t?.profile?.settings?.sections?.core?.description || "Language, time, units")
     },
     { 
       id: "ai", 
-      label: t?.profile?.settings?.sections?.ai?.label || "AI & Mentor", 
+      label: isCustomerMode ? "AI & Assistant" : (t?.profile?.settings?.sections?.ai?.label || "AI & Mentor"), 
       icon: Bot, 
-      description: t?.profile?.settings?.sections?.ai?.description || "Assistant style" 
+      description: isCustomerMode ? "Тон общения и подсказки" : (t?.profile?.settings?.sections?.ai?.description || "Assistant style")
     },
     { 
       id: "notifications", 
@@ -156,15 +162,23 @@ export default function SettingsPage() {
               {activeSection === "core" && <CoreSettingsSection />}
 
               {activeSection === "ai" && (
-                <div className="text-center py-12 text-gray-500">
-                  AI Preferences - TODO: Update to use SettingsContext
-                </div>
+                isCustomerMode ? (
+                  <CustomerAIPreferencesSection />
+                ) : (
+                  <div className="text-center py-12 text-gray-500">
+                    AI Preferences - TODO: Update to use SettingsContext
+                  </div>
+                )
               )}
 
               {activeSection === "notifications" && (
-                <div className="text-center py-12 text-gray-500">
-                  Notifications - TODO: Update to use SettingsContext
-                </div>
+                isCustomerMode ? (
+                  <CustomerNotificationSettingsSection />
+                ) : (
+                  <div className="text-center py-12 text-gray-500">
+                    Notifications - TODO: Update to use SettingsContext
+                  </div>
+                )
               )}
             </motion.div>
           </div>

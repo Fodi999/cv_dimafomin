@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { RecipeProvider } from "@/contexts/RecipeContext";
+import { CartProvider } from "@/contexts/CartContext";
 import { Loader } from "lucide-react";
 import UserNavigation from "@/components/layout/UserNavigation";
 
@@ -103,5 +104,9 @@ export default function AppLayout({
   }
 
   console.log("✅ RecipeProvider: ENABLED on", pathname);
-  return <RecipeProvider>{content}</RecipeProvider>;
+  return (
+    <CartProvider>
+      <RecipeProvider>{content}</RecipeProvider>
+    </CartProvider>
+  );
 }

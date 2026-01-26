@@ -3,9 +3,12 @@
 import { Globe, Clock, Scale } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSession } from "@/contexts/SessionContext";
 import type { Language, TimeFormat, Units } from "@/lib/types/settings";
 
 export default function CoreSettingsSection() {
+  const { session } = useSession();
+  const isCustomerMode = session?.mode === 'customer';
   const { settings, updateSettings, isUpdating } = useSettings();
   const { t, language, setLanguage } = useLanguage();
 
@@ -150,45 +153,47 @@ export default function CoreSettingsSection() {
         </div>
       </div>
 
-      {/* Unit System */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Scale className="w-5 h-5 text-purple-500" />
-          <label className="text-sm font-semibold text-gray-900 dark:text-white">
-            {t?.profile?.settings?.general?.units || "Jednostki"}
-          </label>
+      {/* Unit System - Hidden for Customer Mode */}
+      {!isCustomerMode && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Scale className="w-5 h-5 text-purple-500" />
+            <label className="text-sm font-semibold text-gray-900 dark:text-white">
+              {t?.profile?.settings?.general?.units || "Jednostki"}
+            </label>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {(["metric", "kitchen"] as Units[]).map((system) => {
+              const isActive = settings.units === system;
+              const labels = {
+                metric: t?.profile?.settings?.general?.unitsMetric || "Metryczne (g, ml)",
+                kitchen: t?.profile?.settings?.general?.unitsKitchen || "Kuchenne (szklanki, łyżki)",
+              };
+              
+              return (
+                <button
+                  key={system}
+                  onClick={() => handleUnitsChange(system)}
+                  disabled={isUpdating}
+                  className={`
+                    px-4 py-3 rounded-xl border-2 text-sm font-medium
+                    transition-all duration-200 disabled:opacity-50
+                    ${isActive
+                      ? "border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-700 dark:text-purple-300 shadow-md"
+                      : "border-gray-200 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-500 text-gray-700 dark:text-gray-300"
+                    }
+                  `}
+                >
+                  {labels[system]}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            📌 {t?.profile?.settings?.general?.unitsDescription || "Ważne dla przepisów i AI"}
+          </p>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          {(["metric", "kitchen"] as Units[]).map((system) => {
-            const isActive = settings.units === system;
-            const labels = {
-              metric: t?.profile?.settings?.general?.unitsMetric || "Metryczne (g, ml)",
-              kitchen: t?.profile?.settings?.general?.unitsKitchen || "Kuchenne (szklanki, łyżki)",
-            };
-            
-            return (
-              <button
-                key={system}
-                onClick={() => handleUnitsChange(system)}
-                disabled={isUpdating}
-                className={`
-                  px-4 py-3 rounded-xl border-2 text-sm font-medium
-                  transition-all duration-200 disabled:opacity-50
-                  ${isActive
-                    ? "border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-700 dark:text-purple-300 shadow-md"
-                    : "border-gray-200 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-500 text-gray-700 dark:text-gray-300"
-                  }
-                `}
-              >
-                {labels[system]}
-              </button>
-            );
-          })}
-        </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          📌 {t?.profile?.settings?.general?.unitsDescription || "Ważne dla przepisów i AI"}
-        </p>
-      </div>
+      )}
 
       <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
         <p className="text-sm text-gray-600 dark:text-gray-400">
