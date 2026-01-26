@@ -12,6 +12,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { isValidJWT } from "@/lib/auth/jwt-utils";
 
 /**
  * Generate unique request ID (UUID v4)
@@ -99,24 +100,31 @@ export async function proxyToBackend<T = any>(
   try {
     // 1. Extract auth token from cookies (Next.js 15 syntax)
     let token: string | undefined;
-    
+
+    // Extract token (always try to get it, even if skipAuth for optional auth)
     if (!options.skipAuth) {
       const cookieStore = await cookies();
       token = cookieStore.get('token')?.value;
-      
-      console.log(`[Proxy] ${requestId} 🔑 Token from cookies:`, token ? `${token.substring(0, 20)}...` : 'MISSING');
       
       if (!token) {
         // Check Authorization header as fallback
         const authHeader = request.headers.get('Authorization');
         if (authHeader?.startsWith('Bearer ')) {
           token = authHeader.substring(7);
-          console.log(`[Proxy] ${requestId} 🔑 Token from Authorization header:`, token ? `${token.substring(0, 20)}...` : 'MISSING');
         }
       }
       
+      // Проверяем валидность токена
+      if (token && !isValidJWT(token)) {
+        console.warn(`[Proxy] ${requestId} ⚠️ Invalid token format (length: ${token.length}), rejecting`);
+        token = undefined;
+      }
+      
+      console.log(`[Proxy] ${requestId} 🔑 Token from cookies/header:`, token ? `${token.substring(0, 20)}...` : 'MISSING');
+      
+      // Require auth if skipAuth is false AND no valid token found
       if (!token) {
-        console.error(`[Proxy] ${requestId} ❌ No auth token found`);
+        console.error(`[Proxy] ${requestId} ❌ No valid auth token found (auth required)`);
         return NextResponse.json({
           success: false,
           error: {
@@ -125,6 +133,29 @@ export async function proxyToBackend<T = any>(
             request_id: requestId
           }
         }, { status: 401 });
+      }
+    } else {
+      // skipAuth: true - try to get token for optional auth, but don't require it
+      const cookieStore = await cookies();
+      token = cookieStore.get('token')?.value;
+      
+      if (!token) {
+        const authHeader = request.headers.get('Authorization');
+        if (authHeader?.startsWith('Bearer ')) {
+          token = authHeader.substring(7);
+        }
+      }
+      
+      // Проверяем что токен валидный JWT перед использованием
+      if (token && !isValidJWT(token)) {
+        console.warn(`[Proxy] ${requestId} ⚠️ Invalid token format (length: ${token.length}), skipping`);
+        token = undefined; // Не используем невалидный токен
+      }
+      
+      if (token) {
+        console.log(`[Proxy] ${requestId} 🔑 Optional token found:`, `${token.substring(0, 20)}...`);
+      } else {
+        console.log(`[Proxy] ${requestId} ℹ️ No token (optional auth - continuing)`);
       }
     }
     

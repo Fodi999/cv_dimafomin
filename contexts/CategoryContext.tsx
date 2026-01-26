@@ -29,15 +29,11 @@ export function CategoryProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       setError(null);
       
-      const token = localStorage.getItem('token');
-      if (!token) {
-        console.log('[CategoryContext] No token available, will try without auth');
-      }
-      
-      // Pass token or null (not empty string) - fetchCategories handles both cases
-      const data = await fetchCategories(language, token || null);
+      // ✅ 2026: Backend исправлен - категории загружаются из API
+      // Публичный endpoint, не требует авторизацию
+      const data = await fetchCategories(language);
       setCategories(data);
-      console.log(`[CategoryContext] Loaded ${data.length} categories for language: ${language}`);
+      console.log(`[CategoryContext] ✅ Loaded ${data.length} categories for language: ${language}`);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load categories';
       console.error('[CategoryContext] Error loading categories:', err);

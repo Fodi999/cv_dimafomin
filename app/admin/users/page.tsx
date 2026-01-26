@@ -6,43 +6,39 @@ import { UsersFilters } from "@/components/admin/users/UsersFilters";
 import { UsersTable, User } from "@/components/admin/users/UsersTable";
 import { UserViewModal } from "@/components/admin/users/UserViewModal";
 import { UserEditModal } from "@/components/admin/users/UserEditModal";
+import { UserDeleteDialog } from "@/components/admin/users/UserDeleteDialog";
 import {
   useAdminUsers,
   useAdminUserDetails,
   useAdminUserActions,
   useAdminUsersStats,
+  useAdminDeleteUser,
 } from "@/hooks/useAdminUsers";
 import { Info, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext"; // ✅ Для проверки роли super_admin
 
-// Map backend roles to frontend roles: premium → user, super_admin → super_admin
-const mapRoleToFrontend = (role: string): "user" | "admin" | "super_admin" => {
-  if (role === "super_admin" || role === "superadmin") return "super_admin";
-  if (role === "admin") return "admin";
-  return "user"; // premium, user, home_chef → user
-};
-
-// Map frontend roles back to backend roles for API calls
-const mapRoleToBackend = (role: "user" | "admin" | "super_admin"): "user" | "admin" | "premium" => {
-  if (role === "super_admin") return "admin"; // Temporary: backend doesn't have super_admin yet
-  if (role === "admin") return "admin";
-  return "user"; // user → user (or could be "premium" if needed)
-};
+// ✅ 2026: Auth роли (без маппинга - backend уже использует правильные роли)
+type UserRole = "customer" | "home_chef" | "chef_staff" | "admin" | "super_admin";
 
 export default function AdminUsersPage() {
   const { t } = useLanguage();
+  const { user: currentUser, reloadMe } = useAuth(); // ✅ Для проверки роли и перезагрузки
   // API Integration
   const { users, meta, isLoading, filters, updateFilters, refetch } =
     useAdminUsers();
   const { stats, isLoading: isStatsLoading, refetch: refetchStats } = useAdminUsersStats();
   const { changeRole, changeStatus } = useAdminUserActions();
+  const { deleteUser } = useAdminDeleteUser();
 
   // Modals
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   const { user: selectedUserDetails, isLoading: isUserLoading } =
     useAdminUserDetails(selectedUserId);
@@ -54,13 +50,13 @@ export default function AdminUsersPage() {
         id: selectedUserDetails.id,
         name: selectedUserDetails.name,
         email: selectedUserDetails.email,
-        role: mapRoleToFrontend(selectedUserDetails.role),
+        role: selectedUserDetails.role as UserRole, // ✅ 2026: Напрямую используем роль из backend
         status: selectedUserDetails.status,
         joinedAt: selectedUserDetails.joinedAt,
         lastActiveAt: selectedUserDetails.lastActiveAt,
         phone: selectedUserDetails.phone,
-        ordersCount: selectedUserDetails.stats.ordersCount,
-        totalSpent: selectedUserDetails.stats.totalSpent,
+        ordersCount: selectedUserDetails.stats?.ordersCount || 0,
+        totalSpent: selectedUserDetails.stats?.totalSpent || 0,
       }
     : null;
 
@@ -88,14 +84,35 @@ export default function AdminUsersPage() {
 
     // Check if role changed
     if (updates.role && originalUser.role !== updates.role) {
-      // Map frontend role to backend role before sending
-      const backendRole = mapRoleToBackend(updates.role);
-      success = await changeRole(userId, backendRole);
+      // ✅ 2026: Отправляем роль напрямую (без маппинга)
+      success = await changeRole(userId, updates.role as any);
+      
+      // 🔥 КЛЮЧЕВО: Если админ меняет СВОЮ роль
+      if (success && userId === currentUser?.id) {
+        console.log("[AdminUsersPage] 🔄 Admin changed own role, reloading user data");
+        await reloadMe();
+        
+        // ✅ Используем resolveUserRoute для определения маршрута
+        const { resolveUserRoute } = await import("@/lib/auth/resolveUserRoute");
+        const newRoute = resolveUserRoute(currentUser);
+        window.location.href = newRoute; // Hard redirect для полного обновления UI
+      }
     }
 
     // Check if status changed
     if (updates.status && originalUser.status !== updates.status) {
       success = await changeStatus(userId, updates.status);
+      
+      // 🔥 КЛЮЧЕВО: Если админ меняет СВОЙ статус
+      if (success && userId === currentUser?.id) {
+        console.log("[AdminUsersPage] 🔄 Admin changed own status, reloading user data");
+        await reloadMe();
+        
+        // ✅ Перенаправляем на правильный маршрут
+        const { resolveUserRoute } = await import("@/lib/auth/resolveUserRoute");
+        const newRoute = resolveUserRoute(currentUser);
+        window.location.href = newRoute; // Hard redirect
+      }
     }
 
     if (success) {
@@ -114,6 +131,25 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleDelete = (user: User) => {
+    setUserToDelete(user);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return;
+
+    const success = await deleteUser(userToDelete.id);
+    
+    if (success) {
+      setIsDeleteDialogOpen(false);
+      setUserToDelete(null);
+      refetch(); // Refresh users list
+      refetchStats(); // Refresh stats
+      toast.success("Користувача успішно видалено");
+    }
+  };
+
   const handleExport = () => {
     toast.info(t.admin.users.export);
   };
@@ -123,7 +159,7 @@ export default function AdminUsersPage() {
     id: user.id,
     name: user.name,
     email: user.email,
-    role: mapRoleToFrontend(user.role),
+    role: user.role as UserRole, // ✅ 2026: Напрямую используем роль из backend
     status: user.status,
     joinedAt: user.joinedAt,
     lastActiveAt: user.lastActiveAt,
@@ -185,6 +221,7 @@ export default function AdminUsersPage() {
           onView={handleView}
           onEdit={handleEdit}
           onToggleBlock={handleToggleBlock}
+          onDelete={currentUser?.role === "super_admin" ? handleDelete : undefined}
         />
       )}
 
@@ -225,6 +262,15 @@ export default function AdminUsersPage() {
           setIsEditModalOpen(false);
           setSelectedUserId(null);
         }}
+      />
+
+      {/* Delete Dialog */}
+      <UserDeleteDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        userName={userToDelete?.name || ""}
+        userEmail={userToDelete?.email || ""}
       />
     </div>
   );

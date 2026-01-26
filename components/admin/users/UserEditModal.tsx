@@ -122,14 +122,16 @@ export function UserEditModal({
                 <SelectValue placeholder="Оберіть роль" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="user">👤 Користувач</SelectItem>
-                <SelectItem value="premium">✨ Преміум</SelectItem>
-                <SelectItem value="admin">🛡️ Адміністратор</SelectItem>
+                <SelectItem value="customer">👤 Customer (Покупатель)</SelectItem>
+                <SelectItem value="home_chef">👨‍🍳 Home Chef (Домашній кухар)</SelectItem>
+                <SelectItem value="chef_staff">👔 Chef Staff (Персонал кухаря)</SelectItem>
+                <SelectItem value="admin">🛡️ Admin (Адміністратор)</SelectItem>
+                <SelectItem value="super_admin">👑 Super Admin (Власник системи)</SelectItem>
               </SelectContent>
             </Select>
-            {formData.role === "admin" && formData.role !== user.role && (
+            {(formData.role === "admin" || formData.role === "super_admin") && formData.role !== user.role && (
               <p className="text-xs text-orange-600 dark:text-orange-400">
-                ⚠️ Увага: Ви надаєте права адміністратора
+                ⚠️ Увага: Ви надаєте права {formData.role === "super_admin" ? "супер-" : ""}адміністратора
               </p>
             )}
           </div>

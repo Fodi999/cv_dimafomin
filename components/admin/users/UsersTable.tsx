@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, Edit, Shield, Ban, Unlock, MoreVertical, User as UserIcon, Crown } from "lucide-react";
+import { Eye, Edit, Shield, Ban, Unlock, MoreVertical, User as UserIcon, Crown, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,14 +28,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
 
+// ✅ 2026: Auth роли (соответствуют backend)
+export type UserRole = "customer" | "home_chef" | "chef_staff" | "admin" | "super_admin";
+export type UserStatus = "pending" | "active" | "suspended" | "blocked";
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: "user" | "admin" | "super_admin";
-  status: "active" | "blocked" | "pending"; // 🔥 Права пользователя
+  role: UserRole; // ✅ 2026: Auth роли
+  status: UserStatus; // ✅ 2026: Auth статусы
   joinedAt: string;
-  lastActiveAt: string; // 🔥 Поведение (активность)
+  lastActiveAt: string;
   phone?: string;
   ordersCount: number;
   totalSpent: number;
@@ -46,35 +50,49 @@ interface UserCardProps {
   onView: (user: User) => void;
   onEdit: (user: User) => void;
   onToggleBlock: (user: User) => void;
+  onDelete?: (user: User) => void; // ✅ Optional - только для super_admin
   index: number;
 }
 
 // 📱 Mobile Card Component
-function UserCard({ user, onView, onEdit, onToggleBlock, index }: UserCardProps) {
+function UserCard({ user, onView, onEdit, onToggleBlock, onDelete, index }: UserCardProps) {
   const { t } = useLanguage();
   
+  // ✅ 2026: Auth роли
   const getRoleBadge = (role: string) => {
     const variants = {
-      user: { 
-        label: t.admin.users.roles.user, 
+      customer: { 
+        label: "👤 Customer", 
         variant: "secondary" as const,
         icon: <UserIcon className="w-3 h-3 text-gray-600 dark:text-gray-400" />,
-        tooltip: "Права доступа: обычный пользователь"
+        tooltip: "Покупатель (базовый доступ)"
+      },
+      home_chef: { 
+        label: "👨‍🍳 Home Chef", 
+        variant: "default" as const,
+        icon: <UserIcon className="w-3 h-3 text-orange-600 dark:text-orange-500" />,
+        tooltip: "Домашний повар (кухня, AI, бюджет)"
+      },
+      chef_staff: { 
+        label: "👔 Chef Staff", 
+        variant: "default" as const,
+        icon: <UserIcon className="w-3 h-3 text-blue-600 dark:text-blue-500" />,
+        tooltip: "Персонал повара (помощь home_chef)"
       },
       admin: { 
-        label: t.admin.users.roles.admin, 
+        label: "🛡️ Admin", 
         variant: "default" as const,
         icon: <Shield className="w-3 h-3 text-blue-600 dark:text-blue-500" />,
-        tooltip: "Права доступа: админ кухни / бизнеса"
+        tooltip: "Администратор (управление системой)"
       },
       super_admin: { 
         label: "👑 Super Admin", 
         variant: "destructive" as const,
         icon: <Crown className="w-3 h-3 text-purple-600 dark:text-purple-500" />,
-        tooltip: "Права доступа: владелец платформы"
+        tooltip: "Владелец платформы (полный доступ)"
       },
     };
-    return variants[role as keyof typeof variants] || variants.user;
+    return variants[role as keyof typeof variants] || variants.customer;
   };
 
   const getStatusBadge = (status: string) => {
@@ -173,6 +191,18 @@ function UserCard({ user, onView, onEdit, onToggleBlock, index }: UserCardProps)
                 </>
               )}
             </DropdownMenuItem>
+            {onDelete && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => onDelete(user)}
+                  className="text-red-600 dark:text-red-400"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  {t.admin.users.actions.delete || "Delete"}
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -226,30 +256,42 @@ interface UserRowProps {
   onView: (user: User) => void;
   onEdit: (user: User) => void;
   onToggleBlock: (user: User) => void;
+  onDelete?: (user: User) => void; // ✅ Optional - только для super_admin
 }
 
-function UserRow({ user, onView, onEdit, onToggleBlock }: UserRowProps) {
+function UserRow({ user, onView, onEdit, onToggleBlock, onDelete }: UserRowProps) {
   const { t } = useLanguage();
   
+  // ✅ 2026: Auth роли
   const getRoleBadge = (role: string) => {
     const variants = {
-      user: { 
-        label: t.admin.users.roles.user, 
+      customer: { 
+        label: "👤 Customer", 
         variant: "secondary" as const,
-        tooltip: "Права доступа: обычный пользователь"
+        tooltip: "Покупатель (базовый доступ)"
+      },
+      home_chef: { 
+        label: "👨‍🍳 Home Chef", 
+        variant: "default" as const,
+        tooltip: "Домашний повар (кухня, AI, бюджет)"
+      },
+      chef_staff: { 
+        label: "👔 Chef Staff", 
+        variant: "default" as const,
+        tooltip: "Персонал повара (помощь home_chef)"
       },
       admin: { 
-        label: t.admin.users.roles.admin, 
+        label: "🛡️ Admin", 
         variant: "default" as const,
-        tooltip: "Права доступа: админ кухни / бизнеса"
+        tooltip: "Администратор (управление системой)"
       },
       super_admin: { 
         label: "👑 Super Admin", 
         variant: "destructive" as const,
-        tooltip: "Права доступа: владелец платформы"
+        tooltip: "Владелец платформы (полный доступ)"
       },
     };
-    return variants[role as keyof typeof variants] || variants.user;
+    return variants[role as keyof typeof variants] || variants.customer;
   };
 
   const getStatusBadge = (status: string) => {
@@ -395,6 +437,18 @@ function UserRow({ user, onView, onEdit, onToggleBlock }: UserRowProps) {
                 </>
               )}
             </DropdownMenuItem>
+            {onDelete && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => onDelete(user)}
+                  className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  {t.admin.users.actions.delete || "Delete"}
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </TableCell>
@@ -408,6 +462,7 @@ interface UsersTableProps {
   onView: (user: User) => void;
   onEdit: (user: User) => void;
   onToggleBlock: (user: User) => void;
+  onDelete?: (user: User) => void; // ✅ Optional - только для super_admin
 }
 
 /**
@@ -421,6 +476,7 @@ export function UsersTable({
   onView,
   onEdit,
   onToggleBlock,
+  onDelete,
 }: UsersTableProps) {
   const { t } = useLanguage();
   
@@ -485,6 +541,7 @@ export function UsersTable({
             onView={onView}
             onEdit={onEdit}
             onToggleBlock={onToggleBlock}
+            onDelete={onDelete}
             index={index}
           />
         ))}
@@ -511,6 +568,7 @@ export function UsersTable({
                 onView={onView}
                 onEdit={onEdit}
                 onToggleBlock={onToggleBlock}
+                onDelete={onDelete}
               />
             ))}
           </TableBody>

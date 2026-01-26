@@ -49,15 +49,40 @@ export function UserDeleteDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         
-        {/* Warning block outside of <p> tag */}
+        {/* ⚠️ Критическое предупреждение */}
         <div className="px-6 pb-2">
-          <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-md">
-            <p className="text-sm font-medium text-red-800 dark:text-red-300">
-              {t.admin.users.actions.deleteWarning}
+          <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-md">
+            <p className="text-sm font-bold text-red-800 dark:text-red-300 mb-3">
+              ⚠️ {t.admin.users.actions.deleteWarning || "УВАГА: Ця дія НЕ МОЖЕ бути скасована!"}
             </p>
-            <ul className="mt-2 text-xs text-red-700 dark:text-red-400 space-y-1 list-disc list-inside">
-              <li>{t.admin.users.actions.deleteConsequences}</li>
+            
+            <p className="text-xs font-medium text-red-700 dark:text-red-400 mb-2">
+              🗑️ Що буде видалено (каскадне видалення):
+            </p>
+            <ul className="text-xs text-red-700 dark:text-red-400 space-y-1 list-disc list-inside ml-2">
+              <li>Профіль користувача</li>
+              <li>Холодильник (fridge_items)</li>
+              <li>Сповіщення (notifications)</li>
+              <li>Токен банк (token_bank)</li>
+              <li>Меню користувача (user_menu_items)</li>
+              <li>Сесії рецептів (recipe_sessions)</li>
+              <li>Збережені рецепти (saved_recipes)</li>
+              <li>Історія приготування (cook_log)</li>
             </ul>
+            
+            <p className="text-xs font-medium text-red-700 dark:text-red-400 mt-3 mb-2">
+              📝 Що залишиться (SET NULL):
+            </p>
+            <ul className="text-xs text-red-700 dark:text-red-400 space-y-1 list-disc list-inside ml-2">
+              <li>Рецепти користувача (author_id = NULL)</li>
+              <li>Транзакції токенів (user_id = NULL)</li>
+            </ul>
+
+            <div className="mt-3 p-2 bg-red-100 dark:bg-red-900/40 rounded border border-red-300 dark:border-red-800">
+              <p className="text-xs font-bold text-red-900 dark:text-red-200">
+                💡 Рекомендація: Замість видалення використовуйте "Block" (можна відновити)
+              </p>
+            </div>
           </div>
         </div>
         <AlertDialogFooter>

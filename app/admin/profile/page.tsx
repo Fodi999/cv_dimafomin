@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useUser } from "@/contexts/SessionContext";
+import { useAuth } from "@/contexts/AuthContext"; // ✅ 2026: Для отображения role и status
 import { useRouter } from "next/navigation";
 import { 
   ArrowLeft, 
@@ -14,9 +15,73 @@ import {
   Camera,
   Save,
   Eye,
-  EyeOff
+  EyeOff,
+  Crown,
+  CheckCircle,
+  AlertTriangle,
+  Ban,
+  XCircle
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
+
+// ✅ 2026: Конфигурация ролей
+function getRoleConfig(role: string) {
+  switch (role) {
+    case "super_admin":
+      return { label: "Super Admin", variant: "destructive" as const, icon: Crown };
+    case "admin":
+      return { label: "Адміністратор", variant: "default" as const, icon: Shield };
+    case "home_chef":
+      return { label: "Домашній кухар", variant: "default" as const, icon: User };
+    case "chef_staff":
+      return { label: "Персонал кухні", variant: "default" as const, icon: User };
+    case "customer":
+    default:
+      return { label: "Покупець", variant: "secondary" as const, icon: User };
+  }
+}
+
+// ✅ 2026: Конфигурация статусов
+function getStatusConfig(status: string) {
+  switch (status) {
+    case "active":
+      return { 
+        label: "Активний", 
+        variant: "default" as const,
+        className: "bg-green-100 text-green-800 border-green-300", 
+        icon: CheckCircle 
+      };
+    case "pending":
+      return { 
+        label: "Очікує підтвердження", 
+        variant: "default" as const,
+        className: "bg-yellow-100 text-yellow-800 border-yellow-300", 
+        icon: Clock 
+      };
+    case "suspended":
+      return { 
+        label: "Призупинено", 
+        variant: "default" as const,
+        className: "bg-orange-100 text-orange-800 border-orange-300", 
+        icon: AlertTriangle 
+      };
+    case "blocked":
+      return { 
+        label: "Заблоковано", 
+        variant: "default" as const,
+        className: "bg-red-100 text-red-800 border-red-300", 
+        icon: Ban 
+      };
+    default:
+      return { 
+        label: "Невідомий", 
+        variant: "secondary" as const,
+        className: "", 
+        icon: AlertTriangle 
+      };
+  }
+}
 
 /**
  * Admin Profile - Личная зона администратора
@@ -30,7 +95,11 @@ import { motion } from "framer-motion";
  */
 export default function AdminProfile() {
   const { user, updateProfile } = useUser();
+  const { user: authUser, reloadMe } = useAuth(); // ✅ 2026: Для роли и статуса
   const router = useRouter();
+  
+  const roleConfig = getRoleConfig(authUser?.role || "customer");
+  const statusConfig = getStatusConfig(authUser?.status || "active");
   
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -74,20 +143,41 @@ export default function AdminProfile() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <button
-            onClick={() => router.back()}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Мій профіль
-            </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Персональні налаштування адміністратора
-            </p>
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.back()}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Мій профіль
+              </h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {user?.email}
+              </p>
+            </div>
+          </div>
+          
+          {/* ✅ 2026: Роль и статус из AuthContext */}
+          <div className="flex items-center gap-2">
+            <Badge variant={roleConfig.variant} className="flex items-center gap-1">
+              <roleConfig.icon className="w-3 h-3" />
+              {roleConfig.label}
+            </Badge>
+            <Badge variant={statusConfig.variant} className={statusConfig.className}>
+              <statusConfig.icon className="w-3 h-3 mr-1" />
+              {statusConfig.label}
+            </Badge>
+            <button
+              onClick={reloadMe}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              title="Оновити дані профілю"
+            >
+              🔄
+            </button>
           </div>
         </div>
       </div>

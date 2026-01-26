@@ -1,20 +1,24 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { useAuth } from "./AuthContext";
+import { useAuth, type User as AuthUser } from "./AuthContext";
 
 /**
  * 🔐 SESSION CONTEXT - ChefOS Architecture 2026
  * 
- * Определяет режим работы приложения:
- * - ADMIN MODE: super_admin (владелец бизнеса)
- * - CUSTOMER MODE: customer (покупатель)
+ * ✅ ПРАВИЛО 2026: Единственный источник данных — AuthContext
+ * ❌ НЕ ВЫЧИСЛЯЕТ роли
+ * ❌ НЕ ВЫЗЫВАЕТ /api/user/profile
+ * ✅ Только проецирует состояние из AuthContext
  * 
- * Это НЕ два приложения, а две зоны доступа в одном UI.
+ * SessionContext добавляет:
+ * - Расширенные данные профиля (name, avatar, tokens)
+ * - Управление токенами (deduct/add)
+ * - Обновление профиля
  */
 
-export type UserRole = 'super_admin' | 'customer';
-export type AppMode = 'admin' | 'customer';
+export type UserRole = AuthUser["role"]; // ✅ Используем типы из AuthContext
+export type AppMode = 'admin' | 'customer' | 'chef';
 
 interface SessionUser {
   id: string;
@@ -60,149 +64,103 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
 
-  // 🔄 Fetch profile when authenticated
+  // ✅ 2026: Sync with AuthContext (no API calls)
+  // КРИТИЧНО: Обновляется КАЖДЫЙ РАЗ при изменении auth.user (для reloadMe())
   useEffect(() => {
-    if (!auth.isAuthenticated) {
+    if (!auth.isAuthenticated || !auth.user) {
       setSession(null);
       setProfileLoaded(false);
       return;
     }
 
-    if (profileLoaded) {
-      console.log("[SessionContext] ℹ️ Profile already loaded, skipping");
-      return;
-    }
-
-    fetchProfile();
+    // ✅ 2026: ВСЕГДА обновляем session при изменении auth.user
+    // Убрали проверку profileLoaded - это важно для reloadMe()
+    console.log("[SessionContext] 🔄 AuthContext.user changed, updating session");
+    createSessionFromAuth();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auth.isAuthenticated]);
+  }, [auth.user]); // ✅ Зависимость ТОЛЬКО от auth.user
 
-  const fetchProfile = async () => {
-    if (!auth.token) return;
+  /**
+   * ✅ 2026: Create session from AuthContext (no API calls, no role mapping)
+   * 
+   * ПРАВИЛО: НЕ ВЫЧИСЛЯЕМ роли, только читаем из AuthContext
+   */
+  const createSessionFromAuth = () => {
+    if (!auth.user) return;
 
     setIsLoading(true);
-    console.log("[SessionContext] 📥 Fetching profile from database...");
+    console.log("[SessionContext] 📥 Creating session from AuthContext");
 
     try {
-      const response = await fetch(`/api/user/profile`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        
-        if (errorData.error?.code === 'UNAUTHORIZED' || errorData.error?.code === 'FORBIDDEN') {
-          console.warn("[SessionContext] ⚠️ Authentication failed, logging out");
-          auth.logout();
-          return;
+      // ✅ Берем роль напрямую из AuthContext (единственный источник правды)
+      const authUser = auth.user;
+      
+      // Try to load extended data from localStorage cache
+      const cachedUser = typeof window !== "undefined" 
+        ? localStorage.getItem("user") 
+        : null;
+      
+      let extendedData: any = {};
+      if (cachedUser) {
+        try {
+          extendedData = JSON.parse(cachedUser);
+        } catch (e) {
+          console.warn("[SessionContext] Failed to parse cached user data");
         }
-        
-        throw new Error(`Profile fetch failed: ${errorData.error?.message || response.status}`);
-      }
-
-      const profileData = await response.json();
-      const userData = profileData.data || profileData;
-
-      console.log("[SessionContext] 🔍 User data from backend:", {
-        email: userData.email,
-        role: userData.role,
-        hasRole: !!userData.role,
-      });
-
-      // 🎯 Map backend role to ChefOS roles
-      let mappedRole: UserRole = 'customer';
-      if (userData.role === 'superadmin' || userData.role === 'super_admin') {
-        mappedRole = 'super_admin';
       }
 
       const user: SessionUser = {
-        id: userData.id || userData.userId,
-        email: userData.email,
-        name: userData.name || null,
-        avatar: userData.avatar || null,
-        role: mappedRole,
-        level: userData.level,
-        xp: userData.xp,
-        chefTokens: userData.chefTokens,
-        bio: userData.bio,
-        location: userData.location,
-        phone: userData.phone,
-        instagram: userData.instagram,
-        telegram: userData.telegram,
-        whatsapp: userData.whatsapp,
+        id: authUser.id,
+        email: authUser.email,
+        name: extendedData.name || null,
+        avatar: extendedData.avatar || null,
+        role: authUser.role, // ✅ Напрямую из AuthContext, без вычислений
+        level: extendedData.level,
+        xp: extendedData.xp,
+        chefTokens: extendedData.chefTokens,
+        bio: extendedData.bio,
+        location: extendedData.location,
+        phone: extendedData.phone,
+        instagram: extendedData.instagram,
+        telegram: extendedData.telegram,
+        whatsapp: extendedData.whatsapp,
       };
 
-      // 🔐 Determine mode based on role
-      const mode: AppMode = mappedRole === 'super_admin' ? 'admin' : 'customer';
+      // ✅ Determine mode based on role (только чтение, не вычисление)
+      let mode: AppMode = 'customer'; // default
+      if (authUser.role === 'super_admin' || authUser.role === 'admin') {
+        mode = 'admin';
+      } else if (authUser.role === 'home_chef' || authUser.role === 'chef_staff') {
+        mode = 'chef';
+      }
 
       const newSession: Session = {
         userId: user.id,
-        role: mappedRole,
+        role: authUser.role, // ✅ Напрямую из AuthContext
         mode,
         user,
       };
 
       setSession(newSession);
-      localStorage.setItem("user", JSON.stringify(userData));
-      console.log("[SessionContext] ✅ Session created:", { mode, role: mappedRole });
+      console.log("[SessionContext] ✅ Session created from AuthContext:", { 
+        mode, 
+        role: authUser.role,
+        email: authUser.email 
+      });
       
       setProfileLoaded(true);
     } catch (error) {
-      console.error("[SessionContext] ❌ Profile fetch error:", error);
-      
-      // Fallback to localStorage cache
-      const cachedUser = localStorage.getItem("user");
-      if (cachedUser) {
-        try {
-          const userData = JSON.parse(cachedUser);
-          let mappedRole: UserRole = 'customer';
-          if (userData.role === 'superadmin' || userData.role === 'super_admin') {
-            mappedRole = 'super_admin';
-          }
-
-          const user: SessionUser = {
-            id: userData.id || userData.userId,
-            email: userData.email,
-            name: userData.name || null,
-            avatar: userData.avatar || null,
-            role: mappedRole,
-            level: userData.level,
-            xp: userData.xp,
-            chefTokens: userData.chefTokens,
-            bio: userData.bio,
-            location: userData.location,
-            phone: userData.phone,
-            instagram: userData.instagram,
-            telegram: userData.telegram,
-            whatsapp: userData.whatsapp,
-          };
-
-          const mode: AppMode = mappedRole === 'super_admin' ? 'admin' : 'customer';
-
-          setSession({
-            userId: user.id,
-            role: mappedRole,
-            mode,
-            user,
-          });
-          console.log("[SessionContext] 📦 Using cached profile");
-          setProfileLoaded(true);
-        } catch (e) {
-          console.error("[SessionContext] ❌ Failed to parse cached user");
-        }
-      }
+      console.error("[SessionContext] ❌ Session creation error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const refreshProfile = async () => {
+    // ✅ 2026: Refresh from AuthContext
+    console.log("[SessionContext] 🔄 Refreshing session from AuthContext");
     setProfileLoaded(false);
-    await fetchProfile();
+    // AuthContext will trigger useEffect which will recreate session
   };
 
   const updateProfile = async (data: Partial<SessionUser>) => {

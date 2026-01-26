@@ -39,109 +39,77 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
 
-  // 🔄 Fetch profile when authenticated
+  // ✅ 2026: Use AuthContext user data (no /api/user/profile calls)
+  // КРИТИЧНО: Обновляется КАЖДЫЙ РАЗ при изменении auth.user (для reloadMe())
   useEffect(() => {
-    if (!auth.isAuthenticated) {
+    if (!auth.isAuthenticated || !auth.user) {
       // Not authenticated - clear user
       setUser(null);
       setProfileLoaded(false);
       return;
     }
 
-    if (profileLoaded) {
-      // Already loaded - don't fetch again
-      console.log("[UserContext] ℹ️ Profile already loaded, skipping");
-      return;
+    console.log("[UserContext] 🔄 AuthContext.user changed, syncing data");
+
+    // Map AuthContext user to UserContext format
+    // AuthContext provides: id, email, role, status
+    // UserContext extends with: name, avatar, level, xp, chefTokens, etc.
+    const authUser = auth.user;
+    
+    // Try to load cached extended data from localStorage
+    const cachedUser = typeof window !== "undefined" 
+      ? localStorage.getItem("user") 
+      : null;
+    
+    let extendedData = {};
+    if (cachedUser) {
+      try {
+        extendedData = JSON.parse(cachedUser);
+      } catch (e) {
+        console.warn("[UserContext] Failed to parse cached user data");
+      }
     }
 
-    fetchProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auth.isAuthenticated]);
+    setUser({
+      id: authUser.id,
+      email: authUser.email,
+      name: (extendedData as any).name || authUser.email.split('@')[0], // Fallback to email username
+      avatar: (extendedData as any).avatar || null,
+      role: authUser.role as any, // ✅ 2026: Напрямую из AuthContext
+      level: (extendedData as any).level,
+      xp: (extendedData as any).xp,
+      chefTokens: (extendedData as any).chefTokens,
+      bio: (extendedData as any).bio,
+      location: (extendedData as any).location,
+      phone: (extendedData as any).phone,
+      instagram: (extendedData as any).instagram,
+      telegram: (extendedData as any).telegram,
+      whatsapp: (extendedData as any).whatsapp,
+    });
+
+    setProfileLoaded(true);
+    setIsLoading(false);
+    
+    console.log("[UserContext] ✅ User data synced from AuthContext:", {
+      id: authUser.id,
+      email: authUser.email,
+      role: authUser.role,
+      status: authUser.status,
+    });
+  }, [auth.user]); // ✅ Зависимость ТОЛЬКО от auth.user
 
   const fetchProfile = async () => {
-    if (!auth.token) return;
-
-    setIsLoading(true);
-    console.log("[UserContext] 📥 Fetching profile from database...");
-
-    try {
-      const response = await fetch(`/api/user/profile`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.token}`,
-        },
-      });
-
-      // ✅ Check error.code instead of HTTP status
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        
-        if (errorData.error?.code === 'UNAUTHORIZED' || errorData.error?.code === 'FORBIDDEN') {
-          console.warn("[UserContext] ⚠️ Authentication failed, logging out");
-          auth.logout();
-          return;
-        }
-        
-        throw new Error(`Profile fetch failed: ${errorData.error?.message || response.status}`);
-      }
-
-      const profileData = await response.json();
-      const userData = profileData.data || profileData;
-
-      // 🔍 DEBUG: Check user role
-      console.log("[UserContext] 🔍 User data from backend:", {
-        email: userData.email,
-        role: userData.role,
-        hasRole: !!userData.role,
-        roleType: typeof userData.role,
-      });
-
-      setUser({
-        id: userData.id || userData.userId,
-        email: userData.email,
-        name: userData.name || null,
-        avatar: userData.avatar || null,
-        role: userData.role,
-        level: userData.level,
-        xp: userData.xp,
-        chefTokens: userData.chefTokens,
-        bio: userData.bio,
-        location: userData.location,
-        phone: userData.phone,
-        instagram: userData.instagram,
-        telegram: userData.telegram,
-        whatsapp: userData.whatsapp,
-      });
-
-      // Cache in localStorage
-      localStorage.setItem("user", JSON.stringify(userData));
-      console.log("[UserContext] ✅ Profile loaded successfully with role:", userData.role || "NO ROLE");
-      
-      setProfileLoaded(true); // Mark as loaded
-    } catch (error) {
-      console.error("[UserContext] ❌ Profile fetch error:", error);
-      
-      // Fallback to localStorage cache
-      const cachedUser = localStorage.getItem("user");
-      if (cachedUser) {
-        try {
-          const userData = JSON.parse(cachedUser);
-          setUser(userData);
-          console.log("[UserContext] 📦 Using cached profile");
-          setProfileLoaded(true); // Mark as loaded even from cache
-        } catch (e) {
-          console.error("[UserContext] ❌ Failed to parse cached user");
-        }
-      }
-    } finally {
-      setIsLoading(false);
-    }
+    // 2026: No longer fetches from /api/user/profile
+    // Uses AuthContext data instead
+    console.log("[UserContext] ⚠️ fetchProfile() called but deprecated - using AuthContext data");
+    setIsLoading(false);
   };
 
   const refreshProfile = async () => {
-    setProfileLoaded(false); // Reset flag to allow re-fetch
-    await fetchProfile();
+    // 2026: Refresh from AuthContext instead of API
+    console.log("[UserContext] ⚠️ refreshProfile() called - AuthContext handles refresh automatically");
+    setProfileLoaded(false);
+    // AuthContext will trigger useEffect which will sync data
   };
 
   const updateProfile = async (data: Partial<User>) => {

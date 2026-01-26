@@ -101,11 +101,17 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  console.log("\n📋 ===== GET /api/admin/users/[id] =====");
+  
   // 🔐 Проверка админских прав
   const { user, error } = await requireAdmin(request);
-  if (error) return error;
+  if (error) {
+    console.error("❌ [GET User Details] Unauthorized");
+    return error;
+  }
 
   const { id } = await params;
+  console.log(`✅ [GET User Details] Admin: ${user!.email}, Target user: ${id}`);
 
   // Логирование действия
   logAdminAction(user!.sub || user!.email, "GET_USER_DETAILS", { 
@@ -113,24 +119,93 @@ export async function GET(
     email: user!.email 
   });
 
-  const userDetails = mockUserDetails[id];
+  try {
+    // ✅ 2026: Пробуем проксировать на backend
+    const token = request.headers.get("authorization")?.replace("Bearer ", "");
+    
+    // Сначала пробуем через /api/admin/users/:id
+    let backendUrl = `${BACKEND_URL}/api/admin/users/${id}`;
+    console.log(`📤 [GET User Details] Trying: GET ${backendUrl}`);
 
-  if (!userDetails) {
+    let backendResponse = await fetch(backendUrl, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log(`📥 [GET User Details] Backend status: ${backendResponse.status}`);
+
+    // Если 405 (Method Not Allowed), пробуем через /api/users/:id
+    if (backendResponse.status === 405) {
+      console.log("⚠️ [GET User Details] Got 405, trying /api/users/:id instead");
+      backendUrl = `${BACKEND_URL}/api/users/${id}`;
+      
+      backendResponse = await fetch(backendUrl, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      
+      console.log(`📥 [GET User Details] Second attempt status: ${backendResponse.status}`);
+    }
+
+    if (!backendResponse.ok) {
+      const errorData = await backendResponse.json().catch(() => ({}));
+      console.error("❌ [GET User Details] Backend error:", errorData);
+      
+      if (backendResponse.status === 404) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: "NOT_FOUND",
+              message: "User not found",
+            },
+          },
+          { status: 404 }
+        );
+      }
+      
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "FETCH_FAILED",
+            message: errorData.message || "Failed to fetch user details",
+          },
+        },
+        { status: backendResponse.status }
+      );
+    }
+
+    const data = await backendResponse.json();
+    console.log("✅ [GET User Details] Success:", {
+      userId: data.data?.id || data.id,
+      email: data.data?.email || data.email,
+    });
+
+    // ✅ Возвращаем данные в правильном формате
+    return NextResponse.json({
+      success: true,
+      data: data.data || data,
+    });
+  } catch (error) {
+    console.error("[GET User Details] Error:", error);
     return NextResponse.json(
       {
+        success: false,
         error: {
-          code: "NOT_FOUND",
-          message: "User not found",
+          code: "INTERNAL_ERROR",
+          message: "Failed to fetch user details",
         },
       },
-      { status: 404 }
+      { status: 500 }
     );
   }
-
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 300));
-
-  return NextResponse.json(userDetails);
 }
 
 /**

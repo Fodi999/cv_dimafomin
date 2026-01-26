@@ -1,13 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
+// ✅ 2026: Auth роли (соответствуют backend)
+export type UserRole = "customer" | "home_chef" | "chef_staff" | "admin" | "super_admin";
+export type UserStatus = "pending" | "active" | "suspended" | "blocked";
+
 export interface AdminUser {
   id: string;
   name: string;
   email: string;
   avatarUrl?: string;
-  role: "user" | "admin" | "premium";
-  status: "active" | "blocked" | "pending"; // 🔥 Обновлено: убрали inactive, добавили pending
+  role: UserRole; // ✅ 2026: Используем Auth роли
+  status: UserStatus; // ✅ 2026: Используем Auth статусы
   joinedAt: string;
   lastActiveAt: string;
   phone?: string;
@@ -20,7 +24,7 @@ export interface AdminUser {
 export interface AdminUserDetails extends AdminUser {
   locale: "uk" | "pl" | "ru" | "en";
   timezone: string;
-  stats: {
+  stats?: {  // ✅ 2026: stats опциональный, может отсутствовать у новых пользователей
     ordersCount: number;
     totalSpent: number;
     recipesCreated: number;
@@ -121,18 +125,11 @@ export function useAdminUsers() {
       const queryString = buildQueryString(filters);
       const url = `/api/admin/users?${queryString}`;
       
-      // Получаем токен из localStorage
-      const token = localStorage.getItem('token');
-      
       console.log("🔍 [useAdminUsers] Fetching:", url);
-      console.log("🔑 [useAdminUsers] Token present:", !!token);
-      
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+
+      // ✅ 2026: Використовуємо authFetch
+      const { authFetch } = await import("@/lib/api/authFetch");
+      const response = await authFetch(url);
 
       console.log("📥 [useAdminUsers] Response status:", response.status);
 
@@ -210,14 +207,10 @@ export function useAdminUserDetails(userId: string | null) {
     const fetchUserDetails = async () => {
       setIsLoading(true);
       try {
-        const token = localStorage.getItem('token');
+        // ✅ 2026: Використовуємо authFetch замість прямого fetch
+        const { authFetch } = await import("@/lib/api/authFetch");
         
-        const response = await fetch(`/api/admin/users/${userId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        const response = await authFetch(`/api/admin/users/${userId}`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch user details");
@@ -225,7 +218,7 @@ export function useAdminUserDetails(userId: string | null) {
 
         const responseData = await response.json();
         
-        // 🔥 FIX: Извлекаем данные из обертки прокси
+        // ✅ Извлекаем данные из обертки прокси
         const userData = responseData.data || responseData;
         setUser(userData);
       } catch (error) {
@@ -248,14 +241,11 @@ export function useAdminUserActions() {
     newRole: AdminUser["role"],
   ): Promise<boolean> => {
     try {
-      const token = localStorage.getItem('token');
+      // ✅ 2026: Використовуємо authFetch
+      const { authFetch } = await import("@/lib/api/authFetch");
       
-      const response = await fetch(`/api/admin/users/${userId}/role`, {
+      const response = await authFetch(`/api/admin/users/${userId}/role`, {
         method: "PATCH",
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({ role: newRole }),
       });
 
@@ -281,14 +271,11 @@ export function useAdminUserActions() {
     reason?: string,
   ): Promise<boolean> => {
     try {
-      const token = localStorage.getItem('token');
+      // ✅ 2026: Використовуємо authFetch
+      const { authFetch } = await import("@/lib/api/authFetch");
       
-      const response = await fetch(`/api/admin/users/${userId}/status`, {
+      const response = await authFetch(`/api/admin/users/${userId}/status`, {
         method: "PATCH",
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({ status: newStatus, reason }),
       });
 
@@ -297,10 +284,11 @@ export function useAdminUserActions() {
         throw new Error(error.error?.message || "Failed to change status");
       }
 
-      const statusText = {
+      const statusText: Record<UserStatus, string> = {
         active: "активовано",
         blocked: "заблоковано",
         pending: "переведено в очікування",
+        suspended: "призупинено",
       };
       toast.success(`Користувача ${statusText[newStatus]}`);
       return true;
@@ -322,21 +310,13 @@ export function useAdminUserActions() {
 export function useAdminDeleteUser() {
   const deleteUser = async (userId: string): Promise<boolean> => {
     try {
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        toast.error("Токен не знайдено");
-        return false;
-      }
-
       console.log(`🗑️ [Delete User] Attempting to delete user: ${userId}`);
 
-      const response = await fetch(`/api/admin/users/${userId}`, {
+      // ✅ 2026: Використовуємо authFetch
+      const { authFetch } = await import("@/lib/api/authFetch");
+      
+      const response = await authFetch(`/api/admin/users/${userId}`, {
         method: "DELETE",
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
       });
 
       console.log(`📥 [Delete User] Response status: ${response.status}`);
@@ -379,14 +359,10 @@ export function useAdminUsersStats() {
     try {
       console.log("🔍 [useAdminUsersStats] Fetching stats...");
       
-      const token = localStorage.getItem('token');
+      // ✅ 2026: Використовуємо authFetch
+      const { authFetch } = await import("@/lib/api/authFetch");
       
-      const response = await fetch("/api/admin/users/stats", {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await authFetch("/api/admin/users/stats");
 
       console.log("📥 [useAdminUsersStats] Response status:", response.status);
 

@@ -4,14 +4,20 @@ import { motion } from "framer-motion";
 import { User, Mail, Edit2, Settings } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CustomerProfileHeaderProps {
   name: string;
   email: string;
   avatar?: string;
+  role?: string; // ✅ 2026: Роль пользователя
+  status?: string; // ✅ 2026: Статус пользователя
+  roleConfig?: { label: string; variant: any; icon: any }; // ✅ Конфигурация роли
+  statusConfig?: { label: string; className: string; icon: any }; // ✅ Конфигурация статуса
   onEdit?: () => void;
   onSettings?: () => void;
+  onRefresh?: () => void; // ✅ 2026: Обновление данных
 }
 
 /**
@@ -23,8 +29,13 @@ export function CustomerProfileHeader({
   name,
   email,
   avatar,
+  role,
+  status,
+  roleConfig,
+  statusConfig,
   onEdit,
   onSettings,
+  onRefresh,
 }: CustomerProfileHeaderProps) {
   const { t } = useLanguage();
   const [imageError, setImageError] = useState(false);
@@ -64,15 +75,38 @@ export function CustomerProfileHeader({
             )}
           </div>
 
-          {/* Name + Email */}
+          {/* Name + Email + Role + Status */}
           <div className="flex-1 min-w-0 pt-1 sm:pt-2">
             <h1 className="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1 truncate">
               {name}
             </h1>
-            <div className="flex items-center gap-1.5 sm:gap-2 text-gray-300">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-gray-300 mb-2">
               <Mail className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-pink-400 flex-shrink-0" />
               <span className="text-[10px] sm:text-xs truncate">{email}</span>
             </div>
+            
+            {/* ✅ 2026: Роль и статус под email */}
+            {roleConfig && statusConfig && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge variant={roleConfig.variant} className="flex items-center gap-1 text-[10px] sm:text-xs h-5 sm:h-6">
+                  <roleConfig.icon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                  <span>{roleConfig.label}</span>
+                </Badge>
+                <Badge className={`${statusConfig.className} flex items-center gap-1 text-[10px] sm:text-xs h-5 sm:h-6`}>
+                  <statusConfig.icon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                  <span>{statusConfig.label}</span>
+                </Badge>
+                {onRefresh && (
+                  <button
+                    onClick={onRefresh}
+                    className="text-white/70 hover:text-white transition-colors text-xs"
+                    title="Оновити дані"
+                  >
+                    🔄
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Edit Button */}

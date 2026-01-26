@@ -3,9 +3,11 @@
  * 
  * Fetches ingredient categories from backend with localization support.
  * Categories are reference data managed in database, not hardcoded.
+ * 
+ * ✅ 2026: Использует publicFetch для публичных endpoint'ов
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://yeasty-madelaine-fodi999-671ccdf5.koyeb.app';
+import { publicFetch } from "./publicFetch";
 
 export interface Category {
   key: string;        // Stable identifier (fish, meat, dairy)
@@ -24,54 +26,43 @@ interface CategoryApiResponse {
 /**
  * Fetch ingredient categories from backend
  * 
+ * ✅ 2026: Использует publicFetch (публичный endpoint, не требует токен)
+ * 
  * @param language - Language code (pl, en, ru)
- * @param token - JWT Bearer token
  * @returns Array of categories sorted by sortOrder
  * 
  * @example
- * const categories = await fetchCategories('pl', token);
+ * const categories = await fetchCategories('pl');
  * // [
  * //   {key: "all", label: "Wszystkie", icon: "🧊", sortOrder: 0},
  * //   {key: "fish", label: "Ryby", icon: "🐟", sortOrder: 1},
  * //   ...
  * // ]
  */
-export async function fetchCategories(language: string, token?: string | null): Promise<Category[]> {
+export async function fetchCategories(language: string): Promise<Category[]> {
   try {
-    // Build headers - only include Authorization if token exists
-    const headers: HeadersInit = {
-      'Accept-Language': language, // pl, en, ru
-      'Content-Type': 'application/json',
-    };
-    
-    // Only add Authorization header if token is provided
-    if (token && token.trim()) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
+    // ✅ 2026: Backend исправлен - /api/catalog/ingredient-categories теперь публичный
+    const url = `/api/catalog/ingredient-categories`;
 
-    const response = await fetch(`${API_BASE_URL}/api/catalog/ingredient-categories`, {
+    const response = await publicFetch(url, {
       method: 'GET',
-      headers,
-      cache: 'no-store', // Always fetch fresh data
+      headers: {
+        'Accept-Language': language,
+      },
     });
 
     if (!response.ok) {
-      // If 401 and no token, use fallback immediately (expected behavior)
-      if (response.status === 401 && !token) {
-        console.warn('[categoryApi] 401 without token - using fallback categories');
-        return getFallbackCategories(language);
-      }
-      throw new Error(`Failed to fetch categories: ${response.status} ${response.statusText}`);
+      console.warn(`[categoryApi] Failed with ${response.status} - using fallback categories`);
+      return getFallbackCategories(language);
     }
 
     const result: CategoryApiResponse = await response.json();
     
-    // ✅ Backend возвращает {success: true, data: {categories: [...]}}
     if (!result.success || !result.data?.categories) {
       throw new Error('Invalid response format from categories API');
     }
     
-    // Backend already sorts by sortOrder, but we ensure it client-side too
+    console.log(`[categoryApi] ✅ Loaded ${result.data.categories.length} categories from backend`);
     return result.data.categories.sort((a, b) => a.sortOrder - b.sortOrder);
   } catch (error) {
     console.error('[categoryApi] Failed to fetch categories:', error);

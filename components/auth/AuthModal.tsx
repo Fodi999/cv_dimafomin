@@ -18,7 +18,7 @@ interface AuthModalProps {
 
 export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "login" }: AuthModalProps) {
   const { t } = useLanguage();
-  const { login, register } = useAuth();
+  const { signIn, signUp } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"login" | "register">(initialTab);
   const [showPassword, setShowPassword] = useState(false);
@@ -60,12 +60,12 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
     setError(null);
 
     try {
-      const redirectUrl = await login(loginForm.email, loginForm.password);
+      const redirectUrl = await signIn(loginForm.email, loginForm.password);
       console.log("[AuthModal] ✅ Login successful, redirectUrl:", redirectUrl);
       
       onClose();
       
-      // 🔧 FIX: Используем callback или URL из login()
+      // 🔧 FIX: Используем callback или URL из signIn()
       if (onSuccess) {
         console.log("[AuthModal] 🔄 Calling onSuccess callback");
         onSuccess();
@@ -118,12 +118,23 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialTab = "lo
     setIsLoading(true);
 
     try {
-      const redirectUrl = await register(registerForm.name, registerForm.email, registerForm.password);
+      const redirectUrl = await signUp(registerForm.email, registerForm.password, registerForm.name);
       console.log("[AuthModal] ✅ Registration successful, redirectUrl:", redirectUrl);
       
       onClose();
       
-      // 🔧 FIX: Используем callback или URL из register()
+      // Scenario A: Email verification required (redirectUrl is null)
+      if (redirectUrl === null) {
+        setError("Реєстрація успішна! Перевірте email для підтвердження.");
+        // Optionally redirect to login after showing message
+        setTimeout(() => {
+          setActiveTab("login");
+          setError(null);
+        }, 3000);
+        return;
+      }
+      
+      // Scenario B: Auto-login after registration (redirectUrl is provided)
       if (onSuccess) {
         console.log("[AuthModal] 🔄 Calling onSuccess callback");
         onSuccess();
