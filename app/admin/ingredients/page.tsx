@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Package, Loader2, AlertCircle, CheckCircle2, Plus } from "lucide-react";
+import { Refrigerator, Loader2, AlertCircle, CheckCircle2, Plus } from "lucide-react";
 import { useSession } from "@/contexts/SessionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -16,24 +16,19 @@ import QuantitySheet from "@/components/fridge/QuantitySheet";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import type { FridgeItem, AddFridgeItemData, FridgeItemsResponse } from "@/lib/types";
 import { ACTIVE_STATUSES } from "@/lib/types";
-import { syncWarehouseToLosses } from "@/lib/utils/warehouse-sync";
 
 /**
  * 🔐 ADMIN INGREDIENTS - ChefOS Architecture 2026
  * 
- * Склад (Warehouse) - управление складскими запасами
- * Управление ингредиентами на складе: количество, цены, сроки годности
+ * Бывший Fridge → теперь Warehouse (Склад)
+ * Управление ингредиентами для бизнеса
  */
+
 export default function AdminIngredientsPage() {
   const { session } = useSession();
   const { openAuthModal } = useAuth();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const { triggerRefetch } = useNotificationRefetch();
-
-  useEffect(() => {
-    console.log('[AdminIngredientsPage] 📦 Page loaded: /admin/ingredients');
-    console.log('[AdminIngredientsPage] ✅ Rendering FridgeList (Warehouse)');
-  }, []);
   const [items, setItems] = useState<FridgeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,25 +39,9 @@ export default function AdminIngredientsPage() {
   const [isQuantitySheetOpen, setIsQuantitySheetOpen] = useState(false);
   const [quantitySheetItem, setQuantitySheetItem] = useState<FridgeItem | null>(null);
 
-  // 🔥 ФРОНТЕНД-СИНХРОНИЗАЦИЯ: Фильтруем EXPIRED продукты
-  // EXPIRED продукты автоматически переносятся в списания
-  const navLanguage = language === "ru" ? "ru" : language === "pl" ? "pl" : "en";
-  const { activeWarehouseItems, expiredLosses } = syncWarehouseToLosses(items, navLanguage);
-  const activeItems = activeWarehouseItems;
-  
-  // Логируем синхронизацию для отладки
-  if (expiredLosses.length > 0) {
-    console.log(`[AdminIngredients] 🔄 ${expiredLosses.length} EXPIRED items synced to Losses:`, expiredLosses.map(l => l.productName));
-  }
+  const activeItems = items.filter((i) => ACTIVE_STATUSES.includes(i.status));
 
   useEffect(() => {
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('[AdminIngredientsPage] 📦 PAGE: Warehouse (Fridge)');
-    console.log('[AdminIngredientsPage] 🔗 Pathname: /admin/ingredients');
-    console.log('[AdminIngredientsPage] ✅ Rendering FridgeList (Warehouse)');
-    console.log('[AdminIngredientsPage] 🎯 This is NOT the Products Catalog!');
-    console.log('═══════════════════════════════════════════════════════');
-    
     if (!session) return;
     loadFridgeItems();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -189,12 +168,11 @@ export default function AdminIngredientsPage() {
       {/* 🎨 Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
-            <Package className="h-7 w-7 text-blue-600 dark:text-blue-400" />
-            Склад (Холодильник)
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
+            Warehouse Ingredients
           </h1>
           <p className="text-slate-600 dark:text-slate-400">
-            РЕАЛЬНАЯ ЖИЗНЬ — Управление складскими запасами: количество, цены, сроки годности
+            Manage your stock for recipes and products
           </p>
         </div>
       </div>
@@ -231,7 +209,7 @@ export default function AdminIngredientsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+          <Loader2 className="w-8 h-8 text-sky-500 animate-spin" />
         </div>
       ) : (
         <>
@@ -245,17 +223,17 @@ export default function AdminIngredientsPage() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-medium rounded-lg shadow-lg flex items-center justify-center gap-2 transition-all"
+                  className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white font-medium rounded-lg shadow-lg flex items-center justify-center gap-2 transition-all"
                 >
                   <Plus className="w-5 h-5" />
-                  {t?.fridge?.actions?.addProduct || "Добавить на склад"}
+                  {t?.fridge?.actions?.addProduct || "Add Ingredient"}
                 </motion.button>
               </SheetTrigger>
               <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto p-0">
                 <SheetHeader className="px-6 pt-6 pb-4">
-                  <SheetTitle>{t?.fridge?.form?.addToFridgeTitle || "Добавить на склад"}</SheetTitle>
+                  <SheetTitle>{t?.fridge?.form?.addToFridgeTitle || "Add ingredient to warehouse"}</SheetTitle>
                   <SheetDescription>
-                    {t?.fridge?.form?.addToFridgeDesc || "Найти продукт и указать количество."}
+                    {t?.fridge?.form?.addToFridgeDesc || "Search for a product and enter quantity."}
                   </SheetDescription>
                 </SheetHeader>
                 <div className="px-6 pb-6">
@@ -277,9 +255,9 @@ export default function AdminIngredientsPage() {
           <Sheet open={isPriceSheetOpen} onOpenChange={setIsPriceSheetOpen}>
             <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto p-0">
               <SheetHeader className="px-6 pt-6 pb-4">
-                <SheetTitle>{t?.fridge?.form?.updatePriceTitle || "Обновить цену"}</SheetTitle>
+                <SheetTitle>{t?.fridge?.form?.updatePriceTitle || "Update price"}</SheetTitle>
                 <SheetDescription>
-                  {t?.fridge?.form?.updatePriceDesc || "Указать цену за единицу."}
+                  {t?.fridge?.form?.updatePriceDesc || "Enter price per unit."}
                 </SheetDescription>
               </SheetHeader>
               <div className="px-6 pb-6">
@@ -294,9 +272,9 @@ export default function AdminIngredientsPage() {
           <Sheet open={isQuantitySheetOpen} onOpenChange={setIsQuantitySheetOpen}>
             <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto p-0">
               <SheetHeader className="px-6 pt-6 pb-4">
-                <SheetTitle>{t?.fridge?.form?.updateQuantityTitle || "Обновить количество"}</SheetTitle>
+                <SheetTitle>{t?.fridge?.form?.updateQuantityTitle || "Update quantity"}</SheetTitle>
                 <SheetDescription>
-                  {t?.fridge?.form?.updateQuantityDesc || "Изменить количество ингредиента."}
+                  {t?.fridge?.form?.updateQuantityDesc || "Change ingredient quantity."}
                 </SheetDescription>
               </SheetHeader>
               <div className="px-6 pb-6">
@@ -307,21 +285,18 @@ export default function AdminIngredientsPage() {
             </SheetContent>
           </Sheet>
           
-          {/* 💡 Hint - Информация о синхронизации */}
+          {/* 💡 Hint */}
           {activeItems.length > 0 && (
             <motion.div 
               initial={{ opacity: 0, y: 20 }} 
               animate={{ opacity: 1, y: 0 }} 
               transition={{ delay: 0.3 }} 
-              className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-lg flex gap-3"
+              className="mt-8 p-4 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/30 rounded-lg flex gap-3"
             >
-              <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-sky-600 dark:text-sky-400 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
-                  Автоматическая синхронизация со списаниями
-                </p>
-                <p className="text-sm text-blue-800 dark:text-blue-200">
-                  Продукты с коротким сроком годности (≤2 дня) отмечены жёлтым badge. При истечении срока они автоматически переносятся в раздел "Списания". AI предложит рецепты для использования продуктов до истечения срока.
+                <p className="text-sm text-sky-900 dark:text-sky-100">
+                  {t?.fridge?.warnings?.hint || "Track your ingredient expiry dates and costs for better business management."}
                 </p>
               </div>
             </motion.div>

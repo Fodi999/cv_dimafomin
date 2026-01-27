@@ -82,9 +82,8 @@ export default function UserNavigation() {
   }, [isOpen]);
 
   // 📍 Меню пользователя (новая архитектура 2026)
-  // Структура: Shopping → Profile → System Actions
   const navLinks: NavLink[] = [
-    // ===== 🛒 SHOPPING (Блок 1) =====
+    // ===== MARKETPLACE =====
     {
       label: t?.navigation?.menu?.marketplace?.label || "Marketplace",
       href: "/marketplace",
@@ -101,12 +100,12 @@ export default function UserNavigation() {
       category: t?.navigation?.categories?.shopping || "Shopping",
     },
 
-    // ===== 👤 МОЙ ПРОФИЛЬ (Блок 2) =====
+    // ===== ПРОФІЛЬ =====
     {
-      label: t?.navigation?.menu?.profile?.label || "Мой профиль",
+      label: t?.navigation?.menu?.profile?.label || "My Profile",
       href: "/profile",
       icon: <UserIcon className="w-5 h-5" />,
-      description: t?.navigation?.menu?.profile?.description || "Dashboard and account overview",
+      description: t?.navigation?.menu?.profile?.description || "Settings and account",
       category: t?.navigation?.categories?.profile || "Profile",
       categoryLabel: `👤 ${t?.navigation?.menu?.profile?.label || "Profile"}`,
     },

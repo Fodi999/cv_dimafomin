@@ -217,7 +217,7 @@ export function RecipesTab() {
                 </span>
               </CardTitle>
               <CardDescription className="text-sm mt-1.5">
-                Основа приготовления. Используется для расчёта себестоимости и списаний. ({meta?.total || 0})
+                {t.admin.catalog.recipes.pageDescription || 'Керуйте каталогом рецептів'} ({meta?.total || 0})
               </CardDescription>
             </div>
             <Link href="/admin/catalog/recipes/new" className="w-full sm:w-auto">

@@ -14,7 +14,9 @@ import { NotificationRefetchProvider } from "@/contexts/NotificationRefetchConte
 import { CategoryProvider } from "@/contexts/CategoryContext";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import PWARegister from "@/components/PWARegister";
+import AuthGate from "@/components/auth/AuthGate";
 import GlobalAuthModal from "@/components/auth/GlobalAuthModal";
+import TokenValidator from "@/components/auth/TokenValidator";
 import ReloginNotification from "@/components/auth/ReloginNotification";
 import { Toaster } from "@/components/ui/sonner";
 import { I18nDevWarning } from "@/components/dev/I18nDevWarning";
@@ -58,9 +60,6 @@ export const metadata: Metadata = {
   },
 };
 
-/**
- * Viewport Configuration - Next.js 14+ requires separate export
- */
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -146,14 +145,20 @@ export default async function RootLayout({
                         {/* ✅ RecipeProvider moved to specific route layouts */}
                         <NotificationProvider>
                           <NotificationRefetchProvider>
+                        <TokenValidator />
                         <ReloginNotification /> {/* 🆕 Notification for users with old tokens */}
                         <GlobalAuthModal /> {/* 🆕 Global auth modal for all pages */}
-                        {/* ✅ 2026: Auth protection через RequireAuth в layouts */}
-                        {/* ❌ TokenValidator удален - конфликтовал с AuthContext */}
-                        {/* ❌ AuthGate удален - заменен на RequireAuth */}
-                        <div className="min-h-screen">
-                          {children}
-                        </div>
+                        <AuthGate>
+                          {/* ❌ NavigationBurger видалено з root layout */}
+                          {/* ✅ Кожен контекст має свою навігацію:
+                              - Public: мінімальний хедер на app/page.tsx
+                              - User: UserNavigation в app/(user)/layout.tsx
+                              - Admin: AdminNavigation в app/admin/layout.tsx
+                          */}
+                          <div className="min-h-screen">
+                            {children}
+                          </div>
+                        </AuthGate>
                         {/* Global Toaster for toast notifications */}
                         <Toaster 
                           richColors 

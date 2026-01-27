@@ -40,6 +40,7 @@ import {
   TrendingDown,
   Bot,
   BookOpen,
+  Plus,
   type LucideIcon,
 } from "lucide-react";
 
@@ -143,6 +144,18 @@ export const adminNavigationSchema: NavigationSection[] = [
         icon: Package,
         href: "/admin/ingredients",
         level: "primary",
+      },
+      {
+        id: "create-dish",
+        label: {
+          en: "Create Dish",
+          ru: "Создать блюдо",
+          pl: "Stwórz danie",
+        },
+        icon: Plus,
+        href: "/admin/dishes/new",
+        level: "primary",
+        accent: "success",
       },
     ],
   },

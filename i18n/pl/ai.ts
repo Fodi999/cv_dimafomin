@@ -96,6 +96,19 @@ export const aiMessages: Record<string, AIMessageGenerator> = {
     dismissible: true,
   }),
 
+  // 🔄 No More Recipes Available
+  NO_MORE_RECIPES: (ctx = {}) => ({
+    title: 'To już wszystkie przepisy',
+    description: 'Przejrzałeś wszystkie dostępne przepisy dla Twojej lodówki. Możesz dodać więcej produktów, aby odblokować nowe możliwości!',
+    level: 'info',
+    actions: [
+      { id: 'ADD_PRODUCTS', label: 'Dodaj produkty', variant: 'primary', icon: 'Plus' },
+      { id: 'VIEW_FRIDGE', label: 'Zobacz lodówkę', variant: 'secondary', icon: 'Refrigerator' },
+      { id: 'VIEW_CATALOG', label: 'Przeglądaj katalog', variant: 'ghost', icon: 'Search' },
+    ],
+    dismissible: true,
+  }),
+
   // 🧊 Empty Fridge
   EMPTY_FRIDGE: (ctx = {}) => {
     const recipeCount = ctx.totalRecipes || 0;

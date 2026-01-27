@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { CreateRecipeWithAI } from "@/components/admin/recipes/CreateRecipeWithAI";
+import { CreateRecipeWithAI } from "@/components/admin/catalog/recipes/CreateRecipeWithAI";
 
 export const metadata: Metadata = {
   title: "Create Recipe | Admin",
